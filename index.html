@@ -261,12 +261,14 @@
         .charm-tile.r-uncommon { border-color: #4ade80; }
         .charm-tile.r-rare { border-color: #a5f3fc; }
         .charm-tile.r-epic { border-color: #d8b4fe; }
-        .charm-tile.r-legendary { border-color: #fbbf24; }
-        .charm-tile.r-mythic { border-color: #fb7185; animation: spoonLegendPulse 2s infinite alternate; }
+        .charm-tile.r-legendary { border-color: #fbbf24; box-shadow: 0 0 10px rgba(251,191,36,0.35); }
+        .charm-tile.r-superleg { border-color: #fb7185; box-shadow: 0 0 16px rgba(251,113,133,0.55); animation: charmHolo 2.4s linear infinite; }
+        @keyframes charmHolo { 0%{border-color:#fb7185;box-shadow:0 0 16px rgba(251,113,133,0.55);} 25%{border-color:#fbbf24;box-shadow:0 0 18px rgba(251,191,36,0.6);} 50%{border-color:#34d399;box-shadow:0 0 18px rgba(52,211,153,0.6);} 75%{border-color:#60a5fa;box-shadow:0 0 18px rgba(96,165,250,0.6);} 100%{border-color:#fb7185;box-shadow:0 0 16px rgba(251,113,133,0.55);} }
         .charm-img { width: 100%; max-width: 84px; aspect-ratio: 1/1; image-rendering: auto; border-radius: 8px; background: rgba(0,0,0,0.25); }
         .charm-rar { font-size: 0.58rem; font-weight: bold; text-transform: uppercase; letter-spacing: 0.4px; }
         .charm-rar.r-common { color: #94a3b8; } .charm-rar.r-uncommon { color: #4ade80; } .charm-rar.r-rare { color: #a5f3fc; }
-        .charm-rar.r-epic { color: #d8b4fe; } .charm-rar.r-legendary { color: #fbbf24; } .charm-rar.r-mythic { color: #fb7185; }
+        .charm-rar.r-epic { color: #d8b4fe; } .charm-rar.r-legendary { color: #fbbf24; } .charm-rar.r-superleg { color: #fb7185; }
+        .charm-name { font-size: 0.6rem; color: #cbd5e1; text-align: center; line-height: 1.1; }
         .charm-dup { position: absolute; top: -6px; right: -6px; background: #2e1065; border: 1px solid var(--go); border-radius: 8px; padding: 0 5px; font-size: 0.62rem; font-weight: bold; color: var(--go); }
         #reward-fab .charm-fab-img { width: 26px; height: 26px; vertical-align: middle; border-radius: 5px; }
         #collection-fab .charm-fab-img { width: 22px; height: 22px; vertical-align: middle; border-radius: 5px; margin-left: 4px; }
@@ -388,6 +390,7 @@
         <div id="ach-modal-list"></div>
         <button class="gx-btn" style="margin-top:10px" onclick="achievementsUI.close()" data-i18n="close">Close</button>
     </div></div>
+    <script src="assets/skins/catalog.js"></script>
     <script>
         let LANG = 'en';
         const I18N = {
@@ -429,15 +432,16 @@
                 settings_fullscreen:"Fullscreen", fs_enter:"⛶ Enter", fs_exit:"⛶ Exit",
                 pause_btn:"☰ Menu", pause_title:"Paused", pause_resume:"▶ Resume", pause_settings:"⚙ Settings", pause_home:"🏠 Main Menu", pause_exit:"🚪 Exit", pause_back:"← Back",
                 collection_btn:"🎴 Charms", collection_title:"Charm Collection",
-                coll_empty:"No charms yet. Keep cooking — charms drop as you play!", coll_owned:"Collected {n}/{total} kinds", coll_total_label:"Total charms: {n}",
+                coll_empty:"No charms yet. Keep cooking — charms drop as you play!", coll_owned:"Collected {n} kinds", coll_total_label:"Total charms: {n}",
                 coll_equip:"Equip", coll_equipped:"Equipped", coll_unequip:"Unequip",
                 coll_next_drop:"Next charm in {time}", coll_daily_left:"{n}/{max} drops today", coll_daily_done:"Daily drops complete · resets tomorrow",
                 coll_drop_toast:"🎴 New charm! {rarity}", coll_dup_toast:"🎴 Duplicate charm ({rarity})", coll_item_name:"Charm #{id}",
-                r_common:"Common", r_uncommon:"Uncommon", r_rare:"Rare", r_epic:"Epic", r_legendary:"Legendary", r_mythic:"Mythic",
+                coll_fam_helper:"Helper", coll_fam_spoon:"Spoon", coll_fam_chefhat:"Chef Hat", coll_unknown:"Unknown skin",
+                r_common:"Common", r_uncommon:"Uncommon", r_rare:"Rare", r_epic:"Epic", r_legendary:"Legendary", r_superleg:"Super Legendary",
                 achievements_btn:"🏆 Achievements", ach_progress:"{cur}/{goal}",
                 ach_firstClick_n:"First Stir", ach_firstClick_d:"Stir the soup for the first time",
                 ach_collector_n:"Charm Collector", ach_collector_d:"Own 8 different charms",
-                ach_mythicCharm_n:"Mythic Fortune", ach_mythicCharm_d:"Find a Legendary or Mythic charm",
+                ach_mythicCharm_n:"Legendary Fortune", ach_mythicCharm_d:"Find a Legendary or Super Legendary charm",
                 ach_awakened5_n:"Fivefold Soul", ach_awakened5_d:"Reach Angel Awakening Lv.5"
             },
             es: {
@@ -478,15 +482,16 @@
                 settings_fullscreen:"Pantalla completa", fs_enter:"⛶ Activar", fs_exit:"⛶ Salir",
                 pause_btn:"☰ Menú", pause_title:"Pausa", pause_resume:"▶ Reanudar", pause_settings:"⚙ Ajustes", pause_home:"🏠 Menú principal", pause_exit:"🚪 Salir", pause_back:"← Volver",
                 collection_btn:"🎴 Amuletos", collection_title:"Colección de Amuletos",
-                coll_empty:"Aún no tienes amuletos. ¡Sigue cocinando — los amuletos caen mientras juegas!", coll_owned:"Coleccionados {n}/{total} tipos", coll_total_label:"Amuletos totales: {n}",
+                coll_empty:"Aún no tienes amuletos. ¡Sigue cocinando — los amuletos caen mientras juegas!", coll_owned:"Coleccionados {n} tipos", coll_total_label:"Amuletos totales: {n}",
                 coll_equip:"Equipar", coll_equipped:"Equipado", coll_unequip:"Quitar",
                 coll_next_drop:"Próximo amuleto en {time}", coll_daily_left:"{n}/{max} drops hoy", coll_daily_done:"Drops diarios completos · se reinician mañana",
                 coll_drop_toast:"🎴 ¡Nuevo amuleto! {rarity}", coll_dup_toast:"🎴 Amuleto repetido ({rarity})", coll_item_name:"Amuleto #{id}",
-                r_common:"Común", r_uncommon:"Poco común", r_rare:"Raro", r_epic:"Épico", r_legendary:"Legendario", r_mythic:"Mítico",
+                coll_fam_helper:"Ayudante", coll_fam_spoon:"Cuchara", coll_fam_chefhat:"Gorro de Chef", coll_unknown:"Skin desconocida",
+                r_common:"Común", r_uncommon:"Poco común", r_rare:"Raro", r_epic:"Épico", r_legendary:"Legendario", r_superleg:"Súper Legendario",
                 achievements_btn:"🏆 Logros", ach_progress:"{cur}/{goal}",
                 ach_firstClick_n:"Primer Removido", ach_firstClick_d:"Remueve la sopa por primera vez",
                 ach_collector_n:"Coleccionista de Amuletos", ach_collector_d:"Posee 8 amuletos distintos",
-                ach_mythicCharm_n:"Fortuna Mítica", ach_mythicCharm_d:"Consigue un amuleto Legendario o Mítico",
+                ach_mythicCharm_n:"Fortuna Legendaria", ach_mythicCharm_d:"Consigue un amuleto Legendario o Súper Legendario",
                 ach_awakened5_n:"Alma Quíntuple", ach_awakened5_d:"Alcanza Despertar del Ángel Nv.5"
             }
         };
@@ -573,7 +578,7 @@
         // === Versionado del esquema de guardado ===
         // Sube este número cada vez que cambie la forma del save. Cada incremento debe
         // tener su paso de migración en SAVE_MIGRATIONS (clave = versión de ORIGEN).
-        const SCHEMA_VERSION = 19;
+        const SCHEMA_VERSION = 21;
         const SAVE_MIGRATIONS = {
             // v16 -> v17: el campo `as` (Angel Shards acumulados) pasó a guardarse aparte de `s`.
             16: (s) => {
@@ -594,10 +599,31 @@
                 if (!s.coll || typeof s.coll !== 'object') s.coll = null;
                 s.v = 19;
                 return s;
+            },
+            // v19 -> v20: la colección cambió de "insignias abstractas" a familias reales
+            // (ayudantes/cucharas/gorro de chef). El formato antiguo de items es incompatible,
+            // así que se vacía el inventario conservando contadores de drops del día.
+            19: (s) => {
+                if (s.coll && typeof s.coll === 'object') {
+                    s.coll.items = {};
+                    s.coll.equipped = null;
+                }
+                s.v = 20;
+                return s;
+            },
+            // v20 -> v21: las skins pasan a ser ARTE (PNG) dirigido por catálogo; el item guarda
+            // el `id` de la skin, no un seed de formas. Se vacía el inventario antiguo (seeds).
+            20: (s) => {
+                if (s.coll && typeof s.coll === 'object') {
+                    s.coll.items = {};
+                    s.coll.equipped = null;
+                }
+                s.v = 21;
+                return s;
             }
-            // FUTURO: para añadir v19 -> v20 solo añade aquí:
-            //   19: (s) => { /* transforma s */ s.v = 20; return s; },
-            // y sube SCHEMA_VERSION a 20. No borres pasos antiguos.
+            // FUTURO: para añadir v21 -> v22 solo añade aquí:
+            //   21: (s) => { /* transforma s */ s.v = 22; return s; },
+            // y sube SCHEMA_VERSION a 22. No borres pasos antiguos.
         };
         // Transforma un save antiguo al esquema actual de forma incremental. Nunca lanza:
         // si algo falla, devuelve los datos originales sin tocar (no se pierde nada).
@@ -2112,18 +2138,17 @@
         const collection = {
             RARITIES: [
                 { k: 'common', weight: 50 }, { k: 'uncommon', weight: 25 }, { k: 'rare', weight: 14 },
-                { k: 'epic', weight: 7 }, { k: 'legendary', weight: 3 }, { k: 'mythic', weight: 1 }
+                { k: 'epic', weight: 7 }, { k: 'legendary', weight: 3 }, { k: 'superleg', weight: 1 }
             ],
-            rarRank: { common: 0, uncommon: 1, rare: 2, epic: 3, legendary: 4, mythic: 5 },
-            LAYERS: {
-                shape: ['circle', 'diamond', 'shield', 'hexagon'],
-                material: ['bronze', 'silver', 'gold', 'jade', 'ruby', 'obsidian'],
-                pattern: ['plain', 'rays', 'dots', 'swirl'],
-                emblem: ['spoon', 'skull', 'star', 'drop', 'bone']
-            },
+            rarRank: { common: 0, uncommon: 1, rare: 2, epic: 3, legendary: 4, superleg: 5 },
+            RAR_GLOW: { common: '#94a3b8', uncommon: '#4ade80', rare: '#a5f3fc', epic: '#d8b4fe', legendary: '#fbbf24', superleg: '#fb7185' },
             DROP_INTERVAL: 600, DAILY_CAP: 12,
-            _cache: {},
-            totalKinds() { const L = this.LAYERS; return L.shape.length * L.material.length * L.pattern.length * L.emblem.length; },
+            _cache: {}, _imgs: {},
+            catalog() { const c = (window.SKIN_CATALOG || []); return Array.isArray(c) ? c : []; },
+            skinById(id) { const cat = this.catalog(); for (let i = 0; i < cat.length; i++) { if (cat[i] && cat[i].id === id) return cat[i]; } return null; },
+            skinsOfRarity(rar) { return this.catalog().filter(s => s && s.id && s.rarity === rar); },
+            preload() { const self = this; try { setTimeout(function () { const cat = self.catalog(); for (let i = 0; i < cat.length; i++) { if (cat[i] && cat[i].img) self.img(cat[i].img); } }, 1500); } catch (e) {} },
+            itemKey(it) { return String(it.id); },
             normalize() {
                 let c = game.coll;
                 if (!c || typeof c !== 'object') c = {};
@@ -2132,13 +2157,14 @@
                 for (const key in c.items) {
                     const it = c.items[key];
                     if (!it || typeof it !== 'object') continue;
-                    const seed = Math.floor(Number(it.seed));
-                    if (!Number.isFinite(seed) || seed < 0) continue;
-                    const rarity = (this.rarRank[it.rarity] != null) ? it.rarity : 'common';
+                    const id = (typeof it.id === 'string' && it.id) ? it.id : null;
+                    if (!id) continue;
+                    const sk = this.skinById(id);
+                    const rarity = (sk && this.rarRank[sk.rarity] != null) ? sk.rarity : ((this.rarRank[it.rarity] != null) ? it.rarity : 'common');
                     let count = Math.floor(Number(it.count));
                     if (!Number.isFinite(count) || count < 1) count = 1;
                     if (count > 999999) count = 999999;
-                    clean[key] = { seed: seed >>> 0, rarity, count };
+                    clean[id] = { id, rarity, count };
                 }
                 c.items = clean;
                 c.acc = (Number.isFinite(c.acc) && c.acc >= 0) ? Math.min(c.acc, this.DROP_INTERVAL * 2) : 0;
@@ -2152,14 +2178,6 @@
             ensureDay() { const c = this.normalize(); const today = this.dayKey(); if (c.day !== today) { c.day = today; c.today = 0; } return c; },
             distinctCount() { const c = game.coll; return (c && c.items) ? Object.keys(c.items).length : 0; },
             totalCount() { const c = game.coll; if (!c || !c.items) return 0; let n = 0; for (const k in c.items) n += c.items[k].count; return n; },
-            // PRNG determinista (mulberry32) para reproducir apariencia desde el seed.
-            rngFrom(seed) { let a = seed >>> 0; return function () { a |= 0; a = (a + 0x6D2B79F5) | 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; },
-            layersFor(seed) {
-                const r = this.rngFrom(seed);
-                const pick = (arr) => arr[Math.floor(r() * arr.length) % arr.length];
-                return { shape: pick(this.LAYERS.shape), material: pick(this.LAYERS.material), pattern: pick(this.LAYERS.pattern), emblem: pick(this.LAYERS.emblem) };
-            },
-            key(seed, rarity) { return rarity + ':' + (seed >>> 0); },
             rollRarity() {
                 let total = 0; this.RARITIES.forEach(r => total += r.weight);
                 let x = Math.random() * total;
@@ -2176,20 +2194,26 @@
             grant(forcedRarity) {
                 const c = this.ensureDay();
                 if (c.today >= this.DAILY_CAP && !forcedRarity) return null;
-                const seed = (Math.floor(Math.random() * 0xFFFFFFFF)) >>> 0;
-                const rarity = forcedRarity || this.rollRarity();
-                const key = this.key(seed, rarity);
-                if (c.items[key]) { c.items[key].count++; gx.toast(t('coll_dup_toast', { rarity: t('r_' + rarity) })); }
-                else { c.items[key] = { seed, rarity, count: 1 }; gx.toast(t('coll_drop_toast', { rarity: t('r_' + rarity) })); }
+                let rarity = forcedRarity || this.rollRarity();
+                let pool = this.skinsOfRarity(rarity);
+                while (!pool.length && (this.rarRank[rarity] || 0) > 0) {
+                    rarity = this.RARITIES[(this.rarRank[rarity] || 0) - 1].k;
+                    pool = this.skinsOfRarity(rarity);
+                }
+                if (!pool.length) return null;
+                const skin = pool[Math.floor(Math.random() * pool.length)];
+                const id = String(skin.id);
+                if (c.items[id]) { c.items[id].count++; gx.toast(t('coll_dup_toast', { rarity: t('r_' + rarity) })); }
+                else { c.items[id] = { id, rarity, count: 1 }; gx.toast(t('coll_drop_toast', { rarity: t('r_' + rarity) })); }
                 c.today++;
-                collectionProvider.grantDrop(c.items[key]);
+                collectionProvider.grantDrop(c.items[id]);
                 sound.play('bubble');
-                if (rarity === 'legendary' || rarity === 'mythic') { try { ach.grant('mythicCharm'); } catch (e) {} }
+                if (rarity === 'legendary' || rarity === 'superleg') { try { ach.grant('mythicCharm'); } catch (e) {} }
                 try { ach.check(); } catch (e) {}
                 try { game.save(); } catch (e) {}
                 this.refreshFab();
                 if (document.getElementById('collection-modal').classList.contains('open')) this.render();
-                return key;
+                return id;
             },
             equip(key) {
                 const c = this.normalize();
@@ -2200,62 +2224,135 @@
                 this.refreshFab(); this.render();
             },
             hexA(hex, a) { try { const n = parseInt(hex.slice(1), 16); return `rgba(${(n >> 16) & 255},${(n >> 8) & 255},${n & 255},${a})`; } catch (e) { return `rgba(148,163,184,${a})`; } },
-            shapePath(x, shape, cx, cy, R) {
+            // Carga perezosa de sprites; al cargar, invalida la caché y refresca la UI abierta.
+            img(src) {
+                let o = this._imgs[src];
+                if (o) return o;
+                o = { el: new Image(), ok: false };
+                const self = this;
+                o.el.onload = function () { o.ok = true; self._cache = {}; try { self.refreshFab(); } catch (e) {} try { const m = document.getElementById('collection-modal'); if (m && m.classList.contains('open')) self.render(); } catch (e) {} };
+                o.el.onerror = function () { o.ok = false; };
+                try { o.el.crossOrigin = 'anonymous'; } catch (e) {}
+                o.el.src = src;
+                this._imgs[src] = o;
+                return o;
+            },
+            fitRect(iw, ih, size, scale) {
+                scale = scale || 0.94;
+                const box = size * scale;
+                const s = Math.min(box / iw, box / ih);
+                const dw = iw * s, dh = ih * s;
+                return { dx: (size - dw) / 2, dy: (size - dh) / 2, dw, dh };
+            },
+            roundRect(x, rx, ry, rw, rh, rad) {
+                rad = Math.min(rad, rw / 2, rh / 2);
                 x.beginPath();
-                if (shape === 'circle') { x.arc(cx, cy, R, 0, Math.PI * 2); }
-                else if (shape === 'diamond') { x.moveTo(cx, cy - R); x.lineTo(cx + R, cy); x.lineTo(cx, cy + R); x.lineTo(cx - R, cy); x.closePath(); }
-                else if (shape === 'hexagon') { for (let i = 0; i < 6; i++) { const a = Math.PI / 6 + i * Math.PI / 3, px = cx + Math.cos(a) * R, py = cy + Math.sin(a) * R; if (i === 0) x.moveTo(px, py); else x.lineTo(px, py); } x.closePath(); }
-                else { x.moveTo(cx - R * 0.9, cy - R * 0.8); x.lineTo(cx + R * 0.9, cy - R * 0.8); x.lineTo(cx + R * 0.9, cy + R * 0.15); x.quadraticCurveTo(cx + R * 0.9, cy + R * 0.85, cx, cy + R); x.quadraticCurveTo(cx - R * 0.9, cy + R * 0.85, cx - R * 0.9, cy + R * 0.15); x.closePath(); }
+                x.moveTo(rx + rad, ry);
+                x.arcTo(rx + rw, ry, rx + rw, ry + rh, rad);
+                x.arcTo(rx + rw, ry + rh, rx, ry + rh, rad);
+                x.arcTo(rx, ry + rh, rx, ry, rad);
+                x.arcTo(rx, ry, rx + rw, ry, rad);
+                x.closePath();
             },
-            drawPattern(x, pat, cx, cy, R, color) {
-                x.save(); x.globalAlpha = 0.16; x.strokeStyle = color; x.fillStyle = color; x.lineWidth = Math.max(1, R * 0.06);
-                if (pat === 'rays') { for (let i = 0; i < 12; i++) { const a = i * Math.PI / 6; x.beginPath(); x.moveTo(cx, cy); x.lineTo(cx + Math.cos(a) * R * 1.3, cy + Math.sin(a) * R * 1.3); x.stroke(); } }
-                else if (pat === 'dots') { for (let i = 0; i < 5; i++) for (let j = 0; j < 5; j++) { x.beginPath(); x.arc(cx - R + i * R * 0.5, cy - R + j * R * 0.5, R * 0.06, 0, Math.PI * 2); x.fill(); } }
-                else if (pat === 'swirl') { x.beginPath(); for (let a = 0; a < Math.PI * 6; a += 0.2) { const rr = R * (a / (Math.PI * 6)); x.lineTo(cx + Math.cos(a) * rr, cy + Math.sin(a) * rr); } x.stroke(); }
+            star4(x, cx, cy, r) {
+                x.beginPath();
+                x.moveTo(cx, cy - r); x.quadraticCurveTo(cx, cy, cx + r, cy);
+                x.quadraticCurveTo(cx, cy, cx, cy + r); x.quadraticCurveTo(cx, cy, cx - r, cy);
+                x.quadraticCurveTo(cx, cy, cx, cy - r); x.closePath(); x.fill();
+            },
+            drawAura(x, aura, glow, size) {
+                if (aura === 'none') return;
+                const cx = size / 2, cy = size / 2;
+                const R = size * (aura === 'super' ? 0.54 : aura === 'strong' ? 0.48 : 0.44);
+                const a = aura === 'super' ? 0.62 : aura === 'strong' ? 0.45 : 0.26;
+                const g = x.createRadialGradient(cx, cy, R * 0.2, cx, cy, R);
+                g.addColorStop(0, this.hexA(glow, a)); g.addColorStop(1, this.hexA(glow, 0));
+                x.save(); x.fillStyle = g; x.beginPath(); x.arc(cx, cy, R, 0, Math.PI * 2); x.fill(); x.restore();
+            },
+            drawSparkles(x, size) {
+                x.save();
+                for (let i = 0; i < 8; i++) {
+                    const px = size * (0.1 + Math.random() * 0.8), py = size * (0.06 + Math.random() * 0.52), s = size * (0.02 + Math.random() * 0.045);
+                    x.fillStyle = (i % 2) ? '#ffffff' : '#ffe8a3'; x.globalAlpha = 0.9;
+                    this.star4(x, px, py, s);
+                }
                 x.restore();
             },
-            drawEmblem(x, em, cx, cy, r, dark) {
-                x.save(); x.globalAlpha = 0.85; x.fillStyle = dark; x.strokeStyle = dark; x.lineWidth = Math.max(2, r * 0.12); x.lineJoin = 'round';
-                if (em === 'star') { x.beginPath(); for (let i = 0; i < 10; i++) { const rr = i % 2 === 0 ? r : r * 0.45, a = -Math.PI / 2 + i * Math.PI / 5, px = cx + Math.cos(a) * rr, py = cy + Math.sin(a) * rr; if (i === 0) x.moveTo(px, py); else x.lineTo(px, py); } x.closePath(); x.fill(); }
-                else if (em === 'drop') { x.beginPath(); x.moveTo(cx, cy - r); x.bezierCurveTo(cx + r * 0.9, cy - r * 0.1, cx + r * 0.6, cy + r * 0.9, cx, cy + r * 0.9); x.bezierCurveTo(cx - r * 0.6, cy + r * 0.9, cx - r * 0.9, cy - r * 0.1, cx, cy - r); x.closePath(); x.fill(); }
-                else if (em === 'skull') { x.beginPath(); x.arc(cx, cy - r * 0.15, r * 0.7, Math.PI, 0); x.lineTo(cx + r * 0.45, cy + r * 0.5); x.lineTo(cx - r * 0.45, cy + r * 0.5); x.closePath(); x.fill(); x.globalAlpha = 1; x.fillStyle = '#fff'; x.beginPath(); x.arc(cx - r * 0.28, cy - r * 0.1, r * 0.16, 0, Math.PI * 2); x.arc(cx + r * 0.28, cy - r * 0.1, r * 0.16, 0, Math.PI * 2); x.fill(); }
-                else if (em === 'bone') { x.translate(cx, cy); x.rotate(-Math.PI / 4); const bl = r * 0.8; x.fillRect(-r * 0.12, -bl, r * 0.24, bl * 2); x.beginPath(); x.arc(0, -bl, r * 0.2, 0, Math.PI * 2); x.arc(0, bl, r * 0.2, 0, Math.PI * 2); x.fill(); }
-                else { x.beginPath(); x.ellipse(cx, cy - r * 0.45, r * 0.32, r * 0.45, 0, 0, Math.PI * 2); x.fill(); x.fillRect(cx - r * 0.08, cy - r * 0.05, r * 0.16, r * 0.95); }
+            drawPlaceholder(x, size) {
+                const cx = size / 2, cy = size / 2;
+                x.save();
+                x.fillStyle = 'rgba(255,255,255,0.07)';
+                this.roundRect(x, size * 0.16, size * 0.16, size * 0.68, size * 0.68, size * 0.1); x.fill();
+                x.fillStyle = 'rgba(148,163,184,0.5)';
+                x.beginPath(); x.arc(cx, cy - size * 0.05, size * 0.15, 0, Math.PI * 2); x.fill();
+                x.beginPath(); x.ellipse(cx, cy + size * 0.21, size * 0.22, size * 0.15, 0, 0, Math.PI * 2); x.fill();
+                x.fillStyle = '#cbd5e1'; x.font = 'bold ' + Math.floor(size * 0.24) + 'px sans-serif'; x.textAlign = 'center'; x.textBaseline = 'middle';
+                x.fillText('?', cx, cy + size * 0.01);
                 x.restore();
             },
-            draw(seed, rarity, size) {
-                const layers = this.layersFor(seed);
+            drawFrame(x, rarity, size) {
+                const glow = this.RAR_GLOW[rarity] || '#94a3b8';
+                const rank = this.rarRank[rarity] || 0;
+                const lw = Math.max(2, size * 0.04);
+                x.save();
+                x.lineWidth = lw; x.strokeStyle = glow;
+                if (rank >= 2) { x.shadowColor = glow; x.shadowBlur = size * (rank >= 5 ? 0.16 : rank >= 4 ? 0.12 : 0.08); }
+                this.roundRect(x, lw, lw, size - lw * 2, size - lw * 2, size * 0.12);
+                x.stroke();
+                x.restore();
+                if (rank >= 5) {
+                    x.save();
+                    this.roundRect(x, lw, lw, size - lw * 2, size - lw * 2, size * 0.12); x.clip();
+                    this.drawSparkles(x, size);
+                    x.restore();
+                }
+            },
+            draw(item, size) {
                 const cv = document.createElement('canvas'); cv.width = size; cv.height = size;
                 const x = cv.getContext('2d'); if (!x) return '';
-                const cx = size / 2, cy = size / 2, R = size * 0.40;
-                const mats = { bronze: ['#fde9c8', '#b87333', '#5b3413'], silver: ['#ffffff', '#c0c7d0', '#5b626e'], gold: ['#fff4c2', '#f5b301', '#8a5a00'], jade: ['#d9ffe9', '#2fbf71', '#0c5132'], ruby: ['#ffd6e0', '#e0245e', '#6b0f2a'], obsidian: ['#8a909c', '#2a2d34', '#070708'] };
-                const rarGlow = { common: '#94a3b8', uncommon: '#4ade80', rare: '#a5f3fc', epic: '#d8b4fe', legendary: '#fbbf24', mythic: '#fb7185' };
-                const mc = mats[layers.material] || mats.silver;
-                const glow = rarGlow[rarity] || '#94a3b8';
-                const rank = this.rarRank[rarity] || 0;
-                const dark = (layers.material === 'obsidian') ? '#e2e8f0' : '#0b0b12';
                 x.clearRect(0, 0, size, size);
-                if (rank >= 3) { const g = x.createRadialGradient(cx, cy, R * 0.4, cx, cy, R * 1.25); g.addColorStop(0, this.hexA(glow, 0.5)); g.addColorStop(1, this.hexA(glow, 0)); x.fillStyle = g; x.beginPath(); x.arc(cx, cy, R * 1.25, 0, Math.PI * 2); x.fill(); }
-                const grad = x.createRadialGradient(cx - R * 0.3, cy - R * 0.35, R * 0.15, cx, cy, R);
-                grad.addColorStop(0, mc[0]); grad.addColorStop(0.5, mc[1]); grad.addColorStop(1, mc[2]);
-                x.save(); this.shapePath(x, layers.shape, cx, cy, R); x.fillStyle = grad; x.fill(); x.clip(); this.drawPattern(x, layers.pattern, cx, cy, R, mc[0]); x.restore();
-                x.save(); this.shapePath(x, layers.shape, cx, cy, R); x.lineWidth = Math.max(2, size * 0.045); x.strokeStyle = glow; x.shadowColor = glow; x.shadowBlur = rank >= 2 ? size * 0.12 : 0; x.stroke(); x.restore();
-                this.drawEmblem(x, layers.emblem, cx, cy, R * 0.62, dark);
+                const rarity = item.rarity, rank = this.rarRank[rarity] || 0;
+                const glow = this.RAR_GLOW[rarity] || '#94a3b8';
+                const aura = rank >= 5 ? 'super' : (rank >= 4 ? 'strong' : (rank >= 2 ? 'glow' : 'none'));
+                this.drawAura(x, aura, glow, size);
+                const skin = this.skinById(item.id);
+                const src = (skin && skin.img) ? skin.img : null;
+                const o = src ? this.img(src) : null;
+                if (o && o.ok) {
+                    const r = this.fitRect(o.el.naturalWidth || o.el.width || 1, o.el.naturalHeight || o.el.height || 1, size, 0.86);
+                    x.drawImage(o.el, r.dx, r.dy, r.dw, r.dh);
+                } else {
+                    this.drawPlaceholder(x, size);
+                }
+                this.drawFrame(x, rarity, size);
                 try { return cv.toDataURL('image/png'); } catch (e) { return ''; }
             },
-            thumb(seed, rarity, size) {
+            thumb(item, size) {
                 size = size || 96;
-                const ck = this.key(seed, rarity) + ':' + size;
+                const ck = this.itemKey(item) + ':' + item.rarity + ':' + size;
                 if (this._cache[ck]) return this._cache[ck];
-                const url = this.draw(seed, rarity, size);
-                this._cache[ck] = url;
+                const url = this.draw(item, size);
+                if (url) this._cache[ck] = url;
                 return url;
             },
             refreshFab() {
                 const thumb = document.getElementById('collection-fab-thumb'); if (!thumb) return;
                 const c = game.coll;
-                if (c && c.equipped && c.items && c.items[c.equipped]) { const it = c.items[c.equipped]; thumb.innerHTML = `<img class="charm-fab-img" src="${this.thumb(it.seed, it.rarity, 48)}" alt="">`; }
+                if (c && c.equipped && c.items && c.items[c.equipped]) { const it = c.items[c.equipped]; thumb.innerHTML = `<img class="charm-fab-img" src="${this.thumb(it, 48)}" alt="">`; }
                 else thumb.innerHTML = '';
+            },
+            nameFor(it) {
+                const skin = this.skinById(it.id);
+                if (skin) return (LANG === 'es' ? (skin.name_es || skin.name_en) : (skin.name_en || skin.name_es)) || it.id;
+                return t('coll_unknown');
+            },
+            familyName(it) {
+                const skin = this.skinById(it.id);
+                const fam = skin ? skin.family : null;
+                if (fam === 'spoon') return t('coll_fam_spoon');
+                if (fam === 'chefhat') return t('coll_fam_chefhat');
+                if (fam === 'helper') return t('coll_fam_helper');
+                return '';
             },
             nextDropText() {
                 const c = this.ensureDay();
@@ -2269,15 +2366,17 @@
             render() {
                 const c = this.normalize();
                 const stats = document.getElementById('collection-stats');
-                if (stats) stats.innerHTML = `${t('coll_owned', { n: this.distinctCount(), total: this.totalKinds() })} · ${t('coll_total_label', { n: this.totalCount() })}<br>${this.nextDropText()} · ${t('coll_daily_left', { n: this.DAILY_CAP - c.today, max: this.DAILY_CAP })}`;
+                if (stats) stats.innerHTML = `${t('coll_owned', { n: this.distinctCount() })} · ${t('coll_total_label', { n: this.totalCount() })}<br>${this.nextDropText()} · ${t('coll_daily_left', { n: this.DAILY_CAP - c.today, max: this.DAILY_CAP })}`;
                 const grid = document.getElementById('collection-grid'); if (!grid) return;
                 const keys = Object.keys(c.items);
                 if (!keys.length) { grid.innerHTML = `<div style="grid-column:1/-1; color:#94a3b8; font-size:0.85rem; padding:14px">${t('coll_empty')}</div>`; return; }
-                keys.sort((a, b) => (this.rarRank[c.items[b].rarity] - this.rarRank[c.items[a].rarity]) || (c.items[b].seed - c.items[a].seed));
+                keys.sort((a, b) => (this.rarRank[c.items[b].rarity] - this.rarRank[c.items[a].rarity]) || (a < b ? -1 : a > b ? 1 : 0));
                 grid.innerHTML = keys.map(k => {
                     const it = c.items[k], eqd = c.equipped === k;
                     const dup = it.count > 1 ? `<span class="charm-dup">x${it.count}</span>` : '';
-                    return `<div class="charm-tile r-${it.rarity} ${eqd ? 'equipped' : ''}" onclick="collection.equip('${k}')">${dup}<img class="charm-img" src="${this.thumb(it.seed, it.rarity, 96)}" alt=""><span class="charm-rar r-${it.rarity}">${t('r_' + it.rarity)}</span><span style="font-size:0.6rem;color:${eqd ? '#fbbf24' : '#94a3b8'}">${eqd ? t('coll_equipped') : t('coll_equip')}</span></div>`;
+                    const fam = this.familyName(it);
+                    const kk = String(k).replace(/'/g, "\\'");
+                    return `<div class="charm-tile r-${it.rarity} ${eqd ? 'equipped' : ''}" onclick="collection.equip('${kk}')">${dup}<img class="charm-img" src="${this.thumb(it, 96)}" alt=""><span class="charm-name">${this.nameFor(it)}</span><span class="charm-rar r-${it.rarity}">${fam ? fam + ' · ' : ''}${t('r_' + it.rarity)}</span><span style="font-size:0.58rem;color:${eqd ? '#fbbf24' : '#94a3b8'}">${eqd ? t('coll_equipped') : t('coll_equip')}</span></div>`;
                 }).join('');
             }
         };
@@ -2333,6 +2432,7 @@
             home.init();
             try { fullscreen.init(); } catch (e) {}
             try { collection.refreshFab(); } catch (e) {}
+            try { collection.preload(); } catch (e) {}
             // Juego inicializado y jugable. Fuera de Playables es no-op silencioso.
             ytPlayables.gameReady();
         }
