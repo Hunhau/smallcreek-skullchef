@@ -1,0 +1,1817 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Smallcreek Skullchef</title>
+    <!-- Precarga SOLO del asset crítico para el PRIMER FRAME (logo de la home). El resto
+         de imágenes/audio se cargan de forma diferida para no bloquear el render inicial. -->
+    <link rel="preload" as="image" href="assets/img/angel.png" fetchpriority="high">
+    <style>
+        :root { --en: #a5f3fc; --go: #fbbf24; --ac: #d8b4fe; --ui: rgba(15, 23, 42, 0.96); --sc: rgba(30, 27, 75, 0.85); }
+        * { box-sizing: border-box; touch-action: manipulation; -webkit-user-select: none; user-select: none; -webkit-tap-highlight-color: transparent; }
+        body { margin: 0; padding: 0; width: 100vw; height: 100vh; overflow: hidden; background: url('assets/img/bg.png') center/cover no-repeat !important; color: white; font-family: 'Segoe UI', Tahoma, sans-serif; display: flex; }
+        #game-wrapper { display: flex; width: 100%; height: 100%; position: relative; transition: filter 0.8s; }
+        #white-out { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #fff; opacity: 0; pointer-events: none; z-index: 100000; transition: opacity 0.5s; }
+        #hud { position: absolute; top: max(20px, env(safe-area-inset-top)); left: 50%; transform: translateX(-50%); display: flex; gap: 30px; z-index: 5000; background: rgba(0,0,0,0.72); padding: 10px 40px; border-radius: 50px; border: 1px solid #fff2; pointer-events: none; }
+        #score-box, #shard-box { font-weight: bold; text-transform: uppercase; letter-spacing: 1px; }
+        #score-box { font-family: 'Courier New', monospace; font-size: 2.2rem; color: var(--en); text-shadow: 0 0 10px #22d3ee; }
+        #score-box.glow { animation: scoreGlow 0.45s ease-out; }
+        @keyframes scoreGlow { 0% { text-shadow: 0 0 10px #22d3ee; filter: brightness(1); } 30% { text-shadow: 0 0 22px #67e8f9, 0 0 42px #22d3ee; filter: brightness(1.65); } 100% { text-shadow: 0 0 10px #22d3ee; filter: brightness(1); } }
+        #shard-box { font-size: 1.4rem; color: var(--go); align-self: center; }
+        #cps-tag { position: absolute; top: 85px; left: 50%; transform: translateX(-50%); font-size: 1.1rem; color: var(--ac); z-index: 5000; opacity: 0.9; }
+        #lore-scroll { position: absolute; top: 20px; left: 20px; width: 340px; background: rgba(30, 27, 75, 0.94); border: 2px solid var(--ac); border-radius: 15px; padding: 15px; z-index: 8000; }
+        #lore-title { font-size: 0.8rem; text-transform: uppercase; color: var(--ac); font-weight: bold; border-bottom: 1px solid #fff2; margin-bottom: 5px; }
+        #lore-text { font-size: 0.85rem; line-height: 1.4; font-style: italic; }
+        #altar-panel { position: absolute; top: 20px; right: 400px; z-index: 7000; display: flex; flex-direction: column; align-items: center; }
+        #btn-prestige { background-image: url("assets/img/angel.png") !important; background-size: contain !important; background-repeat: no-repeat !important; background-position: center !important; width: 180px; height: 260px; border: none !important; background-color: transparent !important; transition: 0.4s; cursor: not-allowed; opacity: 0.4; display: flex; flex-direction: column; justify-content: flex-end; }
+        #btn-prestige.locked { animation: none; filter: none; }
+        #btn-prestige.unlocked { opacity: 1.0; cursor: pointer; filter: drop-shadow(0 0 20px var(--go)); animation: breathe 2s infinite alternate; }
+        .prestige-label { width: 210px; padding: 8px; border-radius: 10px; background: rgba(0,0,0,0.85); border: 1px solid #fff3; font-size: 0.65rem; text-align: center; text-transform: uppercase; transform: translateX(-15px); }
+        #pres-stat { font-size: 0.8rem; font-weight: bold; background: rgba(0,0,0,0.4); padding: 5px 12px; border-radius: 20px; margin-top: 10px; text-shadow: 0 0 8px #fff; }
+        #main-stage { flex-grow: 1; position: relative; cursor: pointer; overflow: hidden; }
+        #sticky-center { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: 10px; height: 10px; }
+        #asset-chef { position: absolute; z-index: 1; transform: translate(-50%, -50%); left: 0px; top: -40px; width: 720px; pointer-events: none; }
+        #asset-chef-hand { position: absolute; z-index: 4; transform: translate(-50%, -50%); left: 0px; top: -40px; width: 720px; pointer-events: none; }
+        #asset-soup { position: absolute; z-index: 2; transform: translate(-50%, -50%); left: 70px; top: 250px; width: 1250px; pointer-events: none; transition: transform 0.1s; }
+        #soup-liquid { position: absolute; z-index: 2; transform: translate(-50%, -50%) translateZ(0); left: 70px; top: 250px; width: 1250px; pointer-events: none; -webkit-mask-image: radial-gradient(ellipse 33% 31% at 47% 47%, #000 68%, rgba(0,0,0,0) 92%); mask-image: radial-gradient(ellipse 33% 31% at 47% 47%, #000 68%, rgba(0,0,0,0) 92%); -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; will-change: transform; contain: paint; }
+        #asset-soup-liquid { display: block; width: 100%; pointer-events: none; transform-origin: 47% 47%; will-change: transform; backface-visibility: hidden; }
+        #spoon-rig { position: absolute; z-index: 3; left: -95px; top: 5px; width: 840px; transform: translate(-50%, -50%) rotate(-27deg); transform-origin: 85% 15%; pointer-events: none; }
+        #asset-spoon { width: 100%; transition: transform 0.1s; transform-origin: inherit; }
+        #soup-steam { position: absolute; left: 70px; top: 168px; transform: translate(-50%, 0); width: 470px; height: 90px; pointer-events: none; z-index: 2; overflow: visible; }
+        .steam-wisp { position: absolute; bottom: 0; border-radius: 50%; background: radial-gradient(ellipse at center, rgba(255,255,255,0.52) 0%, rgba(165,243,252,0.34) 45%, transparent 74%); filter: blur(10px); animation: steamRise 4.2s ease-out infinite; opacity: 0; will-change: transform, opacity; }
+        .steam-wisp:nth-child(1) { width: 72px; height: 46px; left: 6%; animation-delay: 0s; filter: blur(8px); animation-duration: 3.6s; }
+        .steam-wisp:nth-child(2) { width: 54px; height: 36px; left: 23%; animation-delay: 0.5s; filter: blur(9px); animation-duration: 4.1s; }
+        .steam-wisp:nth-child(3) { width: 80px; height: 52px; left: 40%; animation-delay: 1.0s; filter: blur(9px); animation-duration: 3.8s; }
+        .steam-wisp:nth-child(4) { width: 48px; height: 34px; left: 56%; animation-delay: 1.5s; filter: blur(10px); animation-duration: 4.4s; }
+        .steam-wisp:nth-child(5) { width: 66px; height: 42px; left: 72%; animation-delay: 2.0s; filter: blur(9px); animation-duration: 3.7s; }
+        .steam-wisp:nth-child(6) { width: 58px; height: 38px; left: 89%; animation-delay: 2.6s; filter: blur(10px); animation-duration: 4.2s; }
+        .steam-wisp:nth-child(7) { width: 74px; height: 48px; left: 39%; animation-delay: 1.32s; filter: blur(8px); animation-duration: 3.9s; }
+        .steam-wisp:nth-child(8) { width: 50px; height: 34px; left: 45%; animation-delay: 1.54s; filter: blur(14px); animation-duration: 4.5s; }
+        .steam-wisp:nth-child(9) { width: 64px; height: 40px; left: 51%; animation-delay: 1.76s; filter: blur(10px); animation-duration: 3.5s; }
+        .steam-wisp:nth-child(10) { width: 56px; height: 36px; left: 57%; animation-delay: 1.98s; filter: blur(11px); animation-duration: 4s; }
+        .steam-wisp:nth-child(11) { width: 70px; height: 44px; left: 63%; animation-delay: 2.2s; filter: blur(9px); animation-duration: 3.8s; }
+        .steam-wisp:nth-child(12) { width: 52px; height: 34px; left: 69%; animation-delay: 2.42s; filter: blur(12px); animation-duration: 4.3s; }
+        .steam-wisp:nth-child(13) { width: 68px; height: 42px; left: 75%; animation-delay: 2.64s; filter: blur(10px); animation-duration: 3.6s; }
+        .steam-wisp:nth-child(14) { width: 46px; height: 32px; left: 81%; animation-delay: 2.86s; filter: blur(13px); animation-duration: 4.1s; }
+        .steam-wisp:nth-child(15) { width: 62px; height: 40px; left: 87%; animation-delay: 3.08s; filter: blur(9px); animation-duration: 3.9s; }
+        .steam-wisp:nth-child(16) { width: 88px; height: 54px; left: 93%; animation-delay: 3.3s; filter: blur(8px); animation-duration: 4.2s; }
+        .steam-wisp:nth-child(17) { width: 44px; height: 30px; left: 6%; animation-delay: 3.52s; filter: blur(14px); animation-duration: 3.7s; }
+        .steam-wisp:nth-child(18) { width: 60px; height: 38px; left: 48%; animation-delay: 3.74s; filter: blur(11px); animation-duration: 4s; }
+        .steam-wisp:nth-child(19) { width: 76px; height: 50px; left: 72%; animation-delay: 3.96s; filter: blur(9px); animation-duration: 3.5s; }
+        .steam-wisp:nth-child(20) { width: 54px; height: 36px; left: 97%; animation-delay: 4.18s; filter: blur(12px); animation-duration: 4.4s; }
+        @keyframes steamRise { 0% { transform: translateY(0) scale(0.7); opacity: 0; } 8% { opacity: 0.44; } 45% { opacity: 0.36; } 72% { opacity: 0.20; } 100% { transform: translateY(-95px) scale(1.3); opacity: 0; } }
+        #companion-column { position: absolute; left: 20px; top: 55%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 15px; z-index: 4000; pointer-events: none; }
+        .companion-slot { position: relative; width: 95px; height: 95px; background: rgba(255,255,255,0.05); border: 1px solid var(--ac); border-radius: 20px; display: flex; justify-content: center; align-items: center; }
+        .slot-img { width: 85%; height: 85%; object-fit: contain; animation: bob 3s infinite; }
+        .lv-badge { position: absolute; bottom: -5px; right: -5px; background: #2e1065; border: 2px solid var(--go); border-radius: 6px; padding: 1px 5px; font-size: 0.65rem; font-weight: bold; color: var(--go); z-index: 20; }
+        .slot-crown { position: absolute; top: -15px; left: 50%; transform: translateX(-50%); font-size: 1.5rem; filter: drop-shadow(0 0 5px var(--go)); }
+        #side-shop { width: 380px; background: var(--ui); border-left: 1px solid #fff2; padding: 20px; z-index: 6000; overflow-y: auto; }
+        .companion-card { background: rgba(255,255,255,0.05); border-radius: 12px; padding: 12px; margin-bottom: 12px; cursor: not-allowed; border: 2px solid transparent; display: flex; align-items: center; opacity: 0.4; transition: 0.3s; }
+        .companion-card.affordable { opacity: 1; cursor: pointer; border-color: var(--ac); background: rgba(168, 85, 247, 0.1); }
+        #buy-mode-toggle { padding: 8px 12px; background: linear-gradient(135deg, #7e22ce, #3b82f6); border-radius: 10px; text-align: center; font-weight: bold; border: 2px solid #fff3; margin-bottom: 12px; cursor: pointer; font-size: 0.85rem; letter-spacing: 0.5px; color: #fff; transition: 0.2s; }
+        #buy-mode-toggle:hover { filter: brightness(1.1); border-color: var(--ac); }
+        .comp-img { width: 60px; height: 60px; border-radius: 10px; margin-right: 12px; object-fit: cover; }
+        .spoon-card { background: rgba(255,255,255,0.05); border-radius: 12px; padding: 12px; margin-bottom: 12px; border: 2px solid transparent; display: flex; flex-direction: column; align-items: center; gap: 8px; transition: 0.3s; text-align: center; }
+        .spoon-card.rare { border-color: #a5f3fc; }
+        .spoon-card.epic { border-color: #d8b4fe; }
+        .spoon-card.legendary { border-color: #fbbf24; animation: spoonLegendPulse 2s infinite alternate; }
+        .spoon-card.equipped { box-shadow: 0 0 18px rgba(251, 191, 36, 0.45); }
+        .spoon-card-img { width: 100%; max-width: 150px; border-radius: 8px; object-fit: contain; background: rgba(0,0,0,0.3); }
+        @keyframes spoonLegendPulse { from { box-shadow: 0 0 8px rgba(251, 191, 36, 0.3); border-color: #fbbf24; } to { box-shadow: 0 0 22px rgba(251, 191, 36, 0.65); border-color: #fde68a; } }
+        .spoon-equipped-badge { display: inline-block; font-size: 0.7rem; font-weight: bold; color: var(--go); padding: 4px 10px; border-radius: 6px; border: 1px solid var(--go); background: rgba(251, 191, 36, 0.15); animation: breathe 2s infinite alternate; letter-spacing: 0.5px; margin-top: 4px; }
+        .spoon-rarity { display: inline-block; font-size: 0.55rem; font-weight: bold; padding: 2px 6px; border-radius: 4px; margin-bottom: 3px; letter-spacing: 0.5px; }
+        .spoon-rarity.rare { background: #0e7490; color: #a5f3fc; }
+        .spoon-rarity.epic { background: #6b21a8; color: #e9d5ff; }
+        .spoon-rarity.legendary { background: #854d0e; color: var(--go); }
+        .spoon-benefit { font-size: 0.65rem; color: #94a3b8; line-height: 1.3; margin: 2px 0 4px; }
+        .spoon-cost { font-size: 0.7rem; font-weight: bold; color: #fbbf24; }
+        .spoon-btn { margin-top: 5px; padding: 4px 10px; border-radius: 6px; font-size: 0.65rem; font-weight: bold; border: 1px solid #fff3; cursor: pointer; text-transform: uppercase; letter-spacing: 0.4px; }
+        .spoon-btn.locked { background: #334155; color: #64748b; cursor: not-allowed; border-color: #475569; }
+        .spoon-btn.buy { background: linear-gradient(135deg, #7e22ce, #3b82f6); color: #fff; }
+        .spoon-btn.equip { background: rgba(168, 85, 247, 0.35); color: var(--ac); border-color: var(--ac); }
+        .spoon-btn.equipped { background: rgba(251, 191, 36, 0.2); color: var(--go); border-color: var(--go); cursor: default; }
+        #spoons-album-title { font-size: 0.75rem; text-align: center; color: var(--ac); margin: 18px 0 10px; padding-top: 14px; border-top: 1px solid #fff2; text-transform: uppercase; letter-spacing: 1px; opacity: 0.85; }
+        #spoons-album-section { margin-top: 4px; }
+        #prestige-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 80000; display: none; opacity: 0; background: linear-gradient(180deg, #020617 0%, #1e1b4b 50%, #2e1065 100%); flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.8s; }
+        #victory-cinema { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 65000; display: none; align-items: center; justify-content: center; pointer-events: none; }
+        #cinema-plushie { position: absolute; top: 45%; left: 50%; transform: translate(-50%, -50%) scale(2.5); max-width: 300px; max-height: 25vh; object-fit: contain; filter: drop-shadow(0 0 30px var(--ac)); transition: all 1s; }
+        #cinema-crown { position: absolute; top: -150px; left: 50%; transform: translateX(-50%) scale(2.2); font-size: 4rem; z-index: 999999 !important; }
+        #race-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle, #1e1b4b, #000); z-index: 100000; display: none; flex-direction: column; align-items: center; justify-content: center; }
+        #race-track { width: 800px; height: 65vh; border: 4px solid var(--ac); display: flex; position: relative; border-radius: 20px; overflow: hidden;
+            background:
+                repeating-linear-gradient(0deg, transparent 0 44px, rgba(255,255,255,0.16) 44px 50px),
+                repeating-linear-gradient(0deg, rgba(255,255,255,0.045) 0 4px, transparent 4px 9px),
+                linear-gradient(180deg, #2c2658 0%, #1a1640 55%, #100d28 100%);
+            background-size: 100% 50px, 100% 9px, 100% 100%;
+            background-position: 0 0, 0 0, 0 0;
+        }
+        #race-track.racing { animation: trackScroll 0.5s linear infinite; }
+        @keyframes trackScroll { from { background-position: 0 0, 0 0, 0 0; } to { background-position: 0 50px, 0 9px, 0 0; } }
+        .lane { flex: 1; border-right: 2px dashed #fff3; position: relative; }
+        .lane:last-child { border-right: none; }
+        .lane::before { content: ''; position: absolute; left: 50%; top: 0; bottom: 0; width: 0; border-left: 2px dashed rgba(255,255,255,0.12); transform: translateX(-50%); pointer-events: none; }
+        #finish-line { position: absolute; top: 26px; left: 0; width: 100%; height: 22px; z-index: 5; pointer-events: none;
+            background: repeating-conic-gradient(#fff 0% 25%, #111 0% 50%) 0 0 / 22px 22px;
+            box-shadow: 0 0 14px rgba(0,0,0,0.6), 0 0 22px var(--go); border-top: 2px solid #fff; border-bottom: 2px solid #fff; }
+        #finish-label { position: absolute; top: 50px; left: 50%; transform: translateX(-50%); z-index: 5; color: var(--go); font-weight: bold; letter-spacing: 3px; font-size: 0.85rem; text-shadow: 0 0 8px #000; pointer-events: none; }
+        .racer-img { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); width: 75px; height: 75px; object-fit: contain; transition: bottom 0.1s linear; z-index: 4; }
+        .racer-img.run { animation: racerBob 0.34s ease-in-out infinite; filter: drop-shadow(0 7px 5px rgba(0,0,0,0.45)); }
+        @keyframes racerBob { 0%,100% { transform: translateX(-50%) translateY(0) rotate(-4deg); } 50% { transform: translateX(-50%) translateY(-7px) rotate(4deg); } }
+        .speed-lines { position: absolute; left: 0; top: 0; width: 100%; height: 100%; z-index: 2; pointer-events: none; opacity: 0; transition: opacity .3s;
+            background: repeating-linear-gradient(0deg, rgba(255,255,255,0.10) 0 2px, transparent 2px 30px); background-size: 100% 32px; }
+        #race-track.racing .speed-lines { opacity: 1; animation: speedScroll 0.18s linear infinite; }
+        @keyframes speedScroll { from { background-position: 0 0; } to { background-position: 0 32px; } }
+        .manual-stir { transform: rotate(15deg) !important; } .soup-ripple-active { transform: scale(1.018, 0.985) !important; }
+        .summon-clone { position: fixed; z-index: 25000; pointer-events: none; transition: all 1s cubic-bezier(0.19, 1, 0.22, 1); filter: drop-shadow(0 0 25px var(--ac)); object-fit: contain; max-width: 300px; max-height: 25vh; }
+        @keyframes forgeSpoonDirect {
+            0% {
+                left: var(--start-x);
+                top: var(--start-y);
+                transform: translate(-50%, -50%) scale(0.2) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                left: var(--end-x);
+                top: var(--end-y);
+                transform: translate(-50%, -50%) scale(var(--end-scale)) rotate(0deg);
+                opacity: 1;
+            }
+        }
+        .forge-direct-active {
+            position: fixed !important;
+            z-index: 999999 !important;
+            pointer-events: none !important;
+            width: 120px;
+            object-fit: contain;
+            filter: drop-shadow(0 0 25px var(--ac));
+            transition: none !important;
+            animation: forgeSpoonDirect 1.8s cubic-bezier(0.19, 1, 0.22, 1) forwards !important;
+        }
+        #angel-showcase { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0); z-index: 85000; pointer-events: none; transition: 1.2s; max-width: 80vw; max-height: 70vh; object-fit: contain; }
+        #angel-showcase.active { transform: translate(-50%, -50%) scale(1); filter: drop-shadow(0 0 60px var(--go)) brightness(1.5); }
+        @keyframes bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+        @keyframes breathe { from { transform: scale(1); filter: drop-shadow(0 0 20px var(--go)); } to { transform: scale(1.05); filter: drop-shadow(0 0 40px var(--go)); } }
+        .shake { animation: s 0.3s; } @keyframes s { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
+        canvas { position: absolute; top: 0; left: 0; pointer-events: none; z-index: 1000; }
+        .click-float { position: fixed; color: #a5f3fc; font-weight: bold; font-size: 1.25rem; text-shadow: 0 0 8px #22d3ee, 0 0 16px rgba(34, 211, 238, 0.35); user-select: none; pointer-events: none; z-index: 3000; white-space: nowrap; animation: floatUp 800ms ease-out forwards; }
+        @keyframes floatUp { from { opacity: 1; transform: translate(-50%, -50%); } to { opacity: 0; transform: translate(-50%, calc(-50% - 50px)); } }
+        #audio-ctrl { position: fixed; bottom: max(18px, env(safe-area-inset-bottom)); right: max(18px, env(safe-area-inset-right)); z-index: 90000; display: flex; align-items: center; gap: 10px; background: rgba(0,0,0,0.72); padding: 8px 14px; border-radius: 30px; border: 1px solid #fff2; }
+        #audio-mute { background: transparent; border: none; color: #fff; font-size: 1.3rem; cursor: pointer; line-height: 1; padding: 0; filter: drop-shadow(0 0 6px var(--en)); }
+        #audio-vol { width: 90px; height: 4px; accent-color: var(--ac); cursor: pointer; }
+        #audio-ctrl.muted #audio-vol { opacity: 0.35; }
+        .gx-modal { position: fixed; inset: 0; z-index: 95000; display: none; align-items: center; justify-content: center; background: rgba(2,6,23,0.78); backdrop-filter: blur(6px); }
+        .gx-modal.open { display: flex; }
+        .gx-box { background: linear-gradient(160deg, #1e1b4b, #2e1065); border: 2px solid var(--ac); border-radius: 18px; padding: 24px; max-width: 460px; width: 90%; box-shadow: 0 0 40px rgba(168,85,247,0.45); text-align: center; max-height: 84vh; overflow-y: auto; }
+        .gx-box h2 { color: var(--go); text-shadow: 0 0 14px var(--go); margin: 0 0 12px; font-size: 1.5rem; }
+        .gx-btn { background: linear-gradient(135deg, #7e22ce, #3b82f6); color: #fff; border: 2px solid #fff3; border-radius: 12px; padding: 10px 22px; font-weight: bold; cursor: pointer; font-size: 0.9rem; letter-spacing: 0.5px; transition: 0.2s; }
+        .gx-btn:hover { filter: brightness(1.12); }
+        .gx-btn.sm { padding: 5px 12px; font-size: 0.72rem; }
+        .gx-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+        #side-buttons { position: absolute; left: max(20px, env(safe-area-inset-left)); bottom: max(20px, env(safe-area-inset-bottom)); z-index: 8000; display: flex; flex-direction: column; gap: 10px; }
+        .side-fab { background: rgba(15,23,42,0.96); border: 2px solid var(--ac); border-radius: 14px; padding: 10px 14px; font-size: 0.8rem; font-weight: bold; color: #fff; cursor: pointer; text-transform: uppercase; letter-spacing: 0.5px; transition: 0.2s; text-align: center; }
+        .side-fab:hover { border-color: var(--go); filter: brightness(1.12); }
+        .side-fab .badge2 { display: inline-block; background: var(--go); color: #1e1b4b; border-radius: 10px; padding: 0 6px; font-size: 0.65rem; margin-left: 4px; }
+        #buff-bar { position: absolute; top: 118px; left: 50%; transform: translateX(-50%); z-index: 6000; display: flex; gap: 10px; pointer-events: none; }
+        .buff-chip { background: rgba(0,0,0,0.78); border: 1px solid var(--go); border-radius: 20px; padding: 5px 14px; font-size: 0.8rem; font-weight: bold; color: var(--go); text-shadow: 0 0 8px var(--go); animation: breathe 1.4s infinite alternate; }
+        .golden-bubble { position: absolute; z-index: 5500; width: 90px; height: 90px; cursor: pointer; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #fff, #fde68a 40%, #f59e0b 75%, #b45309); box-shadow: 0 0 25px 6px rgba(251,191,36,0.7); display: flex; align-items: center; justify-content: center; font-size: 2.2rem; animation: bubbleFloat 3s ease-in-out infinite; pointer-events: auto; }
+        @keyframes bubbleFloat { 0%, 100% { transform: translateY(0) scale(1); } 50% { transform: translateY(-22px) scale(1.06); } }
+        #soup-ripples { position: absolute; left: 0; top: 0; width: 100%; height: 100%; pointer-events: none; z-index: 2; overflow: hidden; }
+        .liquid-ripple { position: absolute; width: 40px; height: 20px; border-radius: 50%; border: 3px solid rgba(186,246,255,0.85); box-shadow: 0 0 18px rgba(165,243,252,0.55), inset 0 0 12px rgba(255,255,255,0.35); will-change: transform, opacity; animation: liquidRipple 1.9s cubic-bezier(0.22,0.61,0.36,1) forwards; }
+        @keyframes liquidRipple { 0% { opacity: 0.8; transform: translate(-50%,-50%) scale(0.3); } 100% { opacity: 0; transform: translate(-50%,-50%) scale(5.4); } }
+        .quest-row { background: rgba(255,255,255,0.05); border: 1px solid #fff2; border-radius: 10px; padding: 10px; margin-bottom: 10px; text-align: left; }
+        .quest-row.done2 { border-color: #4ade80; }
+        .q-bar { height: 8px; background: #334155; border-radius: 5px; overflow: hidden; margin: 6px 0; }
+        .q-fill { height: 100%; background: linear-gradient(90deg, #a5f3fc, #fbbf24); }
+        .tnode { background: rgba(255,255,255,0.05); border: 1px solid var(--ac); border-radius: 10px; padding: 10px; margin-bottom: 10px; text-align: left; }
+        .tnode.maxed { border-color: var(--go); }
+        #gx-toast-wrap { position: fixed; top: 150px; left: 50%; transform: translateX(-50%); z-index: 96000; display: flex; flex-direction: column; gap: 8px; align-items: center; pointer-events: none; }
+        .gx-toast { background: linear-gradient(135deg, #7e22ce, #3b82f6); border: 2px solid var(--go); border-radius: 12px; padding: 10px 18px; font-weight: bold; font-size: 0.9rem; box-shadow: 0 0 20px rgba(251,191,36,0.5); animation: toastIn 0.4s ease-out, toastOut 0.5s ease-in 3.5s forwards; }
+        @keyframes toastIn { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes toastOut { to { opacity: 0; transform: translateY(-20px); } }
+        #home-overlay { position: fixed; inset: 0; z-index: 200000; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: clamp(12px, 2.6vh, 24px); text-align: center; overflow-y: auto; padding: calc(env(safe-area-inset-top) + 24px) calc(env(safe-area-inset-right) + 20px) calc(env(safe-area-inset-bottom) + 24px) calc(env(safe-area-inset-left) + 20px); background: radial-gradient(ellipse at 50% 28%, rgba(82, 49, 24, 0.72), rgba(18, 11, 7, 0.93)), linear-gradient(160deg, #2b1a0e 0%, #1a1208 60%, #0c0907 100%); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); transition: opacity 0.55s ease, transform 0.55s ease; }
+        #home-overlay.closing { opacity: 0; transform: scale(1.05); pointer-events: none; }
+        #home-card { display: flex; flex-direction: column; align-items: center; gap: clamp(10px, 2.2vh, 20px); width: 100%; max-width: 440px; animation: homeRise 0.7s cubic-bezier(0.19,1,0.22,1) both; }
+        @keyframes homeRise { from { opacity: 0; transform: translateY(26px) scale(0.97); } to { opacity: 1; transform: none; } }
+        #home-logo { width: clamp(110px, 24vh, 190px); object-fit: contain; filter: drop-shadow(0 0 28px rgba(251, 191, 36, 0.55)); animation: breathe 3.4s infinite alternate; }
+        #home-title { font-size: clamp(2.3rem, 9vw, 3.6rem); font-weight: 800; letter-spacing: 1px; margin: 0; color: #fde68a; text-shadow: 0 2px 0 #7c2d12, 0 0 26px rgba(251,191,36,0.5); line-height: 1; }
+        #home-subtitle { font-size: clamp(0.95rem, 4.2vw, 1.35rem); font-weight: 700; letter-spacing: 4px; text-transform: uppercase; margin: 0; color: #fcd9a8; opacity: 0.92; }
+        #home-tagline { font-size: clamp(0.82rem, 3.4vw, 1rem); font-style: italic; color: #e7d3bd; opacity: 0.82; margin: 0; max-width: 32ch; line-height: 1.45; }
+        #home-play { margin-top: 4px; min-width: 220px; min-height: 60px; padding: 16px 48px; font-size: 1.5rem; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; color: #3a1f0a; border: none; border-radius: 50px; cursor: pointer; background: linear-gradient(135deg, #fde68a, #f59e0b 55%, #d97706); box-shadow: 0 8px 24px rgba(217,119,6,0.5), inset 0 2px 4px rgba(255,255,255,0.4); transition: transform 0.18s ease, filter 0.18s ease, box-shadow 0.18s ease; animation: playPulse 2.2s infinite; }
+        #home-play:hover { filter: brightness(1.07); transform: translateY(-2px); }
+        #home-play:active { transform: translateY(1px) scale(0.98); }
+        @keyframes playPulse { 0%,100% { box-shadow: 0 8px 24px rgba(217,119,6,0.45), inset 0 2px 4px rgba(255,255,255,0.4); } 50% { box-shadow: 0 8px 34px rgba(251,191,36,0.7), inset 0 2px 4px rgba(255,255,255,0.4); } }
+        #home-settings { display: flex; flex-direction: column; gap: 12px; width: 100%; padding: 16px; border-radius: 18px; background: rgba(42, 26, 14, 0.55); border: 1px solid rgba(251,191,36,0.25); backdrop-filter: blur(6px); }
+        .home-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+        .home-row-label { font-size: 0.82rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: #fcd9a8; opacity: 0.85; }
+        .home-ctrl { display: flex; align-items: center; gap: 10px; }
+        .home-btn { min-height: 44px; min-width: 64px; padding: 8px 16px; border-radius: 12px; border: 1px solid rgba(251,191,36,0.4); background: rgba(120, 53, 15, 0.45); color: #fde68a; font-weight: 700; font-size: 0.9rem; cursor: pointer; transition: 0.18s; }
+        .home-btn:hover { border-color: var(--go); filter: brightness(1.12); }
+        #home-mute { font-size: 1.3rem; line-height: 1; padding: 8px 12px; min-width: 52px; }
+        #home-vol { width: 120px; height: 5px; accent-color: var(--go); cursor: pointer; }
+        #home-backup { flex-direction: column; align-items: stretch; gap: 8px; }
+        #home-backup .home-ctrl { flex-wrap: wrap; justify-content: center; gap: 8px; }
+        #home-backup .home-btn { flex: 1 1 calc(50% - 8px); min-width: 110px; font-size: 0.82rem; padding: 8px 10px; }
+        #home-footer { display: flex; flex-direction: column; gap: 4px; margin-top: 2px; }
+        #home-credits { font-size: 0.75rem; color: #e7d3bd; opacity: 0.7; margin: 0; }
+        #home-version { font-size: 0.72rem; color: #fcd9a8; opacity: 0.55; letter-spacing: 1px; margin: 0; }
+        @media (max-height: 520px) and (orientation: landscape) { #home-overlay { justify-content: flex-start; } #home-logo { width: clamp(70px, 20vh, 120px); } #home-title { font-size: clamp(1.8rem, 7vw, 2.6rem); } #home-play { min-height: 52px; padding: 12px 40px; font-size: 1.3rem; } }
+        /* OVERLAY DE ROTACIÓN: pide girar el dispositivo a horizontal. Oculto por defecto;
+           z-index por encima de la home (200000). Respeta safe-areas. Sólo se muestra en
+           PORTRAIT y en móvil/pantalla estrecha (no molesta en escritorio). */
+        #rotate-overlay { position: fixed; inset: 0; z-index: 300000; display: none; flex-direction: column; align-items: center; justify-content: center; gap: clamp(14px, 3vh, 24px); text-align: center; color: #fde68a; padding: calc(env(safe-area-inset-top) + 24px) calc(env(safe-area-inset-right) + 20px) calc(env(safe-area-inset-bottom) + 24px) calc(env(safe-area-inset-left) + 20px); background: radial-gradient(ellipse at 50% 35%, rgba(82, 49, 24, 0.85), rgba(12, 9, 7, 0.97)); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); }
+        #rotate-icon { font-size: clamp(3.5rem, 18vw, 6rem); line-height: 1; filter: drop-shadow(0 0 22px rgba(251, 191, 36, 0.5)); animation: rotateHint 2.2s ease-in-out infinite; }
+        @keyframes rotateHint { 0%, 100% { transform: rotate(-10deg); } 50% { transform: rotate(80deg); } }
+        #rotate-title { margin: 0; font-size: clamp(1.5rem, 7vw, 2.2rem); font-weight: 800; color: #fde68a; text-shadow: 0 2px 0 #7c2d12, 0 0 22px rgba(251,191,36,0.5); }
+        #rotate-msg { margin: 0; max-width: 30ch; font-size: clamp(0.9rem, 4vw, 1.05rem); line-height: 1.5; color: #e7d3bd; opacity: 0.9; }
+        /* Mostrar el aviso sólo en vertical + (pantalla estrecha O dispositivo táctil). */
+        @media (orientation: portrait) and (max-width: 900px) { #rotate-overlay { display: flex; } }
+        @media (orientation: portrait) and (hover: none) and (pointer: coarse) { #rotate-overlay { display: flex; } }
+        /* RESPONSIVE de bajo riesgo: evita desbordes en pantallas pequeñas (no rediseña). */
+        @media (max-width: 820px) {
+            #side-shop { width: clamp(220px, 36vw, 340px); padding: 14px; }
+            #hud { gap: 16px; padding: 8px 22px; }
+            #score-box { font-size: 1.6rem; }
+            #lore-scroll { width: clamp(180px, 38vw, 300px); padding: 10px; }
+        }
+        @media (max-width: 560px) {
+            #side-shop { width: clamp(180px, 44vw, 240px); padding: 10px; }
+            #hud { gap: 10px; padding: 6px 14px; }
+            #score-box { font-size: 1.25rem; }
+            #shard-box { font-size: 0.85rem; }
+        }
+    </style>
+</head>
+<body>
+    <div id="home-overlay">
+        <div id="home-card">
+            <img id="home-logo" src="assets/img/angel.png" alt="" decoding="async" fetchpriority="high">
+            <h1 id="home-title" data-i18n="home_title">Smallcreek Skullchef</h1>
+            <p id="home-subtitle" data-i18n="home_subtitle">The Wooden Soup</p>
+            <p id="home-tagline" data-i18n="home_tagline">A cozy ASMR soup to stir, sip and unwind.</p>
+            <button id="home-play" type="button" onclick="home.play()" data-i18n="home_play">PLAY</button>
+            <div id="home-settings">
+                <div class="home-row">
+                    <span class="home-row-label" data-i18n="home_language">Language</span>
+                    <div class="home-ctrl"><button id="home-lang" class="home-btn" type="button" onclick="home.toggleLang()">🌐 EN</button></div>
+                </div>
+                <div class="home-row">
+                    <span class="home-row-label" data-i18n="home_audio">Audio</span>
+                    <div class="home-ctrl">
+                        <button id="home-mute" class="home-btn" type="button" onclick="home.toggleMute()" data-i18n-title="audio_mute_title" title="Mute / Unmute sound">🔊</button>
+                        <input id="home-vol" type="range" min="0" max="100" value="100" oninput="home.setVolume(this.value)" data-i18n-title="audio_vol_title" title="Volume">
+                    </div>
+                </div>
+                <div class="home-row" id="home-backup">
+                    <span class="home-row-label" data-i18n="backup_label">Backup</span>
+                    <div class="home-ctrl">
+                        <button class="home-btn" type="button" onclick="backup.download()" data-i18n="backup_export">⬇ Export</button>
+                        <button class="home-btn" type="button" onclick="backup.copy()" data-i18n="backup_copy">📋 Copy</button>
+                        <button class="home-btn" type="button" onclick="backup.promptImport()" data-i18n="backup_import">📥 Paste</button>
+                        <button class="home-btn" type="button" onclick="document.getElementById('home-import-file').click()" data-i18n="backup_file">📂 File</button>
+                        <input id="home-import-file" type="file" accept=".txt,.json,application/json,text/plain" style="display:none" onchange="backup.importFile(this)">
+                    </div>
+                </div>
+            </div>
+            <div id="home-footer">
+                <p id="home-credits" data-i18n="home_credits">Crafted with warmth by the SmallCreek kitchen.</p>
+                <p id="home-version">v1.0.0</p>
+            </div>
+        </div>
+    </div>
+    <div id="white-out"></div>
+    <div id="rotate-overlay" aria-hidden="true">
+        <div id="rotate-icon">🔄</div>
+        <h2 id="rotate-title" data-i18n="rotate_title">Rotate your device</h2>
+        <p id="rotate-msg" data-i18n="rotate_msg">This game is best played in landscape. Turn your device sideways to keep cooking.</p>
+    </div>
+    <img id="angel-showcase" src="assets/img/angel.png" loading="lazy" decoding="async">
+    <div id="prestige-overlay"><h1 data-i18n="soul_awakened" style="color:var(--go); font-size:4rem; text-shadow:0 0 30px var(--go);">[ SOUL AWAKENED ]</h1><p id="pres-lore" style="max-width:600px; text-align:center; font-size:1.4rem; line-height:1.6; margin:20px;"></p></div>
+    <div id="victory-cinema"><div id="cinema-crown">👑</div><img id="cinema-plushie" src="" decoding="async"></div>
+    <div id="race-modal">
+        <h1 data-i18n="prix_title" style="color:var(--go); letter-spacing:4px;">ESQUELOTIA GRAND PRIX</h1>
+        <div id="p-sel" style="text-align:center;"><p data-i18n="select_champion">Select Champion!</p><div id="p-list" style="display:flex; gap:20px; justify-content:center;"></div></div>
+        <div id="p-run" style="display:none; width:100%; flex-direction:column; align-items:center;"><div id="race-track" onpointerdown="prix.pClick()"><div class="speed-lines"></div><div id="finish-line"></div><div id="finish-label" data-i18n="finish_line">FINISH</div><div class="lane" id="l-0"></div><div class="lane" id="l-1"></div><div class="lane" id="l-2"></div><div class="lane" id="l-3"></div></div><div id="p-timer" style="font-size:8rem; color:var(--go); position:absolute; top:50%; text-shadow:0 0 20px #000"></div></div>
+        <div id="p-end" style="display:none; text-align:center;"><h2 id="p-rank"></h2><p id="p-reward"></p><button id="btn-close-race" style="background:#ef4444; color:#fff; padding:15px 40px; border-radius:50px; font-weight:bold; border:2px solid #fff; cursor:pointer; margin-top:30px;" onclick="prix.ret()" data-i18n="return_cauldron">RETURN TO CAULDRON</button></div>
+    </div>
+    <div id="game-wrapper">
+        <div id="hud"><div id="score-box"><span data-i18n="energy_balls">Energy Balls:</span> <span id="score">0</span></div><div id="shard-box"><span data-i18n="angel_shards">Angel Shards:</span> <span id="shards-count">0</span></div></div>
+        <div id="cps-tag">0.0 EB PER SECOND</div>
+        <div id="lore-scroll"><div id="lore-title">CHRONICLE</div><div id="lore-text">...</div></div>
+        <div id="companion-column"></div>
+        <div id="altar-panel"><div id="btn-prestige" onclick="game.pres()"><div class="prestige-label" id="pres-txt">LOCKED</div></div><div id="pres-stat">Lv. 0 (+0%)</div></div>
+        <section id="main-stage" onpointerdown="game.click(event)"><canvas id="particle-canvas"></canvas><div id="sticky-center"><img id="asset-chef" src="assets/img/chef.png" decoding="async"><img id="asset-chef-hand" src="assets/img/chef-hand.png" decoding="async"><img id="asset-soup" src="assets/img/soup.png" decoding="async"><div id="soup-liquid"><img id="asset-soup-liquid" src="assets/img/soup.png" decoding="async"></div><div id="soup-steam"><div class="steam-wisp"></div><div class="steam-wisp"></div><div class="steam-wisp"></div><div class="steam-wisp"></div><div class="steam-wisp"></div><div class="steam-wisp"></div></div><div id="spoon-rig"><img id="asset-spoon" src="assets/img/spoon.png" decoding="async"></div></div><div id="soup-ripples"></div></section>
+        <aside id="side-shop"><h1 data-i18n="shop" style="text-align:center; font-size:1.3rem;">SHOP</h1><div id="shop-companions-panel"><div id="buy-mode-toggle" onclick="game.cycleBuyMode()">Buy x1</div><div id="prix-btn" style="padding:12px; background:linear-gradient(135deg,#7e22ce,#3b82f6); border-radius:10px; text-align:center; font-weight:bold; border:2px solid #fff; margin-bottom:15px; display:none; cursor:pointer;" onclick="prix.open()">Enter Grand Prix</div><div id="companion-list"></div><div id="spoons-album-section"><div id="spoons-album-title" data-i18n="spoons_album_title">SACRED SPOONS ALBUM</div><div id="spoons-album"></div></div></div></aside>
+    </div>
+    <div id="audio-ctrl"><button id="audio-mute" type="button" onclick="sound.toggleMute()" data-i18n-title="audio_mute_title" title="Mute / Unmute sound">🔊</button><input id="audio-vol" type="range" min="0" max="100" value="100" oninput="sound.setVolume(this.value/100)" data-i18n-title="audio_vol_title" title="Volume"></div>
+    <div id="buff-bar"></div>
+    <div id="gx-toast-wrap"></div>
+    <div id="side-buttons">
+        <div class="side-fab" onclick="quests.open()"><span data-i18n="quests_btn">📜 Chef's Orders</span><span id="quest-badge" class="badge2" style="display:none">0</span></div>
+        <div class="side-fab" onclick="atree.open()" data-i18n="tree_btn">🌳 Angel Tree</div>
+        <div class="side-fab" id="reward-fab" style="min-height:44px" onclick="claimReward('cps2')"><span id="reward-fab-label">🎁</span></div>
+        <div class="side-fab" id="lang-fab" onclick="setLang(LANG==='en'?'es':'en')">🌐 EN</div>
+    </div>
+    <div id="offline-modal" class="gx-modal"><div class="gx-box"><h2 data-i18n="offline_title">Your soup kept cooking</h2><p id="offline-text" style="font-size:1rem; line-height:1.5"></p><div style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin-top:6px"><button class="gx-btn" style="min-height:44px; background:linear-gradient(135deg,#f59e0b,#b45309); border-color:var(--go)" onclick="offline.double()" data-i18n="offline_double">x2 (Free reward)</button><button class="gx-btn" style="min-height:44px" onclick="offline.claim()" data-i18n="claim">Claim</button></div></div></div>
+    <div id="quest-modal" class="gx-modal"><div class="gx-box"><h2 data-i18n="quests_title">Chef's Orders</h2><div id="quest-list"></div><div id="ach-list" style="margin-top:14px"></div><button class="gx-btn" style="margin-top:10px" onclick="quests.close()" data-i18n="close">Close</button></div></div>
+    <div id="tree-modal" class="gx-modal"><div class="gx-box"><h2 data-i18n="tree_title">Angel Awakening Tree</h2><p style="font-size:0.85rem; color:#cbd5e1"><span data-i18n="tree_shards_avail">Available Angel Shards:</span> <b id="tree-shards" style="color:var(--go)">0</b></p><div id="tree-list"></div><button class="gx-btn" style="margin-top:10px" onclick="atree.close()" data-i18n="close">Close</button></div></div>
+    <script>
+        let LANG = 'en';
+        const I18N = {
+            en: {
+                soul_awakened:"[ SOUL AWAKENED ]", prix_title:"ESQUELOTIA GRAND PRIX", select_champion:"Select Champion!", return_cauldron:"RETURN TO CAULDRON",
+                energy_balls:"Energy Balls:", angel_shards:"Angel Shards:", chronicle:"CHRONICLE", era:"Era", locked:"LOCKED", shop:"SHOP", spoons_album_title:"SACRED SPOONS ALBUM",
+                quests_btn:"📜 Chef's Orders", tree_btn:"🌳 Angel Tree", offline_title:"Your soup kept cooking", claim:"Claim", quests_title:"Chef's Orders", close:"Close",
+                tree_title:"Angel Awakening Tree", tree_shards_avail:"Available Angel Shards:", audio_mute_title:"Mute / Unmute sound", audio_vol_title:"Volume",
+                home_title:"Smallcreek Skullchef", home_subtitle:"The Wooden Soup", home_tagline:"A cozy ASMR soup to stir, sip and unwind.", home_play:"Play", home_language:"Language", home_audio:"Audio", home_credits:"Crafted with warmth in the SmallCreek kitchen.",
+                backup_label:"Backup", backup_export:"⬇ Export", backup_copy:"📋 Copy", backup_import:"📥 Paste", backup_file:"📂 File",
+                backup_exported:"Backup file downloaded ⬇", backup_copied:"Backup code copied 📋", backup_imported:"Save imported! Reloading…", backup_invalid:"Invalid backup code ✗", backup_error:"Backup failed, try again ✗",
+                backup_import_prompt:"Paste your backup code here:", backup_copy_manual:"Copy this backup code:",
+                cps_per_sec:"{n} EB PER SECOND", awaken_soul:"[ AWAKEN SOUL ]", requires_eb:"Requires {eb} EB", angel_lv:"Angel Awakening Lv. {s} (+{pct}%)",
+                prix_cd:"Grand Prix (CD: {mm}:{ss})", enter_prix:"Enter Grand Prix", finish_line:"FINISH", buy_x1:"Buy x1", buy_x10:"Buy x10", buy_max:"Buy Max", max_label:"Max:", lv:"Lv.", prod:"Prod",
+                angel_power:"(+{pct}% Angel Power!)", milestone_word:"Milestone", milestone_next:"next", milestone_max:"MAX", champion_banner:"👑 CHAMPION (x2!)",
+                spoon_equipped:"[ EQUIPPED ]", spoon_equip_btn:"EQUIP SPOON", spoon_buy_btn:"BUY CARD", rarity_rare:"RARE", rarity_epic:"EPIC", rarity_legendary:"LEGENDARY",
+                first_place:"1ST PLACE!", victory_crown:"VICTORY! Return to crown {name}!", defeat:"DEFEAT!", awarded_eb:"Awarded +{eb} EB!",
+                offline_body:'You were away {time}. Your soup kept cooking and produced:<br><b style="color:var(--go); font-size:1.4rem">+{eb} EB</b>',
+                buff_frenzy:"Frenzy x7", buff_frenzy_toast:"Frenzy! Click x7 for 15s", buff_boil:"Boiling Broth x3", buff_boil_toast:"Boiling Broth! CPS x3 for 30s", buff_rain_toast:"EB Rain! +{eb}",
+                ach_toast:"🏆 Achievement: {n}", ach_firstPres_n:"First Awakening", ach_firstPres_d:"Perform your first prestige", ach_firstChamp_n:"First Champion", ach_firstChamp_d:"Crown a champion in the Grand Prix",
+                ach_fullTeam_n:"Full Team", ach_fullTeam_d:"Unlock all 4 companions", ach_allSpoons_n:"Spoon Collector", ach_allSpoons_d:"Own all sacred spoons", ach_centurion_n:"Broth Centurion", ach_centurion_d:"Take a companion to Lv.100",
+                quest_clicks:"Stir the soup {g} times", quest_eb:"Cook {g} EB", quest_levels:"Buy {g} companion levels", quest_crowns:"Crown a champion in the Grand Prix",
+                quest_done_toast:"Chef's Order complete! 📜", quest_shard_toast:"+1 Angel Shard ⬨", quests_today:"Today's orders · refreshed daily", claimed:"✓ CLAIMED", claim_reward:"Claim {r}", reward_label:"Reward: {r}", achievements_header:"Achievements",
+                node_caldo_name:"Broth Blessing", node_caldo_desc:"+15% CPS per level", node_manos_name:"Skullchef's Hands", node_manos_desc:"+20% click power per level",
+                node_eco_name:"Angel's Echo", node_eco_desc:"+1 free level per companion on prestige", node_cuchara_name:"Blessed Spoon", node_cuchara_desc:"-8% spoon cost per level",
+                node_tiempo_name:"Angel's Time", node_tiempo_desc:"+25% offline gains per level", tree_max:"MAX", tree_upgrade:"Upgrade ({cost} ⬨)",
+                milestone_coco:"Coco Octopus masters the recipe of the abyss!", milestone_bunny:"Baby Bunny guides the sacred whirl!", milestone_pio:"Pio Pio heals the eternal broth!", milestone_ivan:"Ivan Bear protects the ancestral pot!", milestone_generic:"Milestone reached!",
+                comp_coco:"Coco Octopus", comp_bunny:"Baby Bunny Guide", comp_pio:"Pio Pio Healing", comp_ivan:"Ivan Guardian Bear",
+                spoon0_card:"Esquelotian Chronicle", spoon0_name:"Esquelotian Bone Spoon", spoon0_bonus:"Adds +50% flat Click Stir Power",
+                spoon1_card:"Astral Cauldron Rift", spoon1_name:"Mystic Tentacle Spoon", spoon1_bonus:"+5% chance for 10x Cauldron Burst",
+                spoon2_card:"Small Angel's Legacy", spoon2_name:"Small Angel's Golden Spoon", spoon2_bonus:"2x Total Idle CPS Production & -50% Prix CD",
+                pres_lore:"Success. Small Angel's energy is woven into Earth.",
+                lore1:"Skullchef arrived from Esquelotia to heal Earth.", lore2:"The dark entity stole love from Esquelotia.", lore3:"Small Angel gave his life to heal his planet.",
+                lore4:"Skullchef journeyed with Angel's soul in soup.", lore5:"The soup is ready. Awaken the Soul to ascend.", lore6:"Success. Small Angel's energy is woven into Earth.",
+                reward_cps2:"x2 CPS (1h)", reward_skip15:"+15 min CPS", reward_tap:"Auto-Stir 60s", reward_watch:"Watch", reward_free:"Free reward",
+                reward_cooldown:"in {time}", reward_daily_left:"{n}/{max} today", reward_granted:"Reward granted: {r} 🎁", ad_failed:"Reward not available right now", offline_double:"x2 (Free reward)",
+                rotate_title:"Rotate your device", rotate_msg:"Smallcreek Skullchef plays best in landscape. Turn your device sideways to keep cooking."
+            },
+            es: {
+                soul_awakened:"[ ALMA DESPERTADA ]", prix_title:"ESQUELOTIA GRAN PREMIO", select_champion:"¡Elige Campeón!", return_cauldron:"VOLVER AL CALDERO",
+                energy_balls:"Bolas de Energía:", angel_shards:"Fragmentos de Ángel:", chronicle:"CRÓNICA", era:"Era", locked:"BLOQUEADO", shop:"TIENDA", spoons_album_title:"ÁLBUM DE CUCHARAS SAGRADAS",
+                quests_btn:"📜 Pedidos del Chef", tree_btn:"🌳 Árbol del Ángel", offline_title:"Tu sopa siguió cociéndose", claim:"Reclamar", quests_title:"Pedidos del Chef", close:"Cerrar",
+                tree_title:"Árbol del Despertar del Ángel", tree_shards_avail:"Fragmentos de Ángel disponibles:", audio_mute_title:"Silenciar / Activar sonido", audio_vol_title:"Volumen",
+                home_title:"Smallcreek Skullchef", home_subtitle:"La Sopa de Madera", home_tagline:"Una sopa ASMR para remover, saborear y relajarte.", home_play:"Jugar", home_language:"Idioma", home_audio:"Audio", home_credits:"Hecho con cariño en la cocina de SmallCreek.",
+                backup_label:"Copia", backup_export:"⬇ Exportar", backup_copy:"📋 Copiar", backup_import:"📥 Pegar", backup_file:"📂 Archivo",
+                backup_exported:"Archivo de copia descargado ⬇", backup_copied:"Código de copia copiado 📋", backup_imported:"¡Partida importada! Recargando…", backup_invalid:"Código de copia inválido ✗", backup_error:"Fallo en la copia, inténtalo de nuevo ✗",
+                backup_import_prompt:"Pega aquí tu código de copia:", backup_copy_manual:"Copia este código de copia:",
+                cps_per_sec:"{n} EB POR SEGUNDO", awaken_soul:"[ DESPERTAR ALMA ]", requires_eb:"Requiere {eb} EB", angel_lv:"Despertar del Ángel Nv. {s} (+{pct}%)",
+                prix_cd:"Gran Premio (CD: {mm}:{ss})", enter_prix:"Entrar al Gran Premio", finish_line:"META", buy_x1:"Comprar x1", buy_x10:"Comprar x10", buy_max:"Comprar Máx", max_label:"Máx:", lv:"Nv.", prod:"Prod",
+                angel_power:"(+{pct}% ¡Poder del Ángel!)", milestone_word:"Hito", milestone_next:"próx.", milestone_max:"MÁX", champion_banner:"👑 CAMPEÓN (¡x2!)",
+                spoon_equipped:"[ EQUIPADA ]", spoon_equip_btn:"EQUIPAR CUCHARA", spoon_buy_btn:"COMPRAR CARTA", rarity_rare:"RARA", rarity_epic:"ÉPICA", rarity_legendary:"LEGENDARIA",
+                first_place:"¡1ER PUESTO!", victory_crown:"¡VICTORIA! ¡Vuelve para coronar a {name}!", defeat:"¡DERROTA!", awarded_eb:"¡Recompensa +{eb} EB!",
+                offline_body:'Estuviste fuera {time}. Tu sopa siguió cociéndose y generó:<br><b style="color:var(--go); font-size:1.4rem">+{eb} EB</b>',
+                buff_frenzy:"Frenesí x7", buff_frenzy_toast:"¡Frenesí! Click x7 durante 15s", buff_boil:"Caldo Hirviente x3", buff_boil_toast:"¡Caldo Hirviente! CPS x3 durante 30s", buff_rain_toast:"¡Lluvia de EB! +{eb}",
+                ach_toast:"🏆 Logro: {n}", ach_firstPres_n:"Primer Despertar", ach_firstPres_d:"Realiza tu primer prestigio", ach_firstChamp_n:"Primer Campeón", ach_firstChamp_d:"Corona un campeón en el Grand Prix",
+                ach_fullTeam_n:"Equipo Completo", ach_fullTeam_d:"Desbloquea los 4 compañeros", ach_allSpoons_n:"Coleccionista de Cucharas", ach_allSpoons_d:"Posee todas las cucharas sagradas", ach_centurion_n:"Centurión del Caldo", ach_centurion_d:"Lleva un compañero a Nv.100",
+                quest_clicks:"Remueve la sopa {g} veces", quest_eb:"Cocina {g} EB", quest_levels:"Compra {g} niveles de compañeros", quest_crowns:"Corona un campeón en el Grand Prix",
+                quest_done_toast:"¡Pedido del Chef completado! 📜", quest_shard_toast:"+1 Fragmento de Ángel ⬨", quests_today:"Pedidos de hoy · se renuevan cada día", claimed:"✓ RECLAMADO", claim_reward:"Reclamar {r}", reward_label:"Recompensa: {r}", achievements_header:"Logros",
+                node_caldo_name:"Bendición del Caldo", node_caldo_desc:"+15% CPS por nivel", node_manos_name:"Manos del Skullchef", node_manos_desc:"+20% poder de click por nivel",
+                node_eco_name:"Eco del Ángel", node_eco_desc:"+1 nivel gratis por compañero al prestigiar", node_cuchara_name:"Cuchara Bendita", node_cuchara_desc:"-8% coste de cucharas por nivel",
+                node_tiempo_name:"Tiempo del Ángel", node_tiempo_desc:"+25% a ganancias offline por nivel", tree_max:"MÁXIMO", tree_upgrade:"Mejorar ({cost} ⬨)",
+                milestone_coco:"¡Coco Octopus domina la receta del abismo!", milestone_bunny:"¡Baby Bunny guía el remolino sagrado!", milestone_pio:"¡Pio Pio sana el caldo eterno!", milestone_ivan:"¡Ivan Bear protege la olla ancestral!", milestone_generic:"¡Hito alcanzado!",
+                comp_coco:"Coco Octopus", comp_bunny:"Baby Bunny Guide", comp_pio:"Pio Pio Healing", comp_ivan:"Ivan Guardian Bear",
+                spoon0_card:"Crónica Esquelotiana", spoon0_name:"Cuchara de Hueso Esquelotiana", spoon0_bonus:"Añade +50% de Poder de Remover fijo",
+                spoon1_card:"Fisura del Caldero Astral", spoon1_name:"Cuchara de Tentáculo Místico", spoon1_bonus:"+5% de probabilidad de Estallido del Caldero x10",
+                spoon2_card:"Legado del Pequeño Ángel", spoon2_name:"Cuchara Dorada del Pequeño Ángel", spoon2_bonus:"2x Producción Total de CPS Pasivo y -50% CD del Prix",
+                pres_lore:"Logrado. La energía del Pequeño Ángel se teje en la Tierra.",
+                lore1:"Skullchef llegó de Esquelotia para sanar la Tierra.", lore2:"La entidad oscura robó el amor de Esquelotia.", lore3:"El Pequeño Ángel dio su vida para sanar su planeta.",
+                lore4:"Skullchef viajó con el alma del Ángel en la sopa.", lore5:"La sopa está lista. Despierta el Alma para ascender.", lore6:"Logrado. La energía del Pequeño Ángel se teje en la Tierra.",
+                reward_cps2:"x2 CPS (1h)", reward_skip15:"+15 min CPS", reward_tap:"Auto-Remover 60s", reward_watch:"Ver", reward_free:"Recompensa gratis",
+                reward_cooldown:"en {time}", reward_daily_left:"{n}/{max} hoy", reward_granted:"Recompensa concedida: {r} 🎁", ad_failed:"Recompensa no disponible ahora", offline_double:"x2 (Recompensa gratis)",
+                rotate_title:"Gira tu dispositivo", rotate_msg:"Smallcreek Skullchef se juega mejor en horizontal. Gira tu dispositivo para seguir cocinando."
+            }
+        };
+        function t(k, p) { let d = I18N[LANG] || I18N.en; let s = (d && d[k] != null) ? d[k] : (I18N.en[k] != null ? I18N.en[k] : k); if (p) { for (const key in p) s = s.split('{' + key + '}').join(p[key]); } return s; }
+        function applyStaticI18n() {
+            document.querySelectorAll('[data-i18n]').forEach(el => { el.textContent = t(el.getAttribute('data-i18n')); });
+            document.querySelectorAll('[data-i18n-title]').forEach(el => { el.title = t(el.getAttribute('data-i18n-title')); });
+        }
+        function setLang(l) {
+            LANG = (l === 'es') ? 'es' : 'en';
+            try { localStorage.setItem('soup_lang', LANG); } catch (e) {}
+            applyStaticI18n();
+            const f = document.getElementById('lang-fab'); if (f) f.textContent = '🌐 ' + LANG.toUpperCase();
+            const hf = document.getElementById('home-lang'); if (hf) hf.textContent = '🌐 ' + LANG.toUpperCase();
+            if (game._inited) { game.render(); game.updateLore(); game.ui(); }
+            const qm = document.getElementById('quest-modal'); if (qm && qm.classList.contains('open')) quests.render();
+            const tm = document.getElementById('tree-modal'); if (tm && tm.classList.contains('open')) atree.render();
+            const om = document.getElementById('offline-modal'); if (om && om.classList.contains('open')) offline.renderText();
+            const rm = document.getElementById('race-modal'), ps = document.getElementById('p-sel');
+            if (rm && rm.style.display === 'flex' && ps && ps.style.display !== 'none') prix.refreshList();
+        }
+        const sound = {
+            defs: { stir:['audio/stir1.mp3','audio/stir2.mp3','audio/stir3.mp3'], bubble:['audio/bubble.mp3'], buy:['audio/buy.mp3'], prestige:['audio/prestige.mp3'], victory:['audio/victory.mp3'] },
+            vols: { stir:0.3, bubble:0.25, buy:0.5, prestige:0.7, victory:0.85 },
+            pool: {}, voices: {}, muted:false, volume:1, _inited:false, _unlocked:false,
+            init() {
+                if (this._inited) return; this._inited = true;
+                try { const raw = localStorage.getItem('soup_audio'); if (raw) { const d = JSON.parse(raw); if (d && typeof d === 'object') { this.muted = !!d.m; if (typeof d.v === 'number' && isFinite(d.v)) this.volume = Math.min(1, Math.max(0, d.v)); } } } catch (e) {}
+                for (const k in this.defs) { this.pool[k] = this.defs[k].map(src => { const a = new Audio(); a.src = src; a.preload = 'auto'; return a; }); }
+                // POOL de reproducción: por cada fuente se crean unas pocas instancias
+                // reutilizables (round-robin) en vez de clonar un Audio nuevo en cada play().
+                const VOICES_PER_SRC = 3;
+                for (const k in this.defs) {
+                    this.voices[k] = this.defs[k].map(src => {
+                        const inst = [];
+                        for (let i = 0; i < VOICES_PER_SRC; i++) { const a = new Audio(); a.src = src; a.preload = 'auto'; inst.push(a); }
+                        return { inst, idx: 0 };
+                    });
+                }
+                const v = document.getElementById('audio-vol'); if (v) v.value = String(Math.round(this.volume * 100));
+                this.updateUi();
+                const evs = ['pointerdown', 'touchstart', 'keydown'];
+                const handler = () => { this.unlock(); evs.forEach(ev => document.removeEventListener(ev, handler)); };
+                evs.forEach(ev => document.addEventListener(ev, handler, { once: true, passive: true }));
+            },
+            unlock() {
+                if (this._unlocked) return; this._unlocked = true;
+                try {
+                    for (const k in this.pool) {
+                        const arr = this.pool[k]; if (!arr || !arr.length) continue;
+                        const a = arr[0];
+                        try { a.muted = true; const p = a.play(); if (p && p.catch) p.catch(()=>{}); a.pause(); a.currentTime = 0; a.muted = false; } catch (e) {}
+                    }
+                } catch (e) {}
+            },
+            save() { try { localStorage.setItem('soup_audio', JSON.stringify({ m:this.muted, v:this.volume })); } catch (e) {} },
+            play(name) {
+                if (this.muted || this.volume <= 0) return;
+                const grp = this.voices[name]; if (!grp || !grp.length) return;
+                const g = grp.length > 1 ? grp[Math.floor(Math.random() * grp.length)] : grp[0];
+                const a = g.inst[g.idx % g.inst.length];
+                g.idx = (g.idx + 1) % g.inst.length;
+                try {
+                    a.volume = Math.min(1, Math.max(0, (this.vols[name] != null ? this.vols[name] : 0.5) * this.volume));
+                    a.currentTime = 0;
+                    const p = a.play(); if (p && p.catch) p.catch(()=>{});
+                } catch (e) {}
+            },
+            setMuted(m) { this.muted = !!m; this.save(); this.updateUi(); },
+            toggleMute() { this.setMuted(!this.muted); },
+            setVolume(val) { const n = Number(val); this.volume = isFinite(n) ? Math.min(1, Math.max(0, n)) : this.volume; if (this.volume > 0 && this.muted) this.muted = false; this.save(); this.updateUi(); },
+            updateUi() {
+                const c = document.getElementById('audio-ctrl'), b = document.getElementById('audio-mute'), v = document.getElementById('audio-vol');
+                if (b) b.innerText = (this.muted || this.volume <= 0) ? '🔇' : '🔊';
+                if (c) c.classList.toggle('muted', this.muted || this.volume <= 0);
+                if (v && document.activeElement !== v) v.value = String(Math.round(this.volume * 100));
+                if (typeof home !== 'undefined' && home.syncAudio) home.syncAudio();
+            }
+        };
+        // === Versionado del esquema de guardado ===
+        // Sube este número cada vez que cambie la forma del save. Cada incremento debe
+        // tener su paso de migración en SAVE_MIGRATIONS (clave = versión de ORIGEN).
+        const SCHEMA_VERSION = 18;
+        const SAVE_MIGRATIONS = {
+            // v16 -> v17: el campo `as` (Angel Shards acumulados) pasó a guardarse aparte de `s`.
+            16: (s) => {
+                if (!Number.isFinite(s.as)) s.as = Number.isFinite(s.s) ? s.s : 0;
+                s.v = 17;
+                return s;
+            },
+            // v17 -> v18: se añade `rewards` (registros anti-abuso del sistema de recompensas:
+            // timestamps de cooldown y contadores diarios por recompensa).
+            17: (s) => {
+                if (!s.rewards || typeof s.rewards !== 'object') s.rewards = {};
+                s.v = 18;
+                return s;
+            }
+            // FUTURO: para añadir v18 -> v19 solo añade aquí:
+            //   18: (s) => { /* transforma s */ s.v = 19; return s; },
+            // y sube SCHEMA_VERSION a 19. No borres pasos antiguos.
+        };
+        // Transforma un save antiguo al esquema actual de forma incremental. Nunca lanza:
+        // si algo falla, devuelve los datos originales sin tocar (no se pierde nada).
+        function migrateSave(data) {
+            if (!data || typeof data !== 'object') return data;
+            try {
+                let d = data;
+                // Saves anteriores al versionado se tratan como v16 (primera clave conocida).
+                let v = Number.isFinite(d.v) ? d.v : 16;
+                let guard = 0;
+                while (v < SCHEMA_VERSION && SAVE_MIGRATIONS[v] && guard++ < 100) {
+                    const next = SAVE_MIGRATIONS[v](d);
+                    if (next && typeof next === 'object') d = next;
+                    v = Number.isFinite(d.v) ? d.v : v + 1;
+                }
+                if (!Number.isFinite(d.v)) d.v = SCHEMA_VERSION;
+                return d;
+            } catch (e) {
+                return data;
+            }
+        }
+        const game = {
+            e:0, l:0, s:0, c:0, p:false, f:0, cl:false, m:1, cd:0, buyMode:1, defaultSpoonImg:'assets/img/spoon.png', _inited:false, logicTick:null, uiTick:null, saveTick:null, _floatNodes:[], _spoonAnimating:false, _spoonUiKey:'', _steamIdleTick:0, _dispScore:0, _autoPartAcc:0, _wave:0, _ballWave:0, _ballSpeed:1, _lastClick:0, soupBalls:[], _rippleNodes:[], _ambientRippleTick:0, _soupRect:null, _surf:null,
+            as:0, lastSeen:0, _buffs:[], tree:{caldo:0, manos:0, eco:0, cuchara:0, tiempo:0}, daily:null, ach:{}, rewards:{},
+            treeDefs: [
+                {k:'caldo', mx:5, cb:1},
+                {k:'manos', mx:5, cb:1},
+                {k:'eco', mx:5, cb:2},
+                {k:'cuchara', mx:3, cb:2},
+                {k:'tiempo', mx:4, cb:1}
+            ],
+            milestoneMsg: ['milestone_coco', 'milestone_bunny', 'milestone_pio', 'milestone_ivan'],
+            CROWN_HEAD: {
+                0: { x: 0.500, y: 0.150, w: 0.24 },
+                1: { x: 0.504, y: 0.255, w: 0.20 },
+                2: { x: 0.513, y: 0.085, w: 0.24 },
+                3: { x: 0.499, y: 0.090, w: 0.18 }
+            },
+            cp: [
+                {id:0, nk:'comp_coco', cs:20, pw:0.02, lv:0, ch:false, im:'assets/img/coco.png'},
+                {id:1, nk:'comp_bunny', cs:125, pw:0.1, lv:0, ch:false, im:'assets/img/bunny.png'},
+                {id:2, nk:'comp_pio', cs:1500, pw:0.35, lv:0, ch:false, im:'assets/img/pio.png'},
+                {id:3, nk:'comp_ivan', cs:18000, pw:3.5, lv:0, ch:false, im:'assets/img/ivan.png'}
+            ],
+            spoons: [
+                { id: 0, cardKey:'spoon0_card', nameKey:'spoon0_name', bonusKey:'spoon0_bonus', rarity: "rare", cost: 25000, cardImg: "assets/img/card-rare.png", spoonImg: "assets/img/spoon-rare.png", owned: false, equipped: false },
+                { id: 1, cardKey:'spoon1_card', nameKey:'spoon1_name', bonusKey:'spoon1_bonus', rarity: "epic", cost: 225000, cardImg: "assets/img/card-epic.png", spoonImg: "assets/img/spoon-epic.png", owned: false, equipped: false },
+                { id: 2, cardKey:'spoon2_card', nameKey:'spoon2_name', bonusKey:'spoon2_bonus', rarity: "legendary", cost: 850000, cardImg: "assets/img/card-legendary.png", spoonImg: "assets/img/spoon-legendary.png", owned: false, equipped: false }
+            ],
+
+            init() {
+                if (this._inited) return;
+                this._inited = true;
+                this.ctx = document.getElementById('particle-canvas').getContext('2d'); this.resize(); window.onresize = () => this.resize();
+                this.initSoupBalls();
+                this.load(); this.render(); this.updateBuyModeBtn();
+                const alb = document.getElementById('spoons-album');
+                if (alb && !alb._spoonDelegated) {
+                    alb._spoonDelegated = true;
+                    alb.addEventListener('click', (e) => {
+                        const btn = e.target.closest('.spoon-btn');
+                        if (!btn || btn.disabled) return;
+                        e.stopPropagation();
+                        const card = btn.closest('.spoon-card');
+                        const id = card ? parseInt(card.dataset.spoonId, 10) : NaN;
+                        if (!Number.isFinite(id)) return;
+                        const s = this.spoons.find(x => x.id === id);
+                        if (!s) return;
+                        if (s.owned && !s.equipped) this.equipSpoon(id, btn);
+                        else if (!s.owned && this.e >= this.effSpoonCost(s)) this.buySpoon(id, btn);
+                    });
+                }
+                if (this.logicTick) clearInterval(this.logicTick);
+                if (this.uiTick) clearInterval(this.uiTick);
+                if (this.saveTick) clearInterval(this.saveTick);
+                this.logicTick = setInterval(()=>!this.p && this.logic(), 1000);
+                this.uiTick = setInterval(()=>!this.p && this.ui(), 250);
+                this.saveTick = setInterval(()=>this.save(), 5000);
+                if (!this._visBound) {
+                    this._visBound = true;
+                    document.addEventListener('visibilitychange', () => {
+                        // Al volver de 2º plano, invalida rects cacheados y reanuda el rAF.
+                        if (!document.hidden && this._loopPaused) { this._loopPaused = false; this._soupRect = null; this._scoreTarget = null; this.loop(); }
+                    });
+                }
+                this.loop();
+            },
+            resize() { this.ctx.canvas.width = window.innerWidth; this.ctx.canvas.height = window.innerHeight; this._soupRect = null; this._scoreTarget = null; },
+            getSaveData() {
+                this.lastSeen = Date.now();
+                return {v:SCHEMA_VERSION, e:this.e, l:this.l, s:this.s, as:this.as, c:this.cp.map(x=>({lv:x.lv, ch:x.ch})), cd:this.cd, bm:this.buyMode, sp:this.spoons.map(s=>({o:s.owned, eq:s.equipped})), lastSeen:this.lastSeen, tree:this.tree, daily:this.daily, ach:this.ach, rewards:this.rewards};
+            },
+            save() {
+                const data = this.getSaveData();
+                const str = JSON.stringify(data);
+                try { localStorage.setItem('soup_p_v17', str); } catch (e) {}
+                // HOOK NUBE: punto único de guardado en la nube (stub local por ahora).
+                try { cloudSave.save(str); } catch (e) {}
+            },
+            load() {
+                let d = null;
+                try { let raw = localStorage.getItem('soup_p_v17'); if (!raw) raw = localStorage.getItem('soup_p_v16'); if (raw) d = JSON.parse(raw); }
+                catch (err) { d = null; }
+                if (d && typeof d === 'object') d = migrateSave(d);
+                if (d && typeof d === 'object') {
+                    this.e = Number.isFinite(d.e) ? d.e : 0; this.l = Number.isFinite(d.l) ? d.l : 0; this.s = Number.isFinite(d.s) ? d.s : 0; this.cd = Number.isFinite(d.cd) ? d.cd : 0;
+                    this.as = Number.isFinite(d.as) ? d.as : this.s;
+                    if (d.bm === 1 || d.bm === 10 || d.bm === 'max') this.buyMode = d.bm;
+                    if (Array.isArray(d.c)) d.c.forEach((x, i) => { if (this.cp[i] && x) { this.cp[i].lv = x.lv || 0; this.cp[i].ch = !!x.ch; for (let j = 0; j < this.cp[i].lv; j++) this.cp[i].cs = Math.floor(this.cp[i].cs * 1.15); } });
+                    if (d.sp && Array.isArray(d.sp)) d.sp.forEach((item, i) => {
+                        if (!this.spoons[i]) return;
+                        if (typeof item === 'boolean') { this.spoons[i].owned = item; }
+                        else { this.spoons[i].owned = !!item.o; this.spoons[i].equipped = !!item.eq; }
+                    });
+                    if (d.eq !== undefined && typeof d.eq === 'string') {
+                        const mig = { bone: 0, tentacle: 1, golden: 2 };
+                        const idx = mig[d.eq];
+                        if (idx !== undefined && this.spoons[idx].owned) { this.spoons.forEach(s => s.equipped = false); this.spoons[idx].equipped = true; }
+                    }
+                    const eq = this.spoons.filter(s => s.equipped);
+                    if (eq.length > 1) { this.spoons.forEach(s => s.equipped = false); eq[0].equipped = true; }
+                    this.lastSeen = Number.isFinite(d.lastSeen) ? d.lastSeen : 0;
+                    if (d.tree && typeof d.tree === 'object') { for (const k in this.tree) if (Number.isFinite(d.tree[k])) this.tree[k] = d.tree[k]; }
+                    if (d.daily && typeof d.daily === 'object' && d.daily.counters && Array.isArray(d.daily.missions)) this.daily = d.daily;
+                    if (d.ach && typeof d.ach === 'object') this.ach = d.ach;
+                    if (d.rewards && typeof d.rewards === 'object') this.rewards = d.rewards;
+                }
+                this.applySpoonVisual(); this.rebuild();
+                offline.evaluate();
+                quests.ensureDaily();
+            },
+            calcBulkCost(c, n) { let total = 0, cost = c.cs; for (let i = 0; i < n; i++) { total += cost; cost = Math.floor(cost * 1.15); } return total; },
+            maxAffordableLevels(c, energy) {
+                if (energy < c.cs) return 0;
+                let lo = 0, hi = 1;
+                while (this.calcBulkCost(c, hi) <= energy) { hi *= 2; if (hi > 1e6) break; }
+                while (lo < hi) { const mid = Math.ceil((lo + hi + 1) / 2); if (this.calcBulkCost(c, mid) <= energy) lo = mid; else hi = mid - 1; }
+                return lo;
+            },
+            cycleBuyMode() { this.buyMode = this.buyMode === 1 ? 10 : (this.buyMode === 10 ? 'max' : 1); this.updateBuyModeBtn(); this.render(); },
+            getEquippedSpoon() { return this.spoons.find(s => s.equipped); },
+            getCps() {
+                let b = 0;
+                this.cp.forEach(c => { if (c.id !== 2) b += (c.lv * c.pw * (1 + this.s * 0.5) * (c.ch ? 2 : 1) * this.milestoneMult(c.lv)); });
+                let cps = b * (1 + (this.cp[2].lv * 0.04 * this.milestoneMult(this.cp[2].lv)));
+                const eq = this.getEquippedSpoon();
+                if (eq && eq.id === 2) cps *= 2;
+                cps *= this.treeCpsMult();
+                cps *= this.buffMult('cps');
+                return cps;
+            },
+            milestoneMult(lv) { let m = 1; if (lv >= 10) m *= 2; if (lv >= 25) m *= 2; if (lv >= 50) m *= 2; if (lv >= 100) m *= 2; return m; },
+            nextMilestone(lv) { const t = [10, 25, 50, 100]; for (const x of t) if (lv < x) return x; return null; },
+            treeCpsMult() { return 1 + this.tree.caldo * 0.15; },
+            treeClickMult() { return 1 + this.tree.manos * 0.20; },
+            treeSpoonDisc() { return Math.max(0.1, 1 - this.tree.cuchara * 0.08); },
+            treeOfflineMult() { return 1 + this.tree.tiempo * 0.25; },
+            effSpoonCost(s) { return Math.floor(s.cost * this.treeSpoonDisc()); },
+            addBuff(kind, mult, dur, labelKey) {
+                this._buffs = this._buffs.filter(b => b.kind !== kind);
+                this._buffs.push({ kind, mult, until: Date.now() + dur * 1000, labelKey });
+                this.renderBuffs();
+            },
+            buffMult(kind) { const now = Date.now(); let m = 1; this._buffs.forEach(b => { if (b.kind === kind && b.until > now) m *= b.mult; }); return m; },
+            renderBuffs() {
+                const bar = document.getElementById('buff-bar'); if (!bar) return;
+                const now = Date.now();
+                this._buffs = this._buffs.filter(b => b.until > now);
+                // Solo se regenera el innerHTML si cambió el set de buffs o el segundo mostrado.
+                const key = this._buffs.map(b => b.labelKey + ':' + Math.ceil((b.until - now) / 1000)).join('|') + '#' + LANG;
+                if (key === this._buffKey) return;
+                this._buffKey = key;
+                bar.innerHTML = this._buffs.map(b => `<div class="buff-chip">${t(b.labelKey)} (${Math.ceil((b.until - now) / 1000)}s)</div>`).join('');
+            },
+            track(type, amt) { if (this.daily && this.daily.counters && this.daily.counters[type] != null) this.daily.counters[type] += amt; quests.bump(type, amt); },
+            getPrixCd() { const eq = this.getEquippedSpoon(); return (eq && eq.id === 2) ? 300 : 600; },
+            applySpoonVisual() { const el = document.getElementById('asset-spoon'); if (!el) return; const s = this.getEquippedSpoon(); el.src = (s && s.owned) ? s.spoonImg : this.defaultSpoonImg; },
+            spoonUiKey() {
+                return this.spoons.map(s => (s.owned ? 'o' : 'u') + (s.equipped ? 'e' : '-') + (this.e >= this.effSpoonCost(s) ? 'a' : 'l')).join('|');
+            },
+            summonSpoon(spoon, originEl, onLand) {
+                let clone, done = false, landed = false;
+                let animTimer, fadeTimer, particleTimer;
+                const finish = () => {
+                    if (done) return;
+                    done = true;
+                    clearTimeout(failSafe);
+                    clearTimeout(animTimer);
+                    clearTimeout(particleTimer);
+                    clearTimeout(fadeTimer);
+                    this._spoonAnimating = false;
+                    if (onLand) onLand();
+                };
+                const failSafe = setTimeout(() => { if (clone && clone.parentNode) clone.remove(); finish(); }, 6000);
+                const onLandAnim = () => {
+                    if (done || landed) return;
+                    landed = true;
+                    clearTimeout(animTimer);
+                    const slot = document.getElementById('asset-spoon');
+                    if (slot) slot.src = spoon.spoonImg;
+                    if (clone) {
+                        clone.style.transition = 'opacity 200ms ease';
+                        clone.style.opacity = '0';
+                        fadeTimer = setTimeout(() => {
+                            if (clone && clone.parentNode) clone.remove();
+                            finish();
+                        }, 200);
+                    } else finish();
+                };
+                try {
+                    if (!originEl) originEl = document.getElementById('spoons-album');
+                    if (!originEl) { finish(); return; }
+                    const slot = document.getElementById('asset-spoon');
+                    if (!slot) { finish(); return; }
+                    const rect = originEl.getBoundingClientRect();
+                    const slotRect = slot.getBoundingClientRect();
+                    const cloneW = 120;
+                    clone = document.createElement('img');
+                    clone.src = spoon.spoonImg;
+                    clone.style.setProperty('--start-x', rect.left + rect.width / 2 + 'px');
+                    clone.style.setProperty('--start-y', rect.top + rect.height / 2 + 'px');
+                    clone.style.setProperty('--end-x', slotRect.left + slotRect.width / 2 + 'px');
+                    clone.style.setProperty('--end-y', slotRect.top + slotRect.height / 2 + 'px');
+                    clone.style.setProperty('--end-scale', Math.max(0.25, (slotRect.width / cloneW) * 0.95));
+                    clone.className = 'summon-clone forge-direct-active';
+                    document.body.appendChild(clone);
+                    particleTimer = setTimeout(() => {
+                        this.part(window.innerWidth / 2, window.innerHeight / 2, 'magic');
+                    }, 900);
+                    clone.addEventListener('animationend', (e) => {
+                        if (e.animationName === 'forgeSpoonDirect') onLandAnim();
+                    });
+                    animTimer = setTimeout(onLandAnim, 1800);
+                } catch (err) {
+                    if (clone && clone.parentNode) clone.remove();
+                    finish();
+                }
+            },
+            buySpoon(id, btn) {
+                const s = this.spoons.find(x => x.id === id);
+                if (!s || s.owned || this._spoonAnimating) return;
+                const cost = this.effSpoonCost(s);
+                if (this.e < cost) return;
+                this.e -= cost;
+                s.owned = true;
+                this._spoonAnimating = true;
+                this.summonSpoon(s, btn || document.getElementById('spoons-album'), () => {
+                    this.spoons.forEach(sp => sp.equipped = false);
+                    s.equipped = true;
+                    this.applySpoonVisual();
+                    this.save();
+                    this._spoonUiKey = '';
+                    this.renderSpoons();
+                });
+            },
+            equipSpoon(id, btn) {
+                const s = this.spoons.find(x => x.id === id);
+                if (!s || !s.owned || s.equipped || this._spoonAnimating) return;
+                this._spoonAnimating = true;
+                this.summonSpoon(s, btn || document.getElementById('spoons-album'), () => {
+                    this.spoons.forEach(sp => sp.equipped = false);
+                    s.equipped = true;
+                    this.applySpoonVisual();
+                    this.save();
+                    this._spoonUiKey = '';
+                    this.renderSpoons();
+                });
+            },
+            renderSpoons() {
+                const alb = document.getElementById('spoons-album'); if (!alb) return;
+                alb.innerHTML = '';
+                this.spoons.forEach(s => {
+                    const card = document.createElement('div');
+                    card.className = 'spoon-card ' + s.rarity + (s.equipped ? ' equipped' : '');
+                    card.dataset.spoonId = String(s.id);
+                    let actionHtml = '';
+                    const sc = this.effSpoonCost(s);
+                    if (s.equipped) actionHtml = `<span class="spoon-equipped-badge">${t('spoon_equipped')}</span>`;
+                    else if (s.owned) actionHtml = `<button class="spoon-btn equip" type="button">${t('spoon_equip_btn')}</button>`;
+                    else if (this.e >= sc) actionHtml = `<button class="spoon-btn buy" type="button">${t('spoon_buy_btn')}</button><div class="spoon-cost">${sc.toLocaleString()} EB</div>`;
+                    else actionHtml = `<button class="spoon-btn locked" type="button" disabled>${t('spoon_buy_btn')}</button><div class="spoon-cost">${sc.toLocaleString()} EB</div>`;
+                    card.innerHTML = `<img src="${s.cardImg}" class="spoon-card-img" alt="${t(s.cardKey)}"><span class="spoon-rarity ${s.rarity}">${t('rarity_' + s.rarity)}</span><div style="font-size:0.82rem;font-weight:bold;line-height:1.2">${t(s.cardKey)}</div><div style="font-size:0.68rem;color:#cbd5e1">${t(s.nameKey)}</div><div class="spoon-benefit">${t(s.bonusKey)}</div>${actionHtml}`;
+                    const btn = card.querySelector('.spoon-btn');
+                    if (btn && !btn.disabled) {
+                        if (s.owned && !s.equipped) btn.onclick = (e) => { e.stopPropagation(); this.equipSpoon(s.id, e.currentTarget); };
+                        else if (!s.owned && this.e >= this.effSpoonCost(s)) btn.onclick = (e) => { e.stopPropagation(); this.buySpoon(s.id, e.currentTarget); };
+                    }
+                    alb.appendChild(card);
+                });
+                this._spoonUiKey = this.spoonUiKey();
+            },
+            updateBuyModeBtn() { const b = document.getElementById('buy-mode-toggle'); if (b) b.innerText = this.buyMode === 1 ? t('buy_x1') : (this.buyMode === 10 ? t('buy_x10') : t('buy_max')); },
+            cardPriceDisplay(c) {
+                const maxN = this.maxAffordableLevels(c, this.e);
+                const fmt = (n) => Math.floor(n).toLocaleString() + ' EB';
+                if (this.buyMode === 1) return { text: fmt(c.cs), grayed: maxN < 1, affordable: maxN >= 1 };
+                if (this.buyMode === 10) {
+                    if (maxN >= 1) return { text: fmt(this.calcBulkCost(c, Math.min(10, maxN))), grayed: false, affordable: true };
+                    return { text: fmt(this.calcBulkCost(c, 10)), grayed: true, affordable: false };
+                }
+                if (maxN >= 1) return { text: t('max_label') + ' ' + fmt(this.calcBulkCost(c, maxN)), grayed: false, affordable: true };
+                return { text: t('max_label') + ' ' + fmt(c.cs), grayed: true, affordable: false };
+            },
+            rebuild() { const col = document.getElementById('companion-column'); col.innerHTML = ''; this.cp.forEach(c => { if(c.lv>0) this.slot(c); }); },
+            slot(c) {
+                let s = document.getElementById(`slot-${c.id}`);
+                if (!s) { s = document.createElement('div'); s.id = `slot-${c.id}`; s.className = 'companion-slot'; document.getElementById('companion-column').appendChild(s); }
+                s.innerHTML = `<img src="${c.im}" class="slot-img"><div class="lv-badge">${t('lv')} ${c.lv}</div>${c.ch?'<div class="slot-crown">👑</div>':''}`; return s;
+            },
+            logic() {
+                this.c = this.getCps();
+                const prevDisp = Math.floor(this.e);
+                this.e += this.c; this.l += this.c;
+                const nextDisp = Math.floor(this.e);
+                if (nextDisp > prevDisp) this._autoPartAcc += nextDisp - prevDisp;
+                if (this.c > 0) this.track('eb', this.c);
+                if (this.cd > 0) this.cd--;
+                bubble.tick();
+                quests.ensureDaily();
+            },
+            updateLore() {
+                const lt = document.getElementById('lore-text'), ti = document.getElementById('lore-title');
+                if (this.s === 0) {
+                    if (this.l < 1000) { this.m = 1; }
+                    else if (this.l < 10000) { this.m = 2; }
+                    else if (this.l < 100000) { this.m = 3; }
+                    else if (this.l < 500000) { this.m = 4; }
+                    else { this.m = 5; }
+                    lt.innerText = t('lore' + this.m);
+                    ti.innerText = t('chronicle') + ' ' + this.m;
+                } else {
+                    this.m = 6;
+                    lt.innerText = t('lore6');
+                    ti.innerText = t('chronicle') + ' 6 (' + t('era') + ' ' + this.s + ')';
+                }
+            },
+            ui() {
+                const disp = Math.floor(this.e);
+                document.getElementById('score').innerText = disp.toLocaleString();
+                this._dispScore = disp;
+                document.getElementById('shards-count').innerText = this.as;
+                document.getElementById('cps-tag').innerText = t('cps_per_sec', {n: this.c.toFixed(1)});
+                let g = 1e6 * Math.pow(5, this.s); let b = document.getElementById('btn-prestige');
+                const presUnlocked = this.e >= g;
+                if (b.className !== (presUnlocked ? 'unlocked' : 'locked')) b.className = presUnlocked ? 'unlocked' : 'locked';
+                document.getElementById('pres-txt').innerText = presUnlocked ? t('awaken_soul') : t('requires_eb', {eb: g.toLocaleString()});
+                document.getElementById('pres-stat').innerText = t('angel_lv', {s: this.s, pct: this.s*50});
+                this.updateLore();
+                const prixBtn = document.getElementById('prix-btn');
+                prixBtn.style.display = this.cp[0].lv > 0 ? 'block' : 'none';
+                if (this.cd > 0) {
+                    const mm = String(Math.floor(this.cd / 60)).padStart(2, '0');
+                    const ss = String(this.cd % 60).padStart(2, '0');
+                    prixBtn.innerText = t('prix_cd', {mm, ss});
+                    prixBtn.style.pointerEvents = 'none';
+                    prixBtn.style.opacity = '0.6';
+                    prixBtn.style.cursor = 'not-allowed';
+                } else {
+                    prixBtn.innerText = t('enter_prix');
+                    prixBtn.style.pointerEvents = 'auto';
+                    prixBtn.style.opacity = '1';
+                    prixBtn.style.cursor = 'pointer';
+                }
+                this.updateBuyModeBtn();
+                document.querySelectorAll('.companion-card').forEach((card, i) => {
+                    const pd = this.cardPriceDisplay(this.cp[i]);
+                    card.className = `companion-card ${pd.affordable ? 'affordable' : ''}`;
+                    const priceEl = card.querySelector('.card-price');
+                    if (priceEl) { priceEl.innerText = pd.text; priceEl.style.color = pd.grayed ? '#64748b' : '#fbbf24'; }
+                });
+                const sk = this.spoonUiKey();
+                if (sk !== this._spoonUiKey) this.renderSpoons();
+                this.renderBuffs();
+                ach.check();
+                quests.updateBadge();
+                if (typeof rewardSystem !== 'undefined') rewardSystem.renderButton();
+            },
+            click(ev) {
+                if(this.p || this.cl || ev.target.closest('#side-shop') || ev.target.closest('#altar-panel')) return;
+                const m = Number.isFinite(this.m) ? Math.min(Math.max(this.m, 1), 6) : 1;
+                const exp = Math.min(this.cp[1].lv * (this.cp[1].ch ? 2 : 1) * 0.5, 24);
+                let gain = m * Math.pow(1.33, exp) * (1 + this.s * 0.5);
+                const eq = this.getEquippedSpoon();
+                if (eq && eq.id === 0) gain *= 1.50;
+                if (eq && eq.id === 1 && Math.random() < 0.05) gain *= 10;
+                gain *= this.milestoneMult(this.cp[1].lv) * this.treeClickMult() * this.buffMult('click');
+                if (!Number.isFinite(gain) || gain <= 0) return;
+                this.cl = true; this.e += gain; this._lastClick = performance.now();
+                this.track('clicks', 1); this.track('eb', gain);
+                this.floatNum(ev.clientX, ev.clientY, gain);
+                sound.play('stir');
+                document.getElementById('asset-spoon').classList.add('manual-stir');
+                setTimeout(() => { document.getElementById('asset-spoon').classList.remove('manual-stir'); this.cl = false; }, 120);
+                const o = this.soupPartOrigin();
+                this.part(o.x + (Math.random() - 0.5) * 40, o.y + (Math.random() - 0.5) * 20, 'energy');
+                this.spawnRipple(ev.clientX, ev.clientY);
+            },
+            summon(c, btn) {
+                const r = btn.getBoundingClientRect(); const h = document.createElement('img'); h.src = c.im; h.className = 'summon-clone'; h.style.left=r.left+'px'; h.style.top=r.top+'px'; h.style.transform='scale(0.2)'; document.body.appendChild(h);
+                setTimeout(() => { h.style.left='50%'; h.style.top='45%'; h.style.transform='translate(-50%,-50%) scale(1.5) rotate(360deg)'; this.part(window.innerWidth/2, window.innerHeight/2, 'magic');
+                    setTimeout(() => { let s = this.slot(c); let sr = s.getBoundingClientRect(); h.style.left = sr.left+45+'px'; h.style.top = sr.top+45+'px'; h.style.transform = 'translate(-50%,-50%) scale(0.35) rotate(0deg)'; setTimeout(() => h.remove(), 1000); }, 1500);
+                }, 50);
+            },
+            buy(i, ev) {
+                const c = this.cp[i];
+                let n = this.buyMode === 1 ? 1 : (this.buyMode === 10 ? Math.min(10, this.maxAffordableLevels(c, this.e)) : this.maxAffordableLevels(c, this.e));
+                if (n <= 0) return;
+                const total = this.calcBulkCost(c, n);
+                if (this.e < total) return;
+                const prevLv = c.lv;
+                this.e -= total;
+                c.lv += n;
+                let cost = c.cs;
+                for (let j = 0; j < n; j++) cost = Math.floor(cost * 1.15);
+                c.cs = cost;
+                sound.play('buy');
+                this.track('levels', n);
+                if ([10, 25, 50, 100].some(th => prevLv < th && c.lv >= th)) { this.part(window.innerWidth / 2, window.innerHeight * 0.5, 'magic'); sound.play('bubble'); gx.toast(t(this.milestoneMsg[i] || 'milestone_generic')); }
+                ach.check();
+                this.summon(c, ev.currentTarget);
+                this.render();
+            },
+            pres() {
+                let g = 1e6 * Math.pow(5, this.s); if (this.e < g) { document.getElementById('btn-prestige').classList.add('shake'); setTimeout(()=>document.getElementById('btn-prestige').classList.remove('shake'), 300); return; }
+                this.p = true; sound.play('prestige'); const show = document.getElementById('angel-showcase'); show.classList.add('active'); this.part(window.innerWidth/2, window.innerHeight/2, 'magic');
+                setTimeout(() => {
+                    show.classList.remove('active'); const o = document.getElementById('prestige-overlay'); document.getElementById('pres-lore').innerText = t('pres_lore'); o.style.display = 'flex'; setTimeout(()=>o.style.opacity='1', 20);
+                    setTimeout(() => {
+                        this.s++; this.as++; this._buffs = [];
+                        ach.grant('firstPres');
+                        const eco = this.tree.eco;
+                        this.e = 0; this.l = 0; this.cp.forEach(c => { const base = c.id === 0 ? 20 : (c.id === 1 ? 125 : (c.id === 2 ? 1500 : 18000)); c.lv = eco; c.ch = false; c.cs = base; for (let j = 0; j < eco; j++) c.cs = Math.floor(c.cs * 1.15); });
+                        this.rebuild(); this.render(); this.save(); o.style.opacity = '0'; setTimeout(()=>{o.style.display='none'; this.p=false;}, 500);
+                    }, 3000);
+                }, 2000);
+            },
+            coron(c) {
+                this.p = true; sound.play('victory');
+                const v = document.getElementById('victory-cinema'), p = document.getElementById('cinema-plushie'), cr = document.getElementById('cinema-crown'), wo = document.getElementById('white-out');
+                const off = (game.CROWN_HEAD[c.id] || { x: 0.5, y: 0.18, w: 0.22 });
+                p.src = c.im;
+                cr.style.transition = 'none';
+                cr.style.left = '50%';
+                cr.style.top = '-150px';
+                cr.style.transform = 'translate(-50%, -50%) scale(2.2)';
+                v.style.display = 'flex';
+                wo.style.opacity = '0';
+                void cr.offsetHeight;
+                let landY = '45%';
+                const place = () => {
+                    const r = p.getBoundingClientRect();
+                    if (r.width < 10) { requestAnimationFrame(place); return; }
+                    const headX = r.left + r.width * off.x;
+                    landY = (r.top + r.height * off.y) + 'px';
+                    const scale = Math.max(0.6, (r.width * off.w) / 64);
+                    cr.style.left = headX + 'px';
+                    cr.style.transform = `translate(-50%, -50%) scale(${scale})`;
+                    void cr.offsetHeight;
+                    cr.style.transition = 'top 1.2s cubic-bezier(0.25, 1, 0.5, 1)';
+                    cr.style.setProperty('top', landY, 'important');
+                };
+                setTimeout(place, 100);
+                setTimeout(() => {
+                    wo.style.opacity = '1';
+                    setTimeout(() => { wo.style.opacity = '0'; }, 150);
+                }, 3800);
+                setTimeout(() => {
+                    v.style.display = 'none';
+                    cr.style.transition = '';
+                    cr.style.top = '-150px';
+                    cr.style.left = '50%';
+                    cr.style.transform = 'translate(-50%, -50%) scale(2.2)';
+                    this.cd = this.getPrixCd();
+                    this.p = false;
+                    this.rebuild();
+                    this.render();
+                }, 4100);
+            },
+            loop() {
+                if (this.p && bubble.node) bubble.despawn();
+                const sp = document.getElementById('spoon-rig');
+                this._frame = (this._frame || 0) + 1;
+                // El rect de #asset-soup se cachea y solo se relee cada 30 frames (o cuando se
+                // invalida en resize/visibilitychange). Evita forzar layout cada frame.
+                if (!this._soupRect || (this._frame % 30 === 0)) {
+                    const so = document.getElementById('asset-soup');
+                    const r = so ? so.getBoundingClientRect() : null;
+                    this._soupRect = r;
+                    this._surf = r ? { x: r.left + r.width * 0.52, y: r.top + r.height * 0.42, w: r.width, h: r.height } : null;
+                }
+                const sr = this._soupRect;
+                if (!this.p) { this._wave += 0.018; const tgt = (performance.now() - this._lastClick < 1500) ? 1.9 : 1; this._ballSpeed += (tgt - this._ballSpeed) * 0.04; this._ballWave += 0.012 * this._ballSpeed; }
+                if(!this.p && this.c > 0 && !this.cl) {
+                    this.f += (0.04 + Math.log10(this.c+1)*0.05);
+                    sp.style.transform = `translate(-50%,-50%) rotate(${-27+Math.sin(this.f)*5}deg)`;
+                    if (this._autoPartAcc > 0) {
+                        // CAP por frame: como mucho 4 emisiones/frame aunque el CPS sea altísimo.
+                        const burst = Math.min(this._autoPartAcc, 4);
+                        const o = this.soupPartOrigin();
+                        for (let i = 0; i < burst; i++) this.part(o.x + (Math.random() - 0.5) * 40, o.y + (Math.random() - 0.5) * 20, 'energy');
+                        this._autoPartAcc -= burst;
+                        // Evita que el acumulador crezca sin límite con CPS muy alto.
+                        if (this._autoPartAcc > 40) this._autoPartAcc = 40;
+                    }
+                }
+                if (!this.p && (this._frame % 2 === 0)) {
+                    const sl = document.getElementById('asset-soup-liquid');
+                    if (sl) {
+                        const w = this._wave;
+                        const sy = 1 + Math.sin(w) * 0.018 + (this.c > 0 ? Math.sin(this.f) * 0.007 : 0);
+                        const sx = 1 + Math.sin(w * 0.85 + 1.1) * 0.009;
+                        const sk = Math.sin(w * 0.7) * 0.95;
+                        const tx = Math.sin(w * 0.6) * 1.1;
+                        sl.style.transform = `translateX(${tx.toFixed(3)}%) scale(${sx.toFixed(4)},${sy.toFixed(4)}) skewX(${sk.toFixed(3)}deg)`;
+                    }
+                }
+                if (!this.p && sr) {
+                    this._steamIdleTick++;
+                    if (this._steamIdleTick >= 8) {
+                        this._steamIdleTick = 0;
+                        this.part(
+                            sr.left + sr.width * (0.30 + Math.random() * 0.40),
+                            sr.top + sr.height * (0.33 + Math.random() * 0.06),
+                            'steam'
+                        );
+                    }
+                    this._ambientRippleTick++;
+                    if (this._ambientRippleTick >= 150) { this._ambientRippleTick = 0; this.spawnRipple(); }
+                } else if (this.p) {
+                    this._steamIdleTick = 0;
+                }
+                this.draw();
+                // Pausa el bucle de animación cuando la pestaña está oculta (no anima en 2º plano).
+                if (document.hidden) { this._loopPaused = true; return; }
+                requestAnimationFrame(()=>this.loop());
+            },
+            render() {
+                const l = document.getElementById('companion-list'); l.innerHTML = '';
+                this.cp.forEach((c, i) => {
+                    const pd = this.cardPriceDisplay(c);
+                    const cd = document.createElement('div'); cd.className = `companion-card ${pd.affordable ? 'affordable' : ''}`; cd.onclick = (e) => this.buy(i, e);
+                    let d = c.id === 2 ? `+${(0.04 * 100).toFixed(1)}% ${t('prod')}` : `+${(c.pw * (1 + this.s * 0.5)).toFixed(1)} EB/s`;
+                    let angelText = (this.s > 0 && c.id !== 2) ? `<br><span style="color:#4ade80; font-size:0.6rem;">${t('angel_power', {pct: this.s*50})}</span>` : '';
+                    const mm = this.milestoneMult(c.lv); const nm = this.nextMilestone(c.lv);
+                    let mileText = c.lv > 0 ? `<br><span style="color:#fbbf24; font-size:0.6rem;">x${mm} ${t('milestone_word')}${nm ? ` · ${t('milestone_next')} ${t('lv')}${nm}` : ` · ${t('milestone_max')}`}</span>` : '';
+                    cd.innerHTML = `<img src="${c.im}" class="comp-img"><div style="flex:1"><b>${t(c.nk)} (${c.lv})</b><div style="font-size:0.7rem;color:#cbd5e1">${d}${angelText}${mileText}</div>${c.ch?`<span class="champ-banner">${t('champion_banner')}</span>`:''}<span class="card-price" style="color:${pd.grayed ? '#64748b' : '#fbbf24'};font-weight:bold;display:block;">${pd.text}</span></div>`; l.appendChild(cd);
+                });
+                this.renderSpoons();
+            },
+            floatNum(x, y, gain) {
+                if (this._floatNodes.length >= 8) { const old = this._floatNodes.shift(); if (old && old.parentNode) old.remove(); }
+                const el = document.createElement('div');
+                el.className = 'click-float';
+                el.style.left = x + 'px';
+                el.style.top = y + 'px';
+                const fmt = gain >= 100 ? Math.floor(gain).toLocaleString() : (gain % 1 === 0 ? String(Math.floor(gain)) : gain.toFixed(1));
+                el.textContent = '+' + fmt + ' EB';
+                document.body.appendChild(el);
+                this._floatNodes.push(el);
+                el.addEventListener('animationend', () => { el.remove(); const i = this._floatNodes.indexOf(el); if (i >= 0) this._floatNodes.splice(i, 1); }, { once: true });
+            },
+            particles: [],
+            soupPartOrigin() {
+                const cr = this._soupRect;
+                if (cr) return { x: cr.left + cr.width * 0.52, y: cr.top + cr.height * 0.42 };
+                const so = document.getElementById('asset-soup');
+                if (!so) return { x: window.innerWidth / 2, y: window.innerHeight / 2 + 100 };
+                const r = so.getBoundingClientRect();
+                return { x: r.left + r.width * 0.52, y: r.top + r.height * 0.42 };
+            },
+            initSoupBalls() {
+                this.soupBalls = [];
+                const n = 10;
+                for (let i = 0; i < n; i++) {
+                    const ang = (i / n) * Math.PI * 2 + Math.random() * 0.5;
+                    const rr = 0.25 + Math.random() * 0.7;
+                    this.soupBalls.push({ nx: Math.cos(ang) * rr, ny: Math.sin(ang) * rr, r: 12 + Math.random() * 12, ph: Math.random() * Math.PI * 2, bobA: 3 + Math.random() * 3, bobSp: 0.26 + Math.random() * 0.18, swayA: 4 + Math.random() * 4, swaySp: 0.15 + Math.random() * 0.15, a: 0.46 + Math.random() * 0.30 });
+                }
+                this.buildSoupBallGradients();
+            },
+            buildSoupBallGradients() {
+                // Cada gradiente radial es constante en forma (radio y colores fijos por bola);
+                // solo cambia su posición. Lo creamos UNA vez centrado en el origen y al
+                // dibujar trasladamos el canvas, evistando crear 10 gradientes por frame.
+                if (!this.ctx) return;
+                const c = this.ctx;
+                for (let k = 0; k < this.soupBalls.length; k++) {
+                    const b = this.soupBalls[k];
+                    const r = b.r;
+                    const g = c.createRadialGradient(-r * 0.3, -r * 0.4, r * 0.1, 0, 0, r);
+                    g.addColorStop(0, `rgba(224,252,255,${Math.min(1, b.a * 1.05)})`);
+                    g.addColorStop(0.45, `rgba(125,211,252,${b.a * 0.7})`);
+                    g.addColorStop(1, 'rgba(34,150,180,0)');
+                    b.grad = g;
+                }
+            },
+            drawSoupBalls() {
+                const s = this._surf; if (!s) return;
+                const c = this.ctx, w = this._ballWave;
+                for (let k = 0; k < this.soupBalls.length; k++) {
+                    const b = this.soupBalls[k];
+                    const cx = s.x + b.nx * s.w * 0.20 + Math.sin(w * b.swaySp + b.ph) * b.swayA;
+                    const cy = s.y + b.ny * s.h * 0.085 + Math.sin(w * b.bobSp + b.ph) * b.bobA;
+                    const r = b.r;
+                    if (!b.grad) this.buildSoupBallGradients();
+                    c.save();
+                    c.translate(cx, cy);
+                    c.globalAlpha = 1; c.fillStyle = b.grad;
+                    c.beginPath(); c.ellipse(0, 0, r, r * 0.78, 0, 0, Math.PI * 2); c.fill();
+                    c.globalAlpha = b.a * 0.85;
+                    c.fillStyle = `rgba(255,255,255,${b.a * 0.6})`;
+                    c.beginPath(); c.ellipse(-r * 0.32, -r * 0.4, r * 0.26, r * 0.18, -0.5, 0, Math.PI * 2); c.fill();
+                    c.restore();
+                }
+                c.globalAlpha = 1;
+            },
+            spawnRipple(cx, cy) {
+                const cont = document.getElementById('soup-ripples'), stage = document.getElementById('main-stage');
+                if (!cont || !stage) return;
+                let sr = this._soupRect; const so = document.getElementById('asset-soup');
+                if (!sr && so) sr = so.getBoundingClientRect();
+                if (!sr) return;
+                const ox = sr.left + sr.width * 0.52, oy = sr.top + sr.height * 0.42;
+                const rx = sr.width * 0.20, ry = sr.height * 0.11;
+                let px, py;
+                if (cx === undefined) {
+                    const a = Math.random() * Math.PI * 2, q = Math.sqrt(Math.random());
+                    px = ox + Math.cos(a) * rx * q; py = oy + Math.sin(a) * ry * q;
+                } else {
+                    let dx = cx - ox, dy = cy - oy;
+                    const norm = (dx * dx) / (rx * rx) + (dy * dy) / (ry * ry);
+                    if (norm > 1) { const kk = 1 / Math.sqrt(norm); dx *= kk; dy *= kk; }
+                    px = ox + dx; py = oy + dy;
+                }
+                const st = stage.getBoundingClientRect();
+                if (this._rippleNodes.length >= 7) { const old = this._rippleNodes.shift(); if (old && old.parentNode) old.remove(); }
+                const el = document.createElement('div');
+                el.className = 'liquid-ripple';
+                el.style.left = (px - st.left) + 'px'; el.style.top = (py - st.top) + 'px';
+                cont.appendChild(el); this._rippleNodes.push(el);
+                el.addEventListener('animationend', () => { el.remove(); const i = this._rippleNodes.indexOf(el); if (i >= 0) this._rippleNodes.splice(i, 1); }, { once: true });
+            },
+            scorePartTarget() {
+                // El marcador no se mueve: cacheamos su posición y la refrescamos cada 30 frames.
+                if (this._scoreTarget && (this._frame % 30 !== 0)) return this._scoreTarget;
+                const el = document.getElementById('score');
+                if (!el) return this._scoreTarget || { x: window.innerWidth / 2, y: 45 };
+                const r = el.getBoundingClientRect();
+                this._scoreTarget = { x: r.left + r.width / 2, y: r.top + r.height / 2 };
+                return this._scoreTarget;
+            },
+            pulseScore() {
+                const b = document.getElementById('score-box');
+                if (!b) return;
+                b.classList.remove('glow'); void b.offsetWidth; b.classList.add('glow');
+            },
+            part(x, y, t) {
+                if (t === 'steam') {
+                    if (this.particles.filter(p => p.t === 'steam').length >= 38) return;
+                    this.particles.push({ x, y, t, vx: (Math.random() - 0.5) * 0.8, vy: -(Math.random() * 0.9 + 0.35), life: 0.7 + Math.random() * 0.28, size: Math.random() * 10 + 7, color: Math.random() > 0.45 ? 'rgba(255,255,255,0.46)' : 'rgba(165,243,252,0.36)' });
+                    return;
+                }
+                // TOPE GLOBAL de partículas: si se supera, se descartan las nuevas para
+                // evitar la explosión con CPS alto. El máximo mantiene el efecto visual.
+                const MAX_PARTS = 80;
+                const want = (t === 'magic' ? 30 : 8);
+                const room = MAX_PARTS - this.particles.length;
+                if (room <= 0) return;
+                const n = Math.min(want, room);
+                for (let i = 0; i < n; i++) this.particles.push({ x, y, t, vx: (Math.random() - 0.5) * 10, vy: (Math.random() - 0.5) * 10 - (t === 'energy' ? 5 : 0), life: 1, size: Math.random() * 8 + 4, color: t === 'magic' ? (Math.random() > 0.5 ? '#fff' : '#fbbf24') : '#a5f3fc' });
+            },
+            draw() {
+                this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
+                if (!this.p) this.drawSoupBalls();
+                const scoreTarget = this.scorePartTarget();
+                this.particles.forEach((p, i) => {
+                    if (p.t === 'energy') {
+                        if (p.boost === undefined) p.boost = 9;
+                        if (p.boost > 0) { p.boost--; p.vy += 0.18; }
+                        else {
+                            const dx = scoreTarget.x - p.x, dy = scoreTarget.y - p.y;
+                            const dist = Math.hypot(dx, dy);
+                            p.vx = 0; p.vy = 0;
+                            if (dist < 6 || p.arrived) {
+                                if (!p.arrived) { p.arrived = true; this.pulseScore(); }
+                                p.x = scoreTarget.x; p.y = scoreTarget.y; p.life -= 0.3;
+                            } else { p.x += dx * 0.2; p.y += dy * 0.2; }
+                        }
+                    } else if (p.t === 'steam') { p.vx *= 0.985; p.vy -= 0.015; }
+                    p.x += p.vx; p.y += p.vy;
+                    p.life -= p.t === 'steam' ? 0.011 : 0.015;
+                    this.ctx.fillStyle = p.color;
+                    this.ctx.globalAlpha = p.t === 'steam' ? p.life * 1.05 : p.life;
+                    this.ctx.beginPath();
+                    this.ctx.arc(p.x, p.y, p.size * (p.t === 'steam' ? 0.6 + p.life * 0.5 : 1), 0, Math.PI * 2);
+                    this.ctx.fill();
+                    if (p.life <= 0) this.particles.splice(i, 1);
+                });
+                this.ctx.globalAlpha = 1;
+            }
+        };
+        const prix = {
+            a:false, rs:[], tk:null, cdIv:null, ch:null, w:false,
+            open() { if(game.cd > 0) return; if(game.cp[0].lv === 0) return; game.p = true; document.getElementById('race-modal').style.display='flex'; document.getElementById('p-sel').style.display='block'; document.getElementById('p-run').style.display='none'; document.getElementById('p-end').style.display='none';
+                this.refreshList();
+            },
+            refreshList() {
+                const l = document.getElementById('p-list'); if (!l) return; l.innerHTML = '';
+                game.cp.filter(c => c.lv > 0).forEach(c => { const d = document.createElement('div'); d.style="background:#fff1; padding:10px; border-radius:10px; cursor:pointer;"; d.innerHTML = `<img src="${c.im}" style="width:80px;"><p>${t(c.nk)}</p>`; d.onclick = () => this.start(c); l.appendChild(d); });
+            },
+            start(c) {
+                if (this.tk) { clearInterval(this.tk); this.tk = null; }
+                if (this.cdIv) { clearInterval(this.cdIv); this.cdIv = null; }
+                this.a = false; this.ch = c; this.stopFx(); document.getElementById('p-sel').style.display='none'; document.getElementById('p-run').style.display='flex';
+                for(let i=0; i<4; i++) document.getElementById(`l-${i}`).innerHTML = '';
+                this.rs = [{id:c.id, pos:0, im:c.im, isP:true, lane:0}, ...game.cp.filter(co=>co.id!==c.id).map((co,i)=>({id:co.id, pos:0, im:co.im, isP:false, lane:i+1}))];
+                this.rs.forEach(r => { const im = document.createElement('img'); im.id=`r-${r.lane}`; im.src=r.im; im.className='racer-img'; document.getElementById(`l-${r.lane}`).appendChild(im); });
+                let t = 3; const b = document.getElementById('p-timer');
+                this.cdIv = setInterval(() => { b.innerText = t > 0 ? t : "GO!"; if(t < 0) { clearInterval(this.cdIv); this.cdIv = null; b.innerText = ""; this.begin(); } t--; }, 1000);
+            },
+            begin() { if (this.tk) clearInterval(this.tk); this.a = true;
+                const tr = document.getElementById('race-track'); if(tr) tr.classList.add('racing');
+                this.rs.forEach(r => { const el = document.getElementById(`r-${r.lane}`); if(el) el.classList.add('run'); });
+                this.tk = setInterval(() => { this.rs.slice(1).forEach(r => r.pos += Math.random() * 5.8); this.upd(); this.check(); }, 100); },
+            pClick() { if(this.a) { this.rs[0].pos += 8; this.upd(); } },
+            upd() { let lead = 0; this.rs.forEach(r => { const el = document.getElementById(`r-${r.lane}`); if(el) el.style.bottom = (10+(r.pos/100)*75)+'%'; if(r.pos > lead) lead = r.pos; });
+                const tr = document.getElementById('race-track'); if(tr) tr.style.animationDuration = (0.7 - Math.min(lead,100)/100*0.48).toFixed(2)+'s'; },
+            stopFx() { const tr = document.getElementById('race-track'); if(tr) { tr.classList.remove('racing'); tr.style.animationDuration = ''; } this.rs.forEach(r => { const el = document.getElementById(`r-${r.lane}`); if(el) el.classList.remove('run'); }); },
+            check() { const w = this.rs.find(r => r.pos >= 100); if(w) { this.a = false; clearInterval(this.tk); this.stopFx(); this.w = w.isP; this.end(); } },
+            end() { document.getElementById('p-run').style.display='none'; document.getElementById('p-end').style.display='block';
+                const r = document.getElementById('p-rank'), m = document.getElementById('p-reward'); if(this.w) { r.innerText=t('first_place'); m.innerText=t('victory_crown', {name: t(this.ch.nk)}); this.ch.ch = true; game.track('crowns', 1); ach.grant('firstChamp'); }
+                else { let p = Math.floor(1e6 * Math.pow(5, game.s) * 0.01); r.innerText=t('defeat'); m.innerText=t('awarded_eb', {eb: p.toLocaleString()}); game.e += p; }
+                game.render();
+            },
+            ret() { if(this.tk) { clearInterval(this.tk); this.tk = null; } if(this.cdIv) { clearInterval(this.cdIv); this.cdIv = null; } this.stopFx(); game.cd = game.getPrixCd(); document.getElementById('race-modal').style.display='none'; if(this.w) game.coron(this.ch); else game.p = false; }
+        };
+        const gx = {
+            toast(msg) {
+                const w = document.getElementById('gx-toast-wrap'); if (!w) return;
+                const t = document.createElement('div'); t.className = 'gx-toast'; t.textContent = msg;
+                w.appendChild(t);
+                setTimeout(() => { if (t.parentNode) t.remove(); }, 4200);
+            }
+        };
+        // === Capa YouTube Playables (integración DEFENSIVA y desacoplada) ===
+        // Detecta el SDK global de YouTube Playables (window.ytgame). Si NO existe
+        // (builds offline/local/Steam/móvil), TODOS sus métodos son NO-OP silenciosos:
+        // el juego funciona exactamente igual y SIN errores de consola. Solo cuando el
+        // juego corre DENTRO de YouTube Playables se envían señales reales y se usa el
+        // guardado en la nube de la plataforma. No bloquea el bucle ni lanza excepciones.
+        const ytPlayables = {
+            _sdk: null,
+            _firstFrameSent: false, _firstFramePending: false,
+            _gameReadySent: false, _gameReadyPending: false,
+            // ¿Entorno "standalone" donde NO debemos tocar la red del SDK?
+            // (file:// para Steam/empaquetados, localhost para dev/pruebas, *.local móvil)
+            _isStandalone() {
+                try {
+                    if (location.protocol === 'file:') return true;
+                    const h = (location.hostname || '').toLowerCase();
+                    if (!h || h === 'localhost' || h === '127.0.0.1' || h === '0.0.0.0' || h.endsWith('.local')) return true;
+                } catch (e) { return true; }
+                return false;
+            },
+            // Feature-detection del SDK global ya inyectado por el host de Playables.
+            _detect() {
+                try { if (typeof window !== 'undefined' && window.ytgame) { this._sdk = window.ytgame; return true; } } catch (e) {}
+                return false;
+            },
+            get available() { return !!this._sdk; },
+            // Carga del SDK SOLO de forma segura:
+            //  - Si el host ya inyectó window.ytgame -> se usa directamente.
+            //  - Si es un build standalone (local/Steam/móvil) -> NO se inyecta nada
+            //    (cero peticiones, cero 404, cero ruido en consola): no-op total.
+            //  - En cualquier otro caso se intenta cargar el script oficial con manejo
+            //    de error silencioso (onerror no rompe: simplemente seguimos sin SDK).
+            init() {
+                if (this._detect()) { this._onReady(); return; }
+                if (this._isStandalone()) return; // fuera de Playables: no-op silencioso
+                // TODO(confirmar en docs Playables 2026): URL oficial del loader del SDK.
+                // Referencia histórica del endpoint: https://www.youtube.com/game_api/v1
+                try {
+                    const s = document.createElement('script');
+                    s.src = 'https://www.youtube.com/game_api/v1';
+                    s.async = true;
+                    s.onload = () => { if (this._detect()) this._onReady(); };
+                    s.onerror = () => { /* sin SDK: no-op silencioso, el juego sigue igual */ };
+                    (document.head || document.documentElement).appendChild(s);
+                } catch (e) { /* nada: seguimos sin SDK */ }
+            },
+            // El SDK quedó disponible: reenvía cualquier señal que estuviera pendiente.
+            _onReady() {
+                if (this._firstFramePending) this.firstFrameReady();
+                if (this._gameReadyPending) this.gameReady();
+            },
+            // Señal "primer frame visible" (home pintada). No-op fuera de Playables.
+            // TODO(confirmar nombre exacto en docs): ytgame.game.firstFrameReady()
+            firstFrameReady() {
+                if (this._firstFrameSent) return;
+                if (!this._sdk) { this._firstFramePending = true; return; }
+                this._firstFrameSent = true;
+                try { if (this._sdk.game && typeof this._sdk.game.firstFrameReady === 'function') this._sdk.game.firstFrameReady(); } catch (e) {}
+            },
+            // Señal "juego listo/jugable". No-op fuera de Playables.
+            // TODO(confirmar nombre exacto en docs): ytgame.game.gameReady()
+            gameReady() {
+                if (this._gameReadySent) return;
+                if (!this._sdk) { this._gameReadyPending = true; return; }
+                this._gameReadySent = true;
+                try { if (this._sdk.game && typeof this._sdk.game.gameReady === 'function') this._sdk.game.gameReady(); } catch (e) {}
+            },
+            // Guardado en la nube de Playables. Devuelve Promesa; nunca lanza.
+            // TODO(confirmar en docs): ytgame.engagement.setData(str) / getData()
+            async saveData(str) {
+                if (!this._sdk) return false;
+                try {
+                    if (this._sdk.engagement && typeof this._sdk.engagement.setData === 'function') {
+                        await this._sdk.engagement.setData(str);
+                        return true;
+                    }
+                } catch (e) {}
+                return false;
+            },
+            async loadData() {
+                if (!this._sdk) return null;
+                try {
+                    if (this._sdk.engagement && typeof this._sdk.engagement.getData === 'function') {
+                        const v = await this._sdk.engagement.getData();
+                        return (typeof v === 'string') ? v : (v == null ? null : String(v));
+                    }
+                } catch (e) {}
+                return null;
+            }
+        };
+        // === Capa abstracta de guardado en la nube (desacoplada) ===
+        // localStorage es SIEMPRE la fuente principal/fallback. La nube de Playables es
+        // COMPLEMENTARIA: solo se usa cuando el SDK está disponible (dentro de Playables).
+        // Fuera de Playables se comporta igual que antes (stub local). Nunca bloquea ni rompe.
+        const cloudSave = {
+            KEY: 'soup_cloud_v17',
+            get enabled() { return ytPlayables.available; }, // true solo dentro de Playables
+            async save(dataString) {
+                // 1) Local SIEMPRE (fuente de verdad + respaldo).
+                let okLocal = false;
+                try { localStorage.setItem(this.KEY, dataString); okLocal = true; } catch (e) {}
+                // 2) Nube de Playables COMPLEMENTARIA (no bloquea ni rompe si falla / no existe).
+                try { await ytPlayables.saveData(dataString); } catch (e) {}
+                return okLocal;
+            },
+            async load() {
+                // Dentro de Playables intenta primero la nube; si no hay o falla, cae a local.
+                try { const cloud = await ytPlayables.loadData(); if (typeof cloud === 'string' && cloud) return cloud; } catch (e) {}
+                try { return localStorage.getItem(this.KEY); } catch (e) { return null; }
+            }
+        };
+        // === Copia de seguridad local: exportar / importar la partida ===
+        // Formato del código: JSON del save -> base64 (UTF-8 seguro). El import también
+        // acepta JSON en texto plano. Todo pasa por migrateSave() + las validaciones de load().
+        const backup = {
+            FILENAME: 'smallcreek-save',
+            encode() { return btoa(unescape(encodeURIComponent(JSON.stringify(game.getSaveData())))); },
+            decode(str) {
+                if (str == null) return null;
+                const s = String(str).trim();
+                if (!s) return null;
+                let json = null;
+                try {
+                    if (s.charAt(0) === '{') json = s;
+                    else json = decodeURIComponent(escape(atob(s.replace(/\s+/g, ''))));
+                } catch (e) { json = null; }
+                if (!json) return null;
+                try { const o = JSON.parse(json); return (o && typeof o === 'object') ? o : null; }
+                catch (e) { return null; }
+            },
+            download() {
+                try {
+                    const code = this.encode();
+                    const blob = new Blob([code], { type: 'text/plain' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    const stamp = new Date().toISOString().slice(0, 10);
+                    a.href = url; a.download = `${this.FILENAME}-${stamp}.txt`;
+                    document.body.appendChild(a); a.click();
+                    setTimeout(() => { if (a.parentNode) a.remove(); URL.revokeObjectURL(url); }, 200);
+                    gx.toast(t('backup_exported'));
+                } catch (e) { gx.toast(t('backup_error')); }
+            },
+            async copy() {
+                let code = '';
+                try { code = this.encode(); } catch (e) { gx.toast(t('backup_error')); return; }
+                let ok = false;
+                try { if (navigator.clipboard && navigator.clipboard.writeText) { await navigator.clipboard.writeText(code); ok = true; } } catch (e) {}
+                if (!ok) {
+                    try {
+                        const ta = document.createElement('textarea');
+                        ta.value = code; ta.style.position = 'fixed'; ta.style.top = '-1000px'; ta.style.opacity = '0';
+                        document.body.appendChild(ta); ta.focus(); ta.select();
+                        ok = document.execCommand('copy'); ta.remove();
+                    } catch (e) {}
+                }
+                if (ok) gx.toast(t('backup_copied'));
+                else { gx.toast(t('backup_error')); try { window.prompt(t('backup_copy_manual'), code); } catch (e) {} }
+            },
+            // Aplica un objeto de save ya parseado: migra, persiste y recarga la página
+            // (recargar garantiza un estado limpio sin doble aplicación de la lógica de load()).
+            applyImported(obj) {
+                if (!obj || typeof obj !== 'object') { gx.toast(t('backup_invalid')); return false; }
+                let migrated; try { migrated = migrateSave(obj); } catch (e) { migrated = obj; }
+                if (!migrated || typeof migrated !== 'object') { gx.toast(t('backup_invalid')); return false; }
+                try { localStorage.setItem('soup_p_v17', JSON.stringify(migrated)); }
+                catch (e) { gx.toast(t('backup_error')); return false; }
+                // Evita que el autoguardado (cada 5s) sobrescriba el import antes de recargar.
+                try { if (game.saveTick) { clearInterval(game.saveTick); game.saveTick = null; } } catch (e) {}
+                gx.toast(t('backup_imported'));
+                setTimeout(() => { try { location.reload(); } catch (e) {} }, 1000);
+                return true;
+            },
+            importFromCode(str) {
+                const obj = this.decode(str);
+                if (!obj) { gx.toast(t('backup_invalid')); return false; }
+                return this.applyImported(obj);
+            },
+            promptImport() {
+                let code = null;
+                try { code = window.prompt(t('backup_import_prompt'), ''); } catch (e) { code = null; }
+                if (code == null) return; // cancelado por el usuario: no tocar la partida
+                if (!String(code).trim()) { gx.toast(t('backup_invalid')); return; }
+                this.importFromCode(code);
+            },
+            importFile(input) {
+                const file = input && input.files && input.files[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = () => { this.importFromCode(String(reader.result || '')); try { input.value = ''; } catch (e) {} };
+                reader.onerror = () => { gx.toast(t('backup_error')); try { input.value = ''; } catch (e) {} };
+                try { reader.readAsText(file); } catch (e) { gx.toast(t('backup_error')); }
+            }
+        };
+        const offline = {
+            amt: 0,
+            evaluate() {
+                const last = game.lastSeen;
+                if (!Number.isFinite(last) || last <= 0) return;
+                let diff = (Date.now() - last) / 1000;
+                if (!Number.isFinite(diff) || diff < 0) return;
+                diff = Math.min(diff, 28800);
+                if (diff < 60) return;
+                const gain = game.getCps() * diff * 0.5 * game.treeOfflineMult();
+                if (!(gain > 0)) return;
+                this.amt = gain;
+                const h = Math.floor(diff / 3600), mn = Math.floor((diff % 3600) / 60);
+                this.time = `${h > 0 ? h + 'h ' : ''}${mn}m`;
+                this.renderText();
+                const md = document.getElementById('offline-modal'); if (md) md.classList.add('open');
+            },
+            renderText() {
+                const txt = document.getElementById('offline-text');
+                if (txt) txt.innerHTML = t('offline_body', {time: this.time || '0m', eb: Math.floor(this.amt).toLocaleString()});
+            },
+            claim() {
+                if (this.amt > 0) { game.e += this.amt; game.floatNum(window.innerWidth / 2, 170, this.amt); sound.play('bubble'); this.amt = 0; }
+                const md = document.getElementById('offline-modal'); if (md) md.classList.remove('open');
+            },
+            // Botón "x2" del modal: intenta la recompensa (duplica offline.amt vía claimReward)
+            // ANTES de reclamar. Si la recompensa no está disponible (cooldown/tope), claimReward
+            // avisa con un toast y se reclama la ganancia normal igualmente.
+            async double() {
+                try { await claimReward('offline2'); } catch (e) {}
+                this.claim();
+            }
+        };
+        // ====================================================================
+        // === SISTEMA DE RECOMPENSAS (desacoplado, listo para "rewarded ads") ===
+        // ====================================================================
+        // Diseño en 3 capas independientes:
+        //   1) adProvider  -> abstracción "mostrar anuncio con recompensa". HOY usa
+        //                     freeProvider (regalo gratis con cooldown) en todas las
+        //                     plataformas. En builds móviles futuras se enchufa AdMob.
+        //   2) REWARDS     -> catálogo de recompensas como DATOS (cooldown + tope diario
+        //                     + efecto apply()). No conoce nada de la red de anuncios.
+        //   3) claimReward -> ÚNICO punto que comprueba límites, llama al proveedor y,
+        //                     solo si completed, aplica el efecto y registra el uso.
+        //
+        // Para activar AdMob en móvil: cambia BUILD a 'android'/'ios' (idealmente en build)
+        // e implementa adMobProvider.showRewarded() con el SDK real (ver TODO abajo).
+        // --------------------------------------------------------------------
+        // Build actual. Decide qué proveedor de anuncios se usa.
+        // 'web' | 'playables' | 'steam' -> freeProvider (recompensa gratuita con cooldown).
+        // 'android' | 'ios' -> adMobProvider si está disponible; si no, freeProvider.
+        const BUILD = 'web';
+
+        // Proveedor POR DEFECTO: no hay anuncio real. La limitación viene del cooldown/tope
+        // del catálogo, no del anuncio. Funciona en local/Playables/Steam/móvil sin red.
+        const freeProvider = {
+            id: 'free',
+            isAvailable() { return true; },
+            // Resuelve inmediatamente como "completado" -> la recompensa es un regalo gratis.
+            async showRewarded() { return { completed: true }; }
+        };
+
+        // STUB para móvil futuro (Google AdMob). NO integra SDK real todavía.
+        const adMobProvider = {
+            id: 'admob',
+            // Mientras no haya SDK cargado, marcamos no disponible para que el sistema
+            // caiga en freeProvider (ver pickAdProvider). Cuando integres el SDK, pon aquí
+            // la comprobación real (p.ej. que exista window.admob y haya un anuncio precargado).
+            isAvailable() { return false; },
+            async showRewarded() {
+                // TODO(AdMob móvil): integrar el SDK nativo / plugin Cordova-Capacitor.
+                //   1) Precargar un RewardedAd al iniciar y tras cada uso.
+                //   2) Aquí: mostrarlo y devolver una Promise que se resuelva en el callback:
+                //        - onUserEarnedReward -> resolve({ completed: true })
+                //        - onAdDismissed sin recompensa / onAdFailedToShow -> resolve({ completed: false })
+                //      Ejemplo (pseudocódigo):
+                //        return new Promise(res => {
+                //            rewardedAd.onUserEarnedReward = () => res({ completed: true });
+                //            rewardedAd.onAdDismissed = () => res({ completed: false });
+                //            rewardedAd.onAdFailedToShow = () => res({ completed: false });
+                //            rewardedAd.show();
+                //        });
+                // De momento delegamos en el regalo gratuito para no bloquear nada.
+                return freeProvider.showRewarded();
+            }
+        };
+
+        // Selección de proveedor según el build (el informe recomienda freeProvider en
+        // web/playables/steam, y AdMob solo en móvil cuando esté disponible).
+        function pickAdProvider() {
+            switch (BUILD) {
+                case 'android':
+                case 'ios':
+                    return adMobProvider.isAvailable() ? adMobProvider : freeProvider;
+                case 'playables':
+                case 'steam':
+                case 'web':
+                default:
+                    return freeProvider;
+            }
+        }
+        const adProvider = pickAdProvider();
+
+        // Catálogo de recompensas como DATOS. cd = cooldown en segundos, daily = tope/día.
+        // apply() es el ÚNICO efecto; solo lo invoca claimReward tras un anuncio completado.
+        const REWARDS = {
+            // x2 CPS durante 1h.
+            cps2:     { labelKey:'reward_cps2',    cd:1800, daily:4, apply() { game.addBuff('cps', 2, 3600, 'reward_cps2'); } },
+            // Duplicar la ganancia offline pendiente (una vez) y refrescar el modal.
+            offline2: { labelKey:'offline_double', cd:0,    daily:2, apply() { offline.amt *= 2; offline.renderText(); } },
+            // +15 min de CPS al instante.
+            skip15:   { labelKey:'reward_skip15',  cd:3600, daily:3, apply() { const g = game.getCps() * 900; game.e += g; game.floatNum(window.innerWidth / 2, 170, g); } },
+            // Auto-clic durante 60s (reutiliza la lógica de game.click vía eventos sintéticos).
+            autotap:  { labelKey:'reward_tap', cd:1200, daily:4, apply() { rewardSystem.startAutoTap(60); } }
+        };
+
+        const rewardSystem = {
+            _autoTapTimer: null, _autoTapEnd: 0,
+            dayKey() { try { return new Date().toISOString().slice(0, 10); } catch (e) { return 'na'; } },
+            // Devuelve (y crea/resetea por día) el registro anti-abuso de una recompensa.
+            rec(id) {
+                if (!game.rewards || typeof game.rewards !== 'object') game.rewards = {};
+                let r = game.rewards[id];
+                const today = this.dayKey();
+                if (!r || typeof r !== 'object' || r.day !== today) { r = { last: 0, count: 0, day: today }; game.rewards[id] = r; }
+                if (!Number.isFinite(r.last)) r.last = 0;
+                if (!Number.isFinite(r.count)) r.count = 0;
+                return r;
+            },
+            cooldownLeft(id) {
+                const def = REWARDS[id]; if (!def) return 0;
+                const left = def.cd - (Date.now() - this.rec(id).last) / 1000;
+                return left > 0 ? Math.ceil(left) : 0;
+            },
+            dailyLeft(id) {
+                const def = REWARDS[id]; if (!def) return 0;
+                return Math.max(0, def.daily - this.rec(id).count);
+            },
+            canClaim(id) {
+                return !!REWARDS[id] && adProvider.isAvailable() && this.cooldownLeft(id) === 0 && this.dailyLeft(id) > 0;
+            },
+            // Formatea segundos como "Xm" o "Xs" para los mensajes de cooldown.
+            fmtTime(sec) {
+                sec = Math.max(0, Math.ceil(sec));
+                if (sec >= 60) return Math.ceil(sec / 60) + 'm';
+                return sec + 's';
+            },
+            // Auto-clic: dispara game.click con un evento sintético en el centro de la sopa.
+            startAutoTap(seconds) {
+                this._autoTapEnd = Date.now() + seconds * 1000;
+                if (this._autoTapTimer) return; // ya activo: solo extiende el final
+                const stage = document.getElementById('main-stage');
+                this._autoTapTimer = setInterval(() => {
+                    if (Date.now() >= this._autoTapEnd) { clearInterval(this._autoTapTimer); this._autoTapTimer = null; return; }
+                    if (game.p) return;
+                    const cx = window.innerWidth / 2, cy = window.innerHeight / 2;
+                    // Evento sintético compatible con game.click (usa target.closest y clientX/Y).
+                    game.click({ target: stage || document.body, clientX: cx, clientY: cy });
+                }, 150);
+            },
+            // Refresca el texto/estado del botón lateral de recompensa (recompensa principal cps2).
+            renderButton() {
+                const lbl = document.getElementById('reward-fab-label');
+                const fab = document.getElementById('reward-fab');
+                if (!lbl || !fab) return;
+                const id = 'cps2';
+                const name = t(REWARDS[id].labelKey);
+                const cd = this.cooldownLeft(id), left = this.dailyLeft(id);
+                let txt;
+                if (!adProvider.isAvailable()) { txt = '🎁 ' + name; fab.style.opacity = '0.5'; }
+                else if (left <= 0) { txt = '🎁 ' + name + ' · ' + t('reward_daily_left', { n: 0, max: REWARDS[id].daily }); fab.style.opacity = '0.5'; }
+                else if (cd > 0) { txt = '🎁 ' + name + ' · ' + t('reward_cooldown', { time: this.fmtTime(cd) }); fab.style.opacity = '0.6'; }
+                else { txt = '🎁 ' + name + ' · ' + t('reward_daily_left', { n: left, max: REWARDS[id].daily }); fab.style.opacity = '1'; }
+                if (lbl.textContent !== txt) lbl.textContent = txt;
+            }
+        };
+
+        // ÚNICO punto que concede recompensas. Comprueba cooldown + tope diario (persistidos),
+        // llama al proveedor de anuncios y SOLO si completed aplica el efecto y registra el uso.
+        async function claimReward(rewardId) {
+            const def = REWARDS[rewardId];
+            if (!def) return false;
+            if (!adProvider.isAvailable()) { gx.toast(t('ad_failed')); return false; }
+            if (rewardSystem.cooldownLeft(rewardId) > 0) {
+                gx.toast(t('reward_cooldown', { time: rewardSystem.fmtTime(rewardSystem.cooldownLeft(rewardId)) }));
+                return false;
+            }
+            if (rewardSystem.dailyLeft(rewardId) <= 0) {
+                gx.toast(t('reward_daily_left', { n: 0, max: def.daily }));
+                return false;
+            }
+            let res = null;
+            try { res = await adProvider.showRewarded(); } catch (e) { res = null; }
+            if (!res || !res.completed) { gx.toast(t('ad_failed')); return false; }
+            const r = rewardSystem.rec(rewardId);
+            r.last = Date.now();
+            r.count += 1;
+            try { def.apply(); } catch (e) {}
+            try { game.save(); } catch (e) {}
+            rewardSystem.renderButton();
+            gx.toast(t('reward_granted', { r: t(def.labelKey) }));
+            return true;
+        }
+        const bubble = {
+            timer: 60 + Math.floor(Math.random() * 120), node: null, hideTimer: null,
+            reset() { this.timer = 60 + Math.floor(Math.random() * 120); },
+            tick() {
+                if (game.p || this.node) return;
+                if (this.timer <= 0) { this.spawn(); return; }
+                this.timer--;
+            },
+            spawn() {
+                if (game.p) { this.reset(); return; }
+                const stage = document.getElementById('main-stage');
+                if (!stage) { this.reset(); return; }
+                const r = stage.getBoundingClientRect();
+                const el = document.createElement('div');
+                el.className = 'golden-bubble';
+                el.textContent = '🫧';
+                el.style.left = (80 + Math.random() * Math.max(60, r.width - 220)) + 'px';
+                el.style.top = (120 + Math.random() * Math.max(60, r.height - 300)) + 'px';
+                el.onpointerdown = (e) => { e.stopPropagation(); this.collect(); };
+                stage.appendChild(el);
+                this.node = el;
+                sound.play('bubble');
+                this.hideTimer = setTimeout(() => this.despawn(), 8000 + Math.random() * 4000);
+            },
+            despawn() {
+                if (this.hideTimer) { clearTimeout(this.hideTimer); this.hideTimer = null; }
+                if (this.node && this.node.parentNode) this.node.remove();
+                this.node = null;
+                this.reset();
+            },
+            collect() {
+                if (!this.node) return;
+                const rect = this.node.getBoundingClientRect();
+                const cx = rect.left + rect.width / 2, cy = rect.top + rect.height / 2;
+                game.part(cx, cy, 'magic');
+                sound.play('bubble');
+                const roll = Math.floor(Math.random() * 3);
+                if (roll === 0) { game.addBuff('click', 7, 15, 'buff_frenzy'); gx.toast(t('buff_frenzy_toast')); }
+                else if (roll === 1) { game.addBuff('cps', 3, 30, 'buff_boil'); gx.toast(t('buff_boil_toast')); }
+                else { const g = game.getCps() * 30; game.e += g; game.floatNum(cx, cy, g); gx.toast(t('buff_rain_toast', {eb: Math.floor(g).toLocaleString()})); }
+                this.despawn();
+            }
+        };
+        const ach = {
+            defs: [
+                { k: 'firstPres', reward: 5000 },
+                { k: 'firstChamp', reward: 8000 },
+                { k: 'fullTeam', reward: 4000 },
+                { k: 'allSpoons', reward: 25000 },
+                { k: 'centurion', reward: 50000 }
+            ],
+            grant(k) {
+                if (game.ach[k]) return;
+                const d = this.defs.find(x => x.k === k); if (!d) return;
+                game.ach[k] = true;
+                if (d.reward) game.e += d.reward;
+                gx.toast(t('ach_toast', {n: t('ach_' + k + '_n')}));
+                sound.play('prestige');
+                game.save();
+                if (document.getElementById('quest-modal').classList.contains('open')) quests.render();
+            },
+            check() {
+                if (game.cp.every(c => c.lv > 0)) this.grant('fullTeam');
+                if (game.spoons.every(s => s.owned)) this.grant('allSpoons');
+                if (game.cp.some(c => c.lv >= 100)) this.grant('centurion');
+            }
+        };
+        const quests = {
+            pool: [
+                { type: 'clicks', goal: () => 150, reward: () => Math.max(1500, Math.floor(game.getCps() * 150)) + 1500 },
+                { type: 'eb', goal: () => Math.max(8000, Math.floor(game.getCps() * 240)) + 8000, reward: () => Math.max(3000, Math.floor(game.getCps() * 200)) + 3000 },
+                { type: 'levels', goal: () => 15, reward: () => Math.max(2500, Math.floor(game.getCps() * 180)) + 2500 },
+                { type: 'crowns', goal: () => 1, reward: () => 0, shard: true }
+            ],
+            label(m) { return t('quest_' + m.type, {g: m.type === 'eb' ? m.goal.toLocaleString() : m.goal}); },
+            gen() {
+                const order = [0, 1, 2, 3].sort(() => Math.random() - 0.5).slice(0, 3);
+                return order.map(i => { const p = this.pool[i]; const goal = p.goal(); return { type: p.type, goal, prog: 0, done: false, claimed: false, shard: !!p.shard, reward: p.shard ? 0 : p.reward() }; });
+            },
+            ensureDaily() {
+                const today = new Date().toDateString();
+                if (!game.daily || game.daily.date !== today) {
+                    game.daily = { date: today, counters: { clicks: 0, levels: 0, eb: 0, crowns: 0 }, missions: this.gen() };
+                    this.updateBadge();
+                }
+            },
+            bump(type, amt) {
+                if (!game.daily) return;
+                let changed = false;
+                game.daily.missions.forEach(m => { if (m.type === type && !m.done) { m.prog += amt; if (m.prog >= m.goal) { m.prog = m.goal; m.done = true; changed = true; gx.toast(t('quest_done_toast')); } } });
+                if (changed) this.updateBadge();
+            },
+            claim(i) {
+                const m = game.daily && game.daily.missions[i]; if (!m || !m.done || m.claimed) return;
+                m.claimed = true;
+                if (m.shard) { game.as++; gx.toast(t('quest_shard_toast')); }
+                else { game.e += m.reward; game.floatNum(window.innerWidth / 2, 180, m.reward); }
+                sound.play('buy'); game.save(); this.render(); this.updateBadge();
+            },
+            updateBadge() {
+                const b = document.getElementById('quest-badge'); if (!b) return;
+                const n = game.daily ? game.daily.missions.filter(m => m.done && !m.claimed).length : 0;
+                b.style.display = n > 0 ? 'inline-block' : 'none'; b.innerText = n;
+            },
+            open() { this.render(); document.getElementById('quest-modal').classList.add('open'); },
+            close() { document.getElementById('quest-modal').classList.remove('open'); },
+            render() {
+                const list = document.getElementById('quest-list'); if (!list || !game.daily) return;
+                list.innerHTML = `<div style="font-size:0.7rem; color:#94a3b8; margin-bottom:8px">${t('quests_today')}</div>` + game.daily.missions.map((m, i) => {
+                    const pct = Math.min(100, Math.floor(m.prog / m.goal * 100));
+                    const rewardStr = m.shard ? '+1 ⬨' : '+' + Math.floor(m.reward).toLocaleString() + ' EB';
+                    let btn;
+                    if (m.claimed) btn = `<span style="color:#4ade80; font-size:0.75rem; font-weight:bold">${t('claimed')}</span>`;
+                    else if (m.done) btn = `<button class="gx-btn sm" onclick="quests.claim(${i})">${t('claim_reward', {r: rewardStr})}</button>`;
+                    else btn = `<span style="font-size:0.72rem; color:#cbd5e1">${t('reward_label', {r: rewardStr})}</span>`;
+                    return `<div class="quest-row ${m.done ? 'done2' : ''}"><div style="font-weight:bold; font-size:0.85rem">${this.label(m)}</div><div class="q-bar"><div class="q-fill" style="width:${pct}%"></div></div><div style="display:flex; justify-content:space-between; align-items:center"><span style="font-size:0.7rem; color:#94a3b8">${Math.floor(Math.min(m.prog, m.goal)).toLocaleString()} / ${m.goal.toLocaleString()}</span>${btn}</div></div>`;
+                }).join('');
+                const al = document.getElementById('ach-list');
+                if (al) al.innerHTML = `<div style="font-size:0.75rem; color:var(--ac); text-transform:uppercase; letter-spacing:1px; border-top:1px solid #fff2; padding-top:10px; margin-bottom:8px">${t('achievements_header')}</div>` + ach.defs.map(d => { const got = !!game.ach[d.k]; return `<div class="quest-row ${got ? 'done2' : ''}" style="opacity:${got ? 1 : 0.6}"><div style="font-weight:bold; font-size:0.82rem">${got ? '🏆' : '🔒'} ${t('ach_' + d.k + '_n')}</div><div style="font-size:0.7rem; color:#94a3b8">${t('ach_' + d.k + '_d')}${d.reward ? ` · +${d.reward.toLocaleString()} EB` : ''}</div></div>`; }).join('');
+            }
+        };
+        const atree = {
+            open() { this.render(); document.getElementById('tree-modal').classList.add('open'); },
+            close() { document.getElementById('tree-modal').classList.remove('open'); },
+            cost(def) { return def.cb + game.tree[def.k]; },
+            render() {
+                const sh = document.getElementById('tree-shards'); if (sh) sh.innerText = game.as;
+                const list = document.getElementById('tree-list'); if (!list) return;
+                list.innerHTML = game.treeDefs.map(def => {
+                    const lv = game.tree[def.k]; const maxed = lv >= def.mx; const cost = this.cost(def); const can = !maxed && game.as >= cost;
+                    return `<div class="tnode ${maxed ? 'maxed' : ''}"><div style="font-weight:bold; color:var(--ac)">${t('node_' + def.k + '_name')} <span style="float:right; color:var(--go)">${t('lv')}${lv}/${def.mx}</span></div><div style="font-size:0.72rem; color:#cbd5e1; margin:4px 0">${t('node_' + def.k + '_desc')}</div>${maxed ? `<span style="color:var(--go); font-size:0.75rem; font-weight:bold">${t('tree_max')}</span>` : `<button class="gx-btn sm" ${can ? '' : 'disabled'} onclick="atree.buy('${def.k}')">${t('tree_upgrade', {cost})}</button>`}</div>`;
+                }).join('');
+            },
+            buy(k) {
+                const def = game.treeDefs.find(x => x.k === k); if (!def) return;
+                const lv = game.tree[k]; if (lv >= def.mx) return;
+                const cost = this.cost(def); if (game.as < cost) return;
+                game.as -= cost; game.tree[k] = lv + 1;
+                sound.play('buy'); game.part(window.innerWidth / 2, window.innerHeight / 2, 'magic');
+                game.save(); this.render(); game.render();
+            }
+        };
+        const VERSION = 'v1.0.0';
+        const home = {
+            toggleLang() { setLang(LANG === 'en' ? 'es' : 'en'); },
+            toggleMute() { sound.toggleMute(); this.syncAudio(); },
+            setVolume(v) { sound.setVolume(Number(v) / 100); this.syncAudio(); },
+            syncAudio() {
+                const m = document.getElementById('home-mute'), v = document.getElementById('home-vol');
+                const muted = sound.muted || sound.volume <= 0;
+                if (m) m.textContent = muted ? '🔇' : '🔊';
+                if (v && document.activeElement !== v) v.value = String(Math.round(sound.volume * 100));
+            },
+            init() {
+                const lb = document.getElementById('home-lang'); if (lb) lb.textContent = '🌐 ' + LANG.toUpperCase();
+                const ver = document.getElementById('home-version'); if (ver) ver.textContent = VERSION;
+                this.syncAudio();
+            },
+            play() {
+                const ov = document.getElementById('home-overlay'); if (!ov) return;
+                try { sound.unlock(); } catch (e) {}
+                ov.classList.add('closing');
+                setTimeout(() => { ov.style.display = 'none'; }, 600);
+            }
+        };
+        function boot() {
+            try { const sl = localStorage.getItem('soup_lang'); if (sl === 'es' || sl === 'en') LANG = sl; } catch (e) {}
+            // Señal "primer frame": la home ya está en el HTML inicial, así que la enviamos
+            // en cuanto el navegador pinta (doble rAF). Fuera de Playables es no-op silencioso.
+            try { requestAnimationFrame(() => requestAnimationFrame(() => ytPlayables.firstFrameReady())); } catch (e) { ytPlayables.firstFrameReady(); }
+            sound.init(); game.init();
+            applyStaticI18n();
+            const f = document.getElementById('lang-fab'); if (f) f.textContent = '🌐 ' + LANG.toUpperCase();
+            home.init();
+            // Juego inicializado y jugable. Fuera de Playables es no-op silencioso.
+            ytPlayables.gameReady();
+        }
+        // Arranca el SDK de Playables cuanto antes (no-op total fuera de Playables).
+        ytPlayables.init();
+        // Optimización de arranque: NO esperamos a window.onload (que se bloquea hasta que
+        // TODOS los assets pesados estén cargados). Inicializamos en cuanto el DOM está listo
+        // para que el primer frame (la home) sea inmediato y nada bloquee el render inicial.
+        if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot, { once: true });
+        else boot();
+    </script>
+</body>
+</html>

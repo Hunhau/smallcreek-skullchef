@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SmallCreek: The Wooden Soup - Official Release</title>
+    <style>
+        :root {
+            --cosmic-bg: radial-gradient(circle at center, #1a0b2e 0%, #05020a 100%);
+            --energy-color: #a5f3fc;
+            --energy-glow: 0 0 15px #22d3ee;
+            --accent: #d8b4fe;
+            --ui-bg: rgba(15, 23, 42, 0.94);
+        }
+
+        /* --- UI RESET --- */
+        * { 
+            box-sizing: border-box; 
+            touch-action: manipulation;
+            -webkit-user-select: none;
+            user-select: none; 
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            margin: 0; padding: 0;
+            background: var(--cosmic-bg);
+            color: white;
+            font-family: 'Segoe UI', Tahoma, sans-serif;
+            overflow: hidden;
+            display: flex;
+            height: 100vh;
+        }
+
+        #game-wrapper {
+            display: flex;
+            width: 100%;
+            height: 100%;
+            position: relative;
+        }
+
+        /* --- HUD --- */
+        #hud {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            text-align: center;
+            z-index: 5000;
+            pointer-events: none;
+            width: 100%;
+        }
+
+        #energy-display {
+            font-family: 'Courier New', monospace;
+            font-size: 4rem;
+            font-weight: bold;
+            color: var(--energy-color);
+            text-shadow: var(--energy-glow);
+            margin: 0;
+        }
+
+        #cps-display {
+            font-size: 1.2rem;
+            color: var(--accent);
+            opacity: 0.9;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        /* --- FIXED CALIBRATED STAGE --- */
+        #main-stage {
+            flex-grow: 1;
+            position: relative;
+            cursor: pointer;
+            overflow: hidden;
+        }
+
+        #sticky-center {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            width: 10px; height: 10px;
+        }
+
+        /* LAYER 1: BACK - CHEF */
+        #asset-chef {
+            position: absolute;
+            z-index: 1;
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+            /* FIXED CALIBRATION */
+            left: 0px; 
+            top: -40px; 
+            width: 720px;
+            transition: margin-top 0.1s;
+        }
+
+        /* LAYER 2: MIDDLE - SOUP */
+        #asset-soup {
+            position: absolute;
+            z-index: 2;
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+            /* FIXED CALIBRATION */
+            left: 70px; 
+            top: 250px; 
+            width: 1250px;
+            transition: transform 0.1s ease-out;
+        }
+
+        /* LAYER 3: FRONT - SPOON */
+        #spoon-rig {
+            position: absolute;
+            z-index: 3;
+            pointer-events: none;
+            /* FIXED CALIBRATION */
+            left: -95px; 
+            top: 5px; 
+            width: 840px; 
+            transform: translate(-50%, -50%) rotate(-27deg);
+            transform-origin: 85% 15%; 
+        }
+
+        #asset-spoon {
+            width: 100%;
+            display: block;
+            transition: transform 0.1s cubic-bezier(0.4, 0, 0.2, 1);
+            transform-origin: inherit;
+        }
+
+        /* --- ANIMATIONS --- */
+        .stir-swing { transform: rotate(15deg) !important; } /* Swings relative to base -27deg */
+        .chef-effort { margin-top: 4px; }
+        .soup-wave { transform: translate(-50%, -50%) scale(1.03, 0.96) !important; }
+
+        /* --- SHOP MENU --- */
+        #side-shop {
+            width: 360px;
+            background: var(--ui-bg);
+            border-left: 1px solid rgba(255,255,255,0.1);
+            backdrop-filter: blur(20px);
+            display: flex;
+            flex-direction: column;
+            padding: 25px;
+            z-index: 4000;
+            overflow-y: auto;
+        }
+
+        .shop-header {
+            font-size: 1.6rem;
+            text-align: center;
+            margin-bottom: 25px;
+            border-bottom: 2px solid var(--accent);
+            padding-bottom: 10px;
+            color: var(--accent);
+            text-transform: uppercase;
+        }
+
+        .companion-card {
+            background: rgba(255,255,255,0.05);
+            border-radius: 15px;
+            padding: 15px;
+            margin-bottom: 12px;
+            cursor: pointer;
+            border: 1px solid transparent;
+            transition: 0.2s;
+        }
+        .companion-card.affordable { border-color: var(--accent); background: rgba(168, 85, 247, 0.15); }
+        .companion-card.locked { opacity: 0.3; filter: grayscale(1); cursor: not-allowed; }
+
+        .comp-info b { display: block; font-size: 1.2rem; }
+        .comp-stats { font-size: 0.9rem; color: #94a3b8; }
+        .comp-cost { color: #fbbf24; font-weight: bold; margin-top: 8px; display: block; }
+
+        /* --- SPECIAL SKILL --- */
+        #frenzy-btn {
+            position: absolute;
+            bottom: 30px; left: 30px;
+            padding: 18px 30px; background: #ef4444; color: white;
+            border-radius: 50px; font-weight: bold; cursor: pointer;
+            display: none; animation: pulse 1s infinite; z-index: 4500;
+            box-shadow: 0 0 20px #ef4444;
+        }
+        @keyframes pulse { 0% {transform:scale(1);} 50% {transform:scale(1.1);} 100% {transform:scale(1);} }
+
+        /* --- STORY OVERLAYS --- */
+        #story-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.94); display: none;
+            justify-content: center; align-items: center; z-index: 10000;
+        }
+        #story-box { background: #1e1b4b; padding: 50px; border-radius: 30px; border: 3px solid var(--accent); text-align: center; max-width: 550px; }
+        #story-text { font-size: 1.3rem; line-height: 1.6; margin-bottom: 30px; color: #f3f4f6; }
+
+        .btn-continue {
+            background: var(--accent); color: #1a0b2e; border: none;
+            padding: 15px 45px; border-radius: 50px; font-weight: bold;
+            cursor: pointer; font-size: 1.1rem;
+        }
+
+        canvas#particle-canvas { position: absolute; top: 0; left: 0; pointer-events: none; z-index: 1000; }
+    </style>
+</head>
+<body>
+
+    <div id="game-wrapper">
+        <section id="main-stage" onmousedown="game.handleManualClick(event)">
+            <div id="hud">
+                <div id="energy-display">0</div>
+                <div id="cps-display">Energy Balls Per Second: 0</div>
+            </div>
+
+            <canvas id="particle-canvas"></canvas>
+
+            <div id="sticky-center">
+                <!-- Layers: Chef (1) < Soup (2) < Spoon (3) -->
+                <img id="asset-chef" src="https://i.ibb.co/KjSyjHsj/chef-png.png">
+                <img id="asset-soup" src="https://i.ibb.co/s9CgLx2n/soup-png.png">
+                <div id="spoon-rig">
+                    <img id="asset-spoon" src="https://i.ibb.co/RTwhRpz3/spoon-png.png">
+                </div>
+            </div>
+
+            <div id="frenzy-btn" onclick="game.activateFrenzy(event)">ASMR FRENZY! (TAP BEAR)</div>
+        </section>
+
+        <aside id="side-shop">
+            <h2 class="shop-header">Esquelotia Shop</h2>
+            <div id="companion-list"></div>
+        </aside>
+    </div>
+
+    <div id="story-overlay">
+        <div id="story-box">
+            <p id="story-text"></p>
+            <button class="btn-continue" onclick="game.closeStory()">Continue Mission</button>
+        </div>
+    </div>
+
+    <!-- Audio Element -->
+    <audio id="audio-stir" src="wood_stir_asmr.mp3" preload="auto"></audio>
+
+    <script>
+        const game = {
+            energy: 0, clickValue: 1, baseCPS: 0, globalMultiplier: 1, 
+            isFrenzy: false, frenzyCooldown: false, paused: false,
+            
+            companions: [
+                { id: 0, name: 'Coco the Octopus', cost: 15, baseCost: 15, power: 1, type: 'cps', count: 0, desc: 'Automates stirring (+1 EPS).' },
+                { id: 1, name: 'Baby Bunny', cost: 100, baseCost: 100, power: 2, type: 'click', count: 0, desc: 'Each click gives +2 Energy.' },
+                { id: 2, name: 'The Giraffe', cost: 1100, baseCost: 1100, power: 0.15, type: 'boost', count: 0, desc: 'Global boost +15% efficiency.' },
+                { id: 3, name: 'Ivan the Bear', cost: 12000, baseCost: 12000, power: 50, type: 'cps', count: 0, desc: 'Generates +50 EPS & Skill.' }
+            ],
+
+            milestones: [
+                { threshold: 0, text: "Welcome to Earth, Skullchef. Use the sacred Wooden Soup recipe to release the loving energy of Small Angel. The planet needs peace and healing. Tap to stir.", triggered: false },
+                { threshold: 1000, text: "The dark energy on Earth is resisting, but Coco the Octopus has arrived from Esquelotia to help you stir. Love is spreading!", triggered: false },
+                { threshold: 50000, text: "Baby Bunny wakes up! Infused with the compassionate energy of Small Angel, your stirring power doubles. Keep healing humanity.", triggered: false },
+                { threshold: 500000, text: "Ivan the Bear joins the mission! Esquelotia's pure bond of friendship is now actively purifying Earth's flora and fauna.", triggered: false },
+                { threshold: 1000000, text: "Global Enlightenment Achieved! The mantle of Small Angel shines bright over Earth. Human hearts are healed thanks to your Wooden Soup.", triggered: false }
+            ],
+
+            init() {
+                this.canvas = document.getElementById('particle-canvas');
+                this.ctx = this.canvas.getContext('2d');
+                this.resize();
+                window.onresize = () => this.resize();
+                this.renderShop();
+                this.updateUI();
+                setInterval(() => { if(!this.paused) this.applyPassiveIncome(); }, 1000);
+                this.particleLoop();
+                this.checkMilestones();
+            },
+
+            resize() { this.canvas.width = window.innerWidth; this.canvas.height = window.innerHeight; },
+
+            handleManualClick(e) {
+                if(this.paused || e.target.closest('#side-shop')) return;
+
+                const val = this.clickValue * (this.isFrenzy ? 10 : 1);
+                this.energy += val;
+
+                // --- AUDIO TRIGGER (INSTANT OVERLAP) ---
+                const sound = document.getElementById('audio-stir');
+                const clickSound = sound.cloneNode();
+                clickSound.volume = 0.6;
+                clickSound.play().catch(()=>{});
+
+                // --- ANIMATIONS ---
+                const spoon = document.getElementById('asset-spoon');
+                const chef = document.getElementById('asset-chef');
+                const soup = document.getElementById('asset-soup');
+
+                spoon.classList.add('stir-swing');
+                chef.classList.add('chef-effort');
+                soup.classList.add('soup-wave');
+
+                setTimeout(() => {
+                    spoon.classList.remove('stir-swing');
+                    chef.classList.remove('chef-effort');
+                    soup.classList.remove('soup-wave');
+                }, 120);
+
+                // Particles (Spawn at submerged point)
+                const soupRect = soup.getBoundingClientRect();
+                this.createParticles(soupRect.left + (soupRect.width / 2) - 100, soupRect.top + 100);
+                
+                this.updateUI();
+                this.checkMilestones();
+            },
+
+            applyPassiveIncome() {
+                let totalCPS = this.companions.filter(c => c.type === 'cps').reduce((acc, c) => acc + (c.power * c.count), 0);
+                totalCPS *= this.globalMultiplier;
+                this.energy += totalCPS;
+                this.baseCPS = totalCPS;
+                this.updateUI();
+                this.checkMilestones();
+            },
+
+            buyCompanion(index) {
+                const c = this.companions[index];
+                if (this.energy >= c.cost) {
+                    this.energy -= c.cost;
+                    c.count++;
+                    c.cost = Math.floor(c.baseCost * Math.pow(1.22, c.count));
+                    this.recalculateStats();
+                    this.renderShop();
+                    this.updateUI();
+                }
+            },
+
+            recalculateStats() {
+                this.clickValue = 1 * Math.pow(2, this.companions[1].count);
+                this.globalMultiplier = 1 + (this.companions[2].count * 0.15);
+                if (this.companions[3].count > 0 && !this.frenzyCooldown) {
+                    document.getElementById('frenzy-btn').style.display = 'block';
+                }
+            },
+
+            activateFrenzy(e) {
+                e.stopPropagation();
+                if (this.frenzyCooldown) return;
+                this.isFrenzy = true; this.frenzyCooldown = true;
+                document.getElementById('frenzy-btn').style.display = 'none';
+                setTimeout(() => {
+                    this.isFrenzy = false;
+                    setTimeout(() => {
+                        this.frenzyCooldown = false;
+                        if(this.companions[3].count > 0) document.getElementById('frenzy-btn').style.display = 'block';
+                    }, 120000);
+                }, 10000);
+            },
+
+            checkMilestones() {
+                for (let m of this.milestones) {
+                    if (!m.triggered && this.energy >= m.threshold) {
+                        m.triggered = true;
+                        this.showStory(m.text);
+                        break;
+                    }
+                }
+            },
+
+            showStory(text) {
+                this.paused = true;
+                document.getElementById('story-text').innerText = text;
+                document.getElementById('story-overlay').style.display = 'flex';
+            },
+
+            closeStory() {
+                this.paused = false;
+                document.getElementById('story-overlay').style.display = 'none';
+            },
+
+            updateUI() {
+                document.getElementById('energy-display').innerText = Math.floor(this.energy).toLocaleString();
+                document.getElementById('cps-display').innerText = `Energy Balls Per Second: ${this.baseCPS.toFixed(1)}`;
+                const cards = document.querySelectorAll('.companion-card');
+                this.companions.forEach((c, i) => {
+                    if (cards[i]) {
+                        if (this.energy >= c.cost) cards[i].classList.add('affordable');
+                        else cards[i].classList.remove('affordable');
+                    }
+                });
+            },
+
+            renderShop() {
+                const container = document.getElementById('companion-list');
+                container.innerHTML = '';
+                this.companions.forEach((c, index) => {
+                    const card = document.createElement('div');
+                    card.className = `companion-card ${this.energy < c.cost ? 'locked' : ''}`;
+                    card.onclick = () => this.buyCompanion(index);
+                    card.innerHTML = `
+                        <div class="comp-info">
+                            <b>${c.name} (${c.count})</b>
+                            <div class="comp-stats">${c.desc}</div>
+                            <span class="comp-cost">Cost: ${Math.floor(c.cost).toLocaleString()} EB</span>
+                        </div>
+                    `;
+                    container.appendChild(card);
+                });
+            },
+
+            particles: [],
+            createParticles(x, y) {
+                for(let i=0; i<10; i++) {
+                    this.particles.push({
+                        x: x + (Math.random() - 0.5) * 80,
+                        y: y,
+                        vx: (Math.random() - 0.5) * 6,
+                        vy: -Math.random() * 8 - 4,
+                        life: 1,
+                        size: Math.random() * 8 + 6
+                    });
+                }
+            },
+
+            particleLoop() {
+                this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+                const targetX = window.innerWidth / 2;
+                const targetY = 60;
+                this.particles.forEach((p, i) => {
+                    p.vx += (targetX - p.x) * 0.003;
+                    p.vy += (targetY - p.y) * 0.003;
+                    p.x += p.vx; p.y += p.vy; p.life -= 0.015;
+                    this.ctx.fillStyle = `rgba(165, 243, 252, ${p.life})`;
+                    this.ctx.shadowBlur = 15; this.ctx.shadowColor = "#22d3ee";
+                    this.ctx.beginPath(); this.ctx.arc(p.x, p.y, p.size, 0, Math.PI*2); this.ctx.fill();
+                    if(p.life <= 0) this.particles.splice(i, 1);
+                });
+                requestAnimationFrame(() => this.particleLoop());
+            }
+        };
+
+        window.onload = () => game.init();
+    </script>
+</body>
+</html>
