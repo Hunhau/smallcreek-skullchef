@@ -173,6 +173,20 @@
         .side-fab { background: rgba(15,23,42,0.96); border: 2px solid var(--ac); border-radius: 14px; padding: 10px 14px; font-size: 0.8rem; font-weight: bold; color: #fff; cursor: pointer; text-transform: uppercase; letter-spacing: 0.5px; transition: 0.2s; text-align: center; }
         .side-fab:hover { border-color: var(--go); filter: brightness(1.12); }
         .side-fab .badge2 { display: inline-block; background: var(--go); color: #1e1b4b; border-radius: 10px; padding: 0 6px; font-size: 0.65rem; margin-left: 4px; }
+        /* === Ambient sound player (Feature A) === */
+        .amb-hint { font-size: 0.8rem; color: #cbd5e1; margin: 0 0 12px; }
+        .amb-row { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; background: rgba(255,255,255,0.05); border: 1px solid #fff2; border-radius: 10px; padding: 8px 10px; margin-bottom: 8px; text-align: left; }
+        .amb-row.on { border-color: var(--go); }
+        .amb-toggle { flex: 1; min-width: 120px; display: flex; align-items: center; gap: 8px; background: transparent; border: none; color: #fff; font-size: 0.85rem; font-weight: bold; cursor: pointer; text-align: left; padding: 4px 0; }
+        .amb-toggle .amb-state { margin-left: auto; color: var(--go); font-size: 0.8rem; }
+        .amb-slider { width: 96px; height: 4px; accent-color: var(--ac); cursor: pointer; }
+        .amb-toggle:disabled, .amb-slider:disabled { opacity: 0.4; cursor: not-allowed; }
+        .amb-unavail { width: 100%; font-size: 0.62rem; color: #fca5a5; letter-spacing: 0.3px; }
+        /* === Creator / LIVE panel (Feature B) === */
+        .creator-link { display: block; width: 100%; margin: 0 0 10px; }
+        .creator-live { background: linear-gradient(135deg,#ef4444,#7f1d1d) !important; border-color: #fecaca !important; }
+        #creator-fab-live { background: #ef4444 !important; color: #fff !important; animation: breathe 1.4s infinite alternate; }
+        #live-badge { position: fixed; top: max(12px, env(safe-area-inset-top)); left: 50%; transform: translateX(-50%); z-index: 90000; display: none; align-items: center; gap: 6px; background: rgba(127,29,29,0.92); border: 1px solid #fecaca; color: #fff; padding: 5px 14px; border-radius: 20px; font-size: 0.78rem; font-weight: bold; cursor: pointer; letter-spacing: 0.6px; box-shadow: 0 0 14px rgba(239,68,68,0.6); animation: breathe 1.4s infinite alternate; }
         #buff-bar { position: absolute; top: 118px; left: 50%; transform: translateX(-50%); z-index: 6000; display: flex; gap: 10px; pointer-events: none; }
         .buff-chip { background: rgba(0,0,0,0.78); border: 1px solid var(--go); border-radius: 20px; padding: 5px 14px; font-size: 0.8rem; font-weight: bold; color: var(--go); text-shadow: 0 0 8px var(--go); animation: breathe 1.4s infinite alternate; }
         .golden-bubble { position: absolute; z-index: 5500; width: 90px; height: 90px; cursor: pointer; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #fff, #fde68a 40%, #f59e0b 75%, #b45309); box-shadow: 0 0 25px 6px rgba(251,191,36,0.7); display: flex; align-items: center; justify-content: center; font-size: 2.2rem; animation: bubbleFloat 3s ease-in-out infinite; pointer-events: auto; }
@@ -358,8 +372,11 @@
         <div class="side-fab" onclick="quests.open()"><span data-i18n="quests_btn">📜 Chef's Orders</span><span id="quest-badge" class="badge2" style="display:none">0</span></div>
         <div class="side-fab" onclick="atree.open()" data-i18n="tree_btn">🌳 Angel Tree</div>
         <div class="side-fab" id="reward-fab" style="min-height:44px" onclick="claimReward('cps2')"><span id="reward-fab-label">🎁</span></div>
+        <div class="side-fab" id="ambient-fab" onclick="ambient.open()" data-i18n="ambient_btn">🎧 Ambience</div>
+        <div class="side-fab" id="creator-fab" onclick="creator.open()"><span data-i18n="creator_btn">📺 Creator</span><span id="creator-fab-live" class="badge2" style="display:none">●</span></div>
         <div class="side-fab" id="lang-fab" onclick="setLang(LANG==='en'?'es':'en')">🌐 EN</div>
     </div>
+    <div id="live-badge" onclick="creator.go(CREATOR.liveUrl)" title="Live now!" data-i18n-title="creator_live_now"><span data-i18n="creator_live">🔴 LIVE</span></div>
     <div id="offline-modal" class="gx-modal"><div class="gx-box"><h2 data-i18n="offline_title">Your soup kept cooking</h2><p id="offline-text" style="font-size:1rem; line-height:1.5"></p><div style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin-top:6px"><button class="gx-btn" style="min-height:44px; background:linear-gradient(135deg,#f59e0b,#b45309); border-color:var(--go)" onclick="offline.double()" data-i18n="offline_double">x2 (Free reward)</button><button class="gx-btn" style="min-height:44px" onclick="offline.claim()" data-i18n="claim">Claim</button></div></div></div>
     <div id="quest-modal" class="gx-modal"><div class="gx-box"><h2 data-i18n="quests_title">Chef's Orders</h2><div id="quest-list"></div><div id="ach-list" style="margin-top:14px"></div><button class="gx-btn" style="margin-top:10px" onclick="quests.close()" data-i18n="close">Close</button></div></div>
     <div id="tree-modal" class="gx-modal"><div class="gx-box"><h2 data-i18n="tree_title">Angel Awakening Tree</h2><p style="font-size:0.85rem; color:#cbd5e1"><span data-i18n="tree_shards_avail">Available Angel Shards:</span> <b id="tree-shards" style="color:var(--go)">0</b></p><div id="tree-list"></div><button class="gx-btn" style="margin-top:10px" onclick="atree.close()" data-i18n="close">Close</button></div></div>
@@ -369,6 +386,7 @@
             <button class="gx-btn" type="button" onclick="pauseMenu.resume()" data-i18n="pause_resume">▶ Resume</button>
             <button class="gx-btn" type="button" onclick="pauseMenu.showSettings()" data-i18n="pause_settings">⚙ Settings</button>
             <button class="gx-btn" type="button" onclick="pauseMenu.openAchievements()" data-i18n="achievements_btn">🏆 Achievements</button>
+            <button class="gx-btn" type="button" onclick="pauseMenu.openAmbient()" data-i18n="ambient_btn">🎧 Ambience</button>
             <button class="gx-btn" type="button" onclick="pauseMenu.toHome()" data-i18n="pause_home">🏠 Main Menu</button>
             <button class="gx-btn" type="button" style="background:linear-gradient(135deg,#b91c1c,#7f1d1d)" onclick="pauseMenu.exit()" data-i18n="pause_exit">🚪 Exit</button>
         </div>
@@ -390,9 +408,31 @@
         <div id="ach-modal-list"></div>
         <button class="gx-btn" style="margin-top:10px" onclick="achievementsUI.close()" data-i18n="close">Close</button>
     </div></div>
+    <div id="ambient-modal" class="gx-modal"><div class="gx-box">
+        <h2 data-i18n="ambient_title">Ambient Sounds</h2>
+        <p class="amb-hint" data-i18n="ambient_hint">Layer relaxing loops while you cook.</p>
+        <div id="ambient-list"></div>
+        <div class="home-row" style="margin-top:6px"><span class="home-row-label" data-i18n="ambient_master">Master ambient volume</span><div class="home-ctrl"><input id="ambient-master" type="range" min="0" max="100" value="60" oninput="ambient.setMaster(this.value/100)"></div></div>
+        <button class="gx-btn" style="margin-top:12px" onclick="ambient.close()" data-i18n="close">Close</button>
+    </div></div>
+    <div id="creator-modal" class="gx-modal"><div class="gx-box">
+        <h2 data-i18n="creator_title">Creator</h2>
+        <p class="amb-hint" data-i18n="creator_hint">Follow the SmallCreek kitchen.</p>
+        <div id="creator-links"></div>
+        <button class="gx-btn" style="margin-top:12px" onclick="creator.close()" data-i18n="close">Close</button>
+    </div></div>
     <script src="assets/skins/catalog.js"></script>
     <script>
         let LANG = 'en';
+        // ====================================================================
+        // === CONFIG DEL CREADOR (Feature B) — EDITA AQUÍ ====================
+        // ====================================================================
+        // El dueño del juego edita estos campos con sus enlaces reales.
+        //   youtube / tiktok : URL completa del canal (deja '' para ocultar el botón).
+        //   liveUrl          : URL del directo en curso (YouTube/TikTok Live, etc.).
+        //   isLive           : pon true para mostrar el badge "🔴 LIVE" enlazando a liveUrl.
+        // Solo se usan ENLACES externos (window.open). NO se incrusta ningún reproductor.
+        const CREATOR = { youtube: '', tiktok: '', liveUrl: '', isLive: false };
         const I18N = {
             en: {
                 soul_awakened:"[ SOUL AWAKENED ]", prix_title:"ESQUELOTIA GRAND PRIX", select_champion:"Select Champion!", return_cauldron:"RETURN TO CAULDRON",
@@ -442,7 +482,10 @@
                 ach_firstClick_n:"First Stir", ach_firstClick_d:"Stir the soup for the first time",
                 ach_collector_n:"Charm Collector", ach_collector_d:"Own 8 different charms",
                 ach_mythicCharm_n:"Legendary Fortune", ach_mythicCharm_d:"Find a Legendary or Super Legendary charm",
-                ach_awakened5_n:"Fivefold Soul", ach_awakened5_d:"Reach Angel Awakening Lv.5"
+                ach_awakened5_n:"Fivefold Soul", ach_awakened5_d:"Reach Angel Awakening Lv.5",
+                ambient_btn:"🎧 Ambience", ambient_title:"Ambient Sounds", ambient_hint:"Layer relaxing loops while you cook.", ambient_master:"Master ambient volume", ambient_unavailable:"Audio file not found",
+                amb_rain:"Rain", amb_fire:"Crackling Fire", amb_waves:"Sea Waves", amb_soup:"Bubbling Soup",
+                creator_btn:"📺 Creator", creator_title:"Creator", creator_hint:"Follow the SmallCreek kitchen.", creator_youtube:"YouTube", creator_tiktok:"TikTok", creator_live:"🔴 LIVE", creator_live_now:"Live now!", creator_none:"No links available yet."
             },
             es: {
                 soul_awakened:"[ ALMA DESPERTADA ]", prix_title:"ESQUELOTIA GRAN PREMIO", select_champion:"¡Elige Campeón!", return_cauldron:"VOLVER AL CALDERO",
@@ -492,7 +535,10 @@
                 ach_firstClick_n:"Primer Removido", ach_firstClick_d:"Remueve la sopa por primera vez",
                 ach_collector_n:"Coleccionista de Amuletos", ach_collector_d:"Posee 8 amuletos distintos",
                 ach_mythicCharm_n:"Fortuna Legendaria", ach_mythicCharm_d:"Consigue un amuleto Legendario o Súper Legendario",
-                ach_awakened5_n:"Alma Quíntuple", ach_awakened5_d:"Alcanza Despertar del Ángel Nv.5"
+                ach_awakened5_n:"Alma Quíntuple", ach_awakened5_d:"Alcanza Despertar del Ángel Nv.5",
+                ambient_btn:"🎧 Ambiente", ambient_title:"Sonidos de Ambiente", ambient_hint:"Mezcla bucles relajantes mientras cocinas.", ambient_master:"Volumen ambiente general", ambient_unavailable:"Archivo de audio no encontrado",
+                amb_rain:"Lluvia", amb_fire:"Fuego Crepitante", amb_waves:"Olas del Mar", amb_soup:"Sopa Burbujeante",
+                creator_btn:"📺 Creador", creator_title:"Creador", creator_hint:"Sigue la cocina de SmallCreek.", creator_youtube:"YouTube", creator_tiktok:"TikTok", creator_live:"🔴 EN VIVO", creator_live_now:"¡En directo!", creator_none:"Aún no hay enlaces disponibles."
             }
         };
         function t(k, p) { let d = I18N[LANG] || I18N.en; let s = (d && d[k] != null) ? d[k] : (I18N.en[k] != null ? I18N.en[k] : k); if (p) { for (const key in p) s = s.split('{' + key + '}').join(p[key]); } return s; }
@@ -515,6 +561,8 @@
             try { quality.syncUi(); fullscreen.syncUi(); } catch (e) {}
             const cm = document.getElementById('collection-modal'); if (cm && cm.classList.contains('open')) collection.render();
             const am = document.getElementById('ach-modal'); if (am && am.classList.contains('open')) achievementsUI.render();
+            try { const abm = document.getElementById('ambient-modal'); if (abm && abm.classList.contains('open')) ambient._render(); } catch (e) {}
+            try { const crm = document.getElementById('creator-modal'); if (crm && crm.classList.contains('open')) creator.render(); creator.syncLive(); } catch (e) {}
         }
         const sound = {
             defs: { stir:['audio/stir1.mp3','audio/stir2.mp3','audio/stir3.mp3'], bubble:['audio/bubble.mp3'], buy:['audio/buy.mp3'], prestige:['audio/prestige.mp3'], victory:['audio/victory.mp3'] },
@@ -523,14 +571,18 @@
             init() {
                 if (this._inited) return; this._inited = true;
                 try { const raw = localStorage.getItem('soup_audio'); if (raw) { const d = JSON.parse(raw); if (d && typeof d === 'object') { this.muted = !!d.m; if (typeof d.v === 'number' && isFinite(d.v)) this.volume = Math.min(1, Math.max(0, d.v)); } } } catch (e) {}
-                for (const k in this.defs) { this.pool[k] = this.defs[k].map(src => { const a = new Audio(); a.src = src; a.preload = 'auto'; return a; }); }
+                // HARDENING: si un archivo de audio falta (404) o no se puede decodificar,
+                // el evento 'error' del elemento NO es una excepción y NO ensucia la consola
+                // con throws. Lo silenciamos explícitamente para que el juego suene "vacío"
+                // pero jamás rompa. El juego funciona con CERO archivos en audio/.
+                for (const k in this.defs) { this.pool[k] = this.defs[k].map(src => { const a = new Audio(); a.addEventListener('error', () => {}, { passive: true }); a.src = src; a.preload = 'auto'; return a; }); }
                 // POOL de reproducción: por cada fuente se crean unas pocas instancias
                 // reutilizables (round-robin) en vez de clonar un Audio nuevo en cada play().
                 const VOICES_PER_SRC = 3;
                 for (const k in this.defs) {
                     this.voices[k] = this.defs[k].map(src => {
                         const inst = [];
-                        for (let i = 0; i < VOICES_PER_SRC; i++) { const a = new Audio(); a.src = src; a.preload = 'auto'; inst.push(a); }
+                        for (let i = 0; i < VOICES_PER_SRC; i++) { const a = new Audio(); a.addEventListener('error', () => {}, { passive: true }); a.src = src; a.preload = 'auto'; inst.push(a); }
                         return { inst, idx: 0 };
                     });
                 }
@@ -563,7 +615,7 @@
                     const p = a.play(); if (p && p.catch) p.catch(()=>{});
                 } catch (e) {}
             },
-            setMuted(m) { this.muted = !!m; this.save(); this.updateUi(); },
+            setMuted(m) { this.muted = !!m; this.save(); this.updateUi(); try { if (typeof ambient !== 'undefined' && ambient._inited) ambient.syncPlayback(); } catch (e) {} },
             toggleMute() { this.setMuted(!this.muted); },
             setVolume(val) { const n = Number(val); this.volume = isFinite(n) ? Math.min(1, Math.max(0, n)) : this.volume; if (this.volume > 0 && this.muted) this.muted = false; this.save(); this.updateUi(); },
             updateUi() {
@@ -573,6 +625,165 @@
                 if (v && document.activeElement !== v) v.value = String(Math.round(this.volume * 100));
                 if (typeof home !== 'undefined' && home.syncAudio) home.syncAudio();
                 if (typeof pauseMenu !== 'undefined' && pauseMenu.syncAudio) pauseMenu.syncAudio();
+            }
+        };
+        // ====================================================================
+        // === REPRODUCTOR DE AMBIENTE RELAJANTE (Feature A) ==================
+        // ====================================================================
+        // Bucles de fondo (lluvia, fuego, olas, sopa) que el jugador activa y
+        // mezcla de forma independiente. SEPARADO del volumen de SFX, pero respeta
+        // el MUTE GLOBAL (sound.muted). Lazy: el HTMLAudioElement se crea solo al
+        // encender una pista. Si un archivo falta/404, la pista se marca como no
+        // disponible y se deshabilita su toggle (sin crash, sin spam de consola).
+        // Pausa/reanuda en visibilitychange (batería/rendimiento). Persiste en
+        // localStorage ('soup_ambient') de forma aislada y a prueba de fallos.
+        const ambient = {
+            manifest: [
+                { id: 'rain',  src: 'assets/audio/ambient/rain.mp3',  icon: '🌧️' },
+                { id: 'fire',  src: 'assets/audio/ambient/fire.mp3',  icon: '🔥' },
+                { id: 'waves', src: 'assets/audio/ambient/waves.mp3', icon: '🌊' },
+                { id: 'soup',  src: 'assets/audio/ambient/soup.mp3',  icon: '🍲' }
+            ],
+            tracks: {}, master: 0.6, _inited: false, _saved: null,
+            _c(v) { v = Number(v); return isFinite(v) ? Math.min(1, Math.max(0, v)) : 0; },
+            load() {
+                try {
+                    const raw = localStorage.getItem('soup_ambient');
+                    if (raw) {
+                        const d = JSON.parse(raw);
+                        if (d && typeof d === 'object') {
+                            if (typeof d.master === 'number' && isFinite(d.master)) this.master = this._c(d.master);
+                            this._saved = (d.tracks && typeof d.tracks === 'object') ? d.tracks : {};
+                        }
+                    }
+                } catch (e) {}
+                if (!this._saved) this._saved = {};
+            },
+            save() {
+                try {
+                    const tracks = {};
+                    for (const id in this.tracks) { const tr = this.tracks[id]; tracks[id] = { on: !!tr.on, vol: tr.vol }; }
+                    localStorage.setItem('soup_ambient', JSON.stringify({ master: this.master, tracks }));
+                } catch (e) {}
+            },
+            init() {
+                if (this._inited) return; this._inited = true;
+                this.load();
+                this.manifest.forEach(def => {
+                    const saved = this._saved[def.id] || {};
+                    const vol = (typeof saved.vol === 'number' && isFinite(saved.vol)) ? this._c(saved.vol) : 0.6;
+                    this.tracks[def.id] = { def, audio: null, on: !!saved.on, vol, avail: true };
+                });
+                try { document.addEventListener('visibilitychange', () => this.syncPlayback()); } catch (e) {}
+                // Reanuda pistas guardadas como activas tras el PRIMER gesto del usuario
+                // (los navegadores bloquean autoplay sin interacción).
+                const evs = ['pointerdown', 'touchstart', 'keydown'];
+                const h = () => { try { this.syncPlayback(); } catch (e) {} evs.forEach(ev => document.removeEventListener(ev, h)); };
+                evs.forEach(ev => document.addEventListener(ev, h, { once: true, passive: true }));
+            },
+            ensureAudio(tr) {
+                if (tr.audio) return tr.audio;
+                const a = new Audio();
+                a.loop = true; a.preload = 'none';
+                a.addEventListener('error', () => {
+                    tr.avail = false; tr.on = false;
+                    try { a.pause(); } catch (e) {}
+                    this._render(); this.save();
+                }, { passive: true });
+                a.src = tr.def.src;
+                tr.audio = a;
+                return a;
+            },
+            _effVol(tr) { return this._c(this.master * tr.vol); },
+            syncPlayback() {
+                const muted = (typeof sound !== 'undefined' && sound.muted);
+                const hidden = (typeof document !== 'undefined' && document.hidden);
+                for (const id in this.tracks) {
+                    const tr = this.tracks[id];
+                    if (tr.on && tr.avail && !muted && !hidden) {
+                        const a = this.ensureAudio(tr);
+                        try { a.volume = this._effVol(tr); } catch (e) {}
+                        try { const p = a.play(); if (p && p.catch) p.catch(() => {}); } catch (e) {}
+                    } else if (tr.audio) {
+                        try { tr.audio.pause(); } catch (e) {}
+                    }
+                }
+            },
+            toggle(id) {
+                if (!this._inited) this.init();
+                const tr = this.tracks[id]; if (!tr || !tr.avail) return;
+                tr.on = !tr.on;
+                this.syncPlayback();
+                this.save();
+                this._render();
+            },
+            setTrackVol(id, v) {
+                const tr = this.tracks[id]; if (!tr) return;
+                tr.vol = this._c(v);
+                if (tr.audio) { try { tr.audio.volume = this._effVol(tr); } catch (e) {} }
+                this.save();
+            },
+            setMaster(v) {
+                this.master = this._c(v);
+                for (const id in this.tracks) { const tr = this.tracks[id]; if (tr.audio) { try { tr.audio.volume = this._effVol(tr); } catch (e) {} } }
+                this.save();
+            },
+            _render() {
+                const list = document.getElementById('ambient-list'); if (!list) return;
+                list.innerHTML = this.manifest.map(def => {
+                    const tr = this.tracks[def.id]; if (!tr) return '';
+                    const on = tr.on && tr.avail;
+                    const dis = tr.avail ? '' : 'disabled';
+                    const unavail = tr.avail ? '' : `<div class="amb-unavail">${t('ambient_unavailable')}</div>`;
+                    return `<div class="amb-row ${on ? 'on' : ''}">`
+                        + `<button class="amb-toggle" type="button" ${dis} onclick="ambient.toggle('${def.id}')">${def.icon} <span>${t('amb_' + def.id)}</span><span class="amb-state">${on ? '❚❚' : '▶'}</span></button>`
+                        + `<input class="amb-slider" type="range" min="0" max="100" value="${Math.round(tr.vol * 100)}" ${dis} oninput="ambient.setTrackVol('${def.id}', this.value/100)">`
+                        + unavail + `</div>`;
+                }).join('');
+                const mv = document.getElementById('ambient-master');
+                if (mv && document.activeElement !== mv) mv.value = String(Math.round(this.master * 100));
+            },
+            open() {
+                if (!this._inited) this.init();
+                this._render();
+                const md = document.getElementById('ambient-modal'); if (md) md.classList.add('open');
+            },
+            close() { const md = document.getElementById('ambient-modal'); if (md) md.classList.remove('open'); }
+        };
+        // ====================================================================
+        // === PANEL DEL CREADOR / LIVE (Feature B, fase 1: SOLO ENLACES) =====
+        // ====================================================================
+        // Botones que abren los canales del creador (CREATOR.youtube/tiktok) en una
+        // pestaña externa y un badge "🔴 LIVE" que aparece solo si CREATOR.isLive.
+        // NO se incrusta ningún <iframe> ni reproductor externo: YouTube Playables
+        // prohíbe incrustar contenido externo (y especialmente YouTube dentro de
+        // YouTube). Solo-enlaces es la opción segura para TODAS las plataformas.
+        //
+        // TODO (futuro, SOLO Steam/móvil — NUNCA en Playables): para builds nativas
+        // se podría incrustar el reproductor con la YouTube IFrame Player API:
+        //   if (BUILD === 'steam' || BUILD === 'android' || BUILD === 'ios') {
+        //       // 1) cargar https://www.youtube.com/iframe_api
+        //       // 2) new YT.Player('yt-embed', { videoId / events })
+        //       // Gatear SIEMPRE por BUILD; en 'web'/'playables' dejar solo enlaces.
+        //   }
+        const creator = {
+            open() { this.render(); const md = document.getElementById('creator-modal'); if (md) md.classList.add('open'); },
+            close() { const md = document.getElementById('creator-modal'); if (md) md.classList.remove('open'); },
+            go(url) { if (!url) return; try { window.open(url, '_blank', 'noopener'); } catch (e) {} },
+            render() {
+                const box = document.getElementById('creator-links'); if (!box) return;
+                const btns = [];
+                if (CREATOR.youtube) btns.push(`<button class="gx-btn creator-link" type="button" onclick="creator.go(CREATOR.youtube)">▶ ${t('creator_youtube')}</button>`);
+                if (CREATOR.tiktok)  btns.push(`<button class="gx-btn creator-link" type="button" onclick="creator.go(CREATOR.tiktok)">♪ ${t('creator_tiktok')}</button>`);
+                if (CREATOR.isLive && CREATOR.liveUrl) btns.push(`<button class="gx-btn creator-link creator-live" type="button" onclick="creator.go(CREATOR.liveUrl)">${t('creator_live')}</button>`);
+                box.innerHTML = btns.length ? btns.join('') : `<p class="amb-hint">${t('creator_none')}</p>`;
+            },
+            syncLive() {
+                const show = !!(CREATOR.isLive && CREATOR.liveUrl);
+                const badge = document.getElementById('live-badge');
+                if (badge) { badge.style.display = show ? 'flex' : 'none'; const sp = badge.querySelector('[data-i18n]'); if (sp) sp.textContent = t('creator_live'); badge.title = t('creator_live_now'); }
+                const fabLive = document.getElementById('creator-fab-live');
+                if (fabLive) fabLive.style.display = show ? 'inline-block' : 'none';
             }
         };
         // === Versionado del esquema de guardado ===
@@ -2093,6 +2304,7 @@
                 if (v && document.activeElement !== v) v.value = String(Math.round(sound.volume * 100));
             },
             openAchievements() { achievementsUI.open(); },
+            openAmbient() { try { ambient.open(); } catch (e) {} },
             toHome() {
                 this.close(); this._unpause();
                 const ov = document.getElementById('home-overlay');
@@ -2433,6 +2645,8 @@
             try { fullscreen.init(); } catch (e) {}
             try { collection.refreshFab(); } catch (e) {}
             try { collection.preload(); } catch (e) {}
+            try { ambient.init(); } catch (e) {}
+            try { creator.render(); creator.syncLive(); } catch (e) {}
             // Juego inicializado y jugable. Fuera de Playables es no-op silencioso.
             ytPlayables.gameReady();
         }
