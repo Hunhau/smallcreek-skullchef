@@ -241,6 +241,41 @@
             #score-box { font-size: 1.25rem; }
             #shard-box { font-size: 0.85rem; }
         }
+        /* === Ajustes in-game + menú de pausa + colección/logros (Tareas 2/5/6) === */
+        .seg-group { display: inline-flex; gap: 4px; background: rgba(0,0,0,0.3); border-radius: 10px; padding: 4px; }
+        .seg-btn { min-height: 36px; padding: 6px 12px; border-radius: 8px; border: 1px solid transparent; background: transparent; color: #fcd9a8; font-weight: 700; font-size: 0.82rem; cursor: pointer; transition: 0.15s; }
+        .seg-btn.active { background: rgba(120, 53, 15, 0.6); border-color: var(--go); color: #fde68a; }
+        .seg-btn:hover { filter: brightness(1.15); }
+        #pause-box .gx-btn, #pause-box .home-btn { width: 100%; }
+        #pause-main { display: flex; flex-direction: column; gap: 10px; }
+        #pause-settings { display: none; flex-direction: column; gap: 12px; text-align: left; }
+        #pause-modal .home-row { padding: 4px 0; }
+        .q-low .steam-wisp:nth-child(n+4) { display: none; }
+        .q-low .steam-wisp { filter: blur(6px) !important; }
+        .coll-stats { font-size: 0.82rem; color: #cbd5e1; margin: 2px 0 10px; line-height: 1.4; }
+        .coll-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 10px; }
+        .charm-tile { position: relative; background: rgba(255,255,255,0.05); border: 2px solid #fff2; border-radius: 12px; padding: 6px; cursor: pointer; transition: 0.18s; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+        .charm-tile:hover { filter: brightness(1.1); transform: translateY(-2px); }
+        .charm-tile.equipped { box-shadow: 0 0 14px rgba(251,191,36,0.5); }
+        .charm-tile.r-common { border-color: #94a3b8; }
+        .charm-tile.r-uncommon { border-color: #4ade80; }
+        .charm-tile.r-rare { border-color: #a5f3fc; }
+        .charm-tile.r-epic { border-color: #d8b4fe; }
+        .charm-tile.r-legendary { border-color: #fbbf24; }
+        .charm-tile.r-mythic { border-color: #fb7185; animation: spoonLegendPulse 2s infinite alternate; }
+        .charm-img { width: 100%; max-width: 84px; aspect-ratio: 1/1; image-rendering: auto; border-radius: 8px; background: rgba(0,0,0,0.25); }
+        .charm-rar { font-size: 0.58rem; font-weight: bold; text-transform: uppercase; letter-spacing: 0.4px; }
+        .charm-rar.r-common { color: #94a3b8; } .charm-rar.r-uncommon { color: #4ade80; } .charm-rar.r-rare { color: #a5f3fc; }
+        .charm-rar.r-epic { color: #d8b4fe; } .charm-rar.r-legendary { color: #fbbf24; } .charm-rar.r-mythic { color: #fb7185; }
+        .charm-dup { position: absolute; top: -6px; right: -6px; background: #2e1065; border: 1px solid var(--go); border-radius: 8px; padding: 0 5px; font-size: 0.62rem; font-weight: bold; color: var(--go); }
+        #reward-fab .charm-fab-img { width: 26px; height: 26px; vertical-align: middle; border-radius: 5px; }
+        #collection-fab .charm-fab-img { width: 22px; height: 22px; vertical-align: middle; border-radius: 5px; margin-left: 4px; }
+        .ach-row { display: flex; align-items: center; gap: 10px; background: rgba(255,255,255,0.05); border: 1px solid #fff2; border-radius: 10px; padding: 8px 10px; margin-bottom: 8px; text-align: left; }
+        .ach-row.got { border-color: #4ade80; }
+        .ach-ico { font-size: 1.3rem; }
+        .ach-body { flex: 1; }
+        .ach-name { font-weight: bold; font-size: 0.85rem; }
+        .ach-desc { font-size: 0.7rem; color: #94a3b8; }
     </style>
 </head>
 <body>
@@ -262,6 +297,14 @@
                         <button id="home-mute" class="home-btn" type="button" onclick="home.toggleMute()" data-i18n-title="audio_mute_title" title="Mute / Unmute sound">🔊</button>
                         <input id="home-vol" type="range" min="0" max="100" value="100" oninput="home.setVolume(this.value)" data-i18n-title="audio_vol_title" title="Volume">
                     </div>
+                </div>
+                <div class="home-row">
+                    <span class="home-row-label" data-i18n="settings_quality">Quality</span>
+                    <div class="home-ctrl"><div id="home-quality" class="seg-group"></div></div>
+                </div>
+                <div class="home-row" id="home-fullscreen-row">
+                    <span class="home-row-label" data-i18n="settings_fullscreen">Fullscreen</span>
+                    <div class="home-ctrl"><button id="home-fs" class="home-btn" type="button" onclick="fullscreen.toggle()" data-i18n="fs_enter">⛶ Enter</button></div>
                 </div>
                 <div class="home-row" id="home-backup">
                     <span class="home-row-label" data-i18n="backup_label">Backup</span>
@@ -308,6 +351,8 @@
     <div id="buff-bar"></div>
     <div id="gx-toast-wrap"></div>
     <div id="side-buttons">
+        <div class="side-fab" id="pause-fab" onclick="pauseMenu.open()" data-i18n="pause_btn">☰ Menu</div>
+        <div class="side-fab" id="collection-fab" onclick="collection.open()"><span data-i18n="collection_btn">🎴 Charms</span><span id="collection-fab-thumb"></span></div>
         <div class="side-fab" onclick="quests.open()"><span data-i18n="quests_btn">📜 Chef's Orders</span><span id="quest-badge" class="badge2" style="display:none">0</span></div>
         <div class="side-fab" onclick="atree.open()" data-i18n="tree_btn">🌳 Angel Tree</div>
         <div class="side-fab" id="reward-fab" style="min-height:44px" onclick="claimReward('cps2')"><span id="reward-fab-label">🎁</span></div>
@@ -316,6 +361,33 @@
     <div id="offline-modal" class="gx-modal"><div class="gx-box"><h2 data-i18n="offline_title">Your soup kept cooking</h2><p id="offline-text" style="font-size:1rem; line-height:1.5"></p><div style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin-top:6px"><button class="gx-btn" style="min-height:44px; background:linear-gradient(135deg,#f59e0b,#b45309); border-color:var(--go)" onclick="offline.double()" data-i18n="offline_double">x2 (Free reward)</button><button class="gx-btn" style="min-height:44px" onclick="offline.claim()" data-i18n="claim">Claim</button></div></div></div>
     <div id="quest-modal" class="gx-modal"><div class="gx-box"><h2 data-i18n="quests_title">Chef's Orders</h2><div id="quest-list"></div><div id="ach-list" style="margin-top:14px"></div><button class="gx-btn" style="margin-top:10px" onclick="quests.close()" data-i18n="close">Close</button></div></div>
     <div id="tree-modal" class="gx-modal"><div class="gx-box"><h2 data-i18n="tree_title">Angel Awakening Tree</h2><p style="font-size:0.85rem; color:#cbd5e1"><span data-i18n="tree_shards_avail">Available Angel Shards:</span> <b id="tree-shards" style="color:var(--go)">0</b></p><div id="tree-list"></div><button class="gx-btn" style="margin-top:10px" onclick="atree.close()" data-i18n="close">Close</button></div></div>
+    <div id="pause-modal" class="gx-modal"><div class="gx-box" id="pause-box">
+        <h2 id="pause-heading" data-i18n="pause_title">Paused</h2>
+        <div id="pause-main">
+            <button class="gx-btn" type="button" onclick="pauseMenu.resume()" data-i18n="pause_resume">▶ Resume</button>
+            <button class="gx-btn" type="button" onclick="pauseMenu.showSettings()" data-i18n="pause_settings">⚙ Settings</button>
+            <button class="gx-btn" type="button" onclick="pauseMenu.openAchievements()" data-i18n="achievements_btn">🏆 Achievements</button>
+            <button class="gx-btn" type="button" onclick="pauseMenu.toHome()" data-i18n="pause_home">🏠 Main Menu</button>
+            <button class="gx-btn" type="button" style="background:linear-gradient(135deg,#b91c1c,#7f1d1d)" onclick="pauseMenu.exit()" data-i18n="pause_exit">🚪 Exit</button>
+        </div>
+        <div id="pause-settings">
+            <div class="home-row"><span class="home-row-label" data-i18n="settings_quality">Quality</span><div class="home-ctrl"><div id="pause-quality" class="seg-group"></div></div></div>
+            <div class="home-row" id="pause-fullscreen-row"><span class="home-row-label" data-i18n="settings_fullscreen">Fullscreen</span><div class="home-ctrl"><button id="pause-fs" class="home-btn" type="button" onclick="fullscreen.toggle()" data-i18n="fs_enter">⛶ Enter</button></div></div>
+            <div class="home-row"><span class="home-row-label" data-i18n="home_audio">Audio</span><div class="home-ctrl"><button id="pause-mute" class="home-btn" type="button" onclick="sound.toggleMute()">🔊</button><input id="pause-vol" type="range" min="0" max="100" value="100" oninput="sound.setVolume(this.value/100)"></div></div>
+            <button class="gx-btn" type="button" onclick="pauseMenu.showMain()" data-i18n="pause_back">← Back</button>
+        </div>
+    </div></div>
+    <div id="collection-modal" class="gx-modal"><div class="gx-box">
+        <h2 data-i18n="collection_title">Charm Collection</h2>
+        <div id="collection-stats" class="coll-stats"></div>
+        <div id="collection-grid" class="coll-grid"></div>
+        <button class="gx-btn" style="margin-top:14px" onclick="collection.close()" data-i18n="close">Close</button>
+    </div></div>
+    <div id="ach-modal" class="gx-modal"><div class="gx-box">
+        <h2 data-i18n="achievements_header">Achievements</h2>
+        <div id="ach-modal-list"></div>
+        <button class="gx-btn" style="margin-top:10px" onclick="achievementsUI.close()" data-i18n="close">Close</button>
+    </div></div>
     <script>
         let LANG = 'en';
         const I18N = {
@@ -352,7 +424,21 @@
                 lore4:"Skullchef journeyed with Angel's soul in soup.", lore5:"The soup is ready. Awaken the Soul to ascend.", lore6:"Success. Small Angel's energy is woven into Earth.",
                 reward_cps2:"x2 CPS (1h)", reward_skip15:"+15 min CPS", reward_tap:"Auto-Stir 60s", reward_watch:"Watch", reward_free:"Free reward",
                 reward_cooldown:"in {time}", reward_daily_left:"{n}/{max} today", reward_granted:"Reward granted: {r} 🎁", ad_failed:"Reward not available right now", offline_double:"x2 (Free reward)",
-                rotate_title:"Rotate your device", rotate_msg:"Smallcreek Skullchef plays best in landscape. Turn your device sideways to keep cooking."
+                rotate_title:"Rotate your device", rotate_msg:"Smallcreek Skullchef plays best in landscape. Turn your device sideways to keep cooking.",
+                settings_title:"Settings", settings_quality:"Quality", quality_auto:"Auto", quality_high:"High", quality_low:"Low",
+                settings_fullscreen:"Fullscreen", fs_enter:"⛶ Enter", fs_exit:"⛶ Exit",
+                pause_btn:"☰ Menu", pause_title:"Paused", pause_resume:"▶ Resume", pause_settings:"⚙ Settings", pause_home:"🏠 Main Menu", pause_exit:"🚪 Exit", pause_back:"← Back",
+                collection_btn:"🎴 Charms", collection_title:"Charm Collection",
+                coll_empty:"No charms yet. Keep cooking — charms drop as you play!", coll_owned:"Collected {n}/{total} kinds", coll_total_label:"Total charms: {n}",
+                coll_equip:"Equip", coll_equipped:"Equipped", coll_unequip:"Unequip",
+                coll_next_drop:"Next charm in {time}", coll_daily_left:"{n}/{max} drops today", coll_daily_done:"Daily drops complete · resets tomorrow",
+                coll_drop_toast:"🎴 New charm! {rarity}", coll_dup_toast:"🎴 Duplicate charm ({rarity})", coll_item_name:"Charm #{id}",
+                r_common:"Common", r_uncommon:"Uncommon", r_rare:"Rare", r_epic:"Epic", r_legendary:"Legendary", r_mythic:"Mythic",
+                achievements_btn:"🏆 Achievements", ach_progress:"{cur}/{goal}",
+                ach_firstClick_n:"First Stir", ach_firstClick_d:"Stir the soup for the first time",
+                ach_collector_n:"Charm Collector", ach_collector_d:"Own 8 different charms",
+                ach_mythicCharm_n:"Mythic Fortune", ach_mythicCharm_d:"Find a Legendary or Mythic charm",
+                ach_awakened5_n:"Fivefold Soul", ach_awakened5_d:"Reach Angel Awakening Lv.5"
             },
             es: {
                 soul_awakened:"[ ALMA DESPERTADA ]", prix_title:"ESQUELOTIA GRAN PREMIO", select_champion:"¡Elige Campeón!", return_cauldron:"VOLVER AL CALDERO",
@@ -387,7 +473,21 @@
                 lore4:"Skullchef viajó con el alma del Ángel en la sopa.", lore5:"La sopa está lista. Despierta el Alma para ascender.", lore6:"Logrado. La energía del Pequeño Ángel se teje en la Tierra.",
                 reward_cps2:"x2 CPS (1h)", reward_skip15:"+15 min CPS", reward_tap:"Auto-Remover 60s", reward_watch:"Ver", reward_free:"Recompensa gratis",
                 reward_cooldown:"en {time}", reward_daily_left:"{n}/{max} hoy", reward_granted:"Recompensa concedida: {r} 🎁", ad_failed:"Recompensa no disponible ahora", offline_double:"x2 (Recompensa gratis)",
-                rotate_title:"Gira tu dispositivo", rotate_msg:"Smallcreek Skullchef se juega mejor en horizontal. Gira tu dispositivo para seguir cocinando."
+                rotate_title:"Gira tu dispositivo", rotate_msg:"Smallcreek Skullchef se juega mejor en horizontal. Gira tu dispositivo para seguir cocinando.",
+                settings_title:"Ajustes", settings_quality:"Calidad", quality_auto:"Auto", quality_high:"Alta", quality_low:"Baja",
+                settings_fullscreen:"Pantalla completa", fs_enter:"⛶ Activar", fs_exit:"⛶ Salir",
+                pause_btn:"☰ Menú", pause_title:"Pausa", pause_resume:"▶ Reanudar", pause_settings:"⚙ Ajustes", pause_home:"🏠 Menú principal", pause_exit:"🚪 Salir", pause_back:"← Volver",
+                collection_btn:"🎴 Amuletos", collection_title:"Colección de Amuletos",
+                coll_empty:"Aún no tienes amuletos. ¡Sigue cocinando — los amuletos caen mientras juegas!", coll_owned:"Coleccionados {n}/{total} tipos", coll_total_label:"Amuletos totales: {n}",
+                coll_equip:"Equipar", coll_equipped:"Equipado", coll_unequip:"Quitar",
+                coll_next_drop:"Próximo amuleto en {time}", coll_daily_left:"{n}/{max} drops hoy", coll_daily_done:"Drops diarios completos · se reinician mañana",
+                coll_drop_toast:"🎴 ¡Nuevo amuleto! {rarity}", coll_dup_toast:"🎴 Amuleto repetido ({rarity})", coll_item_name:"Amuleto #{id}",
+                r_common:"Común", r_uncommon:"Poco común", r_rare:"Raro", r_epic:"Épico", r_legendary:"Legendario", r_mythic:"Mítico",
+                achievements_btn:"🏆 Logros", ach_progress:"{cur}/{goal}",
+                ach_firstClick_n:"Primer Removido", ach_firstClick_d:"Remueve la sopa por primera vez",
+                ach_collector_n:"Coleccionista de Amuletos", ach_collector_d:"Posee 8 amuletos distintos",
+                ach_mythicCharm_n:"Fortuna Mítica", ach_mythicCharm_d:"Consigue un amuleto Legendario o Mítico",
+                ach_awakened5_n:"Alma Quíntuple", ach_awakened5_d:"Alcanza Despertar del Ángel Nv.5"
             }
         };
         function t(k, p) { let d = I18N[LANG] || I18N.en; let s = (d && d[k] != null) ? d[k] : (I18N.en[k] != null ? I18N.en[k] : k); if (p) { for (const key in p) s = s.split('{' + key + '}').join(p[key]); } return s; }
@@ -407,6 +507,9 @@
             const om = document.getElementById('offline-modal'); if (om && om.classList.contains('open')) offline.renderText();
             const rm = document.getElementById('race-modal'), ps = document.getElementById('p-sel');
             if (rm && rm.style.display === 'flex' && ps && ps.style.display !== 'none') prix.refreshList();
+            try { quality.syncUi(); fullscreen.syncUi(); } catch (e) {}
+            const cm = document.getElementById('collection-modal'); if (cm && cm.classList.contains('open')) collection.render();
+            const am = document.getElementById('ach-modal'); if (am && am.classList.contains('open')) achievementsUI.render();
         }
         const sound = {
             defs: { stir:['audio/stir1.mp3','audio/stir2.mp3','audio/stir3.mp3'], bubble:['audio/bubble.mp3'], buy:['audio/buy.mp3'], prestige:['audio/prestige.mp3'], victory:['audio/victory.mp3'] },
@@ -464,12 +567,13 @@
                 if (c) c.classList.toggle('muted', this.muted || this.volume <= 0);
                 if (v && document.activeElement !== v) v.value = String(Math.round(this.volume * 100));
                 if (typeof home !== 'undefined' && home.syncAudio) home.syncAudio();
+                if (typeof pauseMenu !== 'undefined' && pauseMenu.syncAudio) pauseMenu.syncAudio();
             }
         };
         // === Versionado del esquema de guardado ===
         // Sube este número cada vez que cambie la forma del save. Cada incremento debe
         // tener su paso de migración en SAVE_MIGRATIONS (clave = versión de ORIGEN).
-        const SCHEMA_VERSION = 18;
+        const SCHEMA_VERSION = 19;
         const SAVE_MIGRATIONS = {
             // v16 -> v17: el campo `as` (Angel Shards acumulados) pasó a guardarse aparte de `s`.
             16: (s) => {
@@ -483,10 +587,17 @@
                 if (!s.rewards || typeof s.rewards !== 'object') s.rewards = {};
                 s.v = 18;
                 return s;
+            },
+            // v18 -> v19: se añade `coll` (colección de amuletos generativos: inventario,
+            // contadores de drops y amuleto equipado). Se inicializa vacío de forma perezosa.
+            18: (s) => {
+                if (!s.coll || typeof s.coll !== 'object') s.coll = null;
+                s.v = 19;
+                return s;
             }
-            // FUTURO: para añadir v18 -> v19 solo añade aquí:
-            //   18: (s) => { /* transforma s */ s.v = 19; return s; },
-            // y sube SCHEMA_VERSION a 19. No borres pasos antiguos.
+            // FUTURO: para añadir v19 -> v20 solo añade aquí:
+            //   19: (s) => { /* transforma s */ s.v = 20; return s; },
+            // y sube SCHEMA_VERSION a 20. No borres pasos antiguos.
         };
         // Transforma un save antiguo al esquema actual de forma incremental. Nunca lanza:
         // si algo falla, devuelve los datos originales sin tocar (no se pierde nada).
@@ -508,9 +619,46 @@
                 return data;
             }
         }
+        // === Integridad del guardado (anti-tamper de cliente) ===
+        // Firma determinista y SÍNCRONA del JSON del save + una sal embebida. NO es
+        // criptografía fuerte: el anti-cheat 100% en cliente es imposible (la sal vive en
+        // el bundle). Sirve para detectar ediciones casuales de localStorage y, junto al
+        // clamp de valores, evitar estados imposibles (NaN/Infinity/negativos/topes).
+        const secure = {
+            SALT: 'sk_chef_v1_$alt_9c3f7a',
+            // FNV-1a (32b) + DJB2 combinados -> 16 hex chars. Math.imul para multiplicación 32b exacta.
+            hash(str) {
+                str = String(str);
+                let h1 = 0x811c9dc5 >>> 0;
+                let h2 = 5381 >>> 0;
+                for (let i = 0; i < str.length; i++) {
+                    const c = str.charCodeAt(i);
+                    h1 = Math.imul(h1 ^ c, 0x01000193) >>> 0;
+                    h2 = (Math.imul(h2, 33) + c) >>> 0;
+                }
+                const hex = (n) => ('00000000' + (n >>> 0).toString(16)).slice(-8);
+                return hex(h1) + hex(h2);
+            },
+            sign(dataStr) { return this.hash(this.SALT + '|' + dataStr + '|' + this.SALT); },
+            wrap(dataStr) { try { return JSON.stringify({ s: this.sign(dataStr), d: dataStr }); } catch (e) { return dataStr; } },
+            // Devuelve { data, tampered, legacy } o null. Acepta sobres firmados y saves
+            // legacy/backup sin firma (se aceptan y se re-firman en el próximo save()).
+            unwrap(raw) {
+                if (raw == null) return null;
+                let env = null;
+                try { env = JSON.parse(raw); } catch (e) { return null; }
+                if (!env || typeof env !== 'object') return null;
+                if (typeof env.s === 'string' && typeof env.d === 'string') {
+                    let data = null; try { data = JSON.parse(env.d); } catch (e) { data = null; }
+                    if (!data || typeof data !== 'object') return null;
+                    return { data, tampered: this.sign(env.d) !== env.s, legacy: false };
+                }
+                return { data: env, tampered: false, legacy: true };
+            }
+        };
         const game = {
             e:0, l:0, s:0, c:0, p:false, f:0, cl:false, m:1, cd:0, buyMode:1, defaultSpoonImg:'assets/img/spoon.png', _inited:false, logicTick:null, uiTick:null, saveTick:null, _floatNodes:[], _spoonAnimating:false, _spoonUiKey:'', _steamIdleTick:0, _dispScore:0, _autoPartAcc:0, _wave:0, _ballWave:0, _ballSpeed:1, _lastClick:0, soupBalls:[], _rippleNodes:[], _ambientRippleTick:0, _soupRect:null, _surf:null,
-            as:0, lastSeen:0, _buffs:[], tree:{caldo:0, manos:0, eco:0, cuchara:0, tiempo:0}, daily:null, ach:{}, rewards:{},
+            as:0, lastSeen:0, _buffs:[], tree:{caldo:0, manos:0, eco:0, cuchara:0, tiempo:0}, daily:null, ach:{}, rewards:{}, coll:null, _tampered:false,
             treeDefs: [
                 {k:'caldo', mx:5, cb:1},
                 {k:'manos', mx:5, cb:1},
@@ -523,7 +671,7 @@
                 0: { x: 0.500, y: 0.150, w: 0.24 },
                 1: { x: 0.504, y: 0.255, w: 0.20 },
                 2: { x: 0.513, y: 0.085, w: 0.24 },
-                3: { x: 0.499, y: 0.090, w: 0.18 }
+                3: { x: 0.499, y: 0.130, w: 0.18 }
             },
             cp: [
                 {id:0, nk:'comp_coco', cs:20, pw:0.02, lv:0, ch:false, im:'assets/img/coco.png'},
@@ -577,20 +725,39 @@
             resize() { this.ctx.canvas.width = window.innerWidth; this.ctx.canvas.height = window.innerHeight; this._soupRect = null; this._scoreTarget = null; },
             getSaveData() {
                 this.lastSeen = Date.now();
-                return {v:SCHEMA_VERSION, e:this.e, l:this.l, s:this.s, as:this.as, c:this.cp.map(x=>({lv:x.lv, ch:x.ch})), cd:this.cd, bm:this.buyMode, sp:this.spoons.map(s=>({o:s.owned, eq:s.equipped})), lastSeen:this.lastSeen, tree:this.tree, daily:this.daily, ach:this.ach, rewards:this.rewards};
+                return {v:SCHEMA_VERSION, e:this.e, l:this.l, s:this.s, as:this.as, c:this.cp.map(x=>({lv:x.lv, ch:x.ch})), cd:this.cd, bm:this.buyMode, sp:this.spoons.map(s=>({o:s.owned, eq:s.equipped})), lastSeen:this.lastSeen, tree:this.tree, daily:this.daily, ach:this.ach, rewards:this.rewards, coll:this.coll};
             },
             save() {
                 const data = this.getSaveData();
-                const str = JSON.stringify(data);
+                const str = secure.wrap(JSON.stringify(data));
                 try { localStorage.setItem('soup_p_v17', str); } catch (e) {}
                 // HOOK NUBE: punto único de guardado en la nube (stub local por ahora).
                 try { cloudSave.save(str); } catch (e) {}
             },
+            // Clamp defensivo de TODOS los numéricos del save (anti NaN/Infinity/negativos
+            // y topes razonables). No rompe progreso legítimo (los topes son muy holgados).
+            sanitizeSave(d) {
+                const num = (v, min, max, dflt) => { const n = Number(v); if (!Number.isFinite(n)) return dflt; return Math.min(max, Math.max(min, n)); };
+                const BIG = 1e300;
+                d.e = num(d.e, 0, BIG, 0);
+                d.l = num(d.l, 0, BIG, 0);
+                d.s = Math.floor(num(d.s, 0, 100000, 0));
+                d.as = Math.floor(num(d.as, 0, 1e12, 0));
+                d.cd = Math.floor(num(d.cd, 0, 36000, 0));
+                if (Array.isArray(d.c)) d.c.forEach(x => { if (x && typeof x === 'object') { x.lv = Math.floor(num(x.lv, 0, 100000, 0)); x.ch = !!x.ch; } });
+                if (Number.isFinite(d.lastSeen)) d.lastSeen = num(d.lastSeen, 0, Date.now() + 86400000, 0); else d.lastSeen = 0;
+                return d;
+            },
             load() {
                 let d = null;
-                try { let raw = localStorage.getItem('soup_p_v17'); if (!raw) raw = localStorage.getItem('soup_p_v16'); if (raw) d = JSON.parse(raw); }
+                this._tampered = false;
+                try {
+                    let raw = localStorage.getItem('soup_p_v17'); if (!raw) raw = localStorage.getItem('soup_p_v16');
+                    if (raw) { const u = secure.unwrap(raw); if (u && u.data && typeof u.data === 'object') { d = u.data; if (u.tampered) this._tampered = true; } }
+                }
                 catch (err) { d = null; }
                 if (d && typeof d === 'object') d = migrateSave(d);
+                if (d && typeof d === 'object') d = this.sanitizeSave(d);
                 if (d && typeof d === 'object') {
                     this.e = Number.isFinite(d.e) ? d.e : 0; this.l = Number.isFinite(d.l) ? d.l : 0; this.s = Number.isFinite(d.s) ? d.s : 0; this.cd = Number.isFinite(d.cd) ? d.cd : 0;
                     this.as = Number.isFinite(d.as) ? d.as : this.s;
@@ -609,11 +776,13 @@
                     const eq = this.spoons.filter(s => s.equipped);
                     if (eq.length > 1) { this.spoons.forEach(s => s.equipped = false); eq[0].equipped = true; }
                     this.lastSeen = Number.isFinite(d.lastSeen) ? d.lastSeen : 0;
-                    if (d.tree && typeof d.tree === 'object') { for (const k in this.tree) if (Number.isFinite(d.tree[k])) this.tree[k] = d.tree[k]; }
+                    if (d.tree && typeof d.tree === 'object') { this.treeDefs.forEach(def => { const v = d.tree[def.k]; if (Number.isFinite(v)) this.tree[def.k] = Math.min(def.mx, Math.max(0, Math.floor(v))); }); }
                     if (d.daily && typeof d.daily === 'object' && d.daily.counters && Array.isArray(d.daily.missions)) this.daily = d.daily;
                     if (d.ach && typeof d.ach === 'object') this.ach = d.ach;
                     if (d.rewards && typeof d.rewards === 'object') this.rewards = d.rewards;
+                    if (d.coll && typeof d.coll === 'object') this.coll = d.coll;
                 }
+                try { collection.normalize(); } catch (e) {}
                 this.applySpoonVisual(); this.rebuild();
                 offline.evaluate();
                 quests.ensureDaily();
@@ -806,6 +975,7 @@
                 if (this.cd > 0) this.cd--;
                 bubble.tick();
                 quests.ensureDaily();
+                try { collection.tick(1); } catch (e) {}
             },
             updateLore() {
                 const lt = document.getElementById('lore-text'), ti = document.getElementById('lore-title');
@@ -876,6 +1046,7 @@
                 if (!Number.isFinite(gain) || gain <= 0) return;
                 this.cl = true; this.e += gain; this._lastClick = performance.now();
                 this.track('clicks', 1); this.track('eb', gain);
+                if (!game.ach.firstClick) ach.grant('firstClick');
                 this.floatNum(ev.clientX, ev.clientY, gain);
                 sound.play('stir');
                 document.getElementById('asset-spoon').classList.add('manual-stir');
@@ -983,8 +1154,8 @@
                     this.f += (0.04 + Math.log10(this.c+1)*0.05);
                     sp.style.transform = `translate(-50%,-50%) rotate(${-27+Math.sin(this.f)*5}deg)`;
                     if (this._autoPartAcc > 0) {
-                        // CAP por frame: como mucho 4 emisiones/frame aunque el CPS sea altísimo.
-                        const burst = Math.min(this._autoPartAcc, 4);
+                        // CAP por frame: como mucho N emisiones/frame (según calidad) aunque el CPS sea altísimo.
+                        const burst = Math.min(this._autoPartAcc, quality.params.partCap);
                         const o = this.soupPartOrigin();
                         for (let i = 0; i < burst; i++) this.part(o.x + (Math.random() - 0.5) * 40, o.y + (Math.random() - 0.5) * 20, 'energy');
                         this._autoPartAcc -= burst;
@@ -996,10 +1167,11 @@
                     const sl = document.getElementById('asset-soup-liquid');
                     if (sl) {
                         const w = this._wave;
-                        const sy = 1 + Math.sin(w) * 0.018 + (this.c > 0 ? Math.sin(this.f) * 0.007 : 0);
-                        const sx = 1 + Math.sin(w * 0.85 + 1.1) * 0.009;
-                        const sk = Math.sin(w * 0.7) * 0.95;
-                        const tx = Math.sin(w * 0.6) * 1.1;
+                        const wm = quality.params.waveMul;
+                        const sy = 1 + (Math.sin(w) * 0.018 + (this.c > 0 ? Math.sin(this.f) * 0.007 : 0)) * wm;
+                        const sx = 1 + Math.sin(w * 0.85 + 1.1) * 0.009 * wm;
+                        const sk = Math.sin(w * 0.7) * 0.95 * wm;
+                        const tx = Math.sin(w * 0.6) * 1.1 * wm;
                         sl.style.transform = `translateX(${tx.toFixed(3)}%) scale(${sx.toFixed(4)},${sy.toFixed(4)}) skewX(${sk.toFixed(3)}deg)`;
                     }
                 }
@@ -1145,13 +1317,13 @@
             },
             part(x, y, t) {
                 if (t === 'steam') {
-                    if (this.particles.filter(p => p.t === 'steam').length >= 38) return;
+                    if (this.particles.filter(p => p.t === 'steam').length >= quality.params.steamMax) return;
                     this.particles.push({ x, y, t, vx: (Math.random() - 0.5) * 0.8, vy: -(Math.random() * 0.9 + 0.35), life: 0.7 + Math.random() * 0.28, size: Math.random() * 10 + 7, color: Math.random() > 0.45 ? 'rgba(255,255,255,0.46)' : 'rgba(165,243,252,0.36)' });
                     return;
                 }
                 // TOPE GLOBAL de partículas: si se supera, se descartan las nuevas para
                 // evitar la explosión con CPS alto. El máximo mantiene el efecto visual.
-                const MAX_PARTS = 80;
+                const MAX_PARTS = quality.params.maxParts;
                 const want = (t === 'magic' ? 30 : 8);
                 const room = MAX_PARTS - this.particles.length;
                 if (room <= 0) return;
@@ -1673,11 +1845,15 @@
         };
         const ach = {
             defs: [
+                { k: 'firstClick', reward: 500 },
                 { k: 'firstPres', reward: 5000 },
                 { k: 'firstChamp', reward: 8000 },
                 { k: 'fullTeam', reward: 4000 },
                 { k: 'allSpoons', reward: 25000 },
-                { k: 'centurion', reward: 50000 }
+                { k: 'centurion', reward: 50000 },
+                { k: 'awakened5', reward: 60000 },
+                { k: 'collector', reward: 15000 },
+                { k: 'mythicCharm', reward: 40000 }
             ],
             grant(k) {
                 if (game.ach[k]) return;
@@ -1686,13 +1862,18 @@
                 if (d.reward) game.e += d.reward;
                 gx.toast(t('ach_toast', {n: t('ach_' + k + '_n')}));
                 sound.play('prestige');
+                // Adaptador agnóstico: desbloqueo real en Steam cuando exista el wrapper.
+                try { achievementsProvider.unlock(k); } catch (e) {}
                 game.save();
                 if (document.getElementById('quest-modal').classList.contains('open')) quests.render();
+                if (document.getElementById('ach-modal').classList.contains('open')) achievementsUI.render();
             },
             check() {
                 if (game.cp.every(c => c.lv > 0)) this.grant('fullTeam');
                 if (game.spoons.every(s => s.owned)) this.grant('allSpoons');
                 if (game.cp.some(c => c.lv >= 100)) this.grant('centurion');
+                if (game.s >= 5) this.grant('awakened5');
+                try { if (collection.distinctCount() >= 8) this.grant('collector'); } catch (e) {}
             }
         };
         const quests = {
@@ -1793,15 +1974,365 @@
                 setTimeout(() => { ov.style.display = 'none'; }, 600);
             }
         };
+        // === AJUSTE DE CALIDAD (Tarea 2) ===
+        // Controla, en caliente, el coste visual: tope de partículas, cap por frame, tope de
+        // vapor, nº de wisps (vía clase q-low) e intensidad de las olas del líquido.
+        const quality = {
+            mode: 'auto',
+            presets: {
+                high: { maxParts: 80, partCap: 4, steamMax: 38, waveMul: 1 },
+                low:  { maxParts: 30, partCap: 2, steamMax: 14, waveMul: 0.5 }
+            },
+            params: { maxParts: 80, partCap: 4, steamMax: 38, waveMul: 1 },
+            // "Auto": heurístico simple por núcleos lógicos (sin sampleo costoso de FPS).
+            detectAuto() {
+                try { const c = navigator.hardwareConcurrency; if (Number.isFinite(c) && c > 0 && c <= 4) return 'low'; } catch (e) {}
+                return 'high';
+            },
+            effMode() { return this.mode === 'auto' ? this.detectAuto() : this.mode; },
+            apply() {
+                const m = this.effMode();
+                const p = this.presets[m] || this.presets.high;
+                this.params = { maxParts: p.maxParts, partCap: p.partCap, steamMax: p.steamMax, waveMul: p.waveMul };
+                try { document.body.classList.toggle('q-low', m === 'low'); } catch (e) {}
+                this.syncUi();
+            },
+            load() {
+                try { const v = localStorage.getItem('soup_quality'); if (v === 'auto' || v === 'high' || v === 'low') this.mode = v; } catch (e) {}
+                this.apply();
+            },
+            set(mode) {
+                if (mode !== 'auto' && mode !== 'high' && mode !== 'low') return;
+                this.mode = mode;
+                try { localStorage.setItem('soup_quality', mode); } catch (e) {}
+                this.apply();
+            },
+            syncUi() {
+                ['home-quality', 'pause-quality'].forEach(id => {
+                    const c = document.getElementById(id); if (!c) return;
+                    const modes = ['auto', 'high', 'low'];
+                    c.innerHTML = modes.map(mo => `<button class="seg-btn ${mo === this.mode ? 'active' : ''}" type="button" data-q="${mo}" onclick="quality.set('${mo}')">${t('quality_' + mo)}</button>`).join('');
+                });
+            }
+        };
+        // === PANTALLA COMPLETA (Tarea 2) === Fullscreen API con feature-detect + prefijos.
+        const fullscreen = {
+            supported() {
+                try { if (ytPlayables && ytPlayables.available) return false; return !!(document.fullscreenEnabled || document.webkitFullscreenEnabled); } catch (e) { return false; }
+            },
+            isActive() { try { return !!(document.fullscreenElement || document.webkitFullscreenElement); } catch (e) { return false; } },
+            enter() { const el = document.documentElement; const fn = el.requestFullscreen || el.webkitRequestFullscreen; if (fn) { try { const r = fn.call(el); if (r && r.catch) r.catch(() => {}); } catch (e) {} } },
+            exit() { const fn = document.exitFullscreen || document.webkitExitFullscreen; if (fn) { try { const r = fn.call(document); if (r && r.catch) r.catch(() => {}); } catch (e) {} } },
+            toggle() { if (this.isActive()) this.exit(); else this.enter(); },
+            syncUi() {
+                const sup = this.supported(), act = this.isActive();
+                [['home-fullscreen-row', 'home-fs'], ['pause-fullscreen-row', 'pause-fs']].forEach(pair => {
+                    const row = document.getElementById(pair[0]), btn = document.getElementById(pair[1]);
+                    if (row) row.style.display = sup ? '' : 'none';
+                    if (btn) btn.textContent = t(act ? 'fs_exit' : 'fs_enter');
+                });
+            },
+            init() {
+                ['fullscreenchange', 'webkitfullscreenchange'].forEach(ev => { try { document.addEventListener(ev, () => this.syncUi()); } catch (e) {} });
+                this.syncUi();
+            }
+        };
+        // === MENÚ DE PAUSA in-game (Tarea 2) ===
+        // Reutiliza game.p como freno coherente del bucle/ganancias idle. Solo des-pausa lo
+        // que pausó él mismo (no interfiere con prestigio/carrera/coronación).
+        const pauseMenu = {
+            _open: false, _pausedByUs: false,
+            open() {
+                if (this._open) return;
+                if (game.p && !this._pausedByUs) return; // ocupado (prestigio/carrera): no abrir
+                this._open = true;
+                if (!game.p) { game.p = true; this._pausedByUs = true; }
+                this.showMain();
+                quality.syncUi(); fullscreen.syncUi(); this.syncAudio();
+                const md = document.getElementById('pause-modal'); if (md) md.classList.add('open');
+            },
+            close() { this._open = false; const md = document.getElementById('pause-modal'); if (md) md.classList.remove('open'); },
+            _unpause() {
+                if (!this._pausedByUs) return;
+                this._pausedByUs = false; game.p = false; game._soupRect = null; game._scoreTarget = null;
+                if (game._loopPaused) { game._loopPaused = false; game.loop(); }
+            },
+            resume() { this.close(); this._unpause(); },
+            showSettings() { const m = document.getElementById('pause-main'), s = document.getElementById('pause-settings'); if (m) m.style.display = 'none'; if (s) s.style.display = 'flex'; quality.syncUi(); fullscreen.syncUi(); this.syncAudio(); },
+            showMain() { const m = document.getElementById('pause-main'), s = document.getElementById('pause-settings'); if (m) m.style.display = 'flex'; if (s) s.style.display = 'none'; },
+            syncAudio() {
+                const mu = document.getElementById('pause-mute'), v = document.getElementById('pause-vol');
+                const muted = sound.muted || sound.volume <= 0;
+                if (mu) mu.textContent = muted ? '🔇' : '🔊';
+                if (v && document.activeElement !== v) v.value = String(Math.round(sound.volume * 100));
+            },
+            openAchievements() { achievementsUI.open(); },
+            toHome() {
+                this.close(); this._unpause();
+                const ov = document.getElementById('home-overlay');
+                if (ov) { ov.classList.remove('closing'); ov.style.display = 'flex'; }
+                try { home.init(); } catch (e) {}
+                try { game.save(); } catch (e) {}
+            },
+            exit() {
+                // Web/Playables: equivale a volver a la home. Stubs de cierre nativo abajo.
+                try {
+                    // HOOK NATIVO (stub): cerrar app en builds de escritorio (Steam/Electron).
+                    //   if (window.steamwrap && window.steamwrap.quit) { window.steamwrap.quit(); return; }
+                    //   if (window.electronAPI && window.electronAPI.quitApp) { window.electronAPI.quitApp(); return; }
+                    // HOOK PLAYABLES (stub): YouTube Playables no expone un "quit" estándar hoy.
+                } catch (e) {}
+                this.toHome();
+            }
+        };
+        // ====================================================================
+        // === COLECCIÓN GENERATIVA POR CAPAS (Tarea 5) ===
+        // ====================================================================
+        // Capa AGNÓSTICA local. Amuletos cosméticos compuestos por capas (forma, material,
+        // patrón, emblema) + marco/brillo por rareza. Cada amuleto tiene un seed determinista
+        // que reproduce su apariencia (coleccionable estable). Drops por tiempo real jugado
+        // (cooldown por intervalo + tope diario, anti-abuso persistido y firmado).
+        const localCollectionProvider = {
+            id: 'local',
+            grantDrop(item) { return item; },
+            getInventory() { return (game.coll && game.coll.items) ? game.coll.items : {}; },
+            equip(key) { if (game.coll) game.coll.equipped = key || null; return true; }
+        };
+        // STUB Steam Inventory / mercado (BLOQUEADO por requisitos externos).
+        const steamMarketProvider = {
+            id: 'steam',
+            // TODO(Steam): requiere Steamworks + ISteamInventory (GetAllItems / AddPromoItem),
+            //   definir los items en el panel de Steam y, para el mercado, app PUBLICADA y
+            //   superar el umbral de ventas de Steam. Hasta entonces delega en el local.
+            grantDrop(item) { return localCollectionProvider.grantDrop(item); },
+            getInventory() { return localCollectionProvider.getInventory(); },
+            equip(key) { return localCollectionProvider.equip(key); }
+        };
+        const collectionProvider = localCollectionProvider;
+        const collection = {
+            RARITIES: [
+                { k: 'common', weight: 50 }, { k: 'uncommon', weight: 25 }, { k: 'rare', weight: 14 },
+                { k: 'epic', weight: 7 }, { k: 'legendary', weight: 3 }, { k: 'mythic', weight: 1 }
+            ],
+            rarRank: { common: 0, uncommon: 1, rare: 2, epic: 3, legendary: 4, mythic: 5 },
+            LAYERS: {
+                shape: ['circle', 'diamond', 'shield', 'hexagon'],
+                material: ['bronze', 'silver', 'gold', 'jade', 'ruby', 'obsidian'],
+                pattern: ['plain', 'rays', 'dots', 'swirl'],
+                emblem: ['spoon', 'skull', 'star', 'drop', 'bone']
+            },
+            DROP_INTERVAL: 600, DAILY_CAP: 12,
+            _cache: {},
+            totalKinds() { const L = this.LAYERS; return L.shape.length * L.material.length * L.pattern.length * L.emblem.length; },
+            normalize() {
+                let c = game.coll;
+                if (!c || typeof c !== 'object') c = {};
+                if (!c.items || typeof c.items !== 'object') c.items = {};
+                const clean = {};
+                for (const key in c.items) {
+                    const it = c.items[key];
+                    if (!it || typeof it !== 'object') continue;
+                    const seed = Math.floor(Number(it.seed));
+                    if (!Number.isFinite(seed) || seed < 0) continue;
+                    const rarity = (this.rarRank[it.rarity] != null) ? it.rarity : 'common';
+                    let count = Math.floor(Number(it.count));
+                    if (!Number.isFinite(count) || count < 1) count = 1;
+                    if (count > 999999) count = 999999;
+                    clean[key] = { seed: seed >>> 0, rarity, count };
+                }
+                c.items = clean;
+                c.acc = (Number.isFinite(c.acc) && c.acc >= 0) ? Math.min(c.acc, this.DROP_INTERVAL * 2) : 0;
+                c.day = (typeof c.day === 'string') ? c.day : '';
+                c.today = (Number.isFinite(c.today) && c.today >= 0) ? Math.min(Math.floor(c.today), 100000) : 0;
+                c.equipped = (typeof c.equipped === 'string' && c.items[c.equipped]) ? c.equipped : null;
+                game.coll = c;
+                return c;
+            },
+            dayKey() { try { return new Date().toISOString().slice(0, 10); } catch (e) { return 'na'; } },
+            ensureDay() { const c = this.normalize(); const today = this.dayKey(); if (c.day !== today) { c.day = today; c.today = 0; } return c; },
+            distinctCount() { const c = game.coll; return (c && c.items) ? Object.keys(c.items).length : 0; },
+            totalCount() { const c = game.coll; if (!c || !c.items) return 0; let n = 0; for (const k in c.items) n += c.items[k].count; return n; },
+            // PRNG determinista (mulberry32) para reproducir apariencia desde el seed.
+            rngFrom(seed) { let a = seed >>> 0; return function () { a |= 0; a = (a + 0x6D2B79F5) | 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; },
+            layersFor(seed) {
+                const r = this.rngFrom(seed);
+                const pick = (arr) => arr[Math.floor(r() * arr.length) % arr.length];
+                return { shape: pick(this.LAYERS.shape), material: pick(this.LAYERS.material), pattern: pick(this.LAYERS.pattern), emblem: pick(this.LAYERS.emblem) };
+            },
+            key(seed, rarity) { return rarity + ':' + (seed >>> 0); },
+            rollRarity() {
+                let total = 0; this.RARITIES.forEach(r => total += r.weight);
+                let x = Math.random() * total;
+                for (const r of this.RARITIES) { if (x < r.weight) return r.k; x -= r.weight; }
+                return 'common';
+            },
+            tick(sec) {
+                if (game.p) return;
+                const c = this.ensureDay();
+                if (c.today >= this.DAILY_CAP) return;
+                c.acc += sec;
+                if (c.acc >= this.DROP_INTERVAL) { c.acc -= this.DROP_INTERVAL; this.grant(); }
+            },
+            grant(forcedRarity) {
+                const c = this.ensureDay();
+                if (c.today >= this.DAILY_CAP && !forcedRarity) return null;
+                const seed = (Math.floor(Math.random() * 0xFFFFFFFF)) >>> 0;
+                const rarity = forcedRarity || this.rollRarity();
+                const key = this.key(seed, rarity);
+                if (c.items[key]) { c.items[key].count++; gx.toast(t('coll_dup_toast', { rarity: t('r_' + rarity) })); }
+                else { c.items[key] = { seed, rarity, count: 1 }; gx.toast(t('coll_drop_toast', { rarity: t('r_' + rarity) })); }
+                c.today++;
+                collectionProvider.grantDrop(c.items[key]);
+                sound.play('bubble');
+                if (rarity === 'legendary' || rarity === 'mythic') { try { ach.grant('mythicCharm'); } catch (e) {} }
+                try { ach.check(); } catch (e) {}
+                try { game.save(); } catch (e) {}
+                this.refreshFab();
+                if (document.getElementById('collection-modal').classList.contains('open')) this.render();
+                return key;
+            },
+            equip(key) {
+                const c = this.normalize();
+                if (!c.items[key]) return;
+                c.equipped = (c.equipped === key) ? null : key;
+                collectionProvider.equip(c.equipped);
+                try { game.save(); } catch (e) {}
+                this.refreshFab(); this.render();
+            },
+            hexA(hex, a) { try { const n = parseInt(hex.slice(1), 16); return `rgba(${(n >> 16) & 255},${(n >> 8) & 255},${n & 255},${a})`; } catch (e) { return `rgba(148,163,184,${a})`; } },
+            shapePath(x, shape, cx, cy, R) {
+                x.beginPath();
+                if (shape === 'circle') { x.arc(cx, cy, R, 0, Math.PI * 2); }
+                else if (shape === 'diamond') { x.moveTo(cx, cy - R); x.lineTo(cx + R, cy); x.lineTo(cx, cy + R); x.lineTo(cx - R, cy); x.closePath(); }
+                else if (shape === 'hexagon') { for (let i = 0; i < 6; i++) { const a = Math.PI / 6 + i * Math.PI / 3, px = cx + Math.cos(a) * R, py = cy + Math.sin(a) * R; if (i === 0) x.moveTo(px, py); else x.lineTo(px, py); } x.closePath(); }
+                else { x.moveTo(cx - R * 0.9, cy - R * 0.8); x.lineTo(cx + R * 0.9, cy - R * 0.8); x.lineTo(cx + R * 0.9, cy + R * 0.15); x.quadraticCurveTo(cx + R * 0.9, cy + R * 0.85, cx, cy + R); x.quadraticCurveTo(cx - R * 0.9, cy + R * 0.85, cx - R * 0.9, cy + R * 0.15); x.closePath(); }
+            },
+            drawPattern(x, pat, cx, cy, R, color) {
+                x.save(); x.globalAlpha = 0.16; x.strokeStyle = color; x.fillStyle = color; x.lineWidth = Math.max(1, R * 0.06);
+                if (pat === 'rays') { for (let i = 0; i < 12; i++) { const a = i * Math.PI / 6; x.beginPath(); x.moveTo(cx, cy); x.lineTo(cx + Math.cos(a) * R * 1.3, cy + Math.sin(a) * R * 1.3); x.stroke(); } }
+                else if (pat === 'dots') { for (let i = 0; i < 5; i++) for (let j = 0; j < 5; j++) { x.beginPath(); x.arc(cx - R + i * R * 0.5, cy - R + j * R * 0.5, R * 0.06, 0, Math.PI * 2); x.fill(); } }
+                else if (pat === 'swirl') { x.beginPath(); for (let a = 0; a < Math.PI * 6; a += 0.2) { const rr = R * (a / (Math.PI * 6)); x.lineTo(cx + Math.cos(a) * rr, cy + Math.sin(a) * rr); } x.stroke(); }
+                x.restore();
+            },
+            drawEmblem(x, em, cx, cy, r, dark) {
+                x.save(); x.globalAlpha = 0.85; x.fillStyle = dark; x.strokeStyle = dark; x.lineWidth = Math.max(2, r * 0.12); x.lineJoin = 'round';
+                if (em === 'star') { x.beginPath(); for (let i = 0; i < 10; i++) { const rr = i % 2 === 0 ? r : r * 0.45, a = -Math.PI / 2 + i * Math.PI / 5, px = cx + Math.cos(a) * rr, py = cy + Math.sin(a) * rr; if (i === 0) x.moveTo(px, py); else x.lineTo(px, py); } x.closePath(); x.fill(); }
+                else if (em === 'drop') { x.beginPath(); x.moveTo(cx, cy - r); x.bezierCurveTo(cx + r * 0.9, cy - r * 0.1, cx + r * 0.6, cy + r * 0.9, cx, cy + r * 0.9); x.bezierCurveTo(cx - r * 0.6, cy + r * 0.9, cx - r * 0.9, cy - r * 0.1, cx, cy - r); x.closePath(); x.fill(); }
+                else if (em === 'skull') { x.beginPath(); x.arc(cx, cy - r * 0.15, r * 0.7, Math.PI, 0); x.lineTo(cx + r * 0.45, cy + r * 0.5); x.lineTo(cx - r * 0.45, cy + r * 0.5); x.closePath(); x.fill(); x.globalAlpha = 1; x.fillStyle = '#fff'; x.beginPath(); x.arc(cx - r * 0.28, cy - r * 0.1, r * 0.16, 0, Math.PI * 2); x.arc(cx + r * 0.28, cy - r * 0.1, r * 0.16, 0, Math.PI * 2); x.fill(); }
+                else if (em === 'bone') { x.translate(cx, cy); x.rotate(-Math.PI / 4); const bl = r * 0.8; x.fillRect(-r * 0.12, -bl, r * 0.24, bl * 2); x.beginPath(); x.arc(0, -bl, r * 0.2, 0, Math.PI * 2); x.arc(0, bl, r * 0.2, 0, Math.PI * 2); x.fill(); }
+                else { x.beginPath(); x.ellipse(cx, cy - r * 0.45, r * 0.32, r * 0.45, 0, 0, Math.PI * 2); x.fill(); x.fillRect(cx - r * 0.08, cy - r * 0.05, r * 0.16, r * 0.95); }
+                x.restore();
+            },
+            draw(seed, rarity, size) {
+                const layers = this.layersFor(seed);
+                const cv = document.createElement('canvas'); cv.width = size; cv.height = size;
+                const x = cv.getContext('2d'); if (!x) return '';
+                const cx = size / 2, cy = size / 2, R = size * 0.40;
+                const mats = { bronze: ['#fde9c8', '#b87333', '#5b3413'], silver: ['#ffffff', '#c0c7d0', '#5b626e'], gold: ['#fff4c2', '#f5b301', '#8a5a00'], jade: ['#d9ffe9', '#2fbf71', '#0c5132'], ruby: ['#ffd6e0', '#e0245e', '#6b0f2a'], obsidian: ['#8a909c', '#2a2d34', '#070708'] };
+                const rarGlow = { common: '#94a3b8', uncommon: '#4ade80', rare: '#a5f3fc', epic: '#d8b4fe', legendary: '#fbbf24', mythic: '#fb7185' };
+                const mc = mats[layers.material] || mats.silver;
+                const glow = rarGlow[rarity] || '#94a3b8';
+                const rank = this.rarRank[rarity] || 0;
+                const dark = (layers.material === 'obsidian') ? '#e2e8f0' : '#0b0b12';
+                x.clearRect(0, 0, size, size);
+                if (rank >= 3) { const g = x.createRadialGradient(cx, cy, R * 0.4, cx, cy, R * 1.25); g.addColorStop(0, this.hexA(glow, 0.5)); g.addColorStop(1, this.hexA(glow, 0)); x.fillStyle = g; x.beginPath(); x.arc(cx, cy, R * 1.25, 0, Math.PI * 2); x.fill(); }
+                const grad = x.createRadialGradient(cx - R * 0.3, cy - R * 0.35, R * 0.15, cx, cy, R);
+                grad.addColorStop(0, mc[0]); grad.addColorStop(0.5, mc[1]); grad.addColorStop(1, mc[2]);
+                x.save(); this.shapePath(x, layers.shape, cx, cy, R); x.fillStyle = grad; x.fill(); x.clip(); this.drawPattern(x, layers.pattern, cx, cy, R, mc[0]); x.restore();
+                x.save(); this.shapePath(x, layers.shape, cx, cy, R); x.lineWidth = Math.max(2, size * 0.045); x.strokeStyle = glow; x.shadowColor = glow; x.shadowBlur = rank >= 2 ? size * 0.12 : 0; x.stroke(); x.restore();
+                this.drawEmblem(x, layers.emblem, cx, cy, R * 0.62, dark);
+                try { return cv.toDataURL('image/png'); } catch (e) { return ''; }
+            },
+            thumb(seed, rarity, size) {
+                size = size || 96;
+                const ck = this.key(seed, rarity) + ':' + size;
+                if (this._cache[ck]) return this._cache[ck];
+                const url = this.draw(seed, rarity, size);
+                this._cache[ck] = url;
+                return url;
+            },
+            refreshFab() {
+                const thumb = document.getElementById('collection-fab-thumb'); if (!thumb) return;
+                const c = game.coll;
+                if (c && c.equipped && c.items && c.items[c.equipped]) { const it = c.items[c.equipped]; thumb.innerHTML = `<img class="charm-fab-img" src="${this.thumb(it.seed, it.rarity, 48)}" alt="">`; }
+                else thumb.innerHTML = '';
+            },
+            nextDropText() {
+                const c = this.ensureDay();
+                if (c.today >= this.DAILY_CAP) return t('coll_daily_done');
+                const left = Math.max(0, this.DROP_INTERVAL - c.acc);
+                const mm = Math.floor(left / 60), ss = Math.floor(left % 60);
+                return t('coll_next_drop', { time: mm + ':' + String(ss).padStart(2, '0') });
+            },
+            open() { this.render(); document.getElementById('collection-modal').classList.add('open'); },
+            close() { document.getElementById('collection-modal').classList.remove('open'); },
+            render() {
+                const c = this.normalize();
+                const stats = document.getElementById('collection-stats');
+                if (stats) stats.innerHTML = `${t('coll_owned', { n: this.distinctCount(), total: this.totalKinds() })} · ${t('coll_total_label', { n: this.totalCount() })}<br>${this.nextDropText()} · ${t('coll_daily_left', { n: this.DAILY_CAP - c.today, max: this.DAILY_CAP })}`;
+                const grid = document.getElementById('collection-grid'); if (!grid) return;
+                const keys = Object.keys(c.items);
+                if (!keys.length) { grid.innerHTML = `<div style="grid-column:1/-1; color:#94a3b8; font-size:0.85rem; padding:14px">${t('coll_empty')}</div>`; return; }
+                keys.sort((a, b) => (this.rarRank[c.items[b].rarity] - this.rarRank[c.items[a].rarity]) || (c.items[b].seed - c.items[a].seed));
+                grid.innerHTML = keys.map(k => {
+                    const it = c.items[k], eqd = c.equipped === k;
+                    const dup = it.count > 1 ? `<span class="charm-dup">x${it.count}</span>` : '';
+                    return `<div class="charm-tile r-${it.rarity} ${eqd ? 'equipped' : ''}" onclick="collection.equip('${k}')">${dup}<img class="charm-img" src="${this.thumb(it.seed, it.rarity, 96)}" alt=""><span class="charm-rar r-${it.rarity}">${t('r_' + it.rarity)}</span><span style="font-size:0.6rem;color:${eqd ? '#fbbf24' : '#94a3b8'}">${eqd ? t('coll_equipped') : t('coll_equip')}</span></div>`;
+                }).join('');
+            }
+        };
+        // ====================================================================
+        // === LOGROS: adaptador agnóstico + UI (Tarea 6) ===
+        // ====================================================================
+        const localAchievementsProvider = {
+            id: 'local',
+            unlock(id) { return true; }, // el estado persiste en game.ach (vía ach.grant)
+            setStat(k, v) { return true; }
+        };
+        // STUB Steam (BLOQUEADO: requiere empaquetar con Steamworks y la app dada de alta).
+        const steamAchievementsProvider = {
+            id: 'steam',
+            // TODO(Steam): con window.steamworks (greenworks / steamworks.js en Electron):
+            //   unlock(id) -> activateAchievement(id) + storeStats()
+            //   setStat(k,v) -> setStat(k,v) + storeStats()
+            unlock(id) { try { if (window.steamworks && window.steamworks.activateAchievement) { window.steamworks.activateAchievement(id); if (window.steamworks.storeStats) window.steamworks.storeStats(); return true; } } catch (e) {} return false; },
+            setStat(k, v) { try { if (window.steamworks && window.steamworks.setStat) { window.steamworks.setStat(k, v); return true; } } catch (e) {} return false; }
+        };
+        function pickAchievementsProvider() { try { if (BUILD === 'steam' && window.steamworks) return steamAchievementsProvider; } catch (e) {} return localAchievementsProvider; }
+        const achievementsProvider = pickAchievementsProvider();
+        const achievementsUI = {
+            open() { this.render(); document.getElementById('ach-modal').classList.add('open'); },
+            close() { document.getElementById('ach-modal').classList.remove('open'); },
+            progress(k) {
+                try {
+                    if (k === 'collector') return { cur: Math.min(collection.distinctCount(), 8), goal: 8 };
+                    if (k === 'awakened5') return { cur: Math.min(game.s, 5), goal: 5 };
+                    if (k === 'centurion') { const m = game.cp.reduce((a, c) => Math.max(a, c.lv), 0); return { cur: Math.min(m, 100), goal: 100 }; }
+                } catch (e) {}
+                return null;
+            },
+            render() {
+                const list = document.getElementById('ach-modal-list'); if (!list) return;
+                list.innerHTML = ach.defs.map(d => {
+                    const got = !!game.ach[d.k];
+                    const pr = !got ? this.progress(d.k) : null;
+                    const prTxt = pr ? `<div class="q-bar" style="margin-top:6px"><div class="q-fill" style="width:${Math.floor(pr.cur / pr.goal * 100)}%"></div></div><div style="font-size:0.65rem;color:#94a3b8">${t('ach_progress', { cur: pr.cur, goal: pr.goal })}</div>` : '';
+                    return `<div class="ach-row ${got ? 'got' : ''}"><span class="ach-ico">${got ? '🏆' : '🔒'}</span><div class="ach-body"><div class="ach-name">${t('ach_' + d.k + '_n')}</div><div class="ach-desc">${t('ach_' + d.k + '_d')}${d.reward ? ` · +${d.reward.toLocaleString()} EB` : ''}</div>${prTxt}</div></div>`;
+                }).join('');
+            }
+        };
         function boot() {
             try { const sl = localStorage.getItem('soup_lang'); if (sl === 'es' || sl === 'en') LANG = sl; } catch (e) {}
             // Señal "primer frame": la home ya está en el HTML inicial, así que la enviamos
             // en cuanto el navegador pinta (doble rAF). Fuera de Playables es no-op silencioso.
             try { requestAnimationFrame(() => requestAnimationFrame(() => ytPlayables.firstFrameReady())); } catch (e) { ytPlayables.firstFrameReady(); }
+            try { quality.load(); } catch (e) {}
             sound.init(); game.init();
             applyStaticI18n();
             const f = document.getElementById('lang-fab'); if (f) f.textContent = '🌐 ' + LANG.toUpperCase();
             home.init();
+            try { fullscreen.init(); } catch (e) {}
+            try { collection.refreshFab(); } catch (e) {}
             // Juego inicializado y jugable. Fuera de Playables es no-op silencioso.
             ytPlayables.gameReady();
         }
