@@ -189,12 +189,15 @@
         #audio-ctrl.muted #audio-vol { opacity: 0.35; }
         .gx-modal { position: fixed; inset: 0; z-index: 95000; display: none; align-items: center; justify-content: center; background: rgba(12, 4, 24, 0.7); backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur); }
         .gx-modal.open { display: flex; }
+        /* First-run name modal must sit ABOVE the start-screen home overlay (z 200000). */
+        #name-modal { z-index: 200001; }
         .gx-box { background: var(--glass-strong); backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur); border: 1px solid var(--glass-bd); border-radius: 18px; padding: 24px; max-width: 460px; width: 90%; box-shadow: 0 12px 48px rgba(0,0,0,0.5), 0 0 40px rgba(168,85,247,0.25); text-align: center; max-height: 84vh; overflow-y: auto; }
         .gx-box h2 { color: var(--go); text-shadow: 0 0 14px var(--go); margin: 0 0 12px; font-size: 1.5rem; }
         .gx-btn { background: linear-gradient(135deg, #7e22ce, #3b82f6); color: #fff; border: 2px solid #fff3; border-radius: 12px; padding: 10px 22px; font-weight: bold; cursor: pointer; font-size: 0.9rem; letter-spacing: 0.5px; transition: 0.2s; }
         .gx-btn:hover { filter: brightness(1.12); }
         .gx-btn.sm { padding: 5px 12px; font-size: 0.72rem; }
         .gx-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+        .gx-btn-ghost { background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.18); font-weight: 600; }
         #side-buttons { position: absolute; left: max(20px, env(safe-area-inset-left)); bottom: max(20px, env(safe-area-inset-bottom)); z-index: 8000; display: flex; flex-direction: column; gap: 10px; }
         .side-fab { background: var(--glass-strong); backdrop-filter: var(--glass-blur-sm); -webkit-backdrop-filter: var(--glass-blur-sm); border: 1px solid rgba(216,180,254,0.4); border-radius: 14px; padding: 10px 14px; font-size: 0.8rem; font-weight: bold; color: #fff; cursor: pointer; text-transform: uppercase; letter-spacing: 0.5px; text-shadow: 0 1px 3px rgba(0,0,0,0.6); transition: 0.2s; text-align: center; }
         .side-fab:hover { border-color: var(--go); filter: brightness(1.12); }
@@ -208,12 +211,18 @@
         .lb-tab:hover { border-color: var(--glass-bd-go); }
         .lb-tab.active { background: linear-gradient(135deg, #7e22ce, #3b82f6); color: #fff; border-color: var(--go); }
         .lb-note { font-size: 0.72rem; color: #fbbf24; margin: 0 0 10px; min-height: 1em; }
-        .lb-list { display: flex; flex-direction: column; gap: 5px; text-align: left; max-height: 46vh; overflow-y: auto; margin-bottom: 8px; }
+        .lb-list { display: flex; flex-direction: column; gap: 5px; text-align: left; max-height: 46vh; overflow-y: auto; margin-bottom: 8px; transition: opacity 0.16s ease; will-change: opacity; }
+        /* Smooth board switch: fade content out/in and ease the panel height so rows don't pop or snap. */
+        .lb-list.lb-fading { opacity: 0; }
+        .lb-list.lb-animh { overflow: hidden; transition: opacity 0.16s ease, height 0.22s ease; }
+        @media (prefers-reduced-motion: reduce) { .lb-list, .lb-list.lb-animh { transition: none; } }
         .lb-row { display: flex; align-items: center; gap: 10px; padding: 8px 12px; border-radius: 10px; background: rgba(255,255,255,0.05); border: 1px solid var(--glass-bd); }
         .lb-row.you { border-color: var(--go); background: rgba(224,160,8,0.14); box-shadow: 0 0 14px rgba(224,160,8,0.25); }
         .lb-rank { font-weight: bold; color: var(--gold-soft); min-width: 36px; font-size: 0.85rem; }
         .lb-plat { font-size: 0.95rem; line-height: 1; }
-        .lb-name { flex: 1; min-width: 0; color: #fff; font-size: 0.85rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .lb-name { flex: 1; min-width: 0; color: #fff; font-size: 0.85rem; display: flex; align-items: center; gap: 5px; }
+        .lb-name-txt { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .lb-creator-badge { flex: 0 0 auto; display: inline-flex; align-items: center; gap: 3px; padding: 1px 7px; border-radius: 8px; font-size: 0.66rem; font-weight: bold; letter-spacing: 0.3px; color: #3a2a05; background: linear-gradient(135deg, var(--gold-soft), var(--go)); border: 1px solid rgba(255,255,255,0.55); box-shadow: 0 0 8px rgba(224,160,8,0.4); white-space: nowrap; }
         .lb-val { font-weight: bold; color: var(--go); font-size: 0.85rem; white-space: nowrap; }
         .lb-msg { text-align: center; color: #cbd5e1; padding: 16px; font-size: 0.85rem; }
         /* === Ambient sound player (Feature A) === */
@@ -292,6 +301,8 @@
         #home-backup .home-btn { flex: 1 1 calc(50% - 8px); min-width: 110px; font-size: 0.82rem; padding: 8px 10px; }
         #home-footer { display: flex; flex-direction: column; gap: 4px; margin-top: 2px; }
         #home-credits { font-size: 0.75rem; color: #e7d3bd; opacity: 0.7; margin: 0; }
+        #home-footer-links { margin: 0; font-size: 0.72rem; opacity: 0.7; }
+        #home-footer-links a { color: #fcd9a8; text-decoration: underline; }
         #home-version { font-size: 0.72rem; color: #fcd9a8; opacity: 0.55; letter-spacing: 1px; margin: 0; }
         @media (max-height: 520px) and (orientation: landscape) { #home-overlay { justify-content: flex-start; } #home-logo { width: clamp(70px, 20vh, 120px); } #home-title { font-size: clamp(1.8rem, 7vw, 2.6rem); } #home-play { min-height: 52px; padding: 12px 40px; font-size: 1.3rem; } }
         /* OVERLAY DE ROTACIÓN: pide girar el dispositivo a horizontal. Oculto por defecto;
@@ -468,6 +479,7 @@
             </div>
             <div id="home-footer">
                 <p id="home-credits" data-i18n="home_credits">Crafted with warmth by the SmallCreek kitchen.</p>
+                <p id="home-footer-links"><a id="home-privacy" href="privacy.html" target="_blank" rel="noopener" data-i18n="privacy_link">Privacy</a></p>
                 <p id="home-version">v1.0.0</p>
             </div>
         </div>
@@ -490,11 +502,11 @@
     <div id="game-wrapper">
         <div id="hud"><div id="score-box"><span data-i18n="energy_balls">Energy Balls:</span> <span id="score">0</span></div><div id="shard-box"><span data-i18n="angel_shards">Angel Shards:</span> <span id="shards-count">0</span></div></div>
         <div id="cps-tag">0.0 EB PER SECOND</div>
-        <div id="lore-scroll"><div id="lore-title">CHRONICLE</div><div id="lore-text">...</div></div>
+        <div id="lore-scroll"><div id="lore-title" data-i18n="chronicle">CHRONICLE</div><div id="lore-text">...</div></div>
         <div id="companion-column"></div>
-        <div id="altar-panel"><div id="btn-prestige" onclick="game.pres()"><div class="prestige-label" id="pres-txt">LOCKED</div></div><div id="pres-stat">Lv. 0 (+0%)</div></div>
+        <div id="altar-panel"><div id="btn-prestige" onclick="game.pres()"><div class="prestige-label" id="pres-txt" data-i18n="locked">LOCKED</div></div><div id="pres-stat">Lv. 0 (+0%)</div></div>
         <section id="main-stage" onpointerdown="game.click(event)"><canvas id="particle-canvas"></canvas><div id="sticky-center"><img id="asset-chef" src="assets/img/chef.png" decoding="async"><img id="asset-chef-hand" src="assets/img/chef-hand.png" decoding="async"><img id="cauldron-legs" src="assets/img/cauldron-legs.png" alt="" decoding="async"><img id="asset-soup" src="assets/img/soup.png" decoding="async"><div id="soup-liquid"><img id="asset-soup-liquid" src="assets/img/soup.png" decoding="async"></div><div id="soup-steam"><div class="steam-wisp"></div><div class="steam-wisp"></div><div class="steam-wisp"></div><div class="steam-wisp"></div><div class="steam-wisp"></div><div class="steam-wisp"></div></div><div id="spoon-rig"><img id="asset-spoon" src="assets/img/spoon.png" decoding="async"></div></div><div id="soup-ripples"></div></section>
-        <aside id="side-shop"><h1 data-i18n="shop" style="text-align:center; font-size:1.3rem;">SHOP</h1><div id="shop-companions-panel"><div id="buy-mode-toggle" onclick="game.cycleBuyMode()">Buy x1</div><div id="prix-btn" style="padding:12px; background:linear-gradient(135deg,#7e22ce,#3b82f6); border-radius:10px; text-align:center; font-weight:bold; border:2px solid #fff; margin-bottom:15px; display:none; cursor:pointer;" onclick="prix.open()">Enter Grand Prix</div><div id="companion-list"></div><div id="spoons-album-section"><div id="spoons-album-title" data-i18n="spoons_album_title">SACRED SPOONS ALBUM</div><div id="spoons-album"></div></div></div></aside>
+        <aside id="side-shop"><h1 data-i18n="shop" style="text-align:center; font-size:1.3rem;">SHOP</h1><div id="shop-companions-panel"><div id="buy-mode-toggle" onclick="game.cycleBuyMode()" data-i18n="buy_x1">Buy x1</div><div id="prix-btn" style="padding:12px; background:linear-gradient(135deg,#7e22ce,#3b82f6); border-radius:10px; text-align:center; font-weight:bold; border:2px solid #fff; margin-bottom:15px; display:none; cursor:pointer;" onclick="prix.open()" data-i18n="enter_prix">Enter Grand Prix</div><div id="companion-list"></div><div id="spoons-album-section"><div id="spoons-album-title" data-i18n="spoons_album_title">SACRED SPOONS ALBUM</div><div id="spoons-album"></div></div></div></aside>
     </div>
     <div id="audio-ctrl"><button id="audio-mute" type="button" onclick="sound.toggleMute()" data-i18n-title="audio_mute_title" title="Mute / Unmute sound">🔊</button><input id="audio-vol" type="range" min="0" max="100" value="100" oninput="sound.setVolume(this.value/100)" data-i18n-title="audio_vol_title" title="Volume"></div>
     <div id="buff-bar"></div>
@@ -512,6 +524,15 @@
     </div>
     <div id="live-badge" onclick="creator.goLive()" title="Live now!" data-i18n-title="creator_live_now"><span data-i18n="creator_live">🔴 LIVE</span></div>
     <div id="offline-modal" class="gx-modal"><div class="gx-box"><h2 data-i18n="offline_title">Your soup kept cooking</h2><p id="offline-text" style="font-size:1rem; line-height:1.5"></p><div style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin-top:6px"><button class="gx-btn" style="min-height:44px; background:linear-gradient(135deg,#f59e0b,#b45309); border-color:var(--go)" id="offline-double-btn" onclick="offline.double()" data-i18n="offline_double">x2 (Free reward)</button><button class="gx-btn" style="min-height:44px" onclick="offline.claim()" data-i18n="claim">Claim</button></div></div></div>
+    <div id="import-modal" class="gx-modal"><div class="gx-box">
+        <h2 data-i18n="backup_import_title">📥 Import Backup</h2>
+        <p style="font-size:0.85rem; opacity:0.85; margin:4px 0 12px" data-i18n="backup_import_sub">Paste your backup code below to restore your progress and leaderboard identity.</p>
+        <textarea id="import-text" rows="6" spellcheck="false" autocomplete="off" data-i18n-ph="backup_import_ph" placeholder="Paste backup JSON here…" style="width:100%; resize:vertical; background:rgba(255,255,255,0.06); border:1px solid var(--glass-bd); border-radius:10px; padding:10px; color:#fff; font-family:'Courier New',monospace; font-size:0.8rem; line-height:1.4"></textarea>
+        <div style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin-top:14px">
+            <button class="gx-btn" type="button" style="min-height:44px" onclick="backup.confirmImport()" data-i18n="backup_import_do">📥 Import</button>
+            <button class="gx-btn" type="button" style="min-height:44px; background:linear-gradient(135deg,#475569,#334155)" onclick="backup.closeImport()" data-i18n="close">Close</button>
+        </div>
+    </div></div>
     <div id="reward-modal" class="gx-modal"><div class="gx-box"><h2 data-i18n="reward_modal_title">Watch an ad</h2><p style="font-size:0.9rem; opacity:0.85; margin:4px 0 14px" data-i18n="reward_modal_sub">Watch a short ad for a reward</p><div id="reward-list" class="reward-list"></div><button class="gx-btn" style="margin-top:14px; min-height:44px" onclick="rewardsUI.close()" data-i18n="close">Close</button></div></div>
     <div id="quest-modal" class="gx-modal"><div class="gx-box"><h2 data-i18n="quests_title">Chef's Orders</h2><div id="quest-list"></div><div id="ach-list" style="margin-top:14px"></div><button class="gx-btn" style="margin-top:10px" onclick="quests.close()" data-i18n="close">Close</button></div></div>
     <div id="tree-modal" class="gx-modal"><div class="gx-box"><h2 data-i18n="tree_title">Angel Awakening Tree</h2><p style="font-size:0.85rem; color:#cbd5e1"><span data-i18n="tree_shards_avail">Available Angel Shards:</span> <b id="tree-shards" style="color:var(--go)">0</b></p><div id="tree-list"></div><button class="gx-btn" style="margin-top:10px" onclick="atree.close()" data-i18n="close">Close</button></div></div>
@@ -600,6 +621,91 @@
         <div id="lb-list" class="lb-list"></div>
         <button class="gx-btn" style="margin-top:6px" type="button" onclick="lbUI.close()" data-i18n="close">Close</button>
     </div></div>
+    <div id="name-modal" class="gx-modal"><div class="gx-box">
+        <h2 data-i18n="name_title">👨‍🍳 Choose your chef name</h2>
+        <p id="name-sub" class="lb-msg" style="padding:0 0 12px" data-i18n="name_sub">Pick a unique name to join the global leaderboard.</p>
+        <div class="lb-name-row">
+            <input id="name-input" type="text" maxlength="20" autocomplete="off" data-i18n-ph="name_ph" placeholder="Your chef name" oninput="nameGate.onInput()" onkeydown="if(event.key==='Enter')nameGate.confirm()">
+        </div>
+        <div id="name-status" class="lb-note" style="min-height:1.2em"></div>
+        <button id="name-confirm" class="gx-btn" style="margin-top:6px" type="button" onclick="nameGate.confirm()" data-i18n="name_confirm">Confirm</button>
+    </div></div>
+    <!-- Privacy consent gate: shown ONCE before a name is ever submitted to the
+         global leaderboard. Declining keeps the game fully playable offline. -->
+    <div id="privacy-consent-modal" class="gx-modal"><div class="gx-box">
+        <h2 data-i18n="privacy_consent_title">🛡️ Join the global leaderboard?</h2>
+        <p class="lb-msg" style="padding:0 0 10px" data-i18n="privacy_consent_body">Your chosen name and your scores will be shown publicly on the global leaderboard. A random ID and gameplay stats are stored to make this work.</p>
+        <p class="lb-note" style="padding:0 0 12px"><a href="privacy.html" target="_blank" rel="noopener" data-i18n="privacy_policy_link">Privacy Policy</a></p>
+        <button id="privacy-agree" class="gx-btn" style="display:block;width:100%;margin:2px 0 0" type="button" onclick="privacyConsent.agree()" data-i18n="privacy_consent_agree">Agree &amp; continue</button>
+        <button id="privacy-decline" class="gx-btn gx-btn-ghost" style="display:block;width:100%;margin:8px 0 0" type="button" onclick="privacyConsent.decline()" data-i18n="privacy_consent_decline">Play offline</button>
+    </div></div>
+    <!-- ====================================================================
+         === BUILD TARGET — SINGLE SOURCE OF TRUTH for per-platform builds ==
+         ====================================================================
+         This is the ONE switch that selects platform behaviour for the WHOLE
+         game. Everything platform-dependent derives from `window.BUILD_TARGET`:
+           • leaderboard CONFIG.PLATFORM  -> the tag stored with each score
+           • const BUILD (further below)  -> ads provider, fullscreen gating,
+                                             achievements provider, Playables /
+                                             Steam / mobile gating
+         Supported values: 'web' | 'playables' | 'steam' | 'android' | 'ios'.
+
+         HOW TO SET IT FOR EACH PLATFORM BUILD (edit BUILD_TARGET_OVERRIDE below,
+         or let a packaging script replace that one line):
+           • Web (itch.io / browser) ....... 'web'        (DEFAULT — leave as-is)
+           • YouTube Playables ............. 'playables'
+           • Steam (desktop wrapper) ....... 'steam'
+           • Google Play (Android) ......... 'android'
+           • App Store (iOS) ............... 'ios'
+           • Auto-detect the host .......... 'auto'        (best-effort; see below)
+
+         IMPORTANT: the default 'web' performs ZERO auto-detection, so the web
+         build is byte-for-byte identical to before. Auto-detection only runs if
+         you explicitly set the override to 'auto', and it ALWAYS falls back to
+         'web' when it is unsure. An explicit platform value always wins.
+         ==================================================================== -->
+    <script>
+    (function (global) {
+        'use strict';
+        var VALID = ['web', 'playables', 'steam', 'android', 'ios'];
+
+        // ↓↓↓ SET THIS PER PLATFORM BUILD. Default 'web' = unchanged web behaviour. ↓↓↓
+        var BUILD_TARGET_OVERRIDE = 'web'; // 'web' | 'playables' | 'steam' | 'android' | 'ios' | 'auto'
+        // ↑↑↑ A packaging script may rewrite the line above for each store build. ↑↑↑
+
+        // Best-effort host detection. Only consulted when override === 'auto'.
+        // Returns a valid platform string or null (null -> caller falls back to 'web').
+        function autoDetect() {
+            try {
+                if (global.ytgame || /\bPlayables\b/i.test((global.navigator && navigator.userAgent) || '')) return 'playables';
+            } catch (e) {}
+            try {
+                if (global.Capacitor && typeof global.Capacitor.getPlatform === 'function') {
+                    var p = global.Capacitor.getPlatform();
+                    if (p === 'ios') return 'ios';
+                    if (p === 'android') return 'android';
+                }
+            } catch (e) {}
+            try { if (global.steamworks) return 'steam'; } catch (e) {}
+            try { if (global.process && global.process.versions && global.process.versions.electron) return 'steam'; } catch (e) {}
+            return null;
+        }
+
+        var resolved = 'web';
+        try {
+            if (BUILD_TARGET_OVERRIDE === 'auto') {
+                var det = autoDetect();
+                resolved = (det && VALID.indexOf(det) !== -1) ? det : 'web';
+            } else if (VALID.indexOf(BUILD_TARGET_OVERRIDE) !== -1) {
+                resolved = BUILD_TARGET_OVERRIDE; // explicit value always wins
+            } else {
+                resolved = 'web'; // unknown value -> safe default
+            }
+        } catch (e) { resolved = 'web'; }
+
+        global.BUILD_TARGET = resolved;
+    })(typeof window !== 'undefined' ? window : this);
+    </script>
     <script src="assets/skins/catalog.js"></script>
     <!-- ====================================================================
          === EMBEDDED LEADERBOARD MODULE (from leaderboard/leaderboard-client.js)
@@ -619,7 +725,9 @@
       var CONFIG = {
         SUPABASE_URL: 'https://ffmcmaujryvyzbhnctzc.supabase.co',
         SUPABASE_ANON_KEY: 'sb_publishable_GOoZkZVue7yyxR_bTFroXQ_ZDlTIV_t',
-        PLATFORM: 'web',
+        // Derived from the single BUILD_TARGET switch (see top of <body>). Falls
+        // back to 'web' if that block didn't run, so behaviour is unchanged.
+        PLATFORM: (typeof window !== 'undefined' && window.BUILD_TARGET) || 'web',
         SUPABASE_CDN: 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2',
         DEBOUNCE_MS: 8000
       };
@@ -633,6 +741,20 @@
                CONFIG.SUPABASE_ANON_KEY.length > 20;
       }
 
+      // === PRIVACY CONSENT GUARD ===========================================
+      // No name or score is EVER written to Supabase without the player's
+      // consent. We consider consent given when the explicit consent flag is
+      // stored OR when the player already confirmed a public display name under
+      // a prior version (grandfathered, so existing saves keep uploading and we
+      // never re-nag them). Without consent the game stays fully playable; only
+      // the network write is skipped (local high-score tracking is unaffected).
+      var PRIVACY_CONSENT_KEY = 'soup_privacy_consent_v1';
+      function privacyConsentOK() {
+        try { if (localStorage.getItem(PRIVACY_CONSENT_KEY) === '1') return true; } catch (e) {}
+        try { if (_id && _id.named) return true; } catch (e) {}
+        return false;
+      }
+
       var STORE = {
         get: function () {
           try { return localStorage.getItem(IDENTITY_KEY); } catch (e) { return null; }
@@ -643,16 +765,17 @@
       };
 
       var SEED = [
-        { name: 'ChefSkully',     platform: 'youtube', score: 982134500, prestige: 42, prix_wins: 318 },
-        { name: 'SopaMaestra',    platform: 'android', score: 654200100, prestige: 37, prix_wins: 271 },
-        { name: 'BoneBroth_Boss', platform: 'steam',   score: 500120000, prestige: 31, prix_wins: 244 },
-        { name: 'CucharaDeOro',   platform: 'ios',     score: 312050000, prestige: 28, prix_wins: 190 },
-        { name: 'MidnightStew',   platform: 'web',     score: 188900000, prestige: 24, prix_wins: 165 },
-        { name: 'AngelitoChef',   platform: 'youtube', score: 120400000, prestige: 19, prix_wins: 132 },
-        { name: 'SkullSimmer',    platform: 'android', score: 85200000,  prestige: 15, prix_wins: 98 },
-        { name: 'CalderoFeliz',   platform: 'steam',   score: 44150000,  prestige: 11, prix_wins: 61 },
-        { name: 'TinyLadle',      platform: 'ios',     score: 12030000,  prestige: 7,  prix_wins: 29 },
-        { name: 'NewChef_Pia',    platform: 'web',     score: 2100000,   prestige: 3,  prix_wins: 8 }
+        { id: '1832ff16-5fec-4afd-b570-f950e19eb434', name: 'SmallcreekSkullchef', platform: 'web',     score: 12000000000, prestige: 6, prix_wins: 120 },
+        { name: 'ChefSkully',     platform: 'youtube', score: 4820000000, prestige: 5, prix_wins: 94 },
+        { name: 'SopaMaestra',    platform: 'android', score: 4150000000, prestige: 5, prix_wins: 88 },
+        { name: 'BoneBroth_Boss', platform: 'steam',   score: 920000000,  prestige: 4, prix_wins: 73 },
+        { name: 'CucharaDeOro',   platform: 'ios',     score: 610000000,  prestige: 4, prix_wins: 65 },
+        { name: 'MidnightStew',   platform: 'web',     score: 184000000,  prestige: 3, prix_wins: 52 },
+        { name: 'AngelitoChef',   platform: 'youtube', score: 121000000,  prestige: 3, prix_wins: 44 },
+        { name: 'SkullSimmer',    platform: 'android', score: 38500000,   prestige: 2, prix_wins: 31 },
+        { name: 'CalderoFeliz',   platform: 'steam',   score: 22000000,   prestige: 2, prix_wins: 24 },
+        { name: 'TinyLadle',      platform: 'ios',     score: 6400000,    prestige: 1, prix_wins: 12 },
+        { name: 'NewChef_Pia',    platform: 'web',     score: 2100000,    prestige: 1, prix_wins: 5 }
       ];
 
       var BOARD_COLUMN = { score: 'score', prestige: 'prestige', prix: 'prix_wins' };
@@ -715,13 +838,15 @@
                 name: typeof d.name === 'string' ? d.name : randomChefName(),
                 prixWins: Number.isFinite(d.prixWins) ? d.prixWins : 0,
                 scoreHi: Number.isFinite(d.scoreHi) ? d.scoreHi : 0,
+                named: d.named === true,           // name confirmed server-side (unique)
+                provisional: d.provisional === true, // chosen offline, awaiting confirm
                 v: SCHEMA
               };
               return _id;
             }
           } catch (e) {}
         }
-        _id = { uuid: uuidv4(), name: randomChefName(), prixWins: 0, scoreHi: 0, v: SCHEMA };
+        _id = { uuid: uuidv4(), name: randomChefName(), prixWins: 0, scoreHi: 0, named: false, provisional: false, v: SCHEMA };
         saveIdentity();
         return _id;
       }
@@ -787,6 +912,88 @@
           return _id.name;
         },
 
+        /** Has the player confirmed a real, unique name yet (not the default)? */
+        hasName: function () { if (!_id) loadIdentity(); return !!_id.named; },
+        /** A name was chosen offline but not yet confirmed against the server. */
+        isProvisional: function () { if (!_id) loadIdentity(); return !!_id.provisional && !_id.named; },
+
+        /**
+         * Live availability check for a candidate name. Resolves boolean.
+         * Locally-invalid names resolve false; when offline/unconfigured we can't
+         * verify uniqueness so we optimistically resolve true (claimName is the
+         * authority). Never throws.
+         */
+        checkName: function (raw) {
+          if (!_id) loadIdentity();
+          var clean = cleanName(raw);
+          if (!clean || /^chef$/i.test(clean)) return Promise.resolve(false);
+          if (!isConfigured()) return Promise.resolve(true);
+          var uuid = _id.uuid;
+          return ensureClient().then(function (client) {
+            if (!client) return true;
+            return client.rpc('is_name_available', { p_name: clean, p_id: uuid }).then(function (res) {
+              if (!res || res.error) return true; // unknown -> don't block typing
+              return res.data === true;
+            });
+          }).catch(function () { return true; });
+        },
+
+        /**
+         * Claim/confirm a unique display name. Resolves with the accepted name on
+         * success; rejects with 'INVALID' | 'NAME_TAKEN' | 'OFFLINE'. On OFFLINE
+         * the name is stored locally as PROVISIONAL so the player can keep playing
+         * and we re-claim later via reclaim().
+         */
+        claimName: function (raw) {
+          if (!_id) loadIdentity();
+          var clean = cleanName(raw);
+          if (!clean || /^chef$/i.test(clean)) return Promise.reject('INVALID');
+          if (!isConfigured()) {
+            _id.name = clean; _id.named = false; _id.provisional = true; saveIdentity();
+            return Promise.reject('OFFLINE');
+          }
+          return this._claimRemote(clean).catch(function (reason) {
+            if (reason === 'OFFLINE') {
+              _id.name = clean; _id.named = false; _id.provisional = true; saveIdentity();
+            }
+            throw reason;
+          });
+        },
+
+        /** Try to confirm a pending provisional name. Resolves 'ok'|'taken'|'invalid'|'offline'. */
+        reclaim: function () {
+          if (!_id) loadIdentity();
+          if (_id.named || !_id.provisional || !_id.name) return Promise.resolve('ok');
+          if (!isConfigured()) return Promise.resolve('offline');
+          return this._claimRemote(_id.name).then(function () { return 'ok'; }, function (reason) {
+            if (reason === 'NAME_TAKEN') return 'taken';
+            if (reason === 'INVALID') return 'invalid';
+            return 'offline';
+          });
+        },
+
+        _claimRemote: function (clean) {
+          var uuid = _id.uuid;
+          return ensureClient().then(function (client) {
+            if (!client) throw 'OFFLINE';
+            return client.rpc('claim_name', { p_id: uuid, p_name: clean }).then(function (res) {
+              if (res && res.error) {
+                var msg = (res.error.message || '') + '';
+                if (/NAME_TAKEN/i.test(msg)) throw 'NAME_TAKEN';
+                if (/INVALID/i.test(msg)) throw 'INVALID';
+                throw 'OFFLINE';
+              }
+              var row = res && res.data;
+              var nm = (row && row.display_name) ? row.display_name : clean;
+              _id.name = nm; _id.named = true; _id.provisional = false; saveIdentity();
+              return nm;
+            });
+          }).catch(function (reason) {
+            if (reason === 'NAME_TAKEN' || reason === 'INVALID' || reason === 'OFFLINE') throw reason;
+            throw 'OFFLINE';
+          });
+        },
+
         getPrixWins: function () { if (!_id) loadIdentity(); return _id.prixWins; },
         bumpPrixWin: function (n) {
           if (!_id) loadIdentity();
@@ -812,7 +1019,9 @@
           if (Number.isFinite(vals.prestige)) _pending.prestige = Math.floor(vals.prestige);
           if (Number.isFinite(vals.prix))     _pending.prix     = _id.prixWins;
 
-          if (!isConfigured()) { _pending = null; return; }
+          // Skip the network write entirely until the player has consented to the
+          // public leaderboard. Local high-score tracking above still happens.
+          if (!isConfigured() || !privacyConsentOK()) { _pending = null; return; }
 
           var now = Date.now();
           var wait = Math.max(0, CONFIG.DEBOUNCE_MS - (now - _lastSubmit));
@@ -873,6 +1082,7 @@
                 return res.data.map(function (row, i) {
                   return {
                     rank: i + 1,
+                    id: row.id,
                     name: row.display_name,
                     value: row[col],
                     platform: row.platform,
@@ -886,14 +1096,14 @@
         _mockTop: function (col, n) {
           var rows = SEED.slice().sort(function (a, b) { return b[col] - a[col]; }).slice(0, n);
           return rows.map(function (r, i) {
-            return { rank: i + 1, name: r.name, value: r[col], platform: r.platform, you: false };
+            return { rank: i + 1, id: r.id || null, name: r.name, value: r[col], platform: r.platform, you: false };
           });
         },
 
         _seed: function () { return SEED.slice(); },
 
         openPanel: function () {
-          try { console.info('[leaderboard] openPanel() not wired yet — see INTEGRATION NOTES.'); } catch (e) {}
+          /* not wired yet — see INTEGRATION NOTES */
         }
       };
 
@@ -929,6 +1139,7 @@
                 backup_label:"Backup", backup_export:"⬇ Export", backup_copy:"📋 Copy", backup_import:"📥 Paste", backup_file:"📂 File",
                 backup_exported:"Backup file downloaded ⬇", backup_copied:"Backup code copied 📋", backup_imported:"Save imported! Reloading…", backup_invalid:"Invalid backup code ✗", backup_error:"Backup failed, try again ✗",
                 backup_import_prompt:"Paste your backup code here:", backup_copy_manual:"Copy this backup code:",
+                backup_import_title:"📥 Import Backup", backup_import_sub:"Paste your backup code below to restore your progress and leaderboard identity.", backup_import_ph:"Paste backup JSON here…", backup_import_do:"📥 Import", backup_confirm_overwrite:"This will overwrite your current progress and leaderboard identity on this device. Continue?",
                 cps_per_sec:"{n} EB PER SECOND", awaken_soul:"[ AWAKEN SOUL ]", requires_eb:"Requires {eb} EB", angel_lv:"Angel Awakening Lv. {s} (+{pct}%)",
                 prix_cd:"Grand Prix (CD: {mm}:{ss})", enter_prix:"Enter Grand Prix", finish_line:"FINISH", buy_x1:"Buy x1", buy_x10:"Buy x10", buy_max:"Buy Max", max_label:"Max:", lv:"Lv.", prod:"Prod",
                 angel_power:"(+{pct}% Angel Power!)", milestone_word:"Milestone", milestone_next:"next", milestone_max:"MAX", champion_banner:"👑 CHAMPION (x2!)",
@@ -942,7 +1153,14 @@
                 quest_done_toast:"Chef's Order complete! 📜", quest_shard_toast:"+1 Angel Shard ⬨", quests_today:"Today's orders · refreshed daily", claimed:"✓ CLAIMED", claim_reward:"Claim {r}", reward_label:"Reward: {r}", achievements_header:"Achievements",
                 node_caldo_name:"Broth Blessing", node_caldo_desc:"+15% CPS per level", node_manos_name:"Skullchef's Hands", node_manos_desc:"+20% click power per level",
                 node_eco_name:"Angel's Echo", node_eco_desc:"+1 free level per companion on prestige", node_cuchara_name:"Blessed Spoon", node_cuchara_desc:"-8% spoon cost per level",
-                node_tiempo_name:"Angel's Time", node_tiempo_desc:"+25% offline gains per level", tree_max:"MAX", tree_upgrade:"Upgrade ({cost} ⬨)",
+                node_tiempo_name:"Angel's Time", node_tiempo_desc:"+25% offline gains per level",
+                node_aura_name:"Golden Aura", node_aura_desc:"+8% to ALL Energy Ball gains per level", node_fortuna_name:"Angel's Fortune", node_fortuna_desc:"+1 bonus Angel Shard per prestige, per level",
+                tree_max:"MAX", tree_upgrade:"Upgrade ({cost} ⬨)", pres_shards_toast:"+{n} Angel Shards ⬨",
+                tut_next:"Next", tut_finish:"Got it!", tut_skip:"Skip tutorial",
+                tut_s1_title:"Stir the cauldron", tut_s1_body:"Tap and stir the pot to cook Energy Balls (EB). The more you stir, the more you earn!",
+                tut_s2_title:"Hire a helper", tut_s2_body:"Spend EB in the shop to hire Coco (~20 EB). Helpers cook EB for you automatically, even while you rest.",
+                tut_s3_title:"Awaken your soul", tut_s3_body:"Once your soup is rich enough, prestige here: reset your run for permanent Angel Shards ⬨ that make every future run stronger.",
+                tut_reward_toast:"Welcome, Chef! Starter bonus: +{eb} EB 🎁",
                 milestone_coco:"Coco Octopus masters the recipe of the abyss!", milestone_bunny:"Baby Bunny guides the sacred whirl!", milestone_pio:"Pio Pio heals the eternal broth!", milestone_ivan:"Ivan Bear protects the ancestral pot!", milestone_generic:"Milestone reached!",
                 comp_coco:"Coco Octopus", comp_bunny:"Baby Bunny Guide", comp_pio:"Pio Pio Healing", comp_ivan:"Ivan Guardian Bear",
                 spoon0_card:"Esquelotian Chronicle", spoon0_name:"Esquelotian Bone Spoon", spoon0_bonus:"Adds +50% flat Click Stir Power",
@@ -951,7 +1169,7 @@
                 pres_lore:"Success. Small Angel's energy is woven into Earth.",
                 lore1:"Skullchef arrived from Esquelotia to heal Earth.", lore2:"The dark entity stole love from Esquelotia.", lore3:"Small Angel gave his life to heal his planet.",
                 lore4:"Skullchef journeyed with Angel's soul in soup.", lore5:"The soup is ready. Awaken the Soul to ascend.", lore6:"Success. Small Angel's energy is woven into Earth.",
-                reward_cps2:"x2 CPS (1h)", reward_skip15:"+15 min CPS", reward_tap:"Auto-Stir 60s", reward_watch:"Watch", reward_free:"Free reward",
+                reward_watch:"Watch",
                 reward_cooldown:"in {time}", reward_daily_left:"{n}/{max} today", reward_granted:"Reward granted: {r} 🎁", ad_failed:"Ad not completed — no reward", offline_double:"x2 (Watch ad)",
                 reward_fab:"Watch ad", reward_brew2:"Double Brew", reward_brew2_d:"x2 production for 5 min", reward_instapot:"Instant Pot", reward_instapot_d:"Instant batch · ~5 min of earnings", reward_lucky:"Lucky Drop", reward_lucky_d:"A free charm drop", reward_daily_done:"Done for today", reward_later:"Come back later", reward_modal_title:"Watch an ad", reward_modal_sub:"Watch a short ad for a reward", ad_sim_label:"Advertisement", ad_sim_hint:"Your reward is on the way…", ad_unavailable:"Ads aren't available here",
                 rotate_title:"Rotate your device", rotate_msg:"Smallcreek Skullchef plays best in landscape. Turn your device sideways to keep cooking.",
@@ -979,8 +1197,29 @@
                 lb_btn:"🏆 Ranks", lb_title:"🏆 Global Ranks", lb_tab_score:"Total Score", lb_tab_prestige:"Prestige", lb_tab_prix:"Grand Prix",
                 lb_name_ph:"Display name", lb_save_name:"Save", lb_name_saved:"Name set: {name} ✓", lb_name_invalid:"Invalid name (3–20 chars) ✗",
                 lb_offline:"Offline · showing example data", lb_loading:"Loading ranks…", lb_empty:"No ranks yet",
+                creator_badge:"Creator", creator_badge_title:"Game creator · official developer account",
+                name_title:"👨‍🍳 Choose your chef name", name_sub:"Pick a unique name to join the global leaderboard.", name_ph:"Your chef name", name_confirm:"Confirm",
+                name_checking:"Checking…", name_available:"Available ✓", name_taken:"That name is taken, try another", name_too_short:"At least 3 characters", name_reserved:"Pick a different name", name_invalid:"Invalid name (3–20 chars)",
+                name_offline_saved:"Saved offline · we'll confirm it when you're online", name_retry:"Your name was taken — please pick a new one",
+                privacy_link:"Privacy", privacy_policy_link:"Privacy Policy",
+                privacy_consent_title:"🛡️ Join the global leaderboard?",
+                privacy_consent_body:"Your chosen name and your scores will be shown publicly on the global leaderboard. A random ID and gameplay stats are stored to make this work.",
+                privacy_consent_agree:"Agree & continue", privacy_consent_decline:"Play offline",
+                privacy_offline_toast:"Playing offline · your name won't be shared",
                 /* TEMP CREATOR TOOL i18n — REMOVE BEFORE LAUNCH */
                 creator_reset_spoons:"Reset spoons (creator)", creator_reset_spoons_done:"Album spoons reset — re-buy to test",
+                /* ===== CREATOR PLACEMENT TOOL i18n — KEEP (creator-only, hidden at launch) ===== */
+                place_tool_adjust_off:"Adjust placement: OFF", place_tool_adjust_on:"Adjust placement: ON ✓",
+                place_tool_copy:"Copy values", place_tool_reset_btn:"Reset this skin",
+                place_tool_on:"Placement adjust ON · arrows move · +/- size · [ ] rotate · Tab swaps target",
+                place_tool_off:"Placement adjust OFF", place_tool_copied:"Placement map copied ✓",
+                place_tool_copy_manual:"Copy this placement JSON:", place_tool_reset:"This skin's placement reset",
+                place_tool_none:"Equip a spoon or hat first",
+                place_hud_title:"Placement", place_hud_target:"Target", place_hud_spoon:"Spoon", place_hud_hat:"Hat",
+                place_hud_none:"(nothing equipped in this slot)",
+                place_hud_help:"Arrows ±1px · Shift+Arrows ±10px · +/- size · [ ] rotate · Tab swap",
+                place_tool_step:"Step size (x1 / x10)", place_tt_move:"Move", place_tt_bigger:"Bigger", place_tt_smaller:"Smaller",
+                place_tt_rotate_l:"Rotate left", place_tt_rotate_r:"Rotate right", place_tt_target:"Switch target (spoon / hat)", place_tt_close:"Close tool",
                 /* ===== TEMP CREATOR UNLOCK GESTURE i18n — REMOVE BEFORE LAUNCH ===== */
                 creator_mode_on:"Creator mode ON", creator_mode_off:"Creator mode OFF"
                 /* ===== END ===== */
@@ -994,6 +1233,7 @@
                 backup_label:"Copia", backup_export:"⬇ Exportar", backup_copy:"📋 Copiar", backup_import:"📥 Pegar", backup_file:"📂 Archivo",
                 backup_exported:"Archivo de copia descargado ⬇", backup_copied:"Código de copia copiado 📋", backup_imported:"¡Partida importada! Recargando…", backup_invalid:"Código de copia inválido ✗", backup_error:"Fallo en la copia, inténtalo de nuevo ✗",
                 backup_import_prompt:"Pega aquí tu código de copia:", backup_copy_manual:"Copia este código de copia:",
+                backup_import_title:"📥 Importar copia", backup_import_sub:"Pega tu código de copia abajo para restaurar tu progreso y tu identidad de clasificación.", backup_import_ph:"Pega aquí el JSON de la copia…", backup_import_do:"📥 Importar", backup_confirm_overwrite:"Esto sobrescribirá tu progreso actual y tu identidad de clasificación en este dispositivo. ¿Continuar?",
                 cps_per_sec:"{n} EB POR SEGUNDO", awaken_soul:"[ DESPERTAR ALMA ]", requires_eb:"Requiere {eb} EB", angel_lv:"Despertar del Ángel Nv. {s} (+{pct}%)",
                 prix_cd:"Gran Premio (CD: {mm}:{ss})", enter_prix:"Entrar al Gran Premio", finish_line:"META", buy_x1:"Comprar x1", buy_x10:"Comprar x10", buy_max:"Comprar Máx", max_label:"Máx:", lv:"Nv.", prod:"Prod",
                 angel_power:"(+{pct}% ¡Poder del Ángel!)", milestone_word:"Hito", milestone_next:"próx.", milestone_max:"MÁX", champion_banner:"👑 CAMPEÓN (¡x2!)",
@@ -1007,7 +1247,14 @@
                 quest_done_toast:"¡Pedido del Chef completado! 📜", quest_shard_toast:"+1 Fragmento de Ángel ⬨", quests_today:"Pedidos de hoy · se renuevan cada día", claimed:"✓ RECLAMADO", claim_reward:"Reclamar {r}", reward_label:"Recompensa: {r}", achievements_header:"Logros",
                 node_caldo_name:"Bendición del Caldo", node_caldo_desc:"+15% CPS por nivel", node_manos_name:"Manos del Skullchef", node_manos_desc:"+20% poder de click por nivel",
                 node_eco_name:"Eco del Ángel", node_eco_desc:"+1 nivel gratis por compañero al prestigiar", node_cuchara_name:"Cuchara Bendita", node_cuchara_desc:"-8% coste de cucharas por nivel",
-                node_tiempo_name:"Tiempo del Ángel", node_tiempo_desc:"+25% a ganancias offline por nivel", tree_max:"MÁXIMO", tree_upgrade:"Mejorar ({cost} ⬨)",
+                node_tiempo_name:"Tiempo del Ángel", node_tiempo_desc:"+25% a ganancias offline por nivel",
+                node_aura_name:"Aura Dorada", node_aura_desc:"+8% a TODAS las ganancias de Bolas de Energía por nivel", node_fortuna_name:"Fortuna del Ángel", node_fortuna_desc:"+1 Fragmento de Ángel extra por prestigio, por nivel",
+                tree_max:"MÁXIMO", tree_upgrade:"Mejorar ({cost} ⬨)", pres_shards_toast:"+{n} Fragmentos de Ángel ⬨",
+                tut_next:"Siguiente", tut_finish:"¡Entendido!", tut_skip:"Saltar tutorial",
+                tut_s1_title:"Remueve el caldero", tut_s1_body:"Toca y remueve la olla para cocinar Bolas de Energía (EB). ¡Cuanto más remuevas, más ganas!",
+                tut_s2_title:"Contrata un ayudante", tut_s2_body:"Gasta EB en la tienda para contratar a Coco (~20 EB). Los ayudantes cocinan EB por ti automáticamente, incluso mientras descansas.",
+                tut_s3_title:"Despierta tu alma", tut_s3_body:"Cuando tu sopa sea lo bastante rica, prestigia aquí: reinicia tu partida a cambio de Fragmentos de Ángel ⬨ permanentes que harán más fuerte cada partida futura.",
+                tut_reward_toast:"¡Bienvenido, Chef! Bonus inicial: +{eb} EB 🎁",
                 milestone_coco:"¡Coco Octopus domina la receta del abismo!", milestone_bunny:"¡Baby Bunny guía el remolino sagrado!", milestone_pio:"¡Pio Pio sana el caldo eterno!", milestone_ivan:"¡Ivan Bear protege la olla ancestral!", milestone_generic:"¡Hito alcanzado!",
                 comp_coco:"Coco Octopus", comp_bunny:"Baby Bunny Guide", comp_pio:"Pio Pio Healing", comp_ivan:"Ivan Guardian Bear",
                 spoon0_card:"Crónica Esquelotiana", spoon0_name:"Cuchara de Hueso Esquelotiana", spoon0_bonus:"Añade +50% de Poder de Remover fijo",
@@ -1016,7 +1263,7 @@
                 pres_lore:"Logrado. La energía del Pequeño Ángel se teje en la Tierra.",
                 lore1:"Skullchef llegó de Esquelotia para sanar la Tierra.", lore2:"La entidad oscura robó el amor de Esquelotia.", lore3:"El Pequeño Ángel dio su vida para sanar su planeta.",
                 lore4:"Skullchef viajó con el alma del Ángel en la sopa.", lore5:"La sopa está lista. Despierta el Alma para ascender.", lore6:"Logrado. La energía del Pequeño Ángel se teje en la Tierra.",
-                reward_cps2:"x2 CPS (1h)", reward_skip15:"+15 min CPS", reward_tap:"Auto-Remover 60s", reward_watch:"Ver", reward_free:"Recompensa gratis",
+                reward_watch:"Ver",
                 reward_cooldown:"en {time}", reward_daily_left:"{n}/{max} hoy", reward_granted:"Recompensa concedida: {r} 🎁", ad_failed:"Anuncio no completado — sin recompensa", offline_double:"x2 (Ver anuncio)",
                 reward_fab:"Ver anuncio", reward_brew2:"Caldo Doble", reward_brew2_d:"x2 producción durante 5 min", reward_instapot:"Olla Instantánea", reward_instapot_d:"Lote instantáneo · ~5 min de ganancias", reward_lucky:"Golpe de Suerte", reward_lucky_d:"Un amuleto gratis", reward_daily_done:"Listo por hoy", reward_later:"Vuelve más tarde", reward_modal_title:"Mira un anuncio", reward_modal_sub:"Mira un anuncio corto por una recompensa", ad_sim_label:"Anuncio", ad_sim_hint:"Tu recompensa está en camino…", ad_unavailable:"Los anuncios no están disponibles aquí",
                 rotate_title:"Gira tu dispositivo", rotate_msg:"Smallcreek Skullchef se juega mejor en horizontal. Gira tu dispositivo para seguir cocinando.",
@@ -1044,8 +1291,29 @@
                 lb_btn:"🏆 Rangos", lb_title:"🏆 Rangos Globales", lb_tab_score:"Puntuación", lb_tab_prestige:"Prestigio", lb_tab_prix:"Gran Premio",
                 lb_name_ph:"Nombre visible", lb_save_name:"Guardar", lb_name_saved:"Nombre guardado: {name} ✓", lb_name_invalid:"Nombre inválido (3–20 caracteres) ✗",
                 lb_offline:"Sin conexión · mostrando datos de ejemplo", lb_loading:"Cargando rangos…", lb_empty:"Aún no hay rangos",
+                creator_badge:"Creador", creator_badge_title:"Creador del juego · cuenta oficial del desarrollador",
+                name_title:"👨‍🍳 Elige tu nombre de chef", name_sub:"Elige un nombre único para entrar en la clasificación global.", name_ph:"Tu nombre de chef", name_confirm:"Confirmar",
+                name_checking:"Comprobando…", name_available:"Disponible ✓", name_taken:"Ese nombre ya está cogido, prueba otro", name_too_short:"Al menos 3 caracteres", name_reserved:"Elige un nombre distinto", name_invalid:"Nombre inválido (3–20 caracteres)",
+                name_offline_saved:"Guardado sin conexión · lo confirmaremos cuando tengas conexión", name_retry:"Tu nombre fue ocupado — elige uno nuevo",
+                privacy_link:"Privacidad", privacy_policy_link:"Política de Privacidad",
+                privacy_consent_title:"🛡️ ¿Unirte a la clasificación global?",
+                privacy_consent_body:"El nombre que elijas y tus puntuaciones se mostrarán públicamente en la clasificación global. Se guarda un ID aleatorio y estadísticas de juego para que funcione.",
+                privacy_consent_agree:"Aceptar y continuar", privacy_consent_decline:"Jugar sin conexión",
+                privacy_offline_toast:"Jugando sin conexión · tu nombre no se compartirá",
                 /* TEMP CREATOR TOOL i18n — REMOVE BEFORE LAUNCH */
                 creator_reset_spoons:"Reiniciar cucharas (creador)", creator_reset_spoons_done:"Cucharas del álbum reiniciadas — vuelve a comprarlas",
+                /* ===== CREATOR PLACEMENT TOOL i18n — KEEP (creator-only, hidden at launch) ===== */
+                place_tool_adjust_off:"Ajustar posición: OFF", place_tool_adjust_on:"Ajustar posición: ON ✓",
+                place_tool_copy:"Copiar valores", place_tool_reset_btn:"Reiniciar esta skin",
+                place_tool_on:"Ajuste de posición ON · flechas mueven · +/- tamaño · [ ] rotar · Tab cambia objetivo",
+                place_tool_off:"Ajuste de posición OFF", place_tool_copied:"Mapa de posiciones copiado ✓",
+                place_tool_copy_manual:"Copia este JSON de posiciones:", place_tool_reset:"Posición de esta skin reiniciada",
+                place_tool_none:"Equipa una cuchara o gorro primero",
+                place_hud_title:"Posición", place_hud_target:"Objetivo", place_hud_spoon:"Cuchara", place_hud_hat:"Gorro",
+                place_hud_none:"(nada equipado en esta ranura)",
+                place_hud_help:"Flechas ±1px · Mayús+Flechas ±10px · +/- tamaño · [ ] rotar · Tab cambia",
+                place_tool_step:"Tamaño de paso (x1 / x10)", place_tt_move:"Mover", place_tt_bigger:"Más grande", place_tt_smaller:"Más pequeño",
+                place_tt_rotate_l:"Girar a la izquierda", place_tt_rotate_r:"Girar a la derecha", place_tt_target:"Cambiar objetivo (cuchara / gorro)", place_tt_close:"Cerrar herramienta",
                 /* ===== TEMP CREATOR UNLOCK GESTURE i18n — REMOVE BEFORE LAUNCH ===== */
                 creator_mode_on:"Modo creador ACTIVADO", creator_mode_off:"Modo creador DESACTIVADO"
                 /* ===== END ===== */
@@ -1075,6 +1343,7 @@
             try { const abm = document.getElementById('ambient-modal'); if (abm && abm.classList.contains('open')) { ambient._render(); if (typeof music !== 'undefined') music._render(); } } catch (e) {}
             try { const crm = document.getElementById('creator-modal'); if (crm && crm.classList.contains('open')) creator.render(); creator.syncLive(); } catch (e) {}
             try { const lbm = document.getElementById('lb-modal'); if (lbm && lbm.classList.contains('open')) lbUI.render(); } catch (e) {}
+            try { if (typeof tutorial !== 'undefined' && tutorial.active) tutorial.render(); } catch (e) {}
         }
         const sound = {
             defs: { stir:['audio/stir1.mp3','audio/stir2.mp3'], bubble:['audio/bubble.mp3'], buy:['audio/buy.mp3'], prestige:['audio/prestige.mp3'], victory:['audio/victory.mp3'] },
@@ -1605,6 +1874,16 @@
                 /* ===== TEMP CREATOR TOOL: reset spoons — REMOVE BEFORE LAUNCH ===== */
                 if (this.isDev()) btns.push(`<button class="gx-btn creator-link" type="button" style="background:linear-gradient(135deg,#7f1d1d,#ef4444);border-color:#fecaca" onclick="creator.resetSpoons()">${t('creator_reset_spoons')}</button>`);
                 /* ===== END TEMP CREATOR TOOL ===== */
+                /* ===== CREATOR PLACEMENT TOOL buttons — KEEP (creator-only, hidden at launch) ===== */
+                if (this.isDev()) {
+                    const on = (typeof placeTool !== 'undefined') && placeTool.active;
+                    btns.push(`<button class="gx-btn creator-link" type="button" style="background:linear-gradient(135deg,#1e3a8a,#3b82f6);border-color:#bfdbfe" onclick="placeTool.toggle()">${t(on ? 'place_tool_adjust_on' : 'place_tool_adjust_off')}</button>`);
+                    if (on) {
+                        btns.push(`<button class="gx-btn creator-link" type="button" style="background:linear-gradient(135deg,#065f46,#10b981);border-color:#a7f3d0" onclick="placeTool.copyValues()">${t('place_tool_copy')}</button>`);
+                        btns.push(`<button class="gx-btn creator-link" type="button" style="background:linear-gradient(135deg,#7c2d12,#f59e0b);border-color:#fde68a" onclick="placeTool.resetActive()">${t('place_tool_reset_btn')}</button>`);
+                    }
+                }
+                /* ===== END CREATOR PLACEMENT TOOL buttons ===== */
                 box.innerHTML = btns.length ? btns.join('') : `<p class="amb-hint">${t('creator_none')}</p>`;
             },
             /* ===== TEMP CREATOR TOOL: reset spoons — REMOVE BEFORE LAUNCH =====
@@ -1662,10 +1941,201 @@
                 } catch (e) {}
             }
         };
+        /* ===== CREATOR PLACEMENT TOOL — KEEP (PERMANENT, CREATOR-ONLY, HIDDEN AT LAUNCH) =====
+           DO NOT DELETE. Permanent creator-only calibration tool, reused across future
+           updates to position NEW cosmetics (hats, rapper caps, spoons, other stirring
+           utensils) without code changes. Gated by creator.isDev() so normal players
+           never see or trigger it; it simply stays dormant/hidden in the launch build.
+           (Requires the creator-unlock mechanism to also stay so the owner can re-enable
+           creator mode post-launch.)
+           Live calibration for the per-skin placement model (collection.PLACE_*). Two
+           input paths share the same mutation helpers (move/scaleBy/rotateBy/nextTarget):
+           a KEYBOARD handler (arrows move, +/- size, [ ] rotate, Shift = x10, Tab swaps
+           target) and an ON-SCREEN, touch-friendly PANEL (#place-tool-panel, styled by
+           #place-tool-style) docked bottom-right with a d-pad, size/rotate, target-cycle,
+           x1/x10 toggle, copy, reset and close buttons plus a live readout. Writes to the
+           localStorage override (collection.setPlacement), applies live, and "Copy values"
+           exports the full override map as JSON so the owner can paste it back to be baked
+           into PLACE_DEFAULTS. */
+        const placeTool = {
+            active: false,
+            target: 'spoon',   // 'spoon' | 'hat'
+            big: false,        // false = fine steps (±1px / 1°) · true = coarse (±10px / 5°)
+            _key: null,
+            activeId() { return collection.equippedIn(this.target === 'hat' ? 'hat' : 'spoon'); },
+            toggle() { this.active ? this.exit() : this.enter(); },
+            enter() {
+                if (!creator.isDev()) return;
+                this.active = true;
+                if (!this._key) { this._key = (e) => this.onKey(e); window.addEventListener('keydown', this._key, true); }
+                this.showPanel();
+                try { creator.render(); } catch (e) {}
+                try { gx.toast(t('place_tool_on')); } catch (e) {}
+            },
+            exit() {
+                this.active = false;
+                if (this._key) { window.removeEventListener('keydown', this._key, true); this._key = null; }
+                this.hidePanel();
+                try { creator.render(); } catch (e) {}
+                try { gx.toast(t('place_tool_off')); } catch (e) {}
+            },
+            // ── Shared mutation helpers: BOTH the keyboard handler and the on-screen
+            //    buttons funnel through these so behaviour stays identical. ──
+            _apply(mutate) {
+                const id = this.activeId();
+                if (!id) { try { gx.toast(t('place_tool_none')); } catch (e) {} return false; }
+                const p = Object.assign({ x: 0, y: 0, scale: 1, rot: 0 }, collection.placementFor(id));
+                mutate(p);
+                collection.setPlacement(id, p);
+                try { collection.applyEquippedVisual(); } catch (err) {}
+                this.updateHud();
+                return true;
+            },
+            step()  { return this.big ? 10 : 1; },   // px per move
+            rstep() { return this.big ? 5 : 1; },    // ° per rotate
+            move(dx, dy) { return this._apply(p => { p.x += dx; p.y += dy; }); },
+            scaleBy(delta) { return this._apply(p => { p.scale = Math.max(0.05, Math.round((p.scale + delta) * 100) / 100); }); },
+            rotateBy(deg) { return this._apply(p => { p.rot += deg; }); },
+            // Cycle equipped spoon <-> hat (allowed even when the slot is empty).
+            nextTarget() { this.target = (this.target === 'spoon') ? 'hat' : 'spoon'; this.updateHud(); },
+            // Toggle fine/coarse step size (the on-screen "x10" button).
+            toggleBig() { this.big = !this.big; this.updateHud(); },
+            onKey(e) {
+                if (!this.active) return;
+                if (e.key === 'Tab') { e.preventDefault(); e.stopPropagation(); this.nextTarget(); return; }
+                const step = e.shiftKey ? 10 : 1;
+                const rstep = e.shiftKey ? 5 : 1;
+                let handled = true;
+                switch (e.key) {
+                    case 'ArrowLeft':  this.move(-step, 0); break;
+                    case 'ArrowRight': this.move(step, 0); break;
+                    case 'ArrowUp':    this.move(0, -step); break;
+                    case 'ArrowDown':  this.move(0, step); break;
+                    case '+': case '=': this.scaleBy(0.02); break;
+                    case '-': case '_': this.scaleBy(-0.02); break;
+                    case '[': this.rotateBy(-rstep); break;
+                    case ']': this.rotateBy(rstep); break;
+                    default: handled = false;
+                }
+                if (!handled) return;
+                e.preventDefault(); e.stopPropagation();
+            },
+            copyValues() {
+                let json = '{}';
+                try { json = JSON.stringify(collection.placeOverrides(), null, 2); } catch (e) {}
+                const ok = () => { try { gx.toast(t('place_tool_copied')); } catch (e) {} };
+                const manual = () => { try { window.prompt(t('place_tool_copy_manual'), json); } catch (e) {} };
+                try {
+                    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(json).then(ok, manual);
+                    else manual();
+                } catch (e) { manual(); }
+            },
+            resetActive() {
+                const id = this.activeId();
+                if (!id) { try { gx.toast(t('place_tool_none')); } catch (e) {} return; }
+                collection.resetPlacement(id);
+                try { collection.applyEquippedVisual(); } catch (e) {}
+                this.updateHud();
+                try { gx.toast(t('place_tool_reset')); } catch (e) {}
+            },
+            // ── On-screen control panel (touch-friendly). Built once, then shown/hidden. ──
+            showPanel() {
+                this._injectStyle();
+                let panel = document.getElementById('place-tool-panel');
+                if (!panel) { panel = this._buildPanel(); document.body.appendChild(panel); }
+                panel.style.display = 'block';
+                this.updateHud();
+            },
+            hidePanel() { const panel = document.getElementById('place-tool-panel'); if (panel) panel.style.display = 'none'; },
+            _injectStyle() {
+                if (document.getElementById('place-tool-style')) return;
+                const st = document.createElement('style');
+                st.id = 'place-tool-style';
+                st.textContent =
+                    '#place-tool-panel{position:fixed;right:12px;bottom:12px;z-index:30000;width:248px;color:#fff7e6;'
+                    + 'background:linear-gradient(160deg,rgba(30,22,8,0.92),rgba(12,10,18,0.92));'
+                    + 'backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);'
+                    + 'border:1px solid rgba(251,191,36,0.55);border-radius:16px;padding:12px;'
+                    + 'font:600 12px/1.35 system-ui,sans-serif;box-shadow:0 10px 34px rgba(0,0,0,0.55);user-select:none;}'
+                    + '#place-tool-panel .ptp-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;color:#fbbf24;font-size:13px;}'
+                    + '#place-tool-panel .ptp-readout{background:rgba(0,0,0,0.35);border:1px solid rgba(251,191,36,0.25);border-radius:10px;padding:6px 8px;margin-bottom:8px;font-size:11.5px;min-height:34px;}'
+                    + '#place-tool-panel .ptp-row{display:flex;gap:6px;margin-bottom:6px;}'
+                    + '#place-tool-panel .ptp-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:6px;}'
+                    + '#place-tool-panel button{appearance:none;cursor:pointer;color:#fff7e6;background:linear-gradient(135deg,rgba(120,90,20,0.65),rgba(60,45,15,0.65));'
+                    + 'border:1px solid rgba(251,191,36,0.45);border-radius:10px;min-height:44px;min-width:44px;flex:1;'
+                    + 'font:700 15px/1 system-ui,sans-serif;touch-action:manipulation;transition:transform .05s,filter .12s;}'
+                    + '#place-tool-panel button:hover{filter:brightness(1.15);}'
+                    + '#place-tool-panel button:active{transform:scale(0.94);}'
+                    + '#place-tool-panel button:disabled{opacity:0.35;cursor:not-allowed;}'
+                    + '#place-tool-panel button.ptp-on{background:linear-gradient(135deg,#065f46,#10b981);border-color:#a7f3d0;}'
+                    + '#place-tool-panel button.ptp-wide{font-size:12px;}'
+                    + '#place-tool-panel .ptp-close{flex:0 0 auto;min-width:30px;min-height:30px;font-size:14px;padding:0 8px;'
+                    + 'background:linear-gradient(135deg,#7f1d1d,#ef4444);border-color:#fecaca;}'
+                    + '#place-tool-panel .ptp-spacer{flex:0 0 auto;min-width:0;min-height:0;background:none;border:none;pointer-events:none;}';
+                document.head.appendChild(st);
+            },
+            _buildPanel() {
+                const panel = document.createElement('div');
+                panel.id = 'place-tool-panel';
+                const b = (attrs, label) => `<button type="button" ${attrs}>${label}</button>`;
+                panel.innerHTML =
+                    `<div class="ptp-head"><span>⚙ ${t('place_hud_title')}</span>`
+                    + b('class="ptp-close" id="ptp-close" title="' + t('place_tt_close') + '" onclick="placeTool.exit()"', '✕') + '</div>'
+                    + `<div class="ptp-readout" id="ptp-readout"></div>`
+                    + `<div class="ptp-row">`
+                        + b('id="ptp-target" class="ptp-wide" title="' + t('place_tt_target') + '" onclick="placeTool.nextTarget()"', '⇄')
+                        + b('id="ptp-step" class="ptp-wide" title="' + t('place_tool_step') + '" onclick="placeTool.toggleBig()"', 'x1')
+                    + `</div>`
+                    + `<div class="ptp-grid">`
+                        + b('class="ptp-spacer" tabindex="-1"', '')
+                        + b('class="ptp-move" title="' + t('place_tt_move') + '" onclick="placeTool.move(0,-placeTool.step())"', '▲')
+                        + b('class="ptp-spacer" tabindex="-1"', '')
+                        + b('class="ptp-move" title="' + t('place_tt_move') + '" onclick="placeTool.move(-placeTool.step(),0)"', '◀')
+                        + b('class="ptp-move" title="' + t('place_tt_move') + '" onclick="placeTool.move(0,placeTool.step())"', '▼')
+                        + b('class="ptp-move" title="' + t('place_tt_move') + '" onclick="placeTool.move(placeTool.step(),0)"', '▶')
+                    + `</div>`
+                    + `<div class="ptp-row">`
+                        + b('class="ptp-move" title="' + t('place_tt_smaller') + '" onclick="placeTool.scaleBy(-0.02)"', '－')
+                        + b('class="ptp-move" title="' + t('place_tt_bigger') + '" onclick="placeTool.scaleBy(0.02)"', '＋')
+                        + b('class="ptp-move" title="' + t('place_tt_rotate_l') + '" onclick="placeTool.rotateBy(-placeTool.rstep())"', '⟲')
+                        + b('class="ptp-move" title="' + t('place_tt_rotate_r') + '" onclick="placeTool.rotateBy(placeTool.rstep())"', '⟳')
+                    + `</div>`
+                    + `<div class="ptp-row">`
+                        + b('class="ptp-wide" onclick="placeTool.copyValues()"', t('place_tool_copy'))
+                        + b('class="ptp-wide" onclick="placeTool.resetActive()"', t('place_tool_reset_btn'))
+                    + `</div>`;
+                return panel;
+            },
+            // Live readout + button states. Named updateHud() to match existing callers.
+            updateHud() {
+                const panel = document.getElementById('place-tool-panel');
+                if (!panel || !this.active) return;
+                const tgtLabel = this.target === 'hat' ? t('place_hud_hat') : t('place_hud_spoon');
+                const id = this.activeId();
+                const readout = panel.querySelector('#ptp-readout');
+                if (readout) {
+                    let line;
+                    if (id) {
+                        const p = collection.placementFor(id);
+                        line = `<span style="color:#fbbf24">${id}</span><br>x ${p.x} · y ${p.y} · scale ${p.scale} · rot ${p.rot}°`;
+                    } else {
+                        line = `<span style="color:#94a3b8">${t('place_hud_none')}</span>`;
+                    }
+                    readout.innerHTML = `<div>${t('place_hud_target')}: <b>${tgtLabel}</b></div><div style="margin-top:2px">${line}</div>`;
+                }
+                const tgtBtn = panel.querySelector('#ptp-target');
+                if (tgtBtn) tgtBtn.innerHTML = '⇄ ' + tgtLabel;
+                const stepBtn = panel.querySelector('#ptp-step');
+                if (stepBtn) { stepBtn.textContent = this.big ? 'x10' : 'x1'; stepBtn.classList.toggle('ptp-on', this.big); }
+                // Disable move/size/rotate when nothing is equipped in this slot.
+                panel.querySelectorAll('button.ptp-move').forEach(btn => { btn.disabled = !id; });
+            }
+        };
+        /* ===== END CREATOR PLACEMENT TOOL (KEEP) ===== */
         // === Versionado del esquema de guardado ===
         // Sube este número cada vez que cambie la forma del save. Cada incremento debe
         // tener su paso de migración en SAVE_MIGRATIONS (clave = versión de ORIGEN).
-        const SCHEMA_VERSION = 21;
+        const SCHEMA_VERSION = 22;
         const SAVE_MIGRATIONS = {
             // v16 -> v17: el campo `as` (Angel Shards acumulados) pasó a guardarse aparte de `s`.
             16: (s) => {
@@ -1707,10 +2177,20 @@
                 }
                 s.v = 21;
                 return s;
+            },
+            // v21 -> v22: el Árbol del Ángel gana dos nodos nuevos (`aura` = +EB global,
+            // `fortuna` = fragmentos extra al prestigiar). Garantizamos que existan a 0 para
+            // que los multiplicadores no produzcan NaN en saves antiguos.
+            21: (s) => {
+                if (!s.tree || typeof s.tree !== 'object') s.tree = {};
+                if (!Number.isFinite(s.tree.aura)) s.tree.aura = 0;
+                if (!Number.isFinite(s.tree.fortuna)) s.tree.fortuna = 0;
+                s.v = 22;
+                return s;
             }
-            // FUTURO: para añadir v21 -> v22 solo añade aquí:
-            //   21: (s) => { /* transforma s */ s.v = 22; return s; },
-            // y sube SCHEMA_VERSION a 22. No borres pasos antiguos.
+            // FUTURO: para añadir v22 -> v23 solo añade aquí:
+            //   22: (s) => { /* transforma s */ s.v = 23; return s; },
+            // y sube SCHEMA_VERSION a 23. No borres pasos antiguos.
         };
         // Transforma un save antiguo al esquema actual de forma incremental. Nunca lanza:
         // si algo falla, devuelve los datos originales sin tocar (no se pierde nada).
@@ -1770,14 +2250,16 @@
             }
         };
         const game = {
-            e:0, l:0, s:0, c:0, p:false, f:0, cl:false, m:1, cd:0, buyMode:1, defaultSpoonImg:'assets/img/spoon.png', _inited:false, logicTick:null, uiTick:null, saveTick:null, _floatNodes:[], _spoonAnimating:false, _spoonUiKey:'', _steamIdleTick:0, _dispScore:0, _autoPartAcc:0, _wave:0, _ballWave:0, _ballSpeed:1, _lastClick:0, soupBalls:[], _rippleNodes:[], _ambientRippleTick:0, _soupRect:null, _surf:null,
-            as:0, lastSeen:0, _buffs:[], tree:{caldo:0, manos:0, eco:0, cuchara:0, tiempo:0}, daily:null, ach:{}, rewards:{}, coll:null, _tampered:false,
+            e:0, te:0, l:0, s:0, c:0, p:false, f:0, cl:false, m:1, cd:0, buyMode:1, defaultSpoonImg:'assets/img/spoon.png', _inited:false, logicTick:null, uiTick:null, saveTick:null, _floatNodes:[], _spoonAnimating:false, _spoonUiKey:'', _steamIdleTick:0, _dispScore:0, _autoPartAcc:0, _wave:0, _ballWave:0, _ballSpeed:1, _lastClick:0, soupBalls:[], _rippleNodes:[], _ambientRippleTick:0, _soupRect:null, _surf:null,
+            as:0, lastSeen:0, _buffs:[], tree:{caldo:0, manos:0, eco:0, cuchara:0, tiempo:0, aura:0, fortuna:0}, daily:null, ach:{}, rewards:{}, coll:null, _tampered:false,
             treeDefs: [
-                {k:'caldo', mx:5, cb:1},
-                {k:'manos', mx:5, cb:1},
-                {k:'eco', mx:5, cb:2},
-                {k:'cuchara', mx:3, cb:2},
-                {k:'tiempo', mx:4, cb:1}
+                {k:'caldo', mx:20, cb:1},
+                {k:'manos', mx:20, cb:1},
+                {k:'eco', mx:10, cb:2},
+                {k:'cuchara', mx:8, cb:2},
+                {k:'tiempo', mx:15, cb:1},
+                {k:'aura', mx:20, cb:2},
+                {k:'fortuna', mx:10, cb:3}
             ],
             milestoneMsg: ['milestone_coco', 'milestone_bunny', 'milestone_pio', 'milestone_ivan'],
             CROWN_HEAD: {
@@ -1838,7 +2320,7 @@
             resize() { this.ctx.canvas.width = window.innerWidth; this.ctx.canvas.height = window.innerHeight; this._soupRect = null; this._scoreTarget = null; },
             getSaveData() {
                 this.lastSeen = Date.now();
-                return {v:SCHEMA_VERSION, e:this.e, l:this.l, s:this.s, as:this.as, c:this.cp.map(x=>({lv:x.lv, ch:x.ch})), cd:this.cd, bm:this.buyMode, sp:this.spoons.map(s=>({o:s.owned, eq:s.equipped})), lastSeen:this.lastSeen, tree:this.tree, daily:this.daily, ach:this.ach, rewards:this.rewards, coll:this.coll};
+                return {v:SCHEMA_VERSION, e:this.e, te:this.te, l:this.l, s:this.s, as:this.as, c:this.cp.map(x=>({lv:x.lv, ch:x.ch})), cd:this.cd, bm:this.buyMode, sp:this.spoons.map(s=>({o:s.owned, eq:s.equipped})), lastSeen:this.lastSeen, tree:this.tree, daily:this.daily, ach:this.ach, rewards:this.rewards, coll:this.coll};
             },
             save() {
                 const data = this.getSaveData();
@@ -1847,7 +2329,7 @@
                 // HOOK NUBE: punto único de guardado en la nube (stub local por ahora).
                 try { cloudSave.save(str); } catch (e) {}
                 // Leaderboard: cheap, debounced + monotonic inside the module; safe offline.
-                try { leaderboard.submit({ score: this.e, prestige: this.s }); } catch (e) {}
+                try { leaderboard.submit({ score: this.te, prestige: this.s }); } catch (e) {}
             },
             // Clamp defensivo de TODOS los numéricos del save (anti NaN/Infinity/negativos
             // y topes razonables). No rompe progreso legítimo (los topes son muy holgados).
@@ -1855,6 +2337,7 @@
                 const num = (v, min, max, dflt) => { const n = Number(v); if (!Number.isFinite(n)) return dflt; return Math.min(max, Math.max(min, n)); };
                 const BIG = 1e300;
                 d.e = num(d.e, 0, BIG, 0);
+                d.te = num(d.te, 0, BIG, 0);
                 d.l = num(d.l, 0, BIG, 0);
                 d.s = Math.floor(num(d.s, 0, 100000, 0));
                 d.as = Math.floor(num(d.as, 0, 1e12, 0));
@@ -1875,6 +2358,10 @@
                 if (d && typeof d === 'object') d = this.sanitizeSave(d);
                 if (d && typeof d === 'object') {
                     this.e = Number.isFinite(d.e) ? d.e : 0; this.l = Number.isFinite(d.l) ? d.l : 0; this.s = Number.isFinite(d.s) ? d.s : 0; this.cd = Number.isFinite(d.cd) ? d.cd : 0;
+                    // `te` = LIFETIME total EB earned (never reset on prestige). For pre-`te`
+                    // saves it's absent/0, so baseline it to at least the current wallet (`e`),
+                    // since lifetime earned can never be less than the wallet you hold now.
+                    this.te = Math.max(Number.isFinite(d.te) ? d.te : 0, this.e);
                     this.as = Number.isFinite(d.as) ? d.as : this.s;
                     if (d.bm === 1 || d.bm === 10 || d.bm === 'max') this.buyMode = d.bm;
                     if (Array.isArray(d.c)) d.c.forEach((x, i) => { if (this.cp[i] && x) { this.cp[i].lv = x.lv || 0; this.cp[i].ch = !!x.ch; for (let j = 0; j < this.cp[i].lv; j++) this.cp[i].cs = Math.floor(this.cp[i].cs * 1.15); } });
@@ -1898,6 +2385,9 @@
                     if (d.coll && typeof d.coll === 'object') this.coll = d.coll;
                 }
                 try { collection.normalize(); } catch (e) {}
+                // Grant the baseline common white chef hat to every player (new + existing
+                // saves) silently, before visuals apply. Not equipped; no reveal/sound.
+                try { collection.ensureBaseSkins(); } catch (e) {}
                 this.applySpoonVisual(); this.rebuild();
                 try { collection.applyEquippedVisual(); } catch (e) {}
                 offline.evaluate();
@@ -1920,6 +2410,7 @@
                 const eq = this.getEquippedSpoon();
                 if (eq && eq.id === 2) cps *= 2;
                 cps *= this.treeCpsMult();
+                cps *= this.treeAuraMult();
                 cps *= this.buffMult('cps');
                 return cps;
             },
@@ -1929,6 +2420,24 @@
             treeClickMult() { return 1 + this.tree.manos * 0.20; },
             treeSpoonDisc() { return Math.max(0.1, 1 - this.tree.cuchara * 0.08); },
             treeOfflineMult() { return 1 + this.tree.tiempo * 0.25; },
+            // Aura Dorada: multiplicador GLOBAL de EB (afecta CPS y click). +8% por nivel.
+            treeAuraMult() { const a = Number.isFinite(this.tree.aura) ? this.tree.aura : 0; return 1 + a * 0.08; },
+            // === Recompensa de fragmentos al prestigiar (escala con el tamaño de la run) ===
+            // En vez de un +1 fijo, premiamos cuánto empujó el jugador por encima del umbral
+            // de prestigio. `ratio = wallet / umbral` (>=1 siempre que el prestigio sea legal).
+            // base = floor(sqrt(ratio)) -> curva idle estándar y suave:
+            //   ratio 1x   -> 1 fragmento  (= comportamiento antiguo, SIN regresión)
+            //   ratio 4x   -> 2,  9x -> 3,  25x -> 5,  100x -> 10,  10000x -> 100
+            // El nodo `fortuna` suma +1 fragmento plano por nivel (máx +10). TUNABLE:
+            // sube/baja el exponente (0.5) o añade un multiplicador para recalibrar.
+            presShards() {
+                const g = 1e6 * Math.pow(5, this.s);
+                const ratio = (g > 0 && Number.isFinite(this.e)) ? (this.e / g) : 1;
+                let base = Math.floor(Math.sqrt(Math.max(1, ratio)));
+                if (!Number.isFinite(base) || base < 1) base = 1;
+                const bonus = Number.isFinite(this.tree.fortuna) ? this.tree.fortuna : 0;
+                return base + bonus;
+            },
             effSpoonCost(s) { return Math.floor(s.cost * this.treeSpoonDisc()); },
             addBuff(kind, mult, dur, labelKey) {
                 this._buffs = this._buffs.filter(b => b.kind !== kind);
@@ -1948,7 +2457,10 @@
             },
             track(type, amt) { if (this.daily && this.daily.counters && this.daily.counters[type] != null) this.daily.counters[type] += amt; quests.bump(type, amt); },
             getPrixCd() { const eq = this.getEquippedSpoon(); return (eq && eq.id === 2) ? 300 : 600; },
-            applySpoonVisual() { const el = document.getElementById('asset-spoon'); if (!el) return; const rig = document.getElementById('spoon-rig'); if (rig) rig.classList.remove('charm-spoon'); const s = this.getEquippedSpoon(); el.src = (s && s.owned) ? s.spoonImg : this.defaultSpoonImg; },
+            applySpoonVisual() { const el = document.getElementById('asset-spoon'); if (!el) return; const rig = document.getElementById('spoon-rig'); if (rig) { rig.classList.remove('charm-spoon'); rig.style.transform = ''; } this._spoonPlace = null; const s = this.getEquippedSpoon(); el.src = (s && s.owned) ? s.spoonImg : this.defaultSpoonImg; },
+            // Applies the equipped charm spoon's per-skin placement to #spoon-rig. When `stirF`
+            // is a number, oscillates the rotation for the idle-stir animation (called by loop()).
+            _applySpoonRig(stirF) { const rig = document.getElementById('spoon-rig'); if (!rig) return; const p = this._spoonPlace; if (!p) return; try { rig.style.transform = collection.placementCss(p, (typeof stirF === 'number' ? Math.sin(stirF) * 5 : 0)); } catch (e) {} },
             spoonUiKey() {
                 return this.spoons.map(s => (s.owned ? 'o' : 'u') + (s.equipped ? 'e' : '-') + (this.e >= this.effSpoonCost(s) ? 'a' : 'l')).join('|');
             },
@@ -2087,7 +2599,7 @@
             logic() {
                 this.c = this.getCps();
                 const prevDisp = Math.floor(this.e);
-                this.e += this.c; this.l += this.c;
+                this.e += this.c; this.te += this.c; this.l += this.c;
                 const nextDisp = Math.floor(this.e);
                 if (nextDisp > prevDisp) this._autoPartAcc += nextDisp - prevDisp;
                 if (this.c > 0) this.track('eb', this.c);
@@ -2121,7 +2633,7 @@
                 let g = 1e6 * Math.pow(5, this.s); let b = document.getElementById('btn-prestige');
                 const presUnlocked = this.e >= g;
                 if (b.className !== (presUnlocked ? 'unlocked' : 'locked')) b.className = presUnlocked ? 'unlocked' : 'locked';
-                document.getElementById('pres-txt').innerText = presUnlocked ? t('awaken_soul') : t('requires_eb', {eb: g.toLocaleString()});
+                document.getElementById('pres-txt').innerText = presUnlocked ? (t('awaken_soul') + ' · +' + this.presShards() + ' ⬨') : t('requires_eb', {eb: g.toLocaleString()});
                 document.getElementById('pres-stat').innerText = t('angel_lv', {s: this.s, pct: this.s*50});
                 this.updateLore();
                 const prixBtn = document.getElementById('prix-btn');
@@ -2161,9 +2673,9 @@
                 const eq = this.getEquippedSpoon();
                 if (eq && eq.id === 0) gain *= 1.50;
                 if (eq && eq.id === 1 && Math.random() < 0.05) gain *= 10;
-                gain *= this.milestoneMult(this.cp[1].lv) * this.treeClickMult() * this.buffMult('click');
+                gain *= this.milestoneMult(this.cp[1].lv) * this.treeClickMult() * this.treeAuraMult() * this.buffMult('click');
                 if (!Number.isFinite(gain) || gain <= 0) return;
-                this.cl = true; this.e += gain; this._lastClick = performance.now();
+                this.cl = true; this.e += gain; this.te += gain; this._lastClick = performance.now();
                 this.track('clicks', 1); this.track('eb', gain);
                 if (!game.ach.firstClick) ach.grant('firstClick');
                 this.floatNum(ev.clientX, ev.clientY, gain);
@@ -2173,6 +2685,7 @@
                 const o = this.soupPartOrigin();
                 this.part(o.x + (Math.random() - 0.5) * 40, o.y + (Math.random() - 0.5) * 20, 'energy');
                 this.spawnRipple(ev.clientX, ev.clientY);
+                try { if (typeof tutorial !== 'undefined' && tutorial.active) tutorial.notify('stir'); } catch (e) {}
             },
             summon(c, btn) {
                 const r = btn.getBoundingClientRect(); const h = document.createElement('img'); h.src = c.im; h.className = 'summon-clone'; h.style.left=r.left+'px'; h.style.top=r.top+'px'; h.style.transform='scale(0.2)'; document.body.appendChild(h);
@@ -2198,6 +2711,7 @@
                 ach.check();
                 this.summon(c, ev.currentTarget);
                 this.render();
+                try { if (typeof tutorial !== 'undefined' && tutorial.active) tutorial.notify('buy'); } catch (e) {}
             },
             pres() {
                 let g = 1e6 * Math.pow(5, this.s); if (this.e < g) { document.getElementById('btn-prestige').classList.add('shake'); setTimeout(()=>document.getElementById('btn-prestige').classList.remove('shake'), 300); return; }
@@ -2205,8 +2719,10 @@
                 setTimeout(() => {
                     show.classList.remove('active'); const o = document.getElementById('prestige-overlay'); document.getElementById('pres-lore').innerText = t('pres_lore'); o.style.display = 'flex'; setTimeout(()=>o.style.opacity='1', 20);
                     setTimeout(() => {
-                        this.s++; this.as++; this._buffs = [];
-                        try { leaderboard.submit({ prestige: this.s, score: this.e }); } catch (e) {}
+                        const shardsGained = this.presShards();
+                        this.s++; this.as += shardsGained; this._buffs = [];
+                        try { gx.toast(t('pres_shards_toast', {n: shardsGained})); } catch (e) {}
+                        try { leaderboard.submit({ prestige: this.s, score: this.te }); } catch (e) {}
                         ach.grant('firstPres');
                         const eco = this.tree.eco;
                         this.e = 0; this.l = 0; this.cp.forEach(c => { const base = c.id === 0 ? 20 : (c.id === 1 ? 125 : (c.id === 2 ? 1500 : 18000)); c.lv = eco; c.ch = false; c.cs = base; for (let j = 0; j < eco; j++) c.cs = Math.floor(c.cs * 1.15); });
@@ -2293,7 +2809,8 @@
                 if (!this.p) { this._wave += 0.018; const tgt = (performance.now() - this._lastClick < 1500) ? 1.9 : 1; this._ballSpeed += (tgt - this._ballSpeed) * 0.04; this._ballWave += 0.012 * this._ballSpeed; }
                 if(!this.p && this.c > 0 && !this.cl) {
                     this.f += (0.04 + Math.log10(this.c+1)*0.05);
-                    sp.style.transform = `translate(-50%,-50%) rotate(${-27+Math.sin(this.f)*5}deg)`;
+                    if (this._spoonPlace) this._applySpoonRig(this.f);
+                    else sp.style.transform = `translate(-50%,-50%) rotate(${-27+Math.sin(this.f)*5}deg)`;
                     if (this._autoPartAcc > 0) {
                         // CAP por frame: como mucho N emisiones/frame (según calidad) aunque el CPS sea altísimo.
                         const burst = Math.min(this._autoPartAcc, quality.params.partCap);
@@ -2531,7 +3048,7 @@
             check() { const w = this.rs.find(r => r.pos >= 100); if(w) { this.a = false; clearInterval(this.tk); this.stopFx(); this.w = w.isP; this.end(); } },
             end() { document.getElementById('p-run').style.display='none'; document.getElementById('p-end').style.display='block';
                 const r = document.getElementById('p-rank'), m = document.getElementById('p-reward'); if(this.w) { r.innerText=t('first_place'); m.innerText=t('victory_crown', {name: t(this.ch.nk)}); this.ch.ch = true; game.track('crowns', 1); try { leaderboard.bumpPrixWin(); leaderboard.submit({ prix: leaderboard.getPrixWins() }); } catch (e) {} ach.grant('firstChamp'); }
-                else { let p = Math.floor(1e6 * Math.pow(5, game.s) * 0.01); r.innerText=t('defeat'); m.innerText=t('awarded_eb', {eb: p.toLocaleString()}); game.e += p; }
+                else { let p = Math.floor(1e6 * Math.pow(5, game.s) * 0.01); r.innerText=t('defeat'); m.innerText=t('awarded_eb', {eb: p.toLocaleString()}); game.e += p; game.te += p; }
                 game.render();
             },
             ret() { if(this.tk) { clearInterval(this.tk); this.tk = null; } if(this.cdIv) { clearInterval(this.cdIv); this.cdIv = null; } this.stopFx(); game.cd = game.getPrixCd(); document.getElementById('race-modal').style.display='none'; if(this.w) game.coron(this.ch); else game.p = false; }
@@ -2550,7 +3067,19 @@
         const lbUI = {
             board: 'score',
             _token: 0,
+            _cache: {},
+            _fadeT: null,
+            _heightT: null,
             PLAT: { youtube: '📺', steam: '🎮', android: '🤖', ios: '🍎', web: '🌐' },
+            CREATOR_ID: '1832ff16-5fec-4afd-b570-f950e19eb434',
+            CREATOR_NAME: 'smallcreekskullchef',
+            // Mark the developer's row so players know the #1 is the creator, not a rigged
+            // normal player. Match by UUID when present, else case-insensitive name.
+            isCreator(r) {
+                if (!r) return false;
+                if (r.id && String(r.id).toLowerCase() === this.CREATOR_ID) return true;
+                return !!(r.name && String(r.name).toLowerCase() === this.CREATOR_NAME);
+            },
             open() {
                 const m = document.getElementById('lb-modal'); if (!m) return;
                 const inp = document.getElementById('lb-name-input');
@@ -2565,28 +3094,80 @@
                     el.classList.toggle('active', el.dataset.board === this.board);
                 });
             },
+            refreshName() {
+                const inp = document.getElementById('lb-name-input');
+                try { if (inp) inp.value = leaderboard.identity().name || ''; } catch (e) {}
+            },
             saveName() {
                 const inp = document.getElementById('lb-name-input'); if (!inp) return;
                 const raw = inp.value;
-                let nm = '';
-                try { nm = leaderboard.setName(raw); } catch (e) {}
-                if (nm) inp.value = nm;
-                if (nm && this._looksLikeUserName(raw, nm)) gx.toast(t('lb_name_saved', { name: nm }));
-                else gx.toast(t('lb_name_invalid'));
-                this.render();
-            },
-            _looksLikeUserName(raw, accepted) {
-                // setName returns a fallback (existing/random) name when input is invalid;
-                // treat as success only when the accepted name matches the cleaned input.
-                const clean = String(raw == null ? '' : raw).replace(/\s+/g, ' ').trim();
-                return clean.length >= 3 && accepted && accepted.length >= 3 &&
-                       accepted.toLowerCase() === clean.slice(0, 20).toLowerCase();
+                const btn = inp.parentNode ? inp.parentNode.querySelector('button') : null;
+                // Require privacy consent before claiming a public name. Decline ->
+                // abort the save, game keeps running offline.
+                const doClaim = () => {
+                if (btn) btn.disabled = true;
+                let p; try { p = leaderboard.claimName(raw); } catch (e) { p = Promise.reject('INVALID'); }
+                Promise.resolve(p).then(nm => {
+                    if (btn) btn.disabled = false;
+                    inp.value = nm;
+                    gx.toast(t('lb_name_saved', { name: nm }));
+                    this.render();
+                }).catch(reason => {
+                    if (btn) btn.disabled = false;
+                    if (reason === 'NAME_TAKEN') gx.toast(t('name_taken'));
+                    else if (reason === 'OFFLINE') { gx.toast(t('name_offline_saved')); this.refreshName(); }
+                    else gx.toast(t('lb_name_invalid'));
+                    this.render();
+                });
+                };
+                try {
+                    privacyConsent.gate(doClaim, () => { if (btn) btn.disabled = false; });
+                } catch (e) { doClaim(); }
             },
             fmtVal(board, v) {
                 let n = Number(v); if (!isFinite(n)) n = 0;
                 return Math.floor(n).toLocaleString();
             },
             esc(s) { return String(s == null ? '' : s).replace(/[<>&]/g, c => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;' }[c])); },
+            _reduceMotion() {
+                try { return window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) { return false; }
+            },
+            // Build the rows markup for a board. Kept separate so we can paint cached
+            // rows instantly (no blank flash) and re-paint when fresh data arrives.
+            _rowsHtml(board, rows) {
+                if (!rows || !rows.length) return `<div class="lb-msg">${t('lb_empty')}</div>`;
+                return rows.map(r => {
+                    const plat = this.PLAT[r.platform] || '🌐';
+                    const badge = this.isCreator(r) ? `<span class="lb-creator-badge" title="${this.esc(t('creator_badge_title'))}">👑 ${this.esc(t('creator_badge'))}</span>` : '';
+                    return `<div class="lb-row ${r.you ? 'you' : ''}"><span class="lb-rank">#${r.rank}</span><span class="lb-plat">${plat}</span><span class="lb-name"><span class="lb-name-txt">${this.esc(r.name)}${r.you ? ' ★' : ''}</span>${badge}</span><span class="lb-val">${this.fmtVal(board, r.value)}</span></div>`;
+                }).join('');
+            },
+            // Crossfade + height-ease the list to new content. Skips work if the markup
+            // is unchanged (so a background refresh that matches the cache never flashes),
+            // and honors prefers-reduced-motion by swapping instantly.
+            _paint(list, html) {
+                if (list._lbHtml === html) return;
+                list._lbHtml = html;
+                if (this._reduceMotion()) { list.innerHTML = html; return; }
+                clearTimeout(this._fadeT);
+                clearTimeout(this._heightT);
+                const fromH = list.offsetHeight;
+                list.classList.add('lb-fading');
+                this._fadeT = setTimeout(() => {
+                    list.innerHTML = html;
+                    list.scrollTop = 0;
+                    const toH = list.offsetHeight; // natural height, already clamped by max-height
+                    list.classList.add('lb-animh');
+                    list.style.height = fromH + 'px';
+                    void list.offsetHeight; // force reflow so the height transition runs
+                    list.classList.remove('lb-fading');
+                    list.style.height = toH + 'px';
+                    this._heightT = setTimeout(() => {
+                        list.classList.remove('lb-animh');
+                        list.style.height = '';
+                    }, 240);
+                }, 150);
+            },
             render() {
                 this.syncTabs();
                 let live = false;
@@ -2594,26 +3175,166 @@
                 const note = document.getElementById('lb-note');
                 if (note) note.textContent = live ? '' : t('lb_offline');
                 const list = document.getElementById('lb-list'); if (!list) return;
-                list.innerHTML = `<div class="lb-msg">${t('lb_loading')}</div>`;
                 const board = this.board;
                 const token = ++this._token;
+                // Keep showing cached rows (smoothly) instead of blanking to a loading
+                // flash; if nothing is cached yet, show the loading message.
+                const cached = this._cache[board];
+                this._paint(list, cached ? this._rowsHtml(board, cached) : `<div class="lb-msg">${t('lb_loading')}</div>`);
                 let p;
                 try { p = leaderboard.top(board, 50); } catch (e) { p = Promise.resolve([]); }
                 Promise.resolve(p).then(rows => {
                     if (token !== this._token) return;
-                    if (!rows || !rows.length) { list.innerHTML = `<div class="lb-msg">${t('lb_empty')}</div>`; return; }
-                    list.innerHTML = rows.map(r => {
-                        const plat = this.PLAT[r.platform] || '🌐';
-                        return `<div class="lb-row ${r.you ? 'you' : ''}"><span class="lb-rank">#${r.rank}</span><span class="lb-plat">${plat}</span><span class="lb-name">${this.esc(r.name)}${r.you ? ' ★' : ''}</span><span class="lb-val">${this.fmtVal(board, r.value)}</span></div>`;
-                    }).join('');
+                    this._cache[board] = rows || [];
+                    this._paint(list, this._rowsHtml(board, rows));
                 }).catch(() => {
                     if (token !== this._token) return;
-                    list.innerHTML = `<div class="lb-msg">${t('lb_empty')}</div>`;
+                    if (!cached) this._paint(list, `<div class="lb-msg">${t('lb_empty')}</div>`);
                 });
             }
         };
         // Wire the module's openPanel() stub to the real in-game panel.
         try { leaderboard.openPanel = function () { lbUI.open(); }; } catch (e) {}
+        // === PRIVACY CONSENT GATE (UI) ======================================
+        // Shows a one-time bilingual notice before any display name / score is
+        // uploaded to the global leaderboard (Supabase). Declining keeps the game
+        // fully playable OFFLINE (no name, no leaderboard write). Once consented
+        // (or grandfathered via an already-confirmed name) we never ask again.
+        // Storage key: 'soup_privacy_consent_v1'. Everything is try/catch-guarded
+        // and never blocks the game.
+        const privacyConsent = {
+            KEY: 'soup_privacy_consent_v1',
+            _onAgree: null, _onDecline: null, _sessionDeferred: false,
+            has() {
+                try { if (localStorage.getItem(this.KEY) === '1') return true; } catch (e) {}
+                try { if (leaderboard.hasName()) return true; } catch (e) {} // grandfathered: already chose a public name
+                return false;
+            },
+            _store() { try { localStorage.setItem(this.KEY, '1'); } catch (e) {} },
+            // gate(onAgree, onDecline, opts): if already consented -> onAgree() now;
+            // otherwise open the modal. opts.auto marks an automatic (non
+            // user-initiated) prompt that should not pop again in the same session
+            // once dismissed. On ANY error we fall back to onDecline (offline-safe).
+            gate(onAgree, onDecline, opts) {
+                const agree = (typeof onAgree === 'function') ? onAgree : function () {};
+                const decline = (typeof onDecline === 'function') ? onDecline : function () {};
+                try {
+                    if (this.has()) { agree(); return; }
+                    if (opts && opts.auto && this._sessionDeferred) { decline(); return; }
+                    const m = document.getElementById('privacy-consent-modal');
+                    if (!m) { decline(); return; } // no UI to consent -> stay offline, never upload
+                    this._onAgree = agree; this._onDecline = decline;
+                    m.classList.add('open');
+                } catch (e) { try { decline(); } catch (e2) {} }
+            },
+            _close() { try { const m = document.getElementById('privacy-consent-modal'); if (m) m.classList.remove('open'); } catch (e) {} },
+            agree() {
+                this._store(); this._close();
+                const cb = this._onAgree; this._onAgree = null; this._onDecline = null;
+                if (cb) { try { cb(); } catch (e) {} }
+            },
+            decline() {
+                this._sessionDeferred = true; this._close();
+                const cb = this._onDecline; this._onDecline = null; this._onAgree = null;
+                if (cb) { try { cb(); } catch (e) {} }
+                try { gx.toast(t('privacy_offline_toast')); } catch (e) {}
+            }
+        };
+        try { window.privacyConsent = privacyConsent; } catch (e) {}
+        // === First-run "choose your chef name" gate ===
+        // Every player must own a UNIQUE name to join the global leaderboard. The
+        // FIRST time a player presses Play with no confirmed name we ask for one.
+        // Offline-safe: if uniqueness can't be verified the name is stored
+        // PROVISIONALLY and we let them play, re-claiming automatically later.
+        const nameGate = {
+            _onDone: null, _busy: false, _t: null, _ct: 0,
+            needsName() { try { return !!leaderboard.isLive() && !leaderboard.hasName(); } catch (e) { return false; } },
+            ensure(onDone) {
+                this._onDone = (typeof onDone === 'function') ? onDone : function () {};
+                if (!this.needsName()) { this._finish(); return; }
+                let prov = false; try { prov = leaderboard.isProvisional(); } catch (e) {}
+                if (prov) { this._finish(); this._bgReclaim(); return; }
+                // Ask for privacy consent BEFORE the name modal (and before any
+                // upload). Agree -> pick a name; Decline -> keep playing offline.
+                try {
+                    privacyConsent.gate(
+                        () => this.open(true),
+                        () => { this._finish(); },
+                        { auto: true }
+                    );
+                } catch (e) { this._finish(); }
+            },
+            _finish() { const cb = this._onDone; this._onDone = null; if (cb) { try { cb(); } catch (e) {} } },
+            open(firstRun) {
+                const m = document.getElementById('name-modal'); if (!m) { this._finish(); return; }
+                const inp = document.getElementById('name-input');
+                if (inp) {
+                    let cur = '';
+                    try { const id = leaderboard.identity(); if (id && id.name && !/^chef/i.test(id.name)) cur = id.name; } catch (e) {}
+                    inp.value = cur;
+                }
+                this._setStatus('', '');
+                const btn = document.getElementById('name-confirm'); if (btn) btn.disabled = true;
+                m.classList.add('open');
+                setTimeout(() => { try { if (inp) inp.focus(); } catch (e) {} }, 40);
+                if (inp && inp.value) this._scheduleCheck();
+            },
+            close() { const m = document.getElementById('name-modal'); if (m) m.classList.remove('open'); },
+            _setStatus(key, cls) {
+                const s = document.getElementById('name-status'); if (!s) return;
+                s.textContent = key ? t(key) : '';
+                s.style.color = cls === 'ok' ? '#34d399' : (cls === 'bad' ? '#f87171' : '#fbbf24');
+            },
+            onInput() { this._scheduleCheck(); },
+            _scheduleCheck() {
+                if (this._t) clearTimeout(this._t);
+                const inp = document.getElementById('name-input'); if (!inp) return;
+                const raw = inp.value;
+                const clean = String(raw == null ? '' : raw).replace(/\s+/g, ' ').trim();
+                const btn = document.getElementById('name-confirm');
+                if (clean.length < 3) { this._setStatus('name_too_short', 'bad'); if (btn) btn.disabled = true; return; }
+                if (/^chef$/i.test(clean)) { this._setStatus('name_reserved', 'bad'); if (btn) btn.disabled = true; return; }
+                this._setStatus('name_checking', '');
+                if (btn) btn.disabled = false;
+                const token = ++this._ct;
+                this._t = setTimeout(() => {
+                    let p; try { p = leaderboard.checkName(raw); } catch (e) { p = Promise.resolve(true); }
+                    Promise.resolve(p).then(ok => {
+                        if (token !== this._ct) return;
+                        this._setStatus(ok ? 'name_available' : 'name_taken', ok ? 'ok' : 'bad');
+                    }).catch(() => {});
+                }, 350);
+            },
+            confirm() {
+                if (this._busy) return;
+                const inp = document.getElementById('name-input'); if (!inp) return;
+                const raw = inp.value;
+                const btn = document.getElementById('name-confirm');
+                this._busy = true; if (btn) btn.disabled = true;
+                this._setStatus('name_checking', '');
+                let p; try { p = leaderboard.claimName(raw); } catch (e) { p = Promise.reject('INVALID'); }
+                Promise.resolve(p).then(nm => {
+                    this._busy = false; if (btn) btn.disabled = false;
+                    this.close();
+                    try { gx.toast(t('lb_name_saved', { name: nm })); } catch (e) {}
+                    try { const lbm = document.getElementById('lb-modal'); if (lbm && lbm.classList.contains('open')) lbUI.refreshName(); } catch (e) {}
+                    this._finish();
+                }).catch(reason => {
+                    this._busy = false; if (btn) btn.disabled = false;
+                    if (reason === 'NAME_TAKEN') this._setStatus('name_taken', 'bad');
+                    else if (reason === 'INVALID') this._setStatus('name_invalid', 'bad');
+                    else { try { gx.toast(t('name_offline_saved')); } catch (e) {} this.close(); this._finish(); }
+                });
+            },
+            _bgReclaim() {
+                try {
+                    leaderboard.reclaim().then(st => {
+                        if (st === 'taken') { try { gx.toast(t('name_retry')); } catch (e) {} this.open(false); }
+                    }).catch(() => {});
+                } catch (e) {}
+            }
+        };
+        try { window.nameGate = nameGate; } catch (e) {}
         // === Capa YouTube Playables (integración DEFENSIVA y desacoplada) ===
         // Detecta el SDK global de YouTube Playables (window.ytgame). Si NO existe
         // (builds offline/local/Steam/móvil), TODOS sus métodos son NO-OP silenciosos:
@@ -2730,7 +3451,32 @@
         // acepta JSON en texto plano. Todo pasa por migrateSave() + las validaciones de load().
         const backup = {
             FILENAME: 'smallcreek-save',
-            encode() { return btoa(unescape(encodeURIComponent(JSON.stringify(game.getSaveData())))); },
+            SAVE_KEY: 'soup_p_v17',
+            IDENTITY_KEY: 'soup_lb_identity',
+            // Leaderboard identity (UUID + display name) as a parsed object, or null. This
+            // is what lets the creator/player keep their ranking spot across origins.
+            readIdentity() {
+                try {
+                    const raw = localStorage.getItem(this.IDENTITY_KEY);
+                    if (!raw) return null;
+                    const o = JSON.parse(raw);
+                    return (o && typeof o === 'object' && o.uuid) ? o : null;
+                } catch (e) { return null; }
+            },
+            // FULL portable backup: game save + leaderboard identity in ONE JSON object, so
+            // nothing is lost when the game moves to a new URL/platform/origin.
+            bundle() {
+                return {
+                    _app: 'smallcreek-skullchef', _type: 'save+identity', v: 1,
+                    exportedAt: new Date().toISOString(),
+                    save: game.getSaveData(),
+                    identity: this.readIdentity()
+                };
+            },
+            encode() { return JSON.stringify(this.bundle(), null, 2); },
+            // Parse a pasted/loaded backup string into { save, identity } (identity may be
+            // null). Accepts the new bundle JSON, a raw save JSON object, or a legacy
+            // base64 save code. Returns null if nothing usable is found.
             decode(str) {
                 if (str == null) return null;
                 const s = String(str).trim();
@@ -2741,17 +3487,24 @@
                     else json = decodeURIComponent(escape(atob(s.replace(/\s+/g, ''))));
                 } catch (e) { json = null; }
                 if (!json) return null;
-                try { const o = JSON.parse(json); return (o && typeof o === 'object') ? o : null; }
-                catch (e) { return null; }
+                let o = null;
+                try { o = JSON.parse(json); } catch (e) { o = null; }
+                if (!o || typeof o !== 'object') return null;
+                // New bundle format { save, identity }.
+                if (o.save && typeof o.save === 'object') {
+                    return { save: o.save, identity: (o.identity && typeof o.identity === 'object') ? o.identity : null };
+                }
+                // Legacy: the object IS the save itself (no identity travels with it).
+                return { save: o, identity: null };
             },
             download() {
                 try {
                     const code = this.encode();
-                    const blob = new Blob([code], { type: 'text/plain' });
+                    const blob = new Blob([code], { type: 'application/json' });
                     const url = URL.createObjectURL(blob);
                     const a = document.createElement('a');
                     const stamp = new Date().toISOString().slice(0, 10);
-                    a.href = url; a.download = `${this.FILENAME}-${stamp}.txt`;
+                    a.href = url; a.download = `${this.FILENAME}-${stamp}.json`;
                     document.body.appendChild(a); a.click();
                     setTimeout(() => { if (a.parentNode) a.remove(); URL.revokeObjectURL(url); }, 200);
                     gx.toast(t('backup_exported'));
@@ -2773,14 +3526,26 @@
                 if (ok) gx.toast(t('backup_copied'));
                 else { gx.toast(t('backup_error')); try { window.prompt(t('backup_copy_manual'), code); } catch (e) {} }
             },
-            // Aplica un objeto de save ya parseado: migra, persiste y recarga la página
-            // (recargar garantiza un estado limpio sin doble aplicación de la lógica de load()).
-            applyImported(obj) {
-                if (!obj || typeof obj !== 'object') { gx.toast(t('backup_invalid')); return false; }
-                let migrated; try { migrated = migrateSave(obj); } catch (e) { migrated = obj; }
+            // Restore a decoded { save, identity }: confirm before clobbering an existing
+            // save, migrate + persist the save, restore the identity, then reload for a
+            // clean state (avoids double-applying load() logic).
+            applyImported(data) {
+                if (!data || typeof data !== 'object' || !data.save || typeof data.save !== 'object') { gx.toast(t('backup_invalid')); return false; }
+                let hasExisting = false;
+                try { hasExisting = !!localStorage.getItem(this.SAVE_KEY); } catch (e) {}
+                if (hasExisting) {
+                    let ok = true;
+                    try { ok = window.confirm(t('backup_confirm_overwrite')); } catch (e) { ok = true; }
+                    if (!ok) return false;
+                }
+                let migrated; try { migrated = migrateSave(data.save); } catch (e) { migrated = data.save; }
                 if (!migrated || typeof migrated !== 'object') { gx.toast(t('backup_invalid')); return false; }
-                try { localStorage.setItem('soup_p_v17', JSON.stringify(migrated)); }
+                try { localStorage.setItem(this.SAVE_KEY, secure.wrap(JSON.stringify(migrated))); }
                 catch (e) { gx.toast(t('backup_error')); return false; }
+                // Restore the leaderboard identity (UUID + display name) when present & valid.
+                if (data.identity && typeof data.identity === 'object' && data.identity.uuid) {
+                    try { localStorage.setItem(this.IDENTITY_KEY, JSON.stringify(data.identity)); } catch (e) {}
+                }
                 // Evita que el autoguardado (cada 5s) sobrescriba el import antes de recargar.
                 try { if (game.saveTick) { clearInterval(game.saveTick); game.saveTick = null; } } catch (e) {}
                 gx.toast(t('backup_imported'));
@@ -2788,16 +3553,37 @@
                 return true;
             },
             importFromCode(str) {
-                const obj = this.decode(str);
-                if (!obj) { gx.toast(t('backup_invalid')); return false; }
-                return this.applyImported(obj);
+                const data = this.decode(str);
+                if (!data) { gx.toast(t('backup_invalid')); return false; }
+                return this.applyImported(data);
             },
+            // Open the paste-import modal (textarea). Falls back to window.prompt if the
+            // modal isn't in the DOM for any reason.
             promptImport() {
+                const m = document.getElementById('import-modal');
+                const ta = document.getElementById('import-text');
+                if (m && ta) {
+                    ta.value = '';
+                    m.classList.add('open');
+                    setTimeout(() => { try { ta.focus(); } catch (e) {} }, 40);
+                    return;
+                }
                 let code = null;
                 try { code = window.prompt(t('backup_import_prompt'), ''); } catch (e) { code = null; }
                 if (code == null) return; // cancelado por el usuario: no tocar la partida
                 if (!String(code).trim()) { gx.toast(t('backup_invalid')); return; }
                 this.importFromCode(code);
+            },
+            closeImport() {
+                const m = document.getElementById('import-modal');
+                if (m) m.classList.remove('open');
+            },
+            confirmImport() {
+                const ta = document.getElementById('import-text');
+                const code = ta ? ta.value : '';
+                if (!String(code).trim()) { gx.toast(t('backup_invalid')); return; }
+                const ok = this.importFromCode(code);
+                if (ok) this.closeImport();
             },
             importFile(input) {
                 const file = input && input.files && input.files[0];
@@ -2832,7 +3618,7 @@
                 if (db) db.style.display = (ads.isAvailable() && rewardSystem.canClaim('offline2')) ? '' : 'none';
             },
             claim() {
-                if (this.amt > 0) { game.e += this.amt; game.floatNum(window.innerWidth / 2, 170, this.amt); sound.play('bubble'); this.amt = 0; }
+                if (this.amt > 0) { game.e += this.amt; game.te += this.amt; game.floatNum(window.innerWidth / 2, 170, this.amt); sound.play('bubble'); this.amt = 0; }
                 const md = document.getElementById('offline-modal'); if (md) md.classList.remove('open');
             },
             // Modal "x2" button: tries the rewarded ad (doubles offline.amt via claimReward)
@@ -2856,8 +3642,10 @@
         //                    on a COMPLETED ad applies the effect and records the use.
         //
         // BUILD selects platform behaviour and is also read by the achievements layer.
-        // Set it at packaging time: 'web' | 'playables' | 'steam' | 'android' | 'ios'.
-        const BUILD = 'web';
+        // It is DERIVED from the single BUILD_TARGET switch declared at the top of
+        // <body> (the one place to set per-platform builds). Falls back to 'web' so
+        // the web build is byte-for-byte unchanged if that block somehow didn't run.
+        const BUILD = (typeof window !== 'undefined' && window.BUILD_TARGET) || 'web';
 
         // --- Provider adapter: simulated ad (web / local / testing fallback) ---
         // Shows a short non-skippable overlay with a countdown, then rewards. Available
@@ -2995,7 +3783,7 @@
             brew2:    { labelKey:'reward_brew2', descKey:'reward_brew2_d', icon:'🍲', cd:600,  daily:5, apply() { game.addBuff('cps', 2, 300, 'reward_brew2'); } },
             // Instant Pot: lump scaled to current production (~5 min of earnings) so it stays
             // fair early and late instead of a flat trivial amount.
-            instapot: { labelKey:'reward_instapot', descKey:'reward_instapot_d', icon:'⚡', cd:900, daily:4, apply() { const g = game.getCps() * 300; game.e += g; game.floatNum(window.innerWidth / 2, 170, g); } },
+            instapot: { labelKey:'reward_instapot', descKey:'reward_instapot_d', icon:'⚡', cd:900, daily:4, apply() { const g = game.getCps() * 300; game.e += g; game.te += g; game.floatNum(window.innerWidth / 2, 170, g); } },
             // Lucky Drop: a free charm drop honouring the existing rarity odds.
             lucky:    { labelKey:'reward_lucky', descKey:'reward_lucky_d', icon:'🎴', cd:1800, daily:2, apply() { try { collection.grant(collection.rollRarity()); } catch (e) {} } },
             // Used by the offline modal "x2" button: doubles pending offline earnings.
@@ -3163,7 +3951,7 @@
                 const roll = Math.floor(Math.random() * 3);
                 if (roll === 0) { game.addBuff('click', 7, 15, 'buff_frenzy'); gx.toast(t('buff_frenzy_toast')); }
                 else if (roll === 1) { game.addBuff('cps', 3, 30, 'buff_boil'); gx.toast(t('buff_boil_toast')); }
-                else { const g = game.getCps() * 30; game.e += g; game.floatNum(cx, cy, g); gx.toast(t('buff_rain_toast', {eb: Math.floor(g).toLocaleString()})); }
+                else { const g = game.getCps() * 30; game.e += g; game.te += g; game.floatNum(cx, cy, g); gx.toast(t('buff_rain_toast', {eb: Math.floor(g).toLocaleString()})); }
                 this.despawn();
             }
         };
@@ -3183,7 +3971,7 @@
                 if (game.ach[k]) return;
                 const d = this.defs.find(x => x.k === k); if (!d) return;
                 game.ach[k] = true;
-                if (d.reward) game.e += d.reward;
+                if (d.reward) { game.e += d.reward; game.te += d.reward; }
                 gx.toast(t('ach_toast', {n: t('ach_' + k + '_n')}));
                 sound.play('prestige');
                 // Adaptador agnóstico: desbloqueo real en Steam cuando exista el wrapper.
@@ -3229,7 +4017,7 @@
                 const m = game.daily && game.daily.missions[i]; if (!m || !m.done || m.claimed) return;
                 m.claimed = true;
                 if (m.shard) { game.as++; gx.toast(t('quest_shard_toast')); }
-                else { game.e += m.reward; game.floatNum(window.innerWidth / 2, 180, m.reward); }
+                else { game.e += m.reward; game.te += m.reward; game.floatNum(window.innerWidth / 2, 180, m.reward); }
                 sound.play('buy'); game.save(); this.render(); this.updateBadge();
             },
             updateBadge() {
@@ -3294,8 +4082,159 @@
             play() {
                 const ov = document.getElementById('home-overlay'); if (!ov) return;
                 try { sound.unlock(); } catch (e) {}
-                ov.classList.add('closing');
-                setTimeout(() => { ov.style.display = 'none'; }, 600);
+                const enter = () => {
+                    ov.classList.add('closing');
+                    setTimeout(() => { ov.style.display = 'none'; try { tutorial.maybeStart(); } catch (e) {} }, 600);
+                };
+                try { nameGate.ensure(enter); } catch (e) { enter(); }
+            }
+        };
+        // === ONBOARDING DE PRIMERA SESIÓN (guía de 3 pasos, saltable, SOLO la 1ª vez) ===
+        // No bloquea el juego: el "spotlight" usa pointer-events:none y un box-shadow gigante
+        // para oscurecer todo menos el objetivo; el jugador puede interactuar con el objetivo
+        // resaltado en todo momento. El flag de completado vive en localStorage (independiente
+        // del save firmado) para que nunca se repita. Todo va envuelto en try/catch.
+        const tutorial = {
+            KEY: 'soup_tutorial_done_v1',
+            REWARD: 25, // TUNABLE: pequeño empujón de EB al terminar la guía (no al saltarla).
+            active: false,
+            step: 0,
+            _root: null, _spot: null, _tip: null, _title: null, _body: null, _stepLbl: null, _nextBtn: null, _skipBtn: null, _onResize: null,
+            steps: [
+                { target: '#sticky-center', titleKey: 'tut_s1_title', bodyKey: 'tut_s1_body', advance: 'stir', pad: 24, round: '50%' },
+                { target: '#companion-list .companion-card', fallback: '#side-shop', titleKey: 'tut_s2_title', bodyKey: 'tut_s2_body', advance: 'buy', pad: 10, round: '14px' },
+                { target: '#altar-panel', titleKey: 'tut_s3_title', bodyKey: 'tut_s3_body', advance: 'next', pad: 12, round: '18px' }
+            ],
+            isDone() { try { return localStorage.getItem(this.KEY) === '1'; } catch (e) { return true; } },
+            markDone() { try { localStorage.setItem(this.KEY, '1'); } catch (e) {} },
+            maybeStart() {
+                try {
+                    if (this.active || this.isDone()) return;
+                    // Solo jugadores realmente nuevos. Saves con progreso previo (anteriores a
+                    // esta función) se marcan como hechos en silencio para no molestar.
+                    const fresh = game._inited && game.s === 0 && game.te < 50 && game.cp.every(c => c.lv === 0);
+                    if (!fresh) { this.markDone(); return; }
+                    this.start();
+                } catch (e) {}
+            },
+            start() {
+                try {
+                    if (this.active) return;
+                    this.build();
+                    this.active = true;
+                    this.step = 0;
+                    this._onResize = () => { if (this.active) this.render(); };
+                    window.addEventListener('resize', this._onResize);
+                    this.render();
+                } catch (e) { this.cleanup(); }
+            },
+            build() {
+                if (this._root) return;
+                const root = document.createElement('div');
+                root.id = 'tut-root';
+                root.style.cssText = 'position:fixed; inset:0; z-index:70000; pointer-events:none;';
+                const spot = document.createElement('div');
+                spot.id = 'tut-spot';
+                spot.style.cssText = 'position:fixed; pointer-events:none; border:2px solid var(--go); border-radius:16px; box-shadow:0 0 0 9999px rgba(2,6,23,0.78), 0 0 24px var(--go); transition:all 0.35s ease; display:none;';
+                const tip = document.createElement('div');
+                tip.id = 'tut-tip';
+                tip.style.cssText = 'position:fixed; pointer-events:auto; max-width:90vw; background:var(--glass-strong); border:1px solid var(--glass-bd); border-radius:16px; padding:16px 18px; box-shadow:0 10px 40px rgba(0,0,0,0.6); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px); color:#fff; transition:left 0.3s ease, top 0.3s ease;';
+                const stepLbl = document.createElement('div');
+                stepLbl.style.cssText = 'font-size:0.62rem; letter-spacing:2px; text-transform:uppercase; color:var(--go); font-weight:bold; margin-bottom:6px;';
+                const title = document.createElement('div');
+                title.style.cssText = 'font-size:1.05rem; font-weight:bold; color:var(--go); margin-bottom:6px; text-shadow:0 1px 3px rgba(0,0,0,0.7);';
+                const body = document.createElement('div');
+                body.style.cssText = 'font-size:0.85rem; line-height:1.45; color:#e2e8f0; margin-bottom:14px;';
+                const row = document.createElement('div');
+                row.style.cssText = 'display:flex; gap:10px; justify-content:space-between; align-items:center;';
+                const skipBtn = document.createElement('button');
+                skipBtn.type = 'button';
+                skipBtn.style.cssText = 'background:none; border:none; color:#94a3b8; font-size:0.78rem; cursor:pointer; padding:10px 4px; min-height:44px; text-decoration:underline;';
+                skipBtn.onclick = () => this.skip();
+                const nextBtn = document.createElement('button');
+                nextBtn.type = 'button';
+                nextBtn.className = 'gx-btn sm';
+                nextBtn.style.cssText = 'min-height:44px; padding:0 22px;';
+                nextBtn.onclick = () => this.next();
+                row.appendChild(skipBtn); row.appendChild(nextBtn);
+                tip.appendChild(stepLbl); tip.appendChild(title); tip.appendChild(body); tip.appendChild(row);
+                root.appendChild(spot); root.appendChild(tip);
+                document.body.appendChild(root);
+                this._root = root; this._spot = spot; this._tip = tip; this._title = title; this._body = body; this._stepLbl = stepLbl; this._nextBtn = nextBtn; this._skipBtn = skipBtn;
+            },
+            render() {
+                try {
+                    const s = this.steps[this.step]; if (!s || !this._tip) return;
+                    const vw = window.innerWidth, vh = window.innerHeight;
+                    let el = document.querySelector(s.target);
+                    if ((!el || el.getBoundingClientRect().width <= 0) && s.fallback) el = document.querySelector(s.fallback);
+                    const r = el ? el.getBoundingClientRect() : null;
+                    const spot = this._spot;
+                    if (r && r.width > 0 && r.height > 0) {
+                        const pad = s.pad || 12;
+                        const x = Math.max(2, r.left - pad), y = Math.max(2, r.top - pad);
+                        const w = Math.min(vw - 4, r.width + pad * 2), h = Math.min(vh - 4, r.height + pad * 2);
+                        spot.style.display = 'block';
+                        spot.style.left = x + 'px'; spot.style.top = y + 'px';
+                        spot.style.width = w + 'px'; spot.style.height = h + 'px';
+                        spot.style.borderRadius = s.round || '16px';
+                    } else { spot.style.display = 'none'; }
+                    this._stepLbl.textContent = (this.step + 1) + ' / ' + this.steps.length;
+                    this._title.textContent = t(s.titleKey);
+                    this._body.textContent = t(s.bodyKey);
+                    const last = this.step === this.steps.length - 1;
+                    this._nextBtn.textContent = last ? t('tut_finish') : t('tut_next');
+                    this._skipBtn.textContent = t('tut_skip');
+                    const tipW = Math.min(340, vw - 24);
+                    this._tip.style.width = tipW + 'px';
+                    const th = this._tip.offsetHeight || 170;
+                    let tx, ty;
+                    if (r && r.width > 0 && (r.bottom + 18 + th < vh || r.top - 18 - th > 0 || r.height < vh * 0.7)) {
+                        tx = r.left + r.width / 2 - tipW / 2;
+                        if (r.bottom + 18 + th < vh) ty = r.bottom + 18;
+                        else if (r.top - 18 - th > 0) ty = r.top - 18 - th;
+                        else ty = (vh - th) / 2;
+                    } else { tx = (vw - tipW) / 2; ty = (vh - th) / 2; }
+                    tx = Math.max(12, Math.min(tx, vw - tipW - 12));
+                    ty = Math.max(12, Math.min(ty, vh - th - 12));
+                    this._tip.style.left = tx + 'px';
+                    this._tip.style.top = ty + 'px';
+                } catch (e) { this.cleanup(); }
+            },
+            // Llamado por game.click ('stir') y game.buy ('buy') para avanzar al actuar.
+            notify(kind) {
+                try {
+                    if (!this.active) return;
+                    const s = this.steps[this.step];
+                    if (s && s.advance === kind) this.next();
+                } catch (e) {}
+            },
+            next() {
+                try {
+                    if (!this.active) return;
+                    if (this.step >= this.steps.length - 1) { this.finish(true); return; }
+                    this.step++;
+                    this.render();
+                } catch (e) { this.cleanup(); }
+            },
+            skip() { this.finish(false); },
+            finish(reward) {
+                try {
+                    if (reward && this.REWARD > 0 && typeof game !== 'undefined') {
+                        game.e += this.REWARD; game.te += this.REWARD;
+                        try { gx.toast(t('tut_reward_toast', {eb: this.REWARD.toLocaleString()})); } catch (e) {}
+                        try { game.save(); } catch (e) {}
+                    }
+                } catch (e) {}
+                this.markDone();
+                this.cleanup();
+            },
+            cleanup() {
+                this.active = false;
+                try { if (this._onResize) window.removeEventListener('resize', this._onResize); } catch (e) {}
+                this._onResize = null;
+                try { if (this._root && this._root.parentNode) this._root.parentNode.removeChild(this._root); } catch (e) {}
+                this._root = this._spot = this._tip = this._title = this._body = this._stepLbl = this._nextBtn = this._skipBtn = null;
             }
         };
         // === AJUSTE DE CALIDAD (Tarea 2) ===
@@ -3468,6 +4407,66 @@
             equippedIn(slotKey) { const c = game.coll; return (c && c.equips && c.equips[slotKey]) ? c.equips[slotKey] : null; },
             // A skin id is "equipped" iff it's the current skin for its own slot.
             isEquipped(id) { const slot = this.slotOfId(id); return !!slot && this.equippedIn(slot) === id; },
+            // === PER-SKIN PLACEMENT MODEL (PERMANENT) ===
+            // Each spoon/hat skin's art is framed at a different scale/offset, so each id
+            // gets its OWN placement { x, y, scale, rot } applied to the equipped sprite:
+            //   x,y   -> px offset from the sprite's CSS anchor (right+, down+)
+            //   scale -> multiplier on the sprite's base CSS size
+            //   rot   -> absolute rotation in degrees (spoon stir oscillates around it)
+            // Effective placement = override[id] (localStorage) || default[id] || family fallback.
+            // These baked defaults apply to ALL players; the localStorage layer lets the
+            // owner (or the temp calibration tool below) fine-tune without code changes.
+            PLACE_KEY: 'soup_skin_placement',
+            PLACE_FALLBACK: { spoon: { x: 95, y: -135, scale: 0.66, rot: -28 }, hat: { x: 0, y: -55, scale: 1.5, rot: 0 } },
+            PLACE_DEFAULTS: {
+                // Spoons: calibrated in-game with the creator placement tool (held in the chef's hand).
+                spoon_common_wood:     { x: 117, y: 78, scale: 1.1,  rot: -24 },
+                spoon_uncommon_carved: { x: 117, y: 72, scale: 1.14, rot: -16 },
+                spoon_rare_steel:      { x: 111, y: 46, scale: 1,    rot: -14 },
+                spoon_epic_gold:       { x: 116, y: 59, scale: 1,    rot: -17 },
+                spoon_legendary_royal: { x: 103, y: 65, scale: 1.02, rot: -19 },
+                spoon_superleg_iced:   { x: 133, y: 47, scale: 1.34, rot: 32 },
+                // Hats: calibrated in-game with the creator placement tool (sit on the bald skull).
+                chefhat_common_white:    { x: -225, y: -249, scale: 1.54, rot: -39 },
+                chefhat_uncommon_band:   { x: -214, y: -232, scale: 1.56, rot: -39 },
+                chefhat_rare_skullprint: { x: -196, y: -219, scale: 1.36, rot: -39 },
+                chefhat_epic_goldemblem: { x: -209, y: -234, scale: 1.5,  rot: -39 },
+                chefhat_legendary_royal: { x: -203, y: -223, scale: 1.56, rot: -39 },
+                chefhat_superleg_iced:   { x: -229, y: -247, scale: 1.78, rot: -39 }
+            },
+            _placeCache: null,
+            placeOverrides() {
+                if (this._placeCache) return this._placeCache;
+                let o = {};
+                try { const raw = localStorage.getItem(this.PLACE_KEY); if (raw) { const p = JSON.parse(raw); if (p && typeof p === 'object') o = p; } } catch (e) {}
+                this._placeCache = o; return o;
+            },
+            // Effective placement for a skin id, normalized to {x,y,scale,rot}.
+            placementFor(id) {
+                const skin = this.skinById(id);
+                const fam = skin ? (skin.family === 'chefhat' ? 'hat' : skin.family) : null;
+                const base = this.PLACE_DEFAULTS[id] || (fam && this.PLACE_FALLBACK[fam]) || { x: 0, y: 0, scale: 1, rot: 0 };
+                const ov = this.placeOverrides()[id];
+                return Object.assign({ x: 0, y: 0, scale: 1, rot: 0 }, base, ov || {});
+            },
+            // Build a CSS transform from a placement; baseRot lets the caller add a stir offset.
+            placementCss(p, rotAdd) {
+                const r = (p.rot || 0) + (typeof rotAdd === 'number' ? rotAdd : 0);
+                return `translate(-50%, -50%) translate(${p.x || 0}px, ${p.y || 0}px) rotate(${r}deg) scale(${p.scale != null ? p.scale : 1})`;
+            },
+            // localStorage override writers (used by the temp calibration tool; harmless to keep).
+            setPlacement(id, obj) {
+                const o = this.placeOverrides();
+                o[id] = Object.assign({ x: 0, y: 0, scale: 1, rot: 0 }, this.placementFor(id), obj || {});
+                try { localStorage.setItem(this.PLACE_KEY, JSON.stringify(o)); } catch (e) {}
+                this._placeCache = o;
+            },
+            resetPlacement(id) {
+                const o = this.placeOverrides();
+                delete o[id];
+                try { localStorage.setItem(this.PLACE_KEY, JSON.stringify(o)); } catch (e) {}
+                this._placeCache = o;
+            },
             preload() { const self = this; try { setTimeout(function () { const cat = self.catalog(); for (let i = 0; i < cat.length; i++) { if (cat[i] && cat[i].img) self.img(cat[i].img); } }, 1500); } catch (e) {} },
             itemKey(it) { return String(it.id); },
             normalize() {
@@ -3509,6 +4508,23 @@
                 delete c.equipped;
                 c.equips = equips;
                 game.coll = c;
+                return c;
+            },
+            // Baseline ownership: every player owns the common white chef hat from the
+            // very start (new players AND existing saves). Idempotent + silent — no drop
+            // reveal overlay, no victory sound, and it is NOT auto-equipped (the chef
+            // stays bald until the player chooses). It also does NOT touch the daily drop
+            // counter, so it never affects collection drop pacing.
+            BASE_SKINS: ['chefhat_common_white'],
+            ensureBaseSkins() {
+                const c = this.normalize();
+                for (let i = 0; i < this.BASE_SKINS.length; i++) {
+                    const id = this.BASE_SKINS[i];
+                    if (c.items[id]) continue;
+                    const sk = this.skinById(id);
+                    if (!sk) continue;
+                    c.items[id] = { id, rarity: sk.rarity, count: 1 };
+                }
                 return c;
             },
             dayKey() { try { return new Date().toISOString().slice(0, 10); } catch (e) { return 'na'; } },
@@ -3592,10 +4608,13 @@
                     if (el) {
                         const sp = eq.spoon ? this.skinById(eq.spoon) : null;
                         if (sp && sp.img) {
-                            // Charm spoon: reuse the rig but with the tunable .charm-spoon
-                            // placement (CSS) so the ~square charm art sits under the hand.
+                            // Charm spoon: reuse the rig + .charm-spoon CSS base, then apply this
+                            // skin's OWN placement (translate/scale/rot). game._spoonPlace is also
+                            // read by game.loop() so the idle stir keeps this position.
                             el.src = sp.img;
                             if (rig) rig.classList.add('charm-spoon');
+                            game._spoonPlace = this.placementFor(eq.spoon);
+                            game._applySpoonRig();
                         } else {
                             // Default / sacred (album) spoon -> restore the standard rig.
                             if (rig) rig.classList.remove('charm-spoon');
@@ -3650,6 +4669,12 @@
                         }
                         hat.style.display = '';
                         hat.src = skin.img;
+                        // Per-skin placement on top of the #asset-chefhat CSS anchor (left/top).
+                        // NOTE: the base white chef hat is BAKED INTO chef.png (not a separate
+                        // element), so it cannot be hidden; this overlay is scaled/raised to
+                        // cover it as best as possible. A fully clean replace needs a hatless
+                        // chef sprite. The per-skin scale + calibration tool let the owner cover it.
+                        try { hat.style.transform = this.placementCss(this.placementFor(skin.id)); } catch (e) {}
                     } else if (hat) {
                         hat.style.display = 'none';
                     }
@@ -3972,9 +4997,13 @@
             // Leaderboard identity: ensures UUID + display name exist (own localStorage
             // key 'soup_lb_identity'; never touches the integrity-wrapped 'soup_p_v17').
             try { leaderboard.identity(); } catch (e) {}
-            /* ===== TEMP CREATOR GRANT — REMOVE BEFORE RELEASE ===== */
+            /* ===== TEMP CREATOR GRANT — CREATOR-ONLY, REMOVE BEFORE RELEASE =====
+               Now gated behind creator.isDev() (reads localStorage['__sc_creator']):
+               only the creator with creator mode ON gets all charms (for promo
+               videos). Normal players / beta testers get the genuine new-player
+               experience so tutorial + progression can be tested. One-time flag kept. */
             try {
-                if (!localStorage.getItem('__sc_grant_all_charms_v1')) {
+                if (typeof creator !== 'undefined' && creator.isDev && creator.isDev() && !localStorage.getItem('__sc_grant_all_charms_v1')) {
                     var __cc = collection.normalize();
                     (window.SKIN_CATALOG || []).forEach(function (s) {
                         if (s && s.id) __cc.items[s.id] = { id: s.id, rarity: s.rarity, count: (__cc.items[s.id] && __cc.items[s.id].count) || 1 };
@@ -3985,7 +5014,7 @@
                     console.log('[creator] all charms granted once');
                 }
             } catch (e) { console.warn('[creator] grant failed', e); }
-            /* ===== END TEMP CREATOR GRANT ===== */
+            /* ===== END TEMP CREATOR GRANT (creator-only) ===== */
             /* ===== TEMP CREATOR UNLOCK GESTURE — REMOVE BEFORE LAUNCH =====
                No-console toggle: 7 quick taps/clicks within ~3s on the home title
                flips the __sc_creator flag that creator.isDev() reads. Works with
@@ -3997,22 +5026,29 @@
                 if (__scTitle && !__scTitle.dataset.scGesture) {
                     __scTitle.dataset.scGesture = '1';
                     __scTitle.style.cursor = 'default';
+                    const __scToggleCreator = function () {
+                        let on = false;
+                        try { on = localStorage.getItem('__sc_creator') === '1'; } catch (e) {}
+                        try {
+                            if (on) localStorage.removeItem('__sc_creator');
+                            else localStorage.setItem('__sc_creator', '1');
+                        } catch (e) {}
+                        try { gx.toast(t(on ? 'creator_mode_off' : 'creator_mode_on')); } catch (e) {}
+                        // Live-refresh the Creator panel if it's open so tools appear/vanish at once.
+                        try { const md = document.getElementById('creator-modal'); if (md && md.classList.contains('open')) creator.render(); } catch (e) {}
+                    };
                     let __scTaps = [];
                     __scTitle.addEventListener('click', function () {
                         const now = Date.now();
                         __scTaps.push(now);
                         __scTaps = __scTaps.filter(ts => now - ts <= 3000);
-                        if (__scTaps.length >= 7) {
-                            __scTaps = [];
-                            let on = false;
-                            try { on = localStorage.getItem('__sc_creator') === '1'; } catch (e) {}
-                            try {
-                                if (on) localStorage.removeItem('__sc_creator');
-                                else localStorage.setItem('__sc_creator', '1');
-                            } catch (e) {}
-                            try { gx.toast(t(on ? 'creator_mode_off' : 'creator_mode_on')); } catch (e) {}
-                            // Live-refresh the Creator panel if it's open so tools appear/vanish at once.
-                            try { const md = document.getElementById('creator-modal'); if (md && md.classList.contains('open')) creator.render(); } catch (e) {}
+                        if (__scTaps.length >= 3) { __scTaps = []; __scToggleCreator(); }
+                    });
+                    // Easiest path (desktop): Ctrl+Shift+D toggles creator mode from anywhere.
+                    document.addEventListener('keydown', function (e) {
+                        if (e.ctrlKey && e.shiftKey && (e.key === 'D' || e.key === 'd')) {
+                            e.preventDefault();
+                            __scToggleCreator();
                         }
                     });
                 }

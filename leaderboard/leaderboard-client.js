@@ -99,16 +99,17 @@
   // Used by top() when not configured (offline/before backend exists).
   // ----------------------------------------------------------------------
   var SEED = [
-    { name: 'ChefSkully',     platform: 'youtube', score: 982134500, prestige: 42, prix_wins: 318 },
-    { name: 'SopaMaestra',    platform: 'android', score: 654200100, prestige: 37, prix_wins: 271 },
-    { name: 'BoneBroth_Boss', platform: 'steam',   score: 500120000, prestige: 31, prix_wins: 244 },
-    { name: 'CucharaDeOro',   platform: 'ios',     score: 312050000, prestige: 28, prix_wins: 190 },
-    { name: 'MidnightStew',   platform: 'web',     score: 188900000, prestige: 24, prix_wins: 165 },
-    { name: 'AngelitoChef',   platform: 'youtube', score: 120400000, prestige: 19, prix_wins: 132 },
-    { name: 'SkullSimmer',    platform: 'android', score: 85200000,  prestige: 15, prix_wins: 98 },
-    { name: 'CalderoFeliz',   platform: 'steam',   score: 44150000,  prestige: 11, prix_wins: 61 },
-    { name: 'TinyLadle',      platform: 'ios',     score: 12030000,  prestige: 7,  prix_wins: 29 },
-    { name: 'NewChef_Pia',    platform: 'web',     score: 2100000,   prestige: 3,  prix_wins: 8 }
+    { name: 'SmallcreekSkullchef', platform: 'web',     score: 12000000000, prestige: 6, prix_wins: 120 },
+    { name: 'ChefSkully',     platform: 'youtube', score: 4820000000, prestige: 5, prix_wins: 94 },
+    { name: 'SopaMaestra',    platform: 'android', score: 4150000000, prestige: 5, prix_wins: 88 },
+    { name: 'BoneBroth_Boss', platform: 'steam',   score: 920000000,  prestige: 4, prix_wins: 73 },
+    { name: 'CucharaDeOro',   platform: 'ios',     score: 610000000,  prestige: 4, prix_wins: 65 },
+    { name: 'MidnightStew',   platform: 'web',     score: 184000000,  prestige: 3, prix_wins: 52 },
+    { name: 'AngelitoChef',   platform: 'youtube', score: 121000000,  prestige: 3, prix_wins: 44 },
+    { name: 'SkullSimmer',    platform: 'android', score: 38500000,   prestige: 2, prix_wins: 31 },
+    { name: 'CalderoFeliz',   platform: 'steam',   score: 22000000,   prestige: 2, prix_wins: 24 },
+    { name: 'TinyLadle',      platform: 'ios',     score: 6400000,    prestige: 1, prix_wins: 12 },
+    { name: 'NewChef_Pia',    platform: 'web',     score: 2100000,    prestige: 1, prix_wins: 5 }
   ];
 
   var BOARD_COLUMN = { score: 'score', prestige: 'prestige', prix: 'prix_wins' };
@@ -180,13 +181,15 @@
             name: typeof d.name === 'string' ? d.name : randomChefName(),
             prixWins: Number.isFinite(d.prixWins) ? d.prixWins : 0,
             scoreHi: Number.isFinite(d.scoreHi) ? d.scoreHi : 0,
+            named: d.named === true,             // name confirmed server-side (unique)
+            provisional: d.provisional === true, // chosen offline, awaiting confirm
             v: SCHEMA
           };
           return _id;
         }
       } catch (e) {}
     }
-    _id = { uuid: uuidv4(), name: randomChefName(), prixWins: 0, scoreHi: 0, v: SCHEMA };
+    _id = { uuid: uuidv4(), name: randomChefName(), prixWins: 0, scoreHi: 0, named: false, provisional: false, v: SCHEMA };
     saveIdentity();
     return _id;
   }
@@ -268,6 +271,88 @@
       // light-touch push so the name shows up server-side
       this.submit({});
       return _id.name;
+    },
+
+    /** Has the player confirmed a real, unique name yet (not the default)? */
+    hasName: function () { if (!_id) loadIdentity(); return !!_id.named; },
+    /** A name was chosen offline but not yet confirmed against the server. */
+    isProvisional: function () { if (!_id) loadIdentity(); return !!_id.provisional && !_id.named; },
+
+    /**
+     * Live availability check for a candidate name. Resolves boolean.
+     * Locally-invalid names resolve false; when offline/unconfigured we can't
+     * verify uniqueness so we optimistically resolve true (claimName is the
+     * authority). Never throws.
+     */
+    checkName: function (raw) {
+      if (!_id) loadIdentity();
+      var clean = cleanName(raw);
+      if (!clean || /^chef$/i.test(clean)) return Promise.resolve(false);
+      if (!isConfigured()) return Promise.resolve(true);
+      var uuid = _id.uuid;
+      return ensureClient().then(function (client) {
+        if (!client) return true;
+        return client.rpc('is_name_available', { p_name: clean, p_id: uuid }).then(function (res) {
+          if (!res || res.error) return true; // unknown -> don't block typing
+          return res.data === true;
+        });
+      }).catch(function () { return true; });
+    },
+
+    /**
+     * Claim/confirm a unique display name. Resolves with the accepted name on
+     * success; rejects with 'INVALID' | 'NAME_TAKEN' | 'OFFLINE'. On OFFLINE the
+     * name is stored locally as PROVISIONAL so the player can keep playing and we
+     * re-claim later via reclaim().
+     */
+    claimName: function (raw) {
+      if (!_id) loadIdentity();
+      var clean = cleanName(raw);
+      if (!clean || /^chef$/i.test(clean)) return Promise.reject('INVALID');
+      if (!isConfigured()) {
+        _id.name = clean; _id.named = false; _id.provisional = true; saveIdentity();
+        return Promise.reject('OFFLINE');
+      }
+      return this._claimRemote(clean).catch(function (reason) {
+        if (reason === 'OFFLINE') {
+          _id.name = clean; _id.named = false; _id.provisional = true; saveIdentity();
+        }
+        throw reason;
+      });
+    },
+
+    /** Try to confirm a pending provisional name. Resolves 'ok'|'taken'|'invalid'|'offline'. */
+    reclaim: function () {
+      if (!_id) loadIdentity();
+      if (_id.named || !_id.provisional || !_id.name) return Promise.resolve('ok');
+      if (!isConfigured()) return Promise.resolve('offline');
+      return this._claimRemote(_id.name).then(function () { return 'ok'; }, function (reason) {
+        if (reason === 'NAME_TAKEN') return 'taken';
+        if (reason === 'INVALID') return 'invalid';
+        return 'offline';
+      });
+    },
+
+    _claimRemote: function (clean) {
+      var uuid = _id.uuid;
+      return ensureClient().then(function (client) {
+        if (!client) throw 'OFFLINE';
+        return client.rpc('claim_name', { p_id: uuid, p_name: clean }).then(function (res) {
+          if (res && res.error) {
+            var msg = (res.error.message || '') + '';
+            if (/NAME_TAKEN/i.test(msg)) throw 'NAME_TAKEN';
+            if (/INVALID/i.test(msg)) throw 'INVALID';
+            throw 'OFFLINE';
+          }
+          var row = res && res.data;
+          var nm = (row && row.display_name) ? row.display_name : clean;
+          _id.name = nm; _id.named = true; _id.provisional = false; saveIdentity();
+          return nm;
+        });
+      }).catch(function (reason) {
+        if (reason === 'NAME_TAKEN' || reason === 'INVALID' || reason === 'OFFLINE') throw reason;
+        throw 'OFFLINE';
+      });
     },
 
     /** Module-owned persistent Grand Prix win counter (see INTEGRATION NOTES). */
