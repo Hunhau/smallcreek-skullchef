@@ -336,6 +336,88 @@
             #score-box { font-size: 1.25rem; }
             #shard-box { font-size: 0.85rem; }
         }
+        /* ===================== MOBILE LANDSCAPE (phones) =====================
+           Goal: keep the chef + cauldron as a big, readable focal point and move
+           the shop / menus into collapsible slide-in panels that are LARGE and
+           legible when open. EVERYTHING below is gated behind touch + landscape +
+           short-height (and #m-launch/#m-scrim default to display:none), so the
+           desktop layout stays byte-for-byte unchanged. */
+        #m-launch { display: none; }
+        #m-scrim { display: none; }
+        @media (pointer: coarse) and (orientation: landscape) and (max-height: 600px) {
+            body { overflow: hidden; }
+            /* The scene is the star: main stage fills the width (shop is a slide-in now). */
+            #main-stage { flex-grow: 1; width: 100%; }
+            /* Compact HUD, honoring the notch */
+            #hud { gap: 10px; padding: 5px 14px; top: max(6px, env(safe-area-inset-top)); }
+            #score-box { font-size: 1.25rem; }
+            #shard-box { font-size: 0.85rem; }
+            #cps-tag { top: 46px; font-size: 0.8rem; }
+            /* Chronicle: small corner card so it never covers the cauldron */
+            #lore-scroll { top: max(8px, env(safe-area-inset-top)); left: max(8px, env(safe-area-inset-left)); width: min(200px, 38vw); padding: 8px 10px; max-height: 26vh; overflow: hidden; z-index: 6500; }
+            #lore-title { font-size: 0.68rem; }
+            #lore-text { font-size: 0.7rem; line-height: 1.3; }
+            /* Altar / prestige: shrink into the free top-right corner */
+            #altar-panel { right: max(6px, env(safe-area-inset-right)); top: 54px; transform: scale(0.58); transform-origin: top right; z-index: 6500; }
+            /* Keep the companion column clear of the HUD and launchers */
+            #companion-column { top: 90px; bottom: 92px; }
+
+            /* ---- SHOP: slide-in sheet from the right (big + readable) ---- */
+            #side-shop {
+                position: fixed; top: 0; right: 0;
+                height: 100vh; height: 100dvh;
+                width: min(440px, 84vw);
+                transform: translateX(102%); transition: transform 0.28s ease;
+                z-index: 9500; border-left: 1px solid var(--glass-bd-go);
+                box-shadow: -14px 0 44px rgba(0, 0, 0, 0.5);
+                padding: calc(env(safe-area-inset-top) + 16px) calc(env(safe-area-inset-right) + 16px) calc(env(safe-area-inset-bottom) + 16px) 16px;
+                font-size: 1rem;
+            }
+            #side-shop.m-open { transform: translateX(0); }
+            #side-shop h1 { font-size: 1.35rem; }
+
+            /* ---- MENU TRAY: slide-in from the left (large, >=48px rows) ---- */
+            #side-buttons {
+                position: fixed; top: 0; left: 0; bottom: auto;
+                height: 100vh; height: 100dvh;
+                width: min(320px, 78vw);
+                transform: translateX(-104%); transition: transform 0.28s ease;
+                z-index: 9500; gap: 10px; overflow-y: auto;
+                background: var(--glass-strong);
+                backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur);
+                border-right: 1px solid var(--glass-bd-go);
+                box-shadow: 14px 0 44px rgba(0, 0, 0, 0.5);
+                padding: calc(env(safe-area-inset-top) + 16px) 14px calc(env(safe-area-inset-bottom) + 16px) calc(env(safe-area-inset-left) + 14px);
+            }
+            #side-buttons.m-open { transform: translateX(0); }
+            #side-buttons .side-fab { font-size: 0.95rem; padding: 13px 16px; min-height: 48px; display: flex; align-items: center; justify-content: center; gap: 6px; }
+
+            /* ---- Launcher buttons that open the tray / shop ---- */
+            #m-launch { display: flex; position: fixed; left: max(10px, env(safe-area-inset-left)); bottom: max(10px, env(safe-area-inset-bottom)); z-index: 9000; gap: 10px; }
+            #m-launch button {
+                min-height: 48px; min-width: 52px; padding: 10px 16px;
+                background: var(--glass-strong);
+                backdrop-filter: var(--glass-blur-sm); -webkit-backdrop-filter: var(--glass-blur-sm);
+                border: 1px solid var(--glass-bd-go); border-radius: 14px;
+                color: #fff; font-size: 0.95rem; font-weight: bold; cursor: pointer;
+                text-transform: uppercase; letter-spacing: 0.5px;
+                text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+                touch-action: manipulation; -webkit-tap-highlight-color: transparent;
+                -webkit-user-select: none; user-select: none;
+            }
+            #m-launch button:active { filter: brightness(1.15); }
+            /* Scrim behind any open panel (tap to dismiss) */
+            #m-scrim { display: none; position: fixed; inset: 0; z-index: 9400; background: rgba(0, 0, 0, 0.45); }
+            #m-scrim.show { display: block; }
+
+            /* Keep the audio pill out of the launcher's way */
+            #audio-ctrl { bottom: max(10px, env(safe-area-inset-bottom)); right: max(10px, env(safe-area-inset-right)); padding: 6px 10px; }
+            #audio-vol { width: 64px; }
+        }
+        /* Grand Prix track: fit the viewport width on any touch device (lanes flex auto-fit). */
+        @media (pointer: coarse) {
+            #race-track { width: min(800px, 94vw); }
+        }
         /* === Ajustes in-game + menú de pausa + colección/logros (Tareas 2/5/6) === */
         .seg-group { display: inline-flex; gap: 4px; background: rgba(0,0,0,0.3); border-radius: 10px; padding: 4px; }
         .seg-btn { min-height: 36px; padding: 6px 12px; border-radius: 8px; border: 1px solid transparent; background: transparent; color: #fcd9a8; font-weight: 700; font-size: 0.82rem; cursor: pointer; transition: 0.15s; }
@@ -531,6 +613,12 @@
         <div class="side-fab" id="lang-fab" onclick="setLang(LANG==='en'?'es':'en')">🌐 EN</div>
     </div>
     <div id="live-badge" onclick="creator.goLive()" title="Live now!" data-i18n-title="creator_live_now"><span data-i18n="creator_live">🔴 LIVE</span></div>
+    <!-- Mobile-only launchers for the slide-in menu tray + shop (hidden on desktop via CSS). -->
+    <div id="m-launch">
+        <button id="m-menu-btn" type="button" onclick="mobileUI.toggleMenu()" aria-label="Menu" data-i18n-title="m_menu_title" title="Menu">☰</button>
+        <button id="m-shop-btn" type="button" onclick="mobileUI.toggleShop()" aria-label="Shop"><span data-i18n="m_shop_btn">🛒 Shop</span></button>
+    </div>
+    <div id="m-scrim" onclick="mobileUI.closeAll()"></div>
     <div id="offline-modal" class="gx-modal"><div class="gx-box"><h2 data-i18n="offline_title">Your soup kept cooking</h2><p id="offline-text" style="font-size:1rem; line-height:1.5"></p><div style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin-top:6px"><button class="gx-btn" style="min-height:44px; background:linear-gradient(135deg,#f59e0b,#b45309); border-color:var(--go)" id="offline-double-btn" onclick="offline.double()" data-i18n="offline_double">x2 (Free reward)</button><button class="gx-btn" style="min-height:44px" onclick="offline.claim()" data-i18n="claim">Claim</button></div></div></div>
     <div id="import-modal" class="gx-modal"><div class="gx-box">
         <h2 data-i18n="backup_import_title">📥 Import Backup</h2>
@@ -1228,6 +1316,7 @@
                 place_hud_help:"Arrows ±1px · Shift+Arrows ±10px · +/- size · [ ] rotate · Tab swap",
                 place_tool_step:"Step size (x1 / x10)", place_tt_move:"Move", place_tt_bigger:"Bigger", place_tt_smaller:"Smaller",
                 place_tt_rotate_l:"Rotate left", place_tt_rotate_r:"Rotate right", place_tt_target:"Switch target (spoon / hat)", place_tt_close:"Close tool",
+                m_menu_title:"Menu", m_shop_btn:"🛒 Shop",
                 /* ===== TEMP CREATOR UNLOCK GESTURE i18n — REMOVE BEFORE LAUNCH ===== */
                 creator_mode_on:"Creator mode ON", creator_mode_off:"Creator mode OFF"
                 /* ===== END ===== */
@@ -1322,6 +1411,7 @@
                 place_hud_help:"Flechas ±1px · Mayús+Flechas ±10px · +/- tamaño · [ ] rotar · Tab cambia",
                 place_tool_step:"Tamaño de paso (x1 / x10)", place_tt_move:"Mover", place_tt_bigger:"Más grande", place_tt_smaller:"Más pequeño",
                 place_tt_rotate_l:"Girar a la izquierda", place_tt_rotate_r:"Girar a la derecha", place_tt_target:"Cambiar objetivo (cuchara / gorro)", place_tt_close:"Cerrar herramienta",
+                m_menu_title:"Menú", m_shop_btn:"🛒 Tienda",
                 /* ===== TEMP CREATOR UNLOCK GESTURE i18n — REMOVE BEFORE LAUNCH ===== */
                 creator_mode_on:"Modo creador ACTIVADO", creator_mode_off:"Modo creador DESACTIVADO"
                 /* ===== END ===== */
@@ -2611,7 +2701,7 @@
             slot(c) {
                 let s = document.getElementById(`slot-${c.id}`);
                 if (!s) { s = document.createElement('div'); s.id = `slot-${c.id}`; s.className = 'companion-slot'; document.getElementById('companion-column').appendChild(s); }
-                s.innerHTML = `<img src="${c.im}" class="slot-img"><div class="lv-badge">${t('lv')} ${c.lv}</div>${c.ch>0?`<div class="slot-crown">👑<span style="font-size:0.55em;vertical-align:super;">×${game.champMult(c.ch)}</span></div>`:''}`; return s;
+                s.innerHTML = `<img src="${c.im}" class="slot-img"><div class="lv-badge">${t('lv')} ${c.lv}</div>${c.ch>0?`<div class="slot-crown">👑</div>`:''}`; return s;
             },
             logic() {
                 this.c = this.getCps();
@@ -5012,6 +5102,68 @@
                 }).join('');
             }
         };
+        // ===== MOBILE LANDSCAPE UI (phones only) =====
+        // Scales the chef/cauldron scene so it stays a big, readable focal point and
+        // drives the slide-in shop + menu tray. Fully defensive: on desktop isPhone()
+        // is false, so fitScene() clears any inline transform and nothing else runs —
+        // the desktop layout is left untouched.
+        const mobileUI = {
+            isPhone() {
+                try { return window.matchMedia('(pointer: coarse)').matches && Math.min(window.innerWidth, window.innerHeight) <= 600; }
+                catch (e) { return false; }
+            },
+            _toggle(id) {
+                try {
+                    const el = document.getElementById(id);
+                    if (!el) return;
+                    const willOpen = !el.classList.contains('m-open');
+                    this.closeAll();
+                    if (willOpen) {
+                        el.classList.add('m-open');
+                        const s = document.getElementById('m-scrim'); if (s) s.classList.add('show');
+                    }
+                } catch (e) {}
+            },
+            toggleMenu() { this._toggle('side-buttons'); },
+            toggleShop() { this._toggle('side-shop'); },
+            closeAll() {
+                try {
+                    ['side-buttons', 'side-shop'].forEach(id => { const el = document.getElementById(id); if (el) el.classList.remove('m-open'); });
+                    const s = document.getElementById('m-scrim'); if (s) s.classList.remove('show');
+                } catch (e) {}
+            },
+            // Uniformly scales the whole chef/cauldron art group (#sticky-center) to fit
+            // the live #main-stage box. DW/DH approximate the art's natural bounding box
+            // (chef hat top -> cauldron legs); tweak if the focal point needs resizing.
+            fitScene() {
+                try {
+                    const sc = document.getElementById('sticky-center');
+                    if (!sc) return;
+                    if (!this.isPhone()) { sc.style.transform = ''; return; }
+                    const stage = document.getElementById('main-stage');
+                    if (!stage) return;
+                    const r = stage.getBoundingClientRect();
+                    if (!r.width || !r.height) return;
+                    const DW = 1350, DH = 1050;
+                    let s = Math.min((r.width * 0.96) / DW, (r.height * 0.94) / DH);
+                    if (!isFinite(s) || s <= 0) return;
+                    s = Math.max(0.18, Math.min(s, 1));
+                    sc.style.transform = 'translate(-50%, -50%) scale(' + s + ')';
+                } catch (e) {}
+            },
+            init() {
+                try {
+                    const run = () => this.fitScene();
+                    window.addEventListener('resize', run);
+                    window.addEventListener('load', run);
+                    window.addEventListener('orientationchange', () => { setTimeout(run, 60); setTimeout(run, 280); });
+                    const tray = document.getElementById('side-buttons');
+                    if (tray) tray.addEventListener('click', (e) => { try { if (e.target && e.target.closest && e.target.closest('.side-fab')) this.closeAll(); } catch (er) {} });
+                    run();
+                    setTimeout(run, 300);
+                } catch (e) {}
+            }
+        };
         // The portrait rotate hint is a soft suggestion, not a hard block. Tapping
         // "Continue anyway" hides it and remembers the choice so it stays hidden on reload.
         const ROTATE_DISMISS_KEY = 'soup_rotate_dismissed_v1';
@@ -5107,6 +5259,7 @@
             try { ambient.init(); } catch (e) {}
             try { music.init(); } catch (e) {}
             try { creator.render(); creator.syncLive(); creator.startLivePolling(); } catch (e) {}
+            try { mobileUI.init(); } catch (e) {}
             // Juego inicializado y jugable. Fuera de Playables es no-op silencioso.
             ytPlayables.gameReady();
         }
