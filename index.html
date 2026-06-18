@@ -360,21 +360,22 @@
             body { overflow: hidden; }
             /* The scene is the star: main stage fills the width (shop is a slide-in now). */
             #main-stage { flex-grow: 1; width: 100%; }
-            /* Compact, centered energy counter. The verbose "Energy Balls:" / "Angel Shards:"
-               labels are hidden and replaced by short tags (EB / ⬨) so the pill stays small,
-               and max-width keeps it from ever spilling past the edges or reaching the
-               chronicle on the left. */
-            #hud { gap: 8px; padding: 4px 12px; top: max(6px, env(safe-area-inset-top)); max-width: min(260px, calc(100vw - 340px)); overflow: hidden; }
-            #hud span[data-i18n] { display: none; }
-            #score-box { font-size: 0.95rem; white-space: nowrap; }
-            #score-box::before { content: "EB "; font-size: 0.6em; color: var(--ac); }
-            #shard-box { font-size: 0.78rem; white-space: nowrap; }
-            #shard-box::before { content: "⬨ "; color: var(--go); }
-            #cps-tag { top: 42px; font-size: 0.76rem; }
+            /* Clearly-labeled energy counter (centered): each stat is a small uppercase
+               label stacked over a big readable number, with a recognizable icon (🍲 energy
+               balls / ⬨ angel shards). max-width + overflow keep it on-screen; the labels
+               wrap instead of pushing the pill off either edge. */
+            #hud { gap: 16px; padding: 4px 14px; top: max(6px, env(safe-area-inset-top)); max-width: min(300px, calc(100vw - 300px)); overflow: hidden; align-items: flex-start; }
+            #score-box, #shard-box { display: inline-flex; flex-direction: column; align-items: center; line-height: 1.05; }
+            #score-box { font-size: 1.15rem; }
+            #shard-box { font-size: 1.05rem; }
+            #hud span[data-i18n] { display: block; max-width: 90px; font-size: 0.56rem; font-weight: 700; letter-spacing: 0.2px; opacity: 0.85; white-space: normal; text-align: center; line-height: 1.08; }
+            #score-box span[data-i18n]::before { content: "🍲 "; }
+            #shard-box span[data-i18n]::before { content: "⬨ "; color: var(--go); }
+            #cps-tag { top: calc(env(safe-area-inset-top) + 50px); font-size: 0.74rem; }
             /* Chronicle: compact card on the LEFT, at the SAME top as the counter (beside it),
                with a firm max-height + internal scroll so growing text can NEVER expand down
                into the owned-helpers chip/column. */
-            #lore-scroll { top: calc(env(safe-area-inset-top) + 6px); left: max(8px, env(safe-area-inset-left)); width: min(150px, 34vw); padding: 6px 8px; max-height: 54px; overflow-y: auto; overflow-x: hidden; z-index: 6500; }
+            #lore-scroll { top: calc(env(safe-area-inset-top) + 6px); left: max(8px, env(safe-area-inset-left)); width: min(132px, 30vw); padding: 6px 8px; max-height: 56px; overflow-y: auto; overflow-x: hidden; z-index: 6500; }
             #lore-title { font-size: 0.62rem; }
             #lore-text { font-size: 0.64rem; line-height: 1.22; }
             /* Altar / prestige: free top-right corner (below the HUD line) */
@@ -489,25 +490,27 @@
         @media (pointer: coarse) and (orientation: portrait) and (max-width: 600px) {
             body { overflow: hidden; }
             #main-stage { flex-grow: 1; width: 100%; }
-            /* Compact energy counter, RIGHT-anchored: the verbose "Energy Balls:" / "Angel
-               Shards:" labels are hidden and replaced by short tags (EB / ⬨), and max-width
-               keeps it from ever spilling off either screen edge on narrow phones. The
-               chronicle sits at the SAME top on the LEFT (beside it), freeing the space below. */
-            #hud { left: auto; right: max(8px, env(safe-area-inset-right)); transform: none; gap: 8px; padding: 4px 12px; top: calc(env(safe-area-inset-top) + 8px); max-width: calc(100vw - 132px); overflow: hidden; }
-            #hud span[data-i18n] { display: none; }
-            #score-box { font-size: 1.0rem; white-space: nowrap; }
-            #score-box::before { content: "EB "; font-size: 0.62em; color: var(--ac); }
-            #shard-box { font-size: 0.8rem; white-space: nowrap; }
-            #shard-box::before { content: "⬨ "; color: var(--go); }
-            #cps-tag { top: calc(env(safe-area-inset-top) + 50px); left: auto; right: max(10px, env(safe-area-inset-right)); transform: none; font-size: 0.78rem; }
+            /* Clearly-labeled energy counter, RIGHT-anchored: each stat is a small uppercase
+               label (with a recognizable icon — 🍲 energy balls / ⬨ angel shards) stacked
+               over a big readable number. Labels wrap rather than push the pill off-screen;
+               max-width + overflow keep it on-screen even with large numbers. The chronicle
+               sits at the SAME top on the LEFT (beside it), freeing the space below. */
+            #hud { left: auto; right: max(8px, env(safe-area-inset-right)); transform: none; gap: 14px; padding: 4px 12px; top: calc(env(safe-area-inset-top) + 8px); max-width: calc(100vw - 120px); overflow: hidden; align-items: flex-start; }
+            #score-box, #shard-box { display: inline-flex; flex-direction: column; align-items: center; line-height: 1.05; white-space: nowrap; }
+            #score-box { font-size: 1.15rem; }
+            #shard-box { font-size: 1.0rem; }
+            #hud span[data-i18n] { display: block; max-width: 86px; font-size: 0.56rem; font-weight: 700; letter-spacing: 0.2px; opacity: 0.85; white-space: normal; text-align: center; line-height: 1.08; }
+            #score-box span[data-i18n]::before { content: "🍲 "; }
+            #shard-box span[data-i18n]::before { content: "⬨ "; color: var(--go); }
+            #cps-tag { top: calc(env(safe-area-inset-top) + 54px); left: auto; right: max(10px, env(safe-area-inset-right)); transform: none; font-size: 0.76rem; }
             /* Chronicle: compact card on the LEFT at the SAME top as the counter (beside it),
                with a firm max-height + internal scroll so growing story text can NEVER expand
                down into the owned-helpers chip / column. */
             #lore-scroll { top: calc(env(safe-area-inset-top) + 8px); left: max(8px, env(safe-area-inset-left)); width: min(104px, 28vw); padding: 6px 8px; max-height: 62px; overflow-y: auto; overflow-x: hidden; z-index: 6500; }
             #lore-title { font-size: 0.6rem; }
             #lore-text { font-size: 0.62rem; line-height: 1.2; }
-            /* Altar / prestige: top-RIGHT, below the counter */
-            #altar-panel { right: max(6px, env(safe-area-inset-right)); top: calc(env(safe-area-inset-top) + 70px); transform: scale(0.56); transform-origin: top right; z-index: 6500; }
+            /* Altar / prestige: top-RIGHT, below the counter + CPS line */
+            #altar-panel { right: max(6px, env(safe-area-inset-right)); top: calc(env(safe-area-inset-top) + 80px); transform: scale(0.56); transform-origin: top right; z-index: 6500; }
 
             /* Owned-helpers: a single vertical column of up to 4, left side, below the chronicle */
             #helpers-toggle {
@@ -609,6 +612,14 @@
             #p-sel p { margin: 6px 0; }
             #p-end h2 { margin: 6px 0; }
             #btn-close-race { margin-top: 14px !important; padding: 12px 32px !important; }
+        }
+        /* Grand Prix title in PORTRAIT phones: keep it centered + symmetric. The base h1 has
+           an inline letter-spacing:4px that only adds trailing space on the RIGHT, so the
+           centered title looks shifted left — neutralize it (letter-spacing:normal) and make
+           it a full-width, centered, balanced-margin heading that wraps cleanly. Landscape
+           title + the track are untouched. */
+        @media (pointer: coarse) and (orientation: portrait) and (max-width: 600px) {
+            #race-modal > h1 { width: 100%; box-sizing: border-box; text-align: center; padding: 0 12px; margin: 8px 0; line-height: 1.25; font-size: 1.25rem; letter-spacing: normal !important; }
         }
         /* === Ajustes in-game + menú de pausa + colección/logros (Tareas 2/5/6) === */
         .seg-group { display: inline-flex; gap: 4px; background: rgba(0,0,0,0.3); border-radius: 10px; padding: 4px; }
@@ -1413,7 +1424,7 @@
         // build differs, reload ONCE with a cache-busting ?v= query. sessionStorage guards
         // against reload loops. Fully defensive: any error is silent and never blocks the
         // game. Parent bumps BOTH version.json and BUILD_V on every future deploy.
-        const BUILD_V = "build-6";
+        const BUILD_V = "build-7";
         (function checkForUpdate() {
             try {
                 fetch('version.json?ts=' + Date.now(), { cache: 'no-store' })
