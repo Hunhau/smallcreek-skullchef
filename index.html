@@ -191,6 +191,9 @@
         .gx-modal.open { display: flex; }
         /* First-run name modal must sit ABOVE the start-screen home overlay (z 200000). */
         #name-modal { z-index: 200001; }
+        /* Privacy-consent gate must sit ABOVE the home overlay AND the name modal,
+           otherwise on first visit PLAY appears to do nothing (modal hidden behind home). */
+        #privacy-consent-modal { z-index: 200002; }
         .gx-box { background: var(--glass-strong); backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur); border: 1px solid var(--glass-bd); border-radius: 18px; padding: 24px; max-width: 460px; width: 90%; box-shadow: 0 12px 48px rgba(0,0,0,0.5), 0 0 40px rgba(168,85,247,0.25); text-align: center; max-height: 84vh; overflow-y: auto; }
         .gx-box h2 { color: var(--go); text-shadow: 0 0 14px var(--go); margin: 0 0 12px; font-size: 1.5rem; }
         .gx-btn { background: linear-gradient(135deg, #7e22ce, #3b82f6); color: #fff; border: 2px solid #fff3; border-radius: 12px; padding: 10px 22px; font-weight: bold; cursor: pointer; font-size: 0.9rem; letter-spacing: 0.5px; transition: 0.2s; }
@@ -313,9 +316,13 @@
         @keyframes rotateHint { 0%, 100% { transform: rotate(-10deg); } 50% { transform: rotate(80deg); } }
         #rotate-title { margin: 0; font-size: clamp(1.5rem, 7vw, 2.2rem); font-weight: 800; color: var(--gold-soft); text-shadow: 0 2px 0 #7c2d12, 0 0 22px rgba(224,160,8,0.5); }
         #rotate-msg { margin: 0; max-width: 30ch; font-size: clamp(0.9rem, 4vw, 1.05rem); line-height: 1.5; color: #e7d3bd; opacity: 0.9; }
+        #rotate-continue { margin-top: 6px; background: linear-gradient(135deg, #7e22ce, #3b82f6); color: #fff; border: 2px solid #fff3; border-radius: 12px; padding: 12px 26px; font-weight: bold; cursor: pointer; font-size: 0.95rem; letter-spacing: 0.5px; min-height: 48px; transition: 0.2s; }
+        #rotate-continue:hover { filter: brightness(1.12); }
         /* Mostrar el aviso sólo en vertical + (pantalla estrecha O dispositivo táctil). */
         @media (orientation: portrait) and (max-width: 900px) { #rotate-overlay { display: flex; } }
         @media (orientation: portrait) and (hover: none) and (pointer: coarse) { #rotate-overlay { display: flex; } }
+        /* The rotate hint is a soft suggestion, never a hard block: once dismissed it stays hidden. */
+        #rotate-overlay.dismissed { display: none !important; }
         /* RESPONSIVE de bajo riesgo: evita desbordes en pantallas pequeñas (no rediseña). */
         @media (max-width: 820px) {
             #side-shop { width: clamp(220px, 36vw, 340px); padding: 14px; }
@@ -489,6 +496,7 @@
         <div id="rotate-icon">🔄</div>
         <h2 id="rotate-title" data-i18n="rotate_title">Rotate your device</h2>
         <p id="rotate-msg" data-i18n="rotate_msg">This game is best played in landscape. Turn your device sideways to keep cooking.</p>
+        <button id="rotate-continue" type="button" onclick="dismissRotateOverlay()" data-i18n="rotate_continue">Continue anyway</button>
     </div>
     <img id="angel-showcase" src="assets/img/angel.png" loading="lazy" decoding="async">
     <div id="prestige-overlay"><h1 data-i18n="soul_awakened" style="color:var(--go); font-size:4rem; text-shadow:0 0 30px var(--go);">[ SOUL AWAKENED ]</h1><p id="pres-lore" style="max-width:600px; text-align:center; font-size:1.4rem; line-height:1.6; margin:20px;"></p></div>
@@ -1172,7 +1180,7 @@
                 reward_watch:"Watch",
                 reward_cooldown:"in {time}", reward_daily_left:"{n}/{max} today", reward_granted:"Reward granted: {r} 🎁", ad_failed:"Ad not completed — no reward", offline_double:"x2 (Watch ad)",
                 reward_fab:"Watch ad", reward_brew2:"Double Brew", reward_brew2_d:"x2 production for 5 min", reward_instapot:"Instant Pot", reward_instapot_d:"Instant batch · ~5 min of earnings", reward_lucky:"Lucky Drop", reward_lucky_d:"A free charm drop", reward_daily_done:"Done for today", reward_later:"Come back later", reward_modal_title:"Watch an ad", reward_modal_sub:"Watch a short ad for a reward", ad_sim_label:"Advertisement", ad_sim_hint:"Your reward is on the way…", ad_unavailable:"Ads aren't available here",
-                rotate_title:"Rotate your device", rotate_msg:"Smallcreek Skullchef plays best in landscape. Turn your device sideways to keep cooking.",
+                rotate_title:"Rotate your device", rotate_msg:"Smallcreek Skullchef plays best in landscape. Turn your device sideways to keep cooking.", rotate_continue:"Continue anyway",
                 settings_title:"Settings", settings_quality:"Quality", quality_auto:"Auto", quality_high:"High", quality_low:"Low",
                 settings_fullscreen:"Fullscreen", fs_enter:"⛶ Enter", fs_exit:"⛶ Exit",
                 pause_btn:"☰ Menu", pause_title:"Paused", pause_resume:"▶ Resume", pause_settings:"⚙ Settings", pause_home:"🏠 Main Menu", pause_exit:"🚪 Exit", pause_back:"← Back",
@@ -1266,7 +1274,7 @@
                 reward_watch:"Ver",
                 reward_cooldown:"en {time}", reward_daily_left:"{n}/{max} hoy", reward_granted:"Recompensa concedida: {r} 🎁", ad_failed:"Anuncio no completado — sin recompensa", offline_double:"x2 (Ver anuncio)",
                 reward_fab:"Ver anuncio", reward_brew2:"Caldo Doble", reward_brew2_d:"x2 producción durante 5 min", reward_instapot:"Olla Instantánea", reward_instapot_d:"Lote instantáneo · ~5 min de ganancias", reward_lucky:"Golpe de Suerte", reward_lucky_d:"Un amuleto gratis", reward_daily_done:"Listo por hoy", reward_later:"Vuelve más tarde", reward_modal_title:"Mira un anuncio", reward_modal_sub:"Mira un anuncio corto por una recompensa", ad_sim_label:"Anuncio", ad_sim_hint:"Tu recompensa está en camino…", ad_unavailable:"Los anuncios no están disponibles aquí",
-                rotate_title:"Gira tu dispositivo", rotate_msg:"Smallcreek Skullchef se juega mejor en horizontal. Gira tu dispositivo para seguir cocinando.",
+                rotate_title:"Gira tu dispositivo", rotate_msg:"Smallcreek Skullchef se juega mejor en horizontal. Gira tu dispositivo para seguir cocinando.", rotate_continue:"Continuar igual",
                 settings_title:"Ajustes", settings_quality:"Calidad", quality_auto:"Auto", quality_high:"Alta", quality_low:"Baja",
                 settings_fullscreen:"Pantalla completa", fs_enter:"⛶ Activar", fs_exit:"⛶ Salir",
                 pause_btn:"☰ Menú", pause_title:"Pausa", pause_resume:"▶ Reanudar", pause_settings:"⚙ Ajustes", pause_home:"🏠 Menú principal", pause_exit:"🚪 Salir", pause_back:"← Volver",
@@ -4995,8 +5003,27 @@
                 }).join('');
             }
         };
+        // The portrait rotate hint is a soft suggestion, not a hard block. Tapping
+        // "Continue anyway" hides it and remembers the choice so it stays hidden on reload.
+        const ROTATE_DISMISS_KEY = 'soup_rotate_dismissed_v1';
+        function dismissRotateOverlay() {
+            try {
+                const ov = document.getElementById('rotate-overlay');
+                if (ov) { ov.classList.add('dismissed'); ov.style.display = 'none'; }
+                try { localStorage.setItem(ROTATE_DISMISS_KEY, '1'); } catch (e) {}
+            } catch (e) {}
+        }
+        function applyRotateDismissOnBoot() {
+            try {
+                if (localStorage.getItem(ROTATE_DISMISS_KEY) === '1') {
+                    const ov = document.getElementById('rotate-overlay');
+                    if (ov) { ov.classList.add('dismissed'); ov.style.display = 'none'; }
+                }
+            } catch (e) {}
+        }
         function boot() {
             try { const sl = localStorage.getItem('soup_lang'); if (sl === 'es' || sl === 'en') LANG = sl; } catch (e) {}
+            applyRotateDismissOnBoot();
             // Señal "primer frame": la home ya está en el HTML inicial, así que la enviamos
             // en cuanto el navegador pinta (doble rAF). Fuera de Playables es no-op silencioso.
             try { requestAnimationFrame(() => requestAnimationFrame(() => ytPlayables.firstFrameReady())); } catch (e) { ytPlayables.firstFrameReady(); }
