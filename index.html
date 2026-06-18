@@ -1424,7 +1424,7 @@
         // build differs, reload ONCE with a cache-busting ?v= query. sessionStorage guards
         // against reload loops. Fully defensive: any error is silent and never blocks the
         // game. Parent bumps BOTH version.json and BUILD_V on every future deploy.
-        const BUILD_V = "build-8";
+        const BUILD_V = "build-9";
         (function checkForUpdate() {
             try {
                 fetch('version.json?ts=' + Date.now(), { cache: 'no-store' })
@@ -2586,7 +2586,7 @@
             }
         };
         const game = {
-            e:0, te:0, l:0, s:0, c:0, p:false, f:0, cl:false, m:1, cd:0, buyMode:1, defaultSpoonImg:'assets/img/spoon.png', _inited:false, logicTick:null, uiTick:null, saveTick:null, _floatNodes:[], _spoonAnimating:false, _spoonUiKey:'', _steamIdleTick:0, _dispScore:0, _autoPartAcc:0, _wave:0, _ballWave:0, _ballSpeed:1, _lastClick:0, soupBalls:[], _rippleNodes:[], _ambientRippleTick:0, _soupRect:null, _surf:null,
+            e:0, te:0, l:0, s:0, c:0, p:false, f:0, cl:false, m:1, cd:0, buyMode:1, defaultSpoonImg:'assets/img/spoon.png', _inited:false, logicTick:null, uiTick:null, saveTick:null, _floatNodes:[], _spoonAnimating:false, _spoonUiKey:'', _steamIdleTick:0, _dispScore:0, _autoPartAcc:0, _wave:0, _ballWave:0, _ballSpeed:1, _lastClick:0, soupBalls:[], _rippleNodes:[], _ambientRippleTick:0, _soupRect:null, _surf:null, _stageRect:null, _spoonEl:null,
             as:0, lastSeen:0, _buffs:[], tree:{caldo:0, manos:0, eco:0, cuchara:0, tiempo:0, aura:0, fortuna:0}, daily:null, ach:{}, rewards:{}, coll:null, _tampered:false,
             treeDefs: [
                 {k:'caldo', mx:20, cb:1},
@@ -2648,12 +2648,12 @@
                     this._visBound = true;
                     document.addEventListener('visibilitychange', () => {
                         // Al volver de 2º plano, invalida rects cacheados y reanuda el rAF.
-                        if (!document.hidden && this._loopPaused) { this._loopPaused = false; this._soupRect = null; this._scoreTarget = null; this.loop(); }
+                        if (!document.hidden && this._loopPaused) { this._loopPaused = false; this._soupRect = null; this._stageRect = null; this._scoreTarget = null; this.loop(); }
                     });
                 }
                 this.loop();
             },
-            resize() { this.ctx.canvas.width = window.innerWidth; this.ctx.canvas.height = window.innerHeight; this._soupRect = null; this._scoreTarget = null; },
+            resize() { this.ctx.canvas.width = window.innerWidth; this.ctx.canvas.height = window.innerHeight; this._soupRect = null; this._stageRect = null; this._scoreTarget = null; },
             getSaveData() {
                 this.lastSeen = Date.now();
                 return {v:SCHEMA_VERSION, e:this.e, te:this.te, l:this.l, s:this.s, as:this.as, c:this.cp.map(x=>({lv:x.lv, ch:x.ch})), cd:this.cd, bm:this.buyMode, sp:this.spoons.map(s=>({o:s.owned, eq:s.equipped})), lastSeen:this.lastSeen, tree:this.tree, daily:this.daily, ach:this.ach, rewards:this.rewards, coll:this.coll};
@@ -3043,12 +3043,17 @@
                 gain *= this.milestoneMult(this.cp[1].lv) * this.treeClickMult() * this.treeAuraMult() * this.buffMult('click');
                 if (!Number.isFinite(gain) || gain <= 0) return;
                 this.cl = true; this.e += gain; this.te += gain; this._lastClick = performance.now();
+                // Keep the stir/soup audio loop alive FIRST, before any DOM work, so the
+                // audio call is never queued behind layout/paint on the main thread.
+                sound.stirPulse();
                 this.track('clicks', 1); this.track('eb', gain);
                 if (!game.ach.firstClick) ach.grant('firstClick');
+                // Spoon animation: cache the element ref (avoid re-querying twice per tap).
+                const spoon = this._spoonEl || (this._spoonEl = document.getElementById('asset-spoon'));
+                if (spoon) spoon.classList.add('manual-stir');
+                setTimeout(() => { if (spoon) spoon.classList.remove('manual-stir'); this.cl = false; }, 120);
+                // DOM writes only (no forced layout reads now that the stage rect is cached).
                 this.floatNum(ev.clientX, ev.clientY, gain);
-                sound.stirPulse();
-                document.getElementById('asset-spoon').classList.add('manual-stir');
-                setTimeout(() => { document.getElementById('asset-spoon').classList.remove('manual-stir'); this.cl = false; }, 120);
                 const o = this.soupPartOrigin();
                 this.part(o.x + (Math.random() - 0.5) * 40, o.y + (Math.random() - 0.5) * 20, 'energy');
                 this.spawnRipple(ev.clientX, ev.clientY);
@@ -3186,6 +3191,10 @@
                     const r = so ? so.getBoundingClientRect() : null;
                     this._soupRect = r;
                     this._surf = r ? { x: r.left + r.width * 0.52, y: r.top + r.height * 0.42, w: r.width, h: r.height } : null;
+                    // Cache the stage rect too (it doesn't move) so spawnRipple() never forces
+                    // a synchronous layout in the click path — the main cause of audio stutter.
+                    const stg = document.getElementById('main-stage');
+                    this._stageRect = stg ? stg.getBoundingClientRect() : null;
                 }
                 const sr = this._soupRect;
                 if (!this.p) { this._wave += 0.018; const tgt = (performance.now() - this._lastClick < 1500) ? 1.9 : 1; this._ballSpeed += (tgt - this._ballSpeed) * 0.04; this._ballWave += 0.012 * this._ballSpeed; }
@@ -3333,7 +3342,9 @@
                     if (norm > 1) { const kk = 1 / Math.sqrt(norm); dx *= kk; dy *= kk; }
                     px = ox + dx; py = oy + dy;
                 }
-                const st = stage.getBoundingClientRect();
+                // Use the cached stage rect to avoid forcing layout on every click (which
+                // janks the main thread and stutters the stir/soup audio loop on phones).
+                const st = this._stageRect || (this._stageRect = stage.getBoundingClientRect());
                 if (this._rippleNodes.length >= 7) { const old = this._rippleNodes.shift(); if (old && old.parentNode) old.remove(); }
                 const el = document.createElement('div');
                 el.className = 'liquid-ripple';
@@ -4641,7 +4652,13 @@
             },
             params: { maxParts: 80, partCap: 4, steamMax: 38, waveMul: 1 },
             // "Auto": heurístico simple por núcleos lógicos (sin sampleo costoso de FPS).
+            // En teléfonos (touch + pantalla pequeña) usamos 'low' para reducir el trabajo
+            // por frame del hilo principal y evitar que las partículas hagan tartamudear el
+            // audio del removido al tocar rápido. En escritorio el comportamiento no cambia.
             detectAuto() {
+                try {
+                    if (window.matchMedia && window.matchMedia('(pointer: coarse)').matches && Math.min(window.innerWidth, window.innerHeight) <= 600) return 'low';
+                } catch (e) {}
                 try { const c = navigator.hardwareConcurrency; if (Number.isFinite(c) && c > 0 && c <= 4) return 'low'; } catch (e) {}
                 return 'high';
             },
@@ -4730,7 +4747,7 @@
             close() { this._open = false; const md = document.getElementById('pause-modal'); if (md) md.classList.remove('open'); },
             _unpause() {
                 if (!this._pausedByUs) return;
-                this._pausedByUs = false; game.p = false; game._soupRect = null; game._scoreTarget = null;
+                this._pausedByUs = false; game.p = false; game._soupRect = null; game._stageRect = null; game._scoreTarget = null;
                 if (game._loopPaused) { game._loopPaused = false; game.loop(); }
             },
             resume() { this.close(); this._unpause(); },
