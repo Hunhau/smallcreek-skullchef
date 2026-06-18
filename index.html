@@ -1150,7 +1150,7 @@
                 backup_import_title:"📥 Import Backup", backup_import_sub:"Paste your backup code below to restore your progress and leaderboard identity.", backup_import_ph:"Paste backup JSON here…", backup_import_do:"📥 Import", backup_confirm_overwrite:"This will overwrite your current progress and leaderboard identity on this device. Continue?",
                 cps_per_sec:"{n} EB PER SECOND", awaken_soul:"[ AWAKEN SOUL ]", requires_eb:"Requires {eb} EB", angel_lv:"Angel Awakening Lv. {s} (+{pct}%)",
                 prix_cd:"Grand Prix (CD: {mm}:{ss})", enter_prix:"Enter Grand Prix", finish_line:"FINISH", buy_x1:"Buy x1", buy_x10:"Buy x10", buy_max:"Buy Max", max_label:"Max:", lv:"Lv.", prod:"Prod",
-                angel_power:"(+{pct}% Angel Power!)", milestone_word:"Milestone", milestone_next:"next", milestone_max:"MAX", champion_banner:"👑 CHAMPION (x2!)",
+                angel_power:"(+{pct}% Angel Power!)", milestone_word:"Milestone", milestone_next:"next", milestone_max:"MAX", champion_banner:"👑 CHAMPION (x{mult}!)",
                 spoon_equipped:"[ EQUIPPED ]", spoon_equip_btn:"EQUIP SPOON", spoon_buy_btn:"BUY CARD", rarity_rare:"RARE", rarity_epic:"EPIC", rarity_legendary:"LEGENDARY",
                 first_place:"1ST PLACE!", victory_crown:"VICTORY! Return to crown {name}!", defeat:"DEFEAT!", awarded_eb:"Awarded +{eb} EB!",
                 offline_body:'You were away {time}. Your soup kept cooking and produced:<br><b style="color:var(--go); font-size:1.4rem">+{eb} EB</b>',
@@ -1244,7 +1244,7 @@
                 backup_import_title:"📥 Importar copia", backup_import_sub:"Pega tu código de copia abajo para restaurar tu progreso y tu identidad de clasificación.", backup_import_ph:"Pega aquí el JSON de la copia…", backup_import_do:"📥 Importar", backup_confirm_overwrite:"Esto sobrescribirá tu progreso actual y tu identidad de clasificación en este dispositivo. ¿Continuar?",
                 cps_per_sec:"{n} EB POR SEGUNDO", awaken_soul:"[ DESPERTAR ALMA ]", requires_eb:"Requiere {eb} EB", angel_lv:"Despertar del Ángel Nv. {s} (+{pct}%)",
                 prix_cd:"Gran Premio (CD: {mm}:{ss})", enter_prix:"Entrar al Gran Premio", finish_line:"META", buy_x1:"Comprar x1", buy_x10:"Comprar x10", buy_max:"Comprar Máx", max_label:"Máx:", lv:"Nv.", prod:"Prod",
-                angel_power:"(+{pct}% ¡Poder del Ángel!)", milestone_word:"Hito", milestone_next:"próx.", milestone_max:"MÁX", champion_banner:"👑 CAMPEÓN (¡x2!)",
+                angel_power:"(+{pct}% ¡Poder del Ángel!)", milestone_word:"Hito", milestone_next:"próx.", milestone_max:"MÁX", champion_banner:"👑 CAMPEÓN (¡x{mult}!)",
                 spoon_equipped:"[ EQUIPADA ]", spoon_equip_btn:"EQUIPAR CUCHARA", spoon_buy_btn:"COMPRAR CARTA", rarity_rare:"RARA", rarity_epic:"ÉPICA", rarity_legendary:"LEGENDARIA",
                 first_place:"¡1ER PUESTO!", victory_crown:"¡VICTORIA! ¡Vuelve para coronar a {name}!", defeat:"¡DERROTA!", awarded_eb:"¡Recompensa +{eb} EB!",
                 offline_body:'Estuviste fuera {time}. Tu sopa siguió cociéndose y generó:<br><b style="color:var(--go); font-size:1.4rem">+{eb} EB</b>',
@@ -2143,7 +2143,7 @@
         // === Versionado del esquema de guardado ===
         // Sube este número cada vez que cambie la forma del save. Cada incremento debe
         // tener su paso de migración en SAVE_MIGRATIONS (clave = versión de ORIGEN).
-        const SCHEMA_VERSION = 22;
+        const SCHEMA_VERSION = 23;
         const SAVE_MIGRATIONS = {
             // v16 -> v17: el campo `as` (Angel Shards acumulados) pasó a guardarse aparte de `s`.
             16: (s) => {
@@ -2195,10 +2195,18 @@
                 if (!Number.isFinite(s.tree.fortuna)) s.tree.fortuna = 0;
                 s.v = 22;
                 return s;
+            },
+            // v22 -> v23: el campo `ch` de cada ayudante pasa de BOOLEANO a CONTADOR de
+            // victorias (0 = nunca ganó). Las banderas antiguas `true` valen 1 victoria (x2,
+            // mantiene la fuerza actual) y `false`/ausente valen 0. Defensivo ante `c` ausente.
+            22: (s) => {
+                if (Array.isArray(s.c)) s.c.forEach(x => { if (x && typeof x === 'object') x.ch = x.ch ? 1 : 0; });
+                s.v = 23;
+                return s;
             }
-            // FUTURO: para añadir v22 -> v23 solo añade aquí:
-            //   22: (s) => { /* transforma s */ s.v = 23; return s; },
-            // y sube SCHEMA_VERSION a 23. No borres pasos antiguos.
+            // FUTURO: para añadir v23 -> v24 solo añade aquí:
+            //   23: (s) => { /* transforma s */ s.v = 24; return s; },
+            // y sube SCHEMA_VERSION a 24. No borres pasos antiguos.
         };
         // Transforma un save antiguo al esquema actual de forma incremental. Nunca lanza:
         // si algo falla, devuelve los datos originales sin tocar (no se pierde nada).
@@ -2277,10 +2285,10 @@
                 3: { x: 0.499, y: -0.050, w: 0.18 }
             },
             cp: [
-                {id:0, nk:'comp_coco', cs:20, pw:0.02, lv:0, ch:false, im:'assets/img/coco.png'},
-                {id:1, nk:'comp_bunny', cs:125, pw:0.1, lv:0, ch:false, im:'assets/img/bunny.png'},
-                {id:2, nk:'comp_pio', cs:1500, pw:0.35, lv:0, ch:false, im:'assets/img/pio.png'},
-                {id:3, nk:'comp_ivan', cs:18000, pw:3.5, lv:0, ch:false, im:'assets/img/ivan.png'}
+                {id:0, nk:'comp_coco', cs:20, pw:0.02, lv:0, ch:0, im:'assets/img/coco.png'},
+                {id:1, nk:'comp_bunny', cs:125, pw:0.1, lv:0, ch:0, im:'assets/img/bunny.png'},
+                {id:2, nk:'comp_pio', cs:1500, pw:0.35, lv:0, ch:0, im:'assets/img/pio.png'},
+                {id:3, nk:'comp_ivan', cs:18000, pw:3.5, lv:0, ch:0, im:'assets/img/ivan.png'}
             ],
             spoons: [
                 { id: 0, cardKey:'spoon0_card', nameKey:'spoon0_name', bonusKey:'spoon0_bonus', rarity: "rare", cost: 25000, cardImg: "assets/img/card-rare.png", spoonImg: "assets/img/spoon-rare.png", owned: false, equipped: false },
@@ -2350,7 +2358,7 @@
                 d.s = Math.floor(num(d.s, 0, 100000, 0));
                 d.as = Math.floor(num(d.as, 0, 1e12, 0));
                 d.cd = Math.floor(num(d.cd, 0, 36000, 0));
-                if (Array.isArray(d.c)) d.c.forEach(x => { if (x && typeof x === 'object') { x.lv = Math.floor(num(x.lv, 0, 100000, 0)); x.ch = !!x.ch; } });
+                if (Array.isArray(d.c)) d.c.forEach(x => { if (x && typeof x === 'object') { x.lv = Math.floor(num(x.lv, 0, 100000, 0)); x.ch = Math.max(0, Math.floor(Number(x.ch) || 0)); } });
                 if (Number.isFinite(d.lastSeen)) d.lastSeen = num(d.lastSeen, 0, Date.now() + 86400000, 0); else d.lastSeen = 0;
                 return d;
             },
@@ -2372,7 +2380,7 @@
                     this.te = Math.max(Number.isFinite(d.te) ? d.te : 0, this.e);
                     this.as = Number.isFinite(d.as) ? d.as : this.s;
                     if (d.bm === 1 || d.bm === 10 || d.bm === 'max') this.buyMode = d.bm;
-                    if (Array.isArray(d.c)) d.c.forEach((x, i) => { if (this.cp[i] && x) { this.cp[i].lv = x.lv || 0; this.cp[i].ch = !!x.ch; for (let j = 0; j < this.cp[i].lv; j++) this.cp[i].cs = Math.floor(this.cp[i].cs * 1.15); } });
+                    if (Array.isArray(d.c)) d.c.forEach((x, i) => { if (this.cp[i] && x) { this.cp[i].lv = x.lv || 0; this.cp[i].ch = Math.max(0, Math.floor(Number(x.ch) || 0)); for (let j = 0; j < this.cp[i].lv; j++) this.cp[i].cs = Math.floor(this.cp[i].cs * 1.15); } });
                     if (d.sp && Array.isArray(d.sp)) d.sp.forEach((item, i) => {
                         if (!this.spoons[i]) return;
                         if (typeof item === 'boolean') { this.spoons[i].owned = item; }
@@ -2413,8 +2421,8 @@
             getEquippedSpoon() { return this.spoons.find(s => s.equipped); },
             getCps() {
                 let b = 0;
-                this.cp.forEach(c => { if (c.id !== 2) b += (c.lv * c.pw * (1 + this.s * 0.5) * (c.ch ? 2 : 1) * this.milestoneMult(c.lv)); });
-                let cps = b * (1 + (this.cp[2].lv * 0.04 * this.milestoneMult(this.cp[2].lv)));
+                this.cp.forEach(c => { if (c.id !== 2) b += (c.lv * c.pw * (1 + this.s * 0.5) * this.champMult(c.ch) * this.milestoneMult(c.lv)); });
+                let cps = b * (1 + (this.cp[2].lv * 0.04 * this.milestoneMult(this.cp[2].lv) * this.champMult(this.cp[2].lv ? this.cp[2].ch : 0)));
                 const eq = this.getEquippedSpoon();
                 if (eq && eq.id === 2) cps *= 2;
                 cps *= this.treeCpsMult();
@@ -2423,6 +2431,7 @@
                 return cps;
             },
             milestoneMult(lv) { let m = 1; if (lv >= 10) m *= 2; if (lv >= 25) m *= 2; if (lv >= 50) m *= 2; if (lv >= 100) m *= 2; return m; },
+            champMult(w) { return (w > 0) ? (1 + w) : 1; },
             nextMilestone(lv) { const t = [10, 25, 50, 100]; for (const x of t) if (lv < x) return x; return null; },
             treeCpsMult() { return 1 + this.tree.caldo * 0.15; },
             treeClickMult() { return 1 + this.tree.manos * 0.20; },
@@ -2602,7 +2611,7 @@
             slot(c) {
                 let s = document.getElementById(`slot-${c.id}`);
                 if (!s) { s = document.createElement('div'); s.id = `slot-${c.id}`; s.className = 'companion-slot'; document.getElementById('companion-column').appendChild(s); }
-                s.innerHTML = `<img src="${c.im}" class="slot-img"><div class="lv-badge">${t('lv')} ${c.lv}</div>${c.ch?'<div class="slot-crown">👑</div>':''}`; return s;
+                s.innerHTML = `<img src="${c.im}" class="slot-img"><div class="lv-badge">${t('lv')} ${c.lv}</div>${c.ch>0?`<div class="slot-crown">👑<span style="font-size:0.55em;vertical-align:super;">×${game.champMult(c.ch)}</span></div>`:''}`; return s;
             },
             logic() {
                 this.c = this.getCps();
@@ -2676,7 +2685,7 @@
             click(ev) {
                 if(this.p || this.cl || ev.target.closest('#side-shop') || ev.target.closest('#altar-panel')) return;
                 const m = Number.isFinite(this.m) ? Math.min(Math.max(this.m, 1), 6) : 1;
-                const exp = Math.min(this.cp[1].lv * (this.cp[1].ch ? 2 : 1) * 0.5, 24);
+                const exp = Math.min(this.cp[1].lv * this.champMult(this.cp[1].ch) * 0.5, 24);
                 let gain = m * Math.pow(1.33, exp) * (1 + this.s * 0.5);
                 const eq = this.getEquippedSpoon();
                 if (eq && eq.id === 0) gain *= 1.50;
@@ -2733,7 +2742,7 @@
                         try { leaderboard.submit({ prestige: this.s, score: this.te }); } catch (e) {}
                         ach.grant('firstPres');
                         const eco = this.tree.eco;
-                        this.e = 0; this.l = 0; this.cp.forEach(c => { const base = c.id === 0 ? 20 : (c.id === 1 ? 125 : (c.id === 2 ? 1500 : 18000)); c.lv = eco; c.ch = false; c.cs = base; for (let j = 0; j < eco; j++) c.cs = Math.floor(c.cs * 1.15); });
+                        this.e = 0; this.l = 0; this.cp.forEach(c => { const base = c.id === 0 ? 20 : (c.id === 1 ? 125 : (c.id === 2 ? 1500 : 18000)); c.lv = eco; c.ch = 0; c.cs = base; for (let j = 0; j < eco; j++) c.cs = Math.floor(c.cs * 1.15); });
                         this.rebuild(); this.render(); this.save(); o.style.opacity = '0'; setTimeout(()=>{o.style.display='none'; this.p=false;}, 500);
                     }, 3000);
                 }, 2000);
@@ -2870,7 +2879,7 @@
                     let angelText = (this.s > 0 && c.id !== 2) ? `<br><span style="color:#4ade80; font-size:0.6rem;">${t('angel_power', {pct: this.s*50})}</span>` : '';
                     const mm = this.milestoneMult(c.lv); const nm = this.nextMilestone(c.lv);
                     let mileText = c.lv > 0 ? `<br><span style="color:#fbbf24; font-size:0.6rem;">x${mm} ${t('milestone_word')}${nm ? ` · ${t('milestone_next')} ${t('lv')}${nm}` : ` · ${t('milestone_max')}`}</span>` : '';
-                    cd.innerHTML = `<img src="${c.im}" class="comp-img"><div style="flex:1"><b>${t(c.nk)} (${c.lv})</b><div style="font-size:0.7rem;color:#cbd5e1">${d}${angelText}${mileText}</div>${c.ch?`<span class="champ-banner">${t('champion_banner')}</span>`:''}<span class="card-price" style="color:${pd.grayed ? '#64748b' : '#fbbf24'};font-weight:bold;display:block;">${pd.text}</span></div>`; l.appendChild(cd);
+                    cd.innerHTML = `<img src="${c.im}" class="comp-img"><div style="flex:1"><b>${t(c.nk)} (${c.lv})</b><div style="font-size:0.7rem;color:#cbd5e1">${d}${angelText}${mileText}</div>${c.ch>0?`<span class="champ-banner">${t('champion_banner', { mult: this.champMult(c.ch) })}</span>`:''}<span class="card-price" style="color:${pd.grayed ? '#64748b' : '#fbbf24'};font-weight:bold;display:block;">${pd.text}</span></div>`; l.appendChild(cd);
                 });
                 this.renderSpoons();
             },
@@ -3055,7 +3064,7 @@
             stopFx() { const tr = document.getElementById('race-track'); if(tr) { tr.classList.remove('racing'); tr.style.animationDuration = ''; } this.rs.forEach(r => { const el = document.getElementById(`r-${r.lane}`); if(el) el.classList.remove('run'); }); },
             check() { const w = this.rs.find(r => r.pos >= 100); if(w) { this.a = false; clearInterval(this.tk); this.stopFx(); this.w = w.isP; this.end(); } },
             end() { document.getElementById('p-run').style.display='none'; document.getElementById('p-end').style.display='block';
-                const r = document.getElementById('p-rank'), m = document.getElementById('p-reward'); if(this.w) { r.innerText=t('first_place'); m.innerText=t('victory_crown', {name: t(this.ch.nk)}); this.ch.ch = true; game.track('crowns', 1); try { leaderboard.bumpPrixWin(); leaderboard.submit({ prix: leaderboard.getPrixWins() }); } catch (e) {} ach.grant('firstChamp'); }
+                const r = document.getElementById('p-rank'), m = document.getElementById('p-reward'); if(this.w) { r.innerText=t('first_place'); m.innerText=t('victory_crown', {name: t(this.ch.nk)}); this.ch.ch = (this.ch.ch || 0) + 1; game.track('crowns', 1); try { leaderboard.bumpPrixWin(); leaderboard.submit({ prix: leaderboard.getPrixWins() }); } catch (e) {} ach.grant('firstChamp'); }
                 else { let p = Math.floor(1e6 * Math.pow(5, game.s) * 0.01); r.innerText=t('defeat'); m.innerText=t('awarded_eb', {eb: p.toLocaleString()}); game.e += p; game.te += p; }
                 game.render();
             },
