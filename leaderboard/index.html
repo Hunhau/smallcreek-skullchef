@@ -329,16 +329,22 @@ const LB = {
     const fmt = n => Number(n).toLocaleString(this.lang === 'es' ? 'es-ES' : 'en-US');
     const medal = r => r === 1 ? '🥇' : r === 2 ? '🥈' : r === 3 ? '🥉' : r;
 
-    list.innerHTML = rows.map((row, i) => {
-      const rank = i + 1;
-      const topCls = rank <= 3 ? ' top' + rank : '';
+    // The creator competes "out of competition": pinned at the very top with the
+    // crown marker and NO numeric rank. Everyone else is numbered from #1.
+    const ordered = rows.filter(isCreatorRow).concat(rows.filter(r => !isCreatorRow(r)));
+    let rankNum = 0;
+    list.innerHTML = ordered.map(row => {
+      const isC = isCreatorRow(row);
+      const rank = isC ? 0 : ++rankNum;
+      const topCls = (!isC && rank <= 3) ? ' top' + rank : '';
       const plat = PLAT_ICON[row.platform] || PLAT_ICON.web;
-      const badge = isCreatorRow(row)
+      const badge = isC
         ? '<span class="creator-badge" title="' + esc(d.creator_title) + '">👑 ' + esc(d.creator) + '</span>'
         : '';
+      const rankCell = isC ? '👑' : medal(rank);
       return (
         '<li class="row' + topCls + '">' +
-          '<div class="rank">' + medal(rank) + '</div>' +
+          '<div class="rank">' + rankCell + '</div>' +
           '<div class="who">' +
             '<div class="name"><span class="name-txt">' + esc(row.name) + '</span>' + badge + '</div>' +
             '<div class="plat">' + plat + '</div>' +

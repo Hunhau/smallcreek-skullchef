@@ -3136,10 +3136,18 @@
             // rows instantly (no blank flash) and re-paint when fresh data arrives.
             _rowsHtml(board, rows) {
                 if (!rows || !rows.length) return `<div class="lb-msg">${t('lb_empty')}</div>`;
-                return rows.map(r => {
+                // The creator competes "out of competition": pinned at the very top with
+                // the crown marker and NO numeric rank. Everyone else is numbered from #1.
+                const creatorRows = rows.filter(r => this.isCreator(r));
+                const others = rows.filter(r => !this.isCreator(r));
+                const ordered = creatorRows.concat(others);
+                let rankNum = 0;
+                return ordered.map(r => {
+                    const isC = this.isCreator(r);
                     const plat = this.PLAT[r.platform] || '🌐';
-                    const badge = this.isCreator(r) ? `<span class="lb-creator-badge" title="${this.esc(t('creator_badge_title'))}">👑 ${this.esc(t('creator_badge'))}</span>` : '';
-                    return `<div class="lb-row ${r.you ? 'you' : ''}"><span class="lb-rank">#${r.rank}</span><span class="lb-plat">${plat}</span><span class="lb-name"><span class="lb-name-txt">${this.esc(r.name)}${r.you ? ' ★' : ''}</span>${badge}</span><span class="lb-val">${this.fmtVal(board, r.value)}</span></div>`;
+                    const badge = isC ? `<span class="lb-creator-badge" title="${this.esc(t('creator_badge_title'))}">👑 ${this.esc(t('creator_badge'))}</span>` : '';
+                    const rankCell = isC ? '👑' : ('#' + (++rankNum));
+                    return `<div class="lb-row ${r.you ? 'you' : ''}"><span class="lb-rank">${rankCell}</span><span class="lb-plat">${plat}</span><span class="lb-name"><span class="lb-name-txt">${this.esc(r.name)}${r.you ? ' ★' : ''}</span>${badge}</span><span class="lb-val">${this.fmtVal(board, r.value)}</span></div>`;
                 }).join('');
             },
             // Crossfade + height-ease the list to new content. Skips work if the markup
