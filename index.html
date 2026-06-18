@@ -365,10 +365,10 @@
                balls / ⬨ angel shards). max-width + overflow keep it on-screen; the labels
                wrap instead of pushing the pill off either edge. */
             #hud { gap: 16px; padding: 4px 14px; top: max(6px, env(safe-area-inset-top)); max-width: min(300px, calc(100vw - 300px)); overflow: hidden; align-items: flex-start; }
-            #score-box, #shard-box { display: inline-flex; flex-direction: column; align-items: center; line-height: 1.05; }
+            #score-box, #shard-box { display: inline-flex; flex-direction: column; align-items: center; min-width: 92px; line-height: 1.05; }
             #score-box { font-size: 1.15rem; }
             #shard-box { font-size: 1.05rem; }
-            #hud span[data-i18n] { display: block; max-width: 90px; font-size: 0.56rem; font-weight: 700; letter-spacing: 0.2px; opacity: 0.85; white-space: normal; text-align: center; line-height: 1.08; }
+            #hud span[data-i18n] { display: block; width: 100%; font-size: 0.56rem; font-weight: 700; letter-spacing: 0; opacity: 0.85; white-space: normal; text-align: center; line-height: 1.08; }
             #score-box span[data-i18n]::before { content: "🍲 "; }
             #shard-box span[data-i18n]::before { content: "⬨ "; color: var(--go); }
             #cps-tag { top: calc(env(safe-area-inset-top) + 50px); font-size: 0.74rem; }
@@ -496,10 +496,10 @@
                max-width + overflow keep it on-screen even with large numbers. The chronicle
                sits at the SAME top on the LEFT (beside it), freeing the space below. */
             #hud { left: auto; right: max(8px, env(safe-area-inset-right)); transform: none; gap: 14px; padding: 4px 12px; top: calc(env(safe-area-inset-top) + 8px); max-width: calc(100vw - 120px); overflow: hidden; align-items: flex-start; }
-            #score-box, #shard-box { display: inline-flex; flex-direction: column; align-items: center; line-height: 1.05; white-space: nowrap; }
+            #score-box, #shard-box { display: inline-flex; flex-direction: column; align-items: center; min-width: 86px; line-height: 1.05; white-space: nowrap; }
             #score-box { font-size: 1.15rem; }
             #shard-box { font-size: 1.0rem; }
-            #hud span[data-i18n] { display: block; max-width: 86px; font-size: 0.56rem; font-weight: 700; letter-spacing: 0.2px; opacity: 0.85; white-space: normal; text-align: center; line-height: 1.08; }
+            #hud span[data-i18n] { display: block; width: 100%; font-size: 0.56rem; font-weight: 700; letter-spacing: 0; opacity: 0.85; white-space: normal; text-align: center; line-height: 1.08; }
             #score-box span[data-i18n]::before { content: "🍲 "; }
             #shard-box span[data-i18n]::before { content: "⬨ "; color: var(--go); }
             #cps-tag { top: calc(env(safe-area-inset-top) + 54px); left: auto; right: max(10px, env(safe-area-inset-right)); transform: none; font-size: 0.76rem; }
@@ -1424,7 +1424,7 @@
         // build differs, reload ONCE with a cache-busting ?v= query. sessionStorage guards
         // against reload loops. Fully defensive: any error is silent and never blocks the
         // game. Parent bumps BOTH version.json and BUILD_V on every future deploy.
-        const BUILD_V = "build-7";
+        const BUILD_V = "build-8";
         (function checkForUpdate() {
             try {
                 fetch('version.json?ts=' + Date.now(), { cache: 'no-store' })
