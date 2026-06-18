@@ -387,54 +387,56 @@
             }
             #helpers-toggle:active { filter: brightness(1.15); }
             .helpers-chevron { font-size: 0.66rem; }
-            /* COLUMN-wrap: stack up to 4 helpers vertically (max-height ~= 4*46 + 3*6),
-               then the 5th starts a NEW column to the right. */
+            /* COLUMN-wrap: ALWAYS stack 4 helpers vertically before wrapping to a new
+               column on the right. max-height is a FIXED 4-slot height (not a calc that
+               can collapse), and the slot size shrinks per height tier below so 4 always
+               fit in one column above the launchers — never a premature horizontal row. */
             #companion-column {
                 left: max(8px, env(safe-area-inset-left)); top: 148px; bottom: auto;
-                max-height: min(202px, calc(100dvh - 248px)); width: min(232px, 52vw);
+                max-height: 180px; width: min(232px, 52vw);
                 flex-flow: column wrap; align-content: flex-start;
-                justify-content: flex-start; gap: 6px; overflow: hidden;
+                justify-content: flex-start; gap: 5px; overflow: hidden;
             }
             body.helpers-collapsed #companion-column { display: none; }
-            .companion-slot { width: 46px; height: 46px; border-radius: 12px; }
-            .lv-badge { bottom: -4px; right: -4px; padding: 0 3px; font-size: 0.55rem; border-width: 1px; }
-            .slot-crown { top: -11px; font-size: 1rem; }
+            .companion-slot { width: 40px; height: 40px; border-radius: 11px; }
+            .lv-badge { bottom: -4px; right: -4px; padding: 0 3px; font-size: 0.52rem; border-width: 1px; }
+            .slot-crown { top: -10px; font-size: 0.9rem; }
 
             /* ---- SHOP: slide-in sheet from the right (compact + readable) ---- */
             #side-shop {
                 position: fixed; top: 0; right: 0;
                 height: 100vh; height: 100dvh;
-                width: min(265px, 44vw);
+                width: min(230px, 40vw);
                 transform: translateX(102%); transition: transform 0.28s ease;
                 z-index: 9500; border-left: 1px solid var(--glass-bd-go);
                 box-shadow: -14px 0 44px rgba(0, 0, 0, 0.5);
-                padding: calc(env(safe-area-inset-top) + 8px) calc(env(safe-area-inset-right) + 8px) calc(env(safe-area-inset-bottom) + 8px) 8px;
-                font-size: 0.85rem;
+                padding: calc(env(safe-area-inset-top) + 7px) calc(env(safe-area-inset-right) + 7px) calc(env(safe-area-inset-bottom) + 7px) 7px;
+                font-size: 0.82rem;
             }
             #side-shop.m-open { transform: translateX(0); }
-            #side-shop h1 { font-size: 1rem; }
-            #buy-mode-toggle { padding: 5px 8px; margin-bottom: 8px; font-size: 0.74rem; }
+            #side-shop h1 { font-size: 0.95rem; }
+            #buy-mode-toggle { padding: 5px 7px; margin-bottom: 7px; font-size: 0.72rem; }
             /* Helper (companion) purchase cards: tight, but card stays >=44px tall to tap */
-            #companion-list .companion-card { padding: 6px; margin-bottom: 6px; border-radius: 9px; }
-            #companion-list .comp-img { width: 36px; height: 36px; margin-right: 8px; border-radius: 8px; }
-            #companion-list .companion-card b { font-size: 0.8rem; }
-            #companion-list .companion-card .card-price { font-size: 0.76rem; }
+            #companion-list .companion-card { padding: 6px; margin-bottom: 6px; border-radius: 9px; min-height: 44px; }
+            #companion-list .comp-img { width: 34px; height: 34px; margin-right: 7px; border-radius: 8px; }
+            #companion-list .companion-card b { font-size: 0.78rem; }
+            #companion-list .companion-card .card-price { font-size: 0.74rem; }
 
             /* ---- MENU TRAY: slide-in from the left (compact, >=44px rows) ---- */
             #side-buttons {
                 position: fixed; top: 0; left: 0; bottom: auto;
                 height: 100vh; height: 100dvh;
-                width: min(270px, 58vw);
+                width: min(230px, 46vw);
                 transform: translateX(-104%); transition: transform 0.28s ease;
-                z-index: 9500; gap: 8px; overflow-y: auto;
+                z-index: 9500; gap: 7px; overflow-y: auto;
                 background: var(--glass-strong);
                 backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur);
                 border-right: 1px solid var(--glass-bd-go);
                 box-shadow: 14px 0 44px rgba(0, 0, 0, 0.5);
-                padding: calc(env(safe-area-inset-top) + 12px) 12px calc(env(safe-area-inset-bottom) + 12px) calc(env(safe-area-inset-left) + 12px);
+                padding: calc(env(safe-area-inset-top) + 10px) 10px calc(env(safe-area-inset-bottom) + 10px) calc(env(safe-area-inset-left) + 10px);
             }
             #side-buttons.m-open { transform: translateX(0); }
-            #side-buttons .side-fab { font-size: 0.88rem; padding: 11px 14px; min-height: 46px; display: flex; align-items: center; justify-content: center; gap: 6px; }
+            #side-buttons .side-fab { font-size: 0.82rem; padding: 10px 12px; min-height: 44px; display: flex; align-items: center; justify-content: center; gap: 6px; }
 
             /* ---- Launcher buttons that open the tray / shop ---- */
             #m-launch { display: flex; position: fixed; left: max(10px, env(safe-area-inset-left)); bottom: max(10px, env(safe-area-inset-bottom)); z-index: 9000; gap: 10px; }
@@ -457,6 +459,21 @@
             /* Keep the audio pill out of the launcher's way */
             #audio-ctrl { bottom: max(10px, env(safe-area-inset-bottom)); right: max(10px, env(safe-area-inset-right)); padding: 6px 10px; }
             #audio-vol { width: 64px; }
+        }
+        /* Owned-helpers box: SHORTER landscape phones shrink the slot so 4 still fit
+           vertically in one column (and the chip/column move up) — never wrap early. */
+        @media (pointer: coarse) and (orientation: landscape) and (max-height: 430px) {
+            #helpers-toggle { top: 104px; }
+            #companion-column { top: 134px; max-height: 156px; gap: 4px; }
+            .companion-slot { width: 36px; height: 36px; border-radius: 10px; }
+            .slot-crown { top: -9px; font-size: 0.82rem; }
+        }
+        @media (pointer: coarse) and (orientation: landscape) and (max-height: 360px) {
+            #helpers-toggle { top: 90px; }
+            #companion-column { top: 122px; max-height: 140px; gap: 4px; }
+            .companion-slot { width: 32px; height: 32px; border-radius: 9px; }
+            .lv-badge { font-size: 0.48rem; }
+            .slot-crown { top: -8px; font-size: 0.74rem; }
         }
         /* Grand Prix track: fit the viewport width on any touch device (lanes flex auto-fit). */
         @media (pointer: coarse) {
@@ -1260,6 +1277,31 @@
     </script>
     <!-- ==================== END EMBEDDED LEADERBOARD MODULE ==================== -->
     <script>
+        // === AUTO-UPDATE / ANTI-STALE-CACHE ===========================================
+        // BUILD_V MUST equal version.json's "v" in this commit (so no reload happens now).
+        // On each visit we quietly fetch version.json (no-store) and, if the deployed
+        // build differs, reload ONCE with a cache-busting ?v= query. sessionStorage guards
+        // against reload loops. Fully defensive: any error is silent and never blocks the
+        // game. Parent bumps BOTH version.json and BUILD_V on every future deploy.
+        const BUILD_V = "build-1";
+        (function checkForUpdate() {
+            try {
+                fetch('version.json?ts=' + Date.now(), { cache: 'no-store' })
+                    .then(function (r) { return r.json(); })
+                    .then(function (data) {
+                        try {
+                            if (data && data.v && data.v !== BUILD_V) {
+                                var key = 'sc_reloaded_' + data.v;
+                                if (sessionStorage.getItem(key) !== '1') {
+                                    sessionStorage.setItem(key, '1');
+                                    location.replace(location.pathname + '?v=' + encodeURIComponent(data.v));
+                                }
+                            }
+                        } catch (e) {}
+                    })
+                    .catch(function () {});
+            } catch (e) {}
+        })();
         let LANG = 'en';
         // ====================================================================
         // === CONFIG DEL CREADOR (Feature B) — EDITA AQUÍ ====================
