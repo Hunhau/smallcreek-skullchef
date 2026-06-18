@@ -354,6 +354,7 @@
            desktop layout stays byte-for-byte unchanged. */
         #m-launch { display: none; }
         #m-scrim { display: none; }
+        #helpers-toggle { display: none; }
         @media (pointer: coarse) and (orientation: landscape) and (max-height: 600px) {
             body { overflow: hidden; }
             /* The scene is the star: main stage fills the width (shop is a slide-in now). */
@@ -369,9 +370,32 @@
             #lore-text { font-size: 0.7rem; line-height: 1.3; }
             /* Altar / prestige: shrink into the free top-right corner */
             #altar-panel { right: max(6px, env(safe-area-inset-right)); top: 54px; transform: scale(0.58); transform-origin: top right; z-index: 6500; }
-            /* Owned-helpers box (scene): smaller slots, sits below the chronicle and
-               STOPS well above the bottom-left ☰ / shop launchers so it never covers them. */
-            #companion-column { left: max(8px, env(safe-area-inset-left)); top: 108px; bottom: 80px; gap: 6px; justify-content: flex-start; overflow: hidden; }
+            /* Owned-helpers box (scene): a HORIZONTAL row that wraps (up to ~4 across),
+               with a collapse chip above it. Sits in the free left band below the
+               chronicle and STOPS well above the bottom-left ☰ / 🛒 launchers. */
+            #helpers-toggle {
+                display: inline-flex; align-items: center; gap: 4px;
+                position: absolute; left: max(8px, env(safe-area-inset-left)); top: 114px;
+                z-index: 6600; pointer-events: auto;
+                background: var(--glass-strong); backdrop-filter: var(--glass-blur-sm); -webkit-backdrop-filter: var(--glass-blur-sm);
+                border: 1px solid var(--glass-bd-go); border-radius: 12px;
+                color: var(--gold-soft); font-size: 0.72rem; font-weight: bold;
+                padding: 5px 9px; min-height: 30px; line-height: 1; cursor: pointer;
+                text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+                -webkit-tap-highlight-color: transparent; touch-action: manipulation;
+                -webkit-user-select: none; user-select: none;
+            }
+            #helpers-toggle:active { filter: brightness(1.15); }
+            .helpers-chevron { font-size: 0.66rem; }
+            /* COLUMN-wrap: stack up to 4 helpers vertically (max-height ~= 4*46 + 3*6),
+               then the 5th starts a NEW column to the right. */
+            #companion-column {
+                left: max(8px, env(safe-area-inset-left)); top: 148px; bottom: auto;
+                max-height: min(202px, calc(100dvh - 248px)); width: min(232px, 52vw);
+                flex-flow: column wrap; align-content: flex-start;
+                justify-content: flex-start; gap: 6px; overflow: hidden;
+            }
+            body.helpers-collapsed #companion-column { display: none; }
             .companion-slot { width: 46px; height: 46px; border-radius: 12px; }
             .lv-badge { bottom: -4px; right: -4px; padding: 0 3px; font-size: 0.55rem; border-width: 1px; }
             .slot-crown { top: -11px; font-size: 1rem; }
@@ -380,21 +404,21 @@
             #side-shop {
                 position: fixed; top: 0; right: 0;
                 height: 100vh; height: 100dvh;
-                width: min(300px, 50vw);
+                width: min(265px, 44vw);
                 transform: translateX(102%); transition: transform 0.28s ease;
                 z-index: 9500; border-left: 1px solid var(--glass-bd-go);
                 box-shadow: -14px 0 44px rgba(0, 0, 0, 0.5);
-                padding: calc(env(safe-area-inset-top) + 10px) calc(env(safe-area-inset-right) + 10px) calc(env(safe-area-inset-bottom) + 10px) 10px;
-                font-size: 0.88rem;
+                padding: calc(env(safe-area-inset-top) + 8px) calc(env(safe-area-inset-right) + 8px) calc(env(safe-area-inset-bottom) + 8px) 8px;
+                font-size: 0.85rem;
             }
             #side-shop.m-open { transform: translateX(0); }
-            #side-shop h1 { font-size: 1.05rem; }
-            #buy-mode-toggle { padding: 6px 10px; margin-bottom: 9px; font-size: 0.78rem; }
-            /* Helper (companion) purchase cards: tighter + smaller thumbnail */
-            #companion-list .companion-card { padding: 7px; margin-bottom: 7px; border-radius: 9px; }
-            #companion-list .comp-img { width: 38px; height: 38px; margin-right: 8px; border-radius: 8px; }
-            #companion-list .companion-card b { font-size: 0.82rem; }
-            #companion-list .companion-card .card-price { font-size: 0.78rem; }
+            #side-shop h1 { font-size: 1rem; }
+            #buy-mode-toggle { padding: 5px 8px; margin-bottom: 8px; font-size: 0.74rem; }
+            /* Helper (companion) purchase cards: tight, but card stays >=44px tall to tap */
+            #companion-list .companion-card { padding: 6px; margin-bottom: 6px; border-radius: 9px; }
+            #companion-list .comp-img { width: 36px; height: 36px; margin-right: 8px; border-radius: 8px; }
+            #companion-list .companion-card b { font-size: 0.8rem; }
+            #companion-list .companion-card .card-price { font-size: 0.76rem; }
 
             /* ---- MENU TRAY: slide-in from the left (compact, >=44px rows) ---- */
             #side-buttons {
@@ -613,6 +637,7 @@
         <div id="hud"><div id="score-box"><span data-i18n="energy_balls">Energy Balls:</span> <span id="score">0</span></div><div id="shard-box"><span data-i18n="angel_shards">Angel Shards:</span> <span id="shards-count">0</span></div></div>
         <div id="cps-tag">0.0 EB PER SECOND</div>
         <div id="lore-scroll"><div id="lore-title" data-i18n="chronicle">CHRONICLE</div><div id="lore-text">...</div></div>
+        <button id="helpers-toggle" type="button" onclick="helpersBox.toggle()" aria-expanded="true" data-i18n-title="helpers_toggle_title" title="Helpers">👥 <span class="helpers-chevron">▾</span></button>
         <div id="companion-column"></div>
         <div id="altar-panel"><div id="btn-prestige" onclick="game.pres()"><div class="prestige-label" id="pres-txt" data-i18n="locked">LOCKED</div></div><div id="pres-stat">Lv. 0 (+0%)</div></div>
         <section id="main-stage" onpointerdown="game.click(event)"><canvas id="particle-canvas"></canvas><div id="sticky-center"><img id="asset-chef" src="assets/img/chef.png" decoding="async"><img id="asset-chef-hand" src="assets/img/chef-hand.png" decoding="async"><img id="cauldron-legs" src="assets/img/cauldron-legs.png" alt="" decoding="async"><img id="asset-soup" src="assets/img/soup.png" decoding="async"><div id="soup-liquid"><img id="asset-soup-liquid" src="assets/img/soup.png" decoding="async"></div><div id="soup-steam"><div class="steam-wisp"></div><div class="steam-wisp"></div><div class="steam-wisp"></div><div class="steam-wisp"></div><div class="steam-wisp"></div><div class="steam-wisp"></div></div><div id="spoon-rig"><img id="asset-spoon" src="assets/img/spoon.png" decoding="async"></div></div><div id="soup-ripples"></div></section>
@@ -1337,7 +1362,7 @@
                 place_hud_help:"Arrows ±1px · Shift+Arrows ±10px · +/- size · [ ] rotate · Tab swap",
                 place_tool_step:"Step size (x1 / x10)", place_tt_move:"Move", place_tt_bigger:"Bigger", place_tt_smaller:"Smaller",
                 place_tt_rotate_l:"Rotate left", place_tt_rotate_r:"Rotate right", place_tt_target:"Switch target (spoon / hat)", place_tt_close:"Close tool",
-                m_menu_title:"Menu", m_shop_btn:"🛒 Shop",
+                m_menu_title:"Menu", m_shop_btn:"🛒 Shop", helpers_toggle_title:"Helpers",
                 /* ===== TEMP CREATOR UNLOCK GESTURE i18n — REMOVE BEFORE LAUNCH ===== */
                 creator_mode_on:"Creator mode ON", creator_mode_off:"Creator mode OFF"
                 /* ===== END ===== */
@@ -1433,7 +1458,7 @@
                 place_hud_help:"Flechas ±1px · Mayús+Flechas ±10px · +/- tamaño · [ ] rotar · Tab cambia",
                 place_tool_step:"Tamaño de paso (x1 / x10)", place_tt_move:"Mover", place_tt_bigger:"Más grande", place_tt_smaller:"Más pequeño",
                 place_tt_rotate_l:"Girar a la izquierda", place_tt_rotate_r:"Girar a la derecha", place_tt_target:"Cambiar objetivo (cuchara / gorro)", place_tt_close:"Cerrar herramienta",
-                m_menu_title:"Menú", m_shop_btn:"🛒 Tienda",
+                m_menu_title:"Menú", m_shop_btn:"🛒 Tienda", helpers_toggle_title:"Ayudantes",
                 /* ===== TEMP CREATOR UNLOCK GESTURE i18n — REMOVE BEFORE LAUNCH ===== */
                 creator_mode_on:"Modo creador ACTIVADO", creator_mode_off:"Modo creador DESACTIVADO"
                 /* ===== END ===== */
@@ -4221,7 +4246,10 @@
                 try { sound.unlock(); } catch (e) {}
                 const enter = () => {
                     ov.classList.add('closing');
-                    setTimeout(() => { ov.style.display = 'none'; try { tutorial.maybeStart(); } catch (e) {} }, 600);
+                    // On a phone in PORTRAIT, hold the tutorial until the player rotates to
+                    // landscape (the rotate hint is already showing); fires once. Desktop /
+                    // already-landscape starts the tutorial immediately, exactly as before.
+                    setTimeout(() => { ov.style.display = 'none'; try { landscapeGate.run(() => { try { tutorial.maybeStart(); } catch (e) {} }); } catch (e) { try { tutorial.maybeStart(); } catch (er) {} } }, 600);
                 };
                 try { nameGate.ensure(enter); } catch (e) { enter(); }
             }
@@ -5210,6 +5238,70 @@
                 } catch (e) {}
             }
         };
+        // Collapsible on-scene owned-helpers box (mobile only). State persists in
+        // localStorage so the player's choice survives reloads. Defensive throughout.
+        const helpersBox = {
+            KEY: 'soup_helpers_box_collapsed',
+            isCollapsed() { try { return localStorage.getItem(this.KEY) === '1'; } catch (e) { return false; } },
+            apply() {
+                try {
+                    const collapsed = this.isCollapsed();
+                    document.body.classList.toggle('helpers-collapsed', collapsed);
+                    const btn = document.getElementById('helpers-toggle');
+                    if (btn) {
+                        btn.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
+                        const chev = btn.querySelector('.helpers-chevron');
+                        if (chev) chev.textContent = collapsed ? '▸' : '▾';
+                    }
+                } catch (e) {}
+            },
+            toggle() {
+                try {
+                    const next = !this.isCollapsed();
+                    try { localStorage.setItem(this.KEY, next ? '1' : '0'); } catch (e) {}
+                    this.apply();
+                } catch (e) {}
+            },
+            init() { try { this.apply(); } catch (e) {} }
+        };
+        // Phone-only landscape gate: defers a callback (e.g. starting the tutorial)
+        // until the device is in LANDSCAPE, then fires it exactly once. On desktop, or
+        // when the phone is already in landscape, the callback runs immediately so the
+        // normal flow is unchanged. Tapping the rotate hint's "Continue anyway" also
+        // flushes any pending callback (see dismissRotateOverlay). Defensive throughout.
+        const landscapeGate = {
+            _pending: [], _armed: false, _h: null,
+            isPhone() { try { return window.matchMedia('(pointer: coarse)').matches && Math.min(window.innerWidth, window.innerHeight) <= 600; } catch (e) { return false; } },
+            isLandscape() { try { return window.matchMedia('(orientation: landscape)').matches; } catch (e) { return window.innerWidth >= window.innerHeight; } },
+            run(cb) {
+                try {
+                    if (typeof cb !== 'function') return;
+                    if (!this.isPhone() || this.isLandscape()) { cb(); return; }
+                    this._pending.push(cb);
+                    this._arm();
+                } catch (e) { try { cb(); } catch (er) {} }
+            },
+            _arm() {
+                if (this._armed) return;
+                this._armed = true;
+                try {
+                    this._h = () => { setTimeout(() => this._flush(false), 60); };
+                    window.addEventListener('orientationchange', this._h);
+                    window.addEventListener('resize', this._h);
+                } catch (e) {}
+            },
+            // force=true is used by "Continue anyway" to proceed even while still portrait.
+            _flush(force) {
+                try {
+                    if (!force && !this.isLandscape()) return;
+                    if (!this._pending.length) return;
+                    const cbs = this._pending.splice(0);
+                    try { if (this._h) { window.removeEventListener('orientationchange', this._h); window.removeEventListener('resize', this._h); } } catch (e) {}
+                    this._armed = false; this._h = null;
+                    cbs.forEach(cb => { try { cb(); } catch (e) {} });
+                } catch (e) {}
+            }
+        };
         // The portrait rotate hint is a soft suggestion, not a hard block. Tapping
         // "Continue anyway" hides it and remembers the choice so it stays hidden on reload.
         const ROTATE_DISMISS_KEY = 'soup_rotate_dismissed_v1';
@@ -5218,6 +5310,8 @@
                 const ov = document.getElementById('rotate-overlay');
                 if (ov) { ov.classList.add('dismissed'); ov.style.display = 'none'; }
                 try { localStorage.setItem(ROTATE_DISMISS_KEY, '1'); } catch (e) {}
+                // Player chose to proceed in portrait: release any deferred tutorial start.
+                try { landscapeGate._flush(true); } catch (e) {}
             } catch (e) {}
         }
         function applyRotateDismissOnBoot() {
@@ -5306,6 +5400,7 @@
             try { music.init(); } catch (e) {}
             try { creator.render(); creator.syncLive(); creator.startLivePolling(); } catch (e) {}
             try { mobileUI.init(); } catch (e) {}
+            try { helpersBox.init(); } catch (e) {}
             // Juego inicializado y jugable. Fuera de Playables es no-op silencioso.
             ytPlayables.gameReady();
         }
