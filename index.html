@@ -5,6 +5,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Smallcreek Skullchef</title>
+    <!-- === PWA / "Add to Home Screen" (fullscreen standalone on iOS & Android) ===
+         iOS Safari has no in-browser Fullscreen API, so the only true fullscreen is
+         launching from a Home Screen icon as a standalone web app. -->
+    <link rel="manifest" href="manifest.webmanifest">
+    <meta name="theme-color" content="#1a1030">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Skullchef">
+    <link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png">
     <!-- Precarga SOLO del asset crítico para el PRIMER FRAME (logo de la home). El resto
          de imágenes/audio se cargan de forma diferida para no bloquear el render inicial. -->
     <link rel="preload" as="image" href="assets/img/angel.png" fetchpriority="high">
@@ -1276,6 +1286,7 @@
                 rotate_title:"Rotate your device", rotate_msg:"Smallcreek Skullchef plays best in landscape. Turn your device sideways to keep cooking.", rotate_continue:"Continue anyway",
                 settings_title:"Settings", settings_quality:"Quality", quality_auto:"Auto", quality_high:"High", quality_low:"Low",
                 settings_fullscreen:"Fullscreen", fs_enter:"⛶ Enter", fs_exit:"⛶ Exit",
+                pwa_ios_hint:"📲 Add to Home Screen for fullscreen (Share → Add to Home Screen)",
                 pause_btn:"☰ Menu", pause_title:"Paused", pause_resume:"▶ Resume", pause_settings:"⚙ Settings", pause_home:"🏠 Main Menu", pause_exit:"🚪 Exit", pause_back:"← Back",
                 collection_btn:"🎴 Charms", collection_title:"Charm Collection",
                 coll_empty:"No charms yet. Keep cooking — charms drop as you play!", coll_owned:"Collected {n} kinds", coll_total_label:"Total charms: {n}",
@@ -1371,6 +1382,7 @@
                 rotate_title:"Gira tu dispositivo", rotate_msg:"Smallcreek Skullchef se juega mejor en horizontal. Gira tu dispositivo para seguir cocinando.", rotate_continue:"Continuar igual",
                 settings_title:"Ajustes", settings_quality:"Calidad", quality_auto:"Auto", quality_high:"Alta", quality_low:"Baja",
                 settings_fullscreen:"Pantalla completa", fs_enter:"⛶ Activar", fs_exit:"⛶ Salir",
+                pwa_ios_hint:"📲 Añade a pantalla de inicio para pantalla completa (Compartir → Añadir a pantalla de inicio)",
                 pause_btn:"☰ Menú", pause_title:"Pausa", pause_resume:"▶ Reanudar", pause_settings:"⚙ Ajustes", pause_home:"🏠 Menú principal", pause_exit:"🚪 Salir", pause_back:"← Volver",
                 collection_btn:"🎴 Amuletos", collection_title:"Colección de Amuletos",
                 coll_empty:"Aún no tienes amuletos. ¡Sigue cocinando — los amuletos caen mientras juegas!", coll_owned:"Coleccionados {n} tipos", coll_total_label:"Amuletos totales: {n}",
@@ -4403,17 +4415,37 @@
             supported() {
                 try { if (ytPlayables && ytPlayables.available) return false; return !!(document.fullscreenEnabled || document.webkitFullscreenEnabled); } catch (e) { return false; }
             },
+            // Launched from a Home Screen icon (PWA) => already true fullscreen, no chrome.
+            isStandalone() {
+                try { return (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) || window.navigator.standalone === true; } catch (e) { return false; }
+            },
+            // iOS Safari has NO Fullscreen API; the only fullscreen is "Add to Home Screen".
+            _isIOS() {
+                try { const ua = navigator.userAgent || ''; return /iPad|iPhone|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1); } catch (e) { return false; }
+            },
+            _ytp() { try { return !!(typeof ytPlayables !== 'undefined' && ytPlayables && ytPlayables.available); } catch (e) { return false; } },
             isActive() { try { return !!(document.fullscreenElement || document.webkitFullscreenElement); } catch (e) { return false; } },
             enter() { const el = document.documentElement; const fn = el.requestFullscreen || el.webkitRequestFullscreen; if (fn) { try { const r = fn.call(el); if (r && r.catch) r.catch(() => {}); } catch (e) {} } },
             exit() { const fn = document.exitFullscreen || document.webkitExitFullscreen; if (fn) { try { const r = fn.call(document); if (r && r.catch) r.catch(() => {}); } catch (e) {} } },
-            toggle() { if (this.isActive()) this.exit(); else this.enter(); },
+            toggle() {
+                try {
+                    if (this.isStandalone()) return;                          // installed: already fullscreen, nothing to do
+                    if (this.supported()) { if (this.isActive()) this.exit(); else this.enter(); return; } // Android/desktop: native API
+                    if (this._isIOS() && !this._ytp()) { try { gx.toast(t('pwa_ios_hint')); } catch (e) {} } // iOS Safari fallback hint
+                } catch (e) {}
+            },
             syncUi() {
-                const sup = this.supported(), act = this.isActive();
-                [['home-fullscreen-row', 'home-fs'], ['pause-fullscreen-row', 'pause-fs']].forEach(pair => {
-                    const row = document.getElementById(pair[0]), btn = document.getElementById(pair[1]);
-                    if (row) row.style.display = sup ? '' : 'none';
-                    if (btn) btn.textContent = t(act ? 'fs_exit' : 'fs_enter');
-                });
+                try {
+                    const standalone = this.isStandalone(), sup = this.supported(), act = this.isActive();
+                    // Show the button on Android/desktop (native API) or iOS Safari (hint fallback);
+                    // hide it once installed/standalone (already fullscreen) or in YT Playables.
+                    const showFs = !standalone && !this._ytp() && (sup || this._isIOS());
+                    [['home-fullscreen-row', 'home-fs'], ['pause-fullscreen-row', 'pause-fs']].forEach(pair => {
+                        const row = document.getElementById(pair[0]), btn = document.getElementById(pair[1]);
+                        if (row) row.style.display = showFs ? '' : 'none';
+                        if (btn) btn.textContent = t(act ? 'fs_exit' : 'fs_enter');
+                    });
+                } catch (e) {}
             },
             init() {
                 ['fullscreenchange', 'webkitfullscreenchange'].forEach(ev => { try { document.addEventListener(ev, () => this.syncUi()); } catch (e) {} });
