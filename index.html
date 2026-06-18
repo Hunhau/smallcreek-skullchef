@@ -360,23 +360,31 @@
             body { overflow: hidden; }
             /* The scene is the star: main stage fills the width (shop is a slide-in now). */
             #main-stage { flex-grow: 1; width: 100%; }
-            /* Compact HUD, honoring the notch */
-            #hud { gap: 10px; padding: 5px 14px; top: max(6px, env(safe-area-inset-top)); }
-            #score-box { font-size: 1.25rem; white-space: nowrap; }
-            #shard-box { font-size: 0.85rem; white-space: nowrap; }
-            #cps-tag { top: 46px; font-size: 0.8rem; }
-            /* Chronicle: compact LEFT card, BELOW the HUD so it never covers the counter */
-            #lore-scroll { top: calc(env(safe-area-inset-top) + 48px); left: max(8px, env(safe-area-inset-left)); width: min(180px, 38vw); padding: 7px 9px; max-height: 58px; overflow: hidden; z-index: 6500; }
-            #lore-title { font-size: 0.66rem; }
-            #lore-text { font-size: 0.68rem; line-height: 1.25; }
+            /* Compact, centered energy counter. The verbose "Energy Balls:" / "Angel Shards:"
+               labels are hidden and replaced by short tags (EB / ⬨) so the pill stays small,
+               and max-width keeps it from ever spilling past the edges or reaching the
+               chronicle on the left. */
+            #hud { gap: 8px; padding: 4px 12px; top: max(6px, env(safe-area-inset-top)); max-width: min(260px, calc(100vw - 340px)); overflow: hidden; }
+            #hud span[data-i18n] { display: none; }
+            #score-box { font-size: 0.95rem; white-space: nowrap; }
+            #score-box::before { content: "EB "; font-size: 0.6em; color: var(--ac); }
+            #shard-box { font-size: 0.78rem; white-space: nowrap; }
+            #shard-box::before { content: "⬨ "; color: var(--go); }
+            #cps-tag { top: 42px; font-size: 0.76rem; }
+            /* Chronicle: compact card on the LEFT, at the SAME top as the counter (beside it),
+               with a firm max-height + internal scroll so growing text can NEVER expand down
+               into the owned-helpers chip/column. */
+            #lore-scroll { top: calc(env(safe-area-inset-top) + 6px); left: max(8px, env(safe-area-inset-left)); width: min(150px, 34vw); padding: 6px 8px; max-height: 54px; overflow-y: auto; overflow-x: hidden; z-index: 6500; }
+            #lore-title { font-size: 0.62rem; }
+            #lore-text { font-size: 0.64rem; line-height: 1.22; }
             /* Altar / prestige: free top-right corner (below the HUD line) */
-            #altar-panel { right: max(6px, env(safe-area-inset-right)); top: 54px; transform: scale(0.58); transform-origin: top right; z-index: 6500; }
+            #altar-panel { right: max(6px, env(safe-area-inset-right)); top: 52px; transform: scale(0.56); transform-origin: top right; z-index: 6500; }
             /* Owned-helpers box (scene): a HORIZONTAL row that wraps (up to ~4 across),
                with a collapse chip above it. Sits in the free left band below the
                chronicle and STOPS well above the bottom-left ☰ / 🛒 launchers. */
             #helpers-toggle {
                 display: inline-flex; align-items: center; gap: 4px;
-                position: absolute; left: max(8px, env(safe-area-inset-left)); top: calc(env(safe-area-inset-top) + 110px);
+                position: absolute; left: max(8px, env(safe-area-inset-left)); top: calc(env(safe-area-inset-top) + 70px);
                 z-index: 6600; pointer-events: auto;
                 background: var(--glass-strong); backdrop-filter: var(--glass-blur-sm); -webkit-backdrop-filter: var(--glass-blur-sm);
                 border: 1px solid var(--glass-bd-go); border-radius: 12px;
@@ -395,7 +403,7 @@
             /* Column auto-fits between its top and a bottom anchored above the launchers,
                so it scales to the device height without colliding with the ☰/🛒 row. */
             #companion-column {
-                left: max(8px, env(safe-area-inset-left)); top: calc(env(safe-area-inset-top) + 142px); bottom: 70px;
+                left: max(8px, env(safe-area-inset-left)); top: calc(env(safe-area-inset-top) + 102px); bottom: 70px;
                 width: min(168px, 40vw);
                 flex-flow: column wrap; align-content: flex-start;
                 justify-content: flex-start; gap: 5px; overflow: hidden;
@@ -466,9 +474,9 @@
         /* SHORTER landscape phones: tighten the left stack (chronicle/chip/column move up)
            and shrink the slot so up to 4 helpers still fit one column above the launchers. */
         @media (pointer: coarse) and (orientation: landscape) and (max-height: 400px) {
-            #lore-scroll { top: calc(env(safe-area-inset-top) + 44px); max-height: 46px; }
-            #helpers-toggle { top: calc(env(safe-area-inset-top) + 94px); }
-            #companion-column { top: calc(env(safe-area-inset-top) + 124px); bottom: 62px; gap: 4px; }
+            #lore-scroll { top: calc(env(safe-area-inset-top) + 4px); max-height: 44px; }
+            #helpers-toggle { top: calc(env(safe-area-inset-top) + 56px); }
+            #companion-column { top: calc(env(safe-area-inset-top) + 88px); bottom: 60px; gap: 4px; }
             .companion-slot { width: 32px; height: 32px; border-radius: 9px; }
             .lv-badge { font-size: 0.48rem; }
             .slot-crown { top: -8px; font-size: 0.74rem; }
@@ -481,23 +489,30 @@
         @media (pointer: coarse) and (orientation: portrait) and (max-width: 600px) {
             body { overflow: hidden; }
             #main-stage { flex-grow: 1; width: 100%; }
-            /* Energy counter (HUD) pinned top-center; everything else stacks BELOW it via
-               safe-area + fixed offsets so nothing ever overlaps the counter. */
-            #hud { gap: 12px; padding: 6px 16px; top: calc(env(safe-area-inset-top) + 8px); }
-            #score-box { font-size: 1.4rem; white-space: nowrap; }
-            #shard-box { font-size: 0.9rem; white-space: nowrap; }
-            #cps-tag { top: calc(env(safe-area-inset-top) + 56px); font-size: 0.85rem; }
-            /* Chronicle: compact card on the LEFT, clearly BELOW the HUD + CPS line */
-            #lore-scroll { top: calc(env(safe-area-inset-top) + 86px); left: max(8px, env(safe-area-inset-left)); width: min(210px, 54vw); padding: 8px 10px; max-height: 96px; overflow: hidden; z-index: 6500; }
-            #lore-title { font-size: 0.68rem; }
-            #lore-text { font-size: 0.72rem; line-height: 1.3; }
-            /* Altar / prestige: top-RIGHT, also BELOW the HUD so it never covers the counter */
-            #altar-panel { right: max(6px, env(safe-area-inset-right)); top: calc(env(safe-area-inset-top) + 86px); transform: scale(0.58); transform-origin: top right; z-index: 6500; }
+            /* Compact energy counter, RIGHT-anchored: the verbose "Energy Balls:" / "Angel
+               Shards:" labels are hidden and replaced by short tags (EB / ⬨), and max-width
+               keeps it from ever spilling off either screen edge on narrow phones. The
+               chronicle sits at the SAME top on the LEFT (beside it), freeing the space below. */
+            #hud { left: auto; right: max(8px, env(safe-area-inset-right)); transform: none; gap: 8px; padding: 4px 12px; top: calc(env(safe-area-inset-top) + 8px); max-width: calc(100vw - 132px); overflow: hidden; }
+            #hud span[data-i18n] { display: none; }
+            #score-box { font-size: 1.0rem; white-space: nowrap; }
+            #score-box::before { content: "EB "; font-size: 0.62em; color: var(--ac); }
+            #shard-box { font-size: 0.8rem; white-space: nowrap; }
+            #shard-box::before { content: "⬨ "; color: var(--go); }
+            #cps-tag { top: calc(env(safe-area-inset-top) + 50px); left: auto; right: max(10px, env(safe-area-inset-right)); transform: none; font-size: 0.78rem; }
+            /* Chronicle: compact card on the LEFT at the SAME top as the counter (beside it),
+               with a firm max-height + internal scroll so growing story text can NEVER expand
+               down into the owned-helpers chip / column. */
+            #lore-scroll { top: calc(env(safe-area-inset-top) + 8px); left: max(8px, env(safe-area-inset-left)); width: min(104px, 28vw); padding: 6px 8px; max-height: 62px; overflow-y: auto; overflow-x: hidden; z-index: 6500; }
+            #lore-title { font-size: 0.6rem; }
+            #lore-text { font-size: 0.62rem; line-height: 1.2; }
+            /* Altar / prestige: top-RIGHT, below the counter */
+            #altar-panel { right: max(6px, env(safe-area-inset-right)); top: calc(env(safe-area-inset-top) + 70px); transform: scale(0.56); transform-origin: top right; z-index: 6500; }
 
             /* Owned-helpers: a single vertical column of up to 4, left side, below the chronicle */
             #helpers-toggle {
                 display: inline-flex; align-items: center; gap: 4px;
-                position: absolute; left: max(8px, env(safe-area-inset-left)); top: calc(env(safe-area-inset-top) + 192px);
+                position: absolute; left: max(8px, env(safe-area-inset-left)); top: calc(env(safe-area-inset-top) + 82px);
                 z-index: 6600; pointer-events: auto;
                 background: var(--glass-strong); backdrop-filter: var(--glass-blur-sm); -webkit-backdrop-filter: var(--glass-blur-sm);
                 border: 1px solid var(--glass-bd-go); border-radius: 12px;
@@ -510,7 +525,7 @@
             #helpers-toggle:active { filter: brightness(1.15); }
             .helpers-chevron { font-size: 0.66rem; }
             #companion-column {
-                left: max(8px, env(safe-area-inset-left)); top: calc(env(safe-area-inset-top) + 228px); bottom: 92px;
+                left: max(8px, env(safe-area-inset-left)); top: calc(env(safe-area-inset-top) + 116px); bottom: 92px;
                 width: min(64px, 20vw);
                 flex-flow: column wrap; align-content: flex-start;
                 justify-content: flex-start; gap: 6px; overflow: hidden;
@@ -584,9 +599,9 @@
            taller, narrower aspect, shrink the title/racers/timer, and tuck the title up so
            the whole track fits without being cut off or overlapping. Portrait is untouched. */
         @media (pointer: coarse) and (orientation: landscape) and (max-height: 600px) {
-            #race-modal { justify-content: flex-start; padding: max(6px, env(safe-area-inset-top)) 8px calc(env(safe-area-inset-bottom) + 6px); }
-            #race-modal > h1 { font-size: 1.1rem; letter-spacing: 2px; margin: 2px 0 6px; }
-            #race-track { width: min(560px, 70vw); height: min(82vh, 360px); border-width: 3px; }
+            #race-modal { justify-content: flex-start; overflow-y: auto; padding: max(6px, env(safe-area-inset-top)) 8px calc(env(safe-area-inset-bottom) + 6px); }
+            #race-modal > h1 { font-size: 1.05rem; letter-spacing: 2px; margin: 2px 0 5px; }
+            #race-track { width: min(560px, 70vw); height: min(80vh, 340px); border-width: 3px; }
             .racer-img { width: 54px; height: 54px; bottom: 14px; }
             #finish-line { top: 18px; }
             #finish-label { top: 40px; font-size: 0.7rem; letter-spacing: 2px; }
@@ -1398,7 +1413,7 @@
         // build differs, reload ONCE with a cache-busting ?v= query. sessionStorage guards
         // against reload loops. Fully defensive: any error is silent and never blocks the
         // game. Parent bumps BOTH version.json and BUILD_V on every future deploy.
-        const BUILD_V = "build-5";
+        const BUILD_V = "build-6";
         (function checkForUpdate() {
             try {
                 fetch('version.json?ts=' + Date.now(), { cache: 'no-store' })
