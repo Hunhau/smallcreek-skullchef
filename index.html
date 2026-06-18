@@ -182,6 +182,15 @@
         .amb-slider { width: 96px; height: 4px; accent-color: var(--ac); cursor: pointer; }
         .amb-toggle:disabled, .amb-slider:disabled { opacity: 0.4; cursor: not-allowed; }
         .amb-unavail { width: 100%; font-size: 0.62rem; color: #fca5a5; letter-spacing: 0.3px; }
+        .music-sec { background: rgba(168,85,247,0.10); border: 1px solid var(--ac); border-radius: 12px; padding: 10px 12px; margin-bottom: 14px; text-align: left; }
+        .music-head { display: flex; align-items: baseline; gap: 8px; margin-bottom: 8px; flex-wrap: wrap; }
+        .music-label { font-size: 0.85rem; font-weight: bold; color: var(--go); }
+        .music-track { font-size: 0.78rem; color: #e2e8f0; flex: 1; min-width: 80px; }
+        .music-ctrls { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+        .music-btn { min-width: 40px; min-height: 36px; padding: 4px 10px; background: rgba(255,255,255,0.08); border: 1px solid #fff3; border-radius: 8px; color: #fff; font-size: 0.9rem; cursor: pointer; }
+        .music-btn.music-play { color: var(--go); border-color: var(--go); font-weight: bold; }
+        .music-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+        .music-ctrls .amb-slider { flex: 1; min-width: 90px; }
         /* === Creator / LIVE panel (Feature B) === */
         .creator-link { display: block; width: 100%; margin: 0 0 10px; }
         .creator-live { background: linear-gradient(135deg,#ef4444,#7f1d1d) !important; border-color: #fecaca !important; }
@@ -410,6 +419,16 @@
     </div></div>
     <div id="ambient-modal" class="gx-modal"><div class="gx-box">
         <h2 data-i18n="ambient_title">Ambient Sounds</h2>
+        <div id="music-sec" class="music-sec">
+            <div class="music-head"><span class="music-label" data-i18n="music_title">Music</span><span id="music-track" class="music-track"></span></div>
+            <div id="music-ctrls" class="music-ctrls">
+                <button class="music-btn" type="button" id="music-prev" onclick="music.prev()" data-i18n-title="music_prev">⏮</button>
+                <button class="music-btn music-play" type="button" id="music-play" onclick="music.toggle()" data-i18n-title="music_play">▶</button>
+                <button class="music-btn" type="button" id="music-next" onclick="music.next()" data-i18n-title="music_next">⏭</button>
+                <input id="music-vol" class="amb-slider" type="range" min="0" max="100" value="60" oninput="music.setVol(this.value/100)">
+            </div>
+            <div id="music-none" class="amb-unavail" style="display:none" data-i18n="music_none">No music yet</div>
+        </div>
         <p class="amb-hint" data-i18n="ambient_hint">Layer relaxing loops while you cook.</p>
         <div id="ambient-list"></div>
         <div class="home-row" style="margin-top:6px"><span class="home-row-label" data-i18n="ambient_master">Master ambient volume</span><div class="home-ctrl"><input id="ambient-master" type="range" min="0" max="100" value="60" oninput="ambient.setMaster(this.value/100)"></div></div>
@@ -485,6 +504,7 @@
                 ach_awakened5_n:"Fivefold Soul", ach_awakened5_d:"Reach Angel Awakening Lv.5",
                 ambient_btn:"🎧 Ambience", ambient_title:"Ambient Sounds", ambient_hint:"Layer relaxing loops while you cook.", ambient_master:"Master ambient volume", ambient_unavailable:"Audio file not found",
                 amb_rain:"Rain", amb_fire:"Crackling Fire", amb_waves:"Sea Waves", amb_soup:"Bubbling Soup",
+                music_title:"Music", music_play:"Play", music_pause:"Pause", music_next:"Next", music_prev:"Previous", music_none:"No music yet",
                 creator_btn:"📺 Creator", creator_title:"Creator", creator_hint:"Follow the SmallCreek kitchen.", creator_youtube:"YouTube", creator_tiktok:"TikTok", creator_live:"🔴 LIVE", creator_live_now:"Live now!", creator_none:"No links available yet."
             },
             es: {
@@ -538,6 +558,7 @@
                 ach_awakened5_n:"Alma Quíntuple", ach_awakened5_d:"Alcanza Despertar del Ángel Nv.5",
                 ambient_btn:"🎧 Ambiente", ambient_title:"Sonidos de Ambiente", ambient_hint:"Mezcla bucles relajantes mientras cocinas.", ambient_master:"Volumen ambiente general", ambient_unavailable:"Archivo de audio no encontrado",
                 amb_rain:"Lluvia", amb_fire:"Fuego Crepitante", amb_waves:"Olas del Mar", amb_soup:"Sopa Burbujeante",
+                music_title:"Música", music_play:"Reproducir", music_pause:"Pausa", music_next:"Siguiente", music_prev:"Anterior", music_none:"Aún no hay música",
                 creator_btn:"📺 Creador", creator_title:"Creador", creator_hint:"Sigue la cocina de SmallCreek.", creator_youtube:"YouTube", creator_tiktok:"TikTok", creator_live:"🔴 EN VIVO", creator_live_now:"¡En directo!", creator_none:"Aún no hay enlaces disponibles."
             }
         };
@@ -561,7 +582,7 @@
             try { quality.syncUi(); fullscreen.syncUi(); } catch (e) {}
             const cm = document.getElementById('collection-modal'); if (cm && cm.classList.contains('open')) collection.render();
             const am = document.getElementById('ach-modal'); if (am && am.classList.contains('open')) achievementsUI.render();
-            try { const abm = document.getElementById('ambient-modal'); if (abm && abm.classList.contains('open')) ambient._render(); } catch (e) {}
+            try { const abm = document.getElementById('ambient-modal'); if (abm && abm.classList.contains('open')) { ambient._render(); if (typeof music !== 'undefined') music._render(); } } catch (e) {}
             try { const crm = document.getElementById('creator-modal'); if (crm && crm.classList.contains('open')) creator.render(); creator.syncLive(); } catch (e) {}
         }
         const sound = {
@@ -747,7 +768,7 @@
                 if (voices) voices.forEach(a => { try { a.onended = null; a.pause(); a.currentTime = 0; a.volume = this._stirVol(); } catch (e) {} });
                 S.cur = null; S.idx = 0;
             },
-            setMuted(m) { this.muted = !!m; if (this.muted) { try { this._stirStopNow(); } catch (e) {} } this.save(); this.updateUi(); try { if (typeof ambient !== 'undefined' && ambient._inited) ambient.syncPlayback(); } catch (e) {} },
+            setMuted(m) { this.muted = !!m; if (this.muted) { try { this._stirStopNow(); } catch (e) {} } this.save(); this.updateUi(); try { if (typeof ambient !== 'undefined' && ambient._inited) ambient.syncPlayback(); } catch (e) {} try { if (typeof music !== 'undefined' && music._inited) music.syncPlayback(); } catch (e) {} },
             toggleMute() { this.setMuted(!this.muted); },
             setVolume(val) { const n = Number(val); this.volume = isFinite(n) ? Math.min(1, Math.max(0, n)) : this.volume; if (this.volume > 0 && this.muted) this.muted = false; this.save(); this.updateUi(); },
             updateUi() {
@@ -878,9 +899,159 @@
             open() {
                 if (!this._inited) this.init();
                 this._render();
+                try { if (typeof music !== 'undefined') { if (!music._inited) music.init(); music._render(); } } catch (e) {}
                 const md = document.getElementById('ambient-modal'); if (md) md.classList.add('open');
             },
             close() { const md = document.getElementById('ambient-modal'); if (md) md.classList.remove('open'); }
+        };
+        // ====================================================================
+        // === LISTA DE REPRODUCCIÓN DE MÚSICA (canal propio, no se mezcla) ===
+        // ====================================================================
+        // CÓMO AÑADIR MÁS MÚSICA (sin tocar código): suelta el archivo en
+        // assets/audio/ambient/<nombre>.mp3 y añade una entrada a MUSIC_PLAYLIST:
+        //   { file: 'assets/audio/ambient/<nombre>.mp3', title_en: '...', title_es: '...' }
+        // El orden del array es el orden de reproducción. Con 1 sola pista, se
+        // repite en bucle. Si un archivo falta/404 se salta a la siguiente; si
+        // TODAS faltan (o el array está vacío) los controles se deshabilitan y se
+        // muestra "No music yet". Es un canal SEPARADO de los bucles de ambiente
+        // (puede sonar a la vez), pero respeta el MUTE GLOBAL (sound.muted) y se
+        // pausa/reanuda en visibilitychange. Lazy: el audio se crea solo al pulsar
+        // Play. Persiste en localStorage ('soup_music' = { on, vol, idx }).
+        const MUSIC_PLAYLIST = [
+            { file: 'assets/audio/ambient/music.mp3', title_en: 'Relax 1', title_es: 'Relax 1' }
+            // Añade más pistas aquí, p. ej.:
+            // { file: 'assets/audio/ambient/music2.mp3', title_en: 'Relax 2', title_es: 'Relax 2' }
+        ];
+        const music = {
+            playlist: MUSIC_PLAYLIST,
+            audio: null, idx: 0, on: false, vol: 0.6, avail: true, _inited: false, _missing: {},
+            _c(v) { v = Number(v); return isFinite(v) ? Math.min(1, Math.max(0, v)) : 0; },
+            load() {
+                try {
+                    const raw = localStorage.getItem('soup_music');
+                    if (raw) {
+                        const d = JSON.parse(raw);
+                        if (d && typeof d === 'object') {
+                            if (typeof d.vol === 'number' && isFinite(d.vol)) this.vol = this._c(d.vol);
+                            if (typeof d.idx === 'number' && isFinite(d.idx)) this.idx = d.idx | 0;
+                            this.on = !!d.on;
+                        }
+                    }
+                } catch (e) {}
+            },
+            save() {
+                try { localStorage.setItem('soup_music', JSON.stringify({ on: !!this.on, vol: this.vol, idx: this.idx })); } catch (e) {}
+            },
+            init() {
+                if (this._inited) return; this._inited = true;
+                this.load();
+                if (!this.playlist.length) this.avail = false;
+                if (!(this.idx >= 0 && this.idx < this.playlist.length)) this.idx = 0;
+                try { document.addEventListener('visibilitychange', () => this.syncPlayback()); } catch (e) {}
+                // Reanuda la música guardada como activa tras el PRIMER gesto del
+                // usuario (los navegadores bloquean autoplay sin interacción).
+                if (this.on && this.avail) {
+                    const evs = ['pointerdown', 'touchstart', 'keydown'];
+                    const h = () => { try { this.syncPlayback(); } catch (e) {} evs.forEach(ev => document.removeEventListener(ev, h)); };
+                    evs.forEach(ev => document.addEventListener(ev, h, { once: true, passive: true }));
+                }
+            },
+            ensureAudio() {
+                if (this.audio) return this.audio;
+                const a = new Audio();
+                a.preload = 'none';
+                a.addEventListener('ended', () => { this.next(); }, { passive: true });
+                a.addEventListener('error', () => {
+                    this._missing[this.idx] = true;
+                    this._skipMissing();
+                }, { passive: true });
+                this.audio = a;
+                this._applySrc();
+                return a;
+            },
+            _applySrc() {
+                if (!this.audio) return;
+                const tr = this.playlist[this.idx];
+                if (!tr || !tr.file) return;
+                if (this.audio.getAttribute('src') !== tr.file) { try { this.audio.src = tr.file; } catch (e) {} }
+            },
+            _allMissing() {
+                if (!this.playlist.length) return true;
+                for (let i = 0; i < this.playlist.length; i++) { if (!this._missing[i]) return false; }
+                return true;
+            },
+            _disable() {
+                this.avail = false; this.on = false;
+                if (this.audio) { try { this.audio.pause(); } catch (e) {} }
+                this.save(); this._render();
+            },
+            _skipMissing() {
+                if (this._allMissing()) { this._disable(); return; }
+                const n = this.playlist.length; let i = this.idx;
+                for (let k = 0; k < n; k++) { i = (i + 1) % n; if (!this._missing[i]) break; }
+                this.idx = i;
+                this._applySrc();
+                if (this.on) { try { if (this.audio) this.audio.currentTime = 0; } catch (e) {} this.syncPlayback(); }
+                this.save(); this._render();
+            },
+            _title() {
+                const tr = this.playlist[this.idx]; if (!tr) return '';
+                const es = (typeof LANG !== 'undefined' && LANG === 'es');
+                return (es ? (tr.title_es || tr.title_en) : (tr.title_en || tr.title_es)) || '';
+            },
+            syncPlayback() {
+                const muted = (typeof sound !== 'undefined' && sound.muted);
+                const hidden = (typeof document !== 'undefined' && document.hidden);
+                if (this.on && this.avail && !muted && !hidden) {
+                    const a = this.ensureAudio();
+                    try { a.volume = this._c(this.vol); } catch (e) {}
+                    try { const p = a.play(); if (p && p.catch) p.catch(() => {}); } catch (e) {}
+                } else if (this.audio) {
+                    try { this.audio.pause(); } catch (e) {}
+                }
+            },
+            toggle() {
+                if (!this._inited) this.init();
+                if (!this.avail) return;
+                this.on = !this.on;
+                this.syncPlayback();
+                this.save(); this._render();
+            },
+            _step(dir) {
+                if (!this._inited) this.init();
+                if (!this.avail || !this.playlist.length) return;
+                const n = this.playlist.length; let i = this.idx;
+                for (let k = 0; k < n; k++) { i = (i + dir + n) % n; if (!this._missing[i]) break; }
+                this.idx = i;
+                this._applySrc();
+                if (this.on && this.audio) { try { this.audio.currentTime = 0; } catch (e) {} this.syncPlayback(); }
+                this.save(); this._render();
+            },
+            next() { this._step(1); },
+            prev() { this._step(-1); },
+            setVol(v) {
+                this.vol = this._c(v);
+                if (this.audio) { try { this.audio.volume = this.vol; } catch (e) {} }
+                this.save();
+            },
+            _render() {
+                const sec = document.getElementById('music-sec'); if (!sec) return;
+                const has = this.avail && this.playlist.length > 0;
+                const noneEl = document.getElementById('music-none');
+                const ctrls = document.getElementById('music-ctrls');
+                const titleEl = document.getElementById('music-track');
+                const playBtn = document.getElementById('music-play');
+                const prevBtn = document.getElementById('music-prev');
+                const nextBtn = document.getElementById('music-next');
+                const vol = document.getElementById('music-vol');
+                if (noneEl) noneEl.style.display = has ? 'none' : '';
+                if (ctrls) ctrls.style.display = has ? '' : 'none';
+                if (titleEl) titleEl.textContent = has ? this._title() : '';
+                if (playBtn) { playBtn.textContent = this.on ? '❚❚' : '▶'; playBtn.title = t(this.on ? 'music_pause' : 'music_play'); playBtn.disabled = !has; }
+                if (prevBtn) prevBtn.disabled = !has;
+                if (nextBtn) nextBtn.disabled = !has;
+                if (vol && document.activeElement !== vol) vol.value = String(Math.round(this.vol * 100));
+            }
         };
         // ====================================================================
         // === PANEL DEL CREADOR / LIVE (Feature B, fase 1: SOLO ENLACES) =====
@@ -2778,6 +2949,7 @@
             try { collection.refreshFab(); } catch (e) {}
             try { collection.preload(); } catch (e) {}
             try { ambient.init(); } catch (e) {}
+            try { music.init(); } catch (e) {}
             try { creator.render(); creator.syncLive(); } catch (e) {}
             // Juego inicializado y jugable. Fuera de Playables es no-op silencioso.
             ytPlayables.gameReady();
