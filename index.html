@@ -362,21 +362,21 @@
             #main-stage { flex-grow: 1; width: 100%; }
             /* Compact HUD, honoring the notch */
             #hud { gap: 10px; padding: 5px 14px; top: max(6px, env(safe-area-inset-top)); }
-            #score-box { font-size: 1.25rem; }
-            #shard-box { font-size: 0.85rem; }
+            #score-box { font-size: 1.25rem; white-space: nowrap; }
+            #shard-box { font-size: 0.85rem; white-space: nowrap; }
             #cps-tag { top: 46px; font-size: 0.8rem; }
-            /* Chronicle: small corner card so it never covers the cauldron */
-            #lore-scroll { top: max(8px, env(safe-area-inset-top)); left: max(8px, env(safe-area-inset-left)); width: min(200px, 38vw); padding: 8px 10px; max-height: 26vh; overflow: hidden; z-index: 6500; }
-            #lore-title { font-size: 0.68rem; }
-            #lore-text { font-size: 0.7rem; line-height: 1.3; }
-            /* Altar / prestige: shrink into the free top-right corner */
+            /* Chronicle: compact LEFT card, BELOW the HUD so it never covers the counter */
+            #lore-scroll { top: calc(env(safe-area-inset-top) + 48px); left: max(8px, env(safe-area-inset-left)); width: min(180px, 38vw); padding: 7px 9px; max-height: 58px; overflow: hidden; z-index: 6500; }
+            #lore-title { font-size: 0.66rem; }
+            #lore-text { font-size: 0.68rem; line-height: 1.25; }
+            /* Altar / prestige: free top-right corner (below the HUD line) */
             #altar-panel { right: max(6px, env(safe-area-inset-right)); top: 54px; transform: scale(0.58); transform-origin: top right; z-index: 6500; }
             /* Owned-helpers box (scene): a HORIZONTAL row that wraps (up to ~4 across),
                with a collapse chip above it. Sits in the free left band below the
                chronicle and STOPS well above the bottom-left ☰ / 🛒 launchers. */
             #helpers-toggle {
                 display: inline-flex; align-items: center; gap: 4px;
-                position: absolute; left: max(8px, env(safe-area-inset-left)); top: 114px;
+                position: absolute; left: max(8px, env(safe-area-inset-left)); top: calc(env(safe-area-inset-top) + 110px);
                 z-index: 6600; pointer-events: auto;
                 background: var(--glass-strong); backdrop-filter: var(--glass-blur-sm); -webkit-backdrop-filter: var(--glass-blur-sm);
                 border: 1px solid var(--glass-bd-go); border-radius: 12px;
@@ -392,14 +392,16 @@
                column on the right. max-height is a FIXED 4-slot height (not a calc that
                can collapse), and the slot size shrinks per height tier below so 4 always
                fit in one column above the launchers — never a premature horizontal row. */
+            /* Column auto-fits between its top and a bottom anchored above the launchers,
+               so it scales to the device height without colliding with the ☰/🛒 row. */
             #companion-column {
-                left: max(8px, env(safe-area-inset-left)); top: 148px; bottom: auto;
-                max-height: 180px; width: min(232px, 52vw);
+                left: max(8px, env(safe-area-inset-left)); top: calc(env(safe-area-inset-top) + 142px); bottom: 70px;
+                width: min(168px, 40vw);
                 flex-flow: column wrap; align-content: flex-start;
                 justify-content: flex-start; gap: 5px; overflow: hidden;
             }
             body.helpers-collapsed #companion-column { display: none; }
-            .companion-slot { width: 40px; height: 40px; border-radius: 11px; }
+            .companion-slot { width: 36px; height: 36px; border-radius: 11px; }
             .lv-badge { bottom: -4px; right: -4px; padding: 0 3px; font-size: 0.52rem; border-width: 1px; }
             .slot-crown { top: -10px; font-size: 0.9rem; }
 
@@ -461,17 +463,12 @@
             #audio-ctrl { bottom: max(10px, env(safe-area-inset-bottom)); right: max(10px, env(safe-area-inset-right)); padding: 6px 10px; }
             #audio-vol { width: 64px; }
         }
-        /* Owned-helpers box: SHORTER landscape phones shrink the slot so 4 still fit
-           vertically in one column (and the chip/column move up) — never wrap early. */
-        @media (pointer: coarse) and (orientation: landscape) and (max-height: 430px) {
-            #helpers-toggle { top: 104px; }
-            #companion-column { top: 134px; max-height: 156px; gap: 4px; }
-            .companion-slot { width: 36px; height: 36px; border-radius: 10px; }
-            .slot-crown { top: -9px; font-size: 0.82rem; }
-        }
-        @media (pointer: coarse) and (orientation: landscape) and (max-height: 360px) {
-            #helpers-toggle { top: 90px; }
-            #companion-column { top: 122px; max-height: 140px; gap: 4px; }
+        /* SHORTER landscape phones: tighten the left stack (chronicle/chip/column move up)
+           and shrink the slot so up to 4 helpers still fit one column above the launchers. */
+        @media (pointer: coarse) and (orientation: landscape) and (max-height: 400px) {
+            #lore-scroll { top: calc(env(safe-area-inset-top) + 44px); max-height: 46px; }
+            #helpers-toggle { top: calc(env(safe-area-inset-top) + 94px); }
+            #companion-column { top: calc(env(safe-area-inset-top) + 124px); bottom: 62px; gap: 4px; }
             .companion-slot { width: 32px; height: 32px; border-radius: 9px; }
             .lv-badge { font-size: 0.48rem; }
             .slot-crown { top: -8px; font-size: 0.74rem; }
@@ -484,21 +481,23 @@
         @media (pointer: coarse) and (orientation: portrait) and (max-width: 600px) {
             body { overflow: hidden; }
             #main-stage { flex-grow: 1; width: 100%; }
-            #hud { gap: 12px; padding: 6px 16px; top: max(8px, env(safe-area-inset-top)); }
-            #score-box { font-size: 1.4rem; }
-            #shard-box { font-size: 0.9rem; }
-            #cps-tag { top: 54px; font-size: 0.85rem; }
-            /* Chronicle: compact card, top-left */
-            #lore-scroll { top: max(8px, env(safe-area-inset-top)); left: max(8px, env(safe-area-inset-left)); width: min(220px, 56vw); padding: 8px 10px; max-height: 16vh; overflow: hidden; z-index: 6500; }
+            /* Energy counter (HUD) pinned top-center; everything else stacks BELOW it via
+               safe-area + fixed offsets so nothing ever overlaps the counter. */
+            #hud { gap: 12px; padding: 6px 16px; top: calc(env(safe-area-inset-top) + 8px); }
+            #score-box { font-size: 1.4rem; white-space: nowrap; }
+            #shard-box { font-size: 0.9rem; white-space: nowrap; }
+            #cps-tag { top: calc(env(safe-area-inset-top) + 56px); font-size: 0.85rem; }
+            /* Chronicle: compact card on the LEFT, clearly BELOW the HUD + CPS line */
+            #lore-scroll { top: calc(env(safe-area-inset-top) + 86px); left: max(8px, env(safe-area-inset-left)); width: min(210px, 54vw); padding: 8px 10px; max-height: 96px; overflow: hidden; z-index: 6500; }
             #lore-title { font-size: 0.68rem; }
             #lore-text { font-size: 0.72rem; line-height: 1.3; }
-            /* Altar / prestige: shrink into the top-right corner */
-            #altar-panel { right: max(6px, env(safe-area-inset-right)); top: 84px; transform: scale(0.58); transform-origin: top right; z-index: 6500; }
+            /* Altar / prestige: top-RIGHT, also BELOW the HUD so it never covers the counter */
+            #altar-panel { right: max(6px, env(safe-area-inset-right)); top: calc(env(safe-area-inset-top) + 86px); transform: scale(0.58); transform-origin: top right; z-index: 6500; }
 
-            /* Owned-helpers: a single vertical column of up to 4, left side */
+            /* Owned-helpers: a single vertical column of up to 4, left side, below the chronicle */
             #helpers-toggle {
                 display: inline-flex; align-items: center; gap: 4px;
-                position: absolute; left: max(8px, env(safe-area-inset-left)); top: 150px;
+                position: absolute; left: max(8px, env(safe-area-inset-left)); top: calc(env(safe-area-inset-top) + 192px);
                 z-index: 6600; pointer-events: auto;
                 background: var(--glass-strong); backdrop-filter: var(--glass-blur-sm); -webkit-backdrop-filter: var(--glass-blur-sm);
                 border: 1px solid var(--glass-bd-go); border-radius: 12px;
@@ -511,8 +510,8 @@
             #helpers-toggle:active { filter: brightness(1.15); }
             .helpers-chevron { font-size: 0.66rem; }
             #companion-column {
-                left: max(8px, env(safe-area-inset-left)); top: 186px; bottom: auto;
-                max-height: 224px; width: min(64px, 20vw);
+                left: max(8px, env(safe-area-inset-left)); top: calc(env(safe-area-inset-top) + 228px); bottom: 92px;
+                width: min(64px, 20vw);
                 flex-flow: column wrap; align-content: flex-start;
                 justify-content: flex-start; gap: 6px; overflow: hidden;
             }
@@ -579,6 +578,22 @@
         /* Grand Prix track: fit the viewport width on any touch device (lanes flex auto-fit). */
         @media (pointer: coarse) {
             #race-track { width: min(800px, 94vw); }
+        }
+        /* Grand Prix in LANDSCAPE phones: the viewport is short + wide, so the default
+           94vw × 65vh track is too wide/short and the title eats the height. Give it a
+           taller, narrower aspect, shrink the title/racers/timer, and tuck the title up so
+           the whole track fits without being cut off or overlapping. Portrait is untouched. */
+        @media (pointer: coarse) and (orientation: landscape) and (max-height: 600px) {
+            #race-modal { justify-content: flex-start; padding: max(6px, env(safe-area-inset-top)) 8px calc(env(safe-area-inset-bottom) + 6px); }
+            #race-modal > h1 { font-size: 1.1rem; letter-spacing: 2px; margin: 2px 0 6px; }
+            #race-track { width: min(560px, 70vw); height: min(82vh, 360px); border-width: 3px; }
+            .racer-img { width: 54px; height: 54px; bottom: 14px; }
+            #finish-line { top: 18px; }
+            #finish-label { top: 40px; font-size: 0.7rem; letter-spacing: 2px; }
+            #p-timer { font-size: 5rem !important; }
+            #p-sel p { margin: 6px 0; }
+            #p-end h2 { margin: 6px 0; }
+            #btn-close-race { margin-top: 14px !important; padding: 12px 32px !important; }
         }
         /* === Ajustes in-game + menú de pausa + colección/logros (Tareas 2/5/6) === */
         .seg-group { display: inline-flex; gap: 4px; background: rgba(0,0,0,0.3); border-radius: 10px; padding: 4px; }
@@ -1383,7 +1398,7 @@
         // build differs, reload ONCE with a cache-busting ?v= query. sessionStorage guards
         // against reload loops. Fully defensive: any error is silent and never blocks the
         // game. Parent bumps BOTH version.json and BUILD_V on every future deploy.
-        const BUILD_V = "build-4";
+        const BUILD_V = "build-5";
         (function checkForUpdate() {
             try {
                 fetch('version.json?ts=' + Date.now(), { cache: 'no-store' })
