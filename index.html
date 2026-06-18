@@ -331,7 +331,8 @@
         /* Mostrar el aviso sólo en vertical + (pantalla estrecha O dispositivo táctil). */
         @media (orientation: portrait) and (max-width: 900px) { #rotate-overlay { display: flex; } }
         @media (orientation: portrait) and (hover: none) and (pointer: coarse) { #rotate-overlay { display: flex; } }
-        /* The rotate hint is a soft suggestion, never a hard block: once dismissed it stays hidden. */
+        /* "Continue anyway" hides the prompt TRANSIENTLY (this class is not persisted and
+           is cleared when the orientation flips back to portrait — see wireRotateOverlay). */
         #rotate-overlay.dismissed { display: none !important; }
         /* RESPONSIVE de bajo riesgo: evita desbordes en pantallas pequeñas (no rediseña). */
         @media (max-width: 820px) {
@@ -1283,7 +1284,7 @@
         // build differs, reload ONCE with a cache-busting ?v= query. sessionStorage guards
         // against reload loops. Fully defensive: any error is silent and never blocks the
         // game. Parent bumps BOTH version.json and BUILD_V on every future deploy.
-        const BUILD_V = "build-1";
+        const BUILD_V = "build-2";
         (function checkForUpdate() {
             try {
                 fetch('version.json?ts=' + Date.now(), { cache: 'no-store' })
@@ -5344,29 +5345,59 @@
                 } catch (e) {}
             }
         };
-        // The portrait rotate hint is a soft suggestion, not a hard block. Tapping
-        // "Continue anyway" hides it and remembers the choice so it stays hidden on reload.
+        // Portrait rotate hint. The prompt is driven LIVE by CSS media queries (shown in
+        // portrait on phones, hidden in landscape). "Continue anyway" is now a TRANSIENT
+        // escape hatch ONLY: it hides the prompt for the current portrait moment but is
+        // NOT persisted, so the prompt reliably returns on reload or if the phone is
+        // rotated back to portrait. The default is always: portrait shows the prompt.
         const ROTATE_DISMISS_KEY = 'soup_rotate_dismissed_v1';
         function dismissRotateOverlay() {
             try {
                 const ov = document.getElementById('rotate-overlay');
-                if (ov) { ov.classList.add('dismissed'); ov.style.display = 'none'; }
-                try { localStorage.setItem(ROTATE_DISMISS_KEY, '1'); } catch (e) {}
+                if (ov) { ov.classList.add('dismissed'); }
                 // Player chose to proceed in portrait: release any deferred tutorial start.
                 try { landscapeGate._flush(true); } catch (e) {}
             } catch (e) {}
         }
+        // Migration + reset: an earlier build PERSISTED a permanent dismissal flag that
+        // could suppress the portrait prompt forever. Clear it (and any stale inline/class
+        // state) on every boot so the rotate gate is reliable.
         function applyRotateDismissOnBoot() {
+            try { localStorage.removeItem(ROTATE_DISMISS_KEY); } catch (e) {}
             try {
-                if (localStorage.getItem(ROTATE_DISMISS_KEY) === '1') {
-                    const ov = document.getElementById('rotate-overlay');
-                    if (ov) { ov.classList.add('dismissed'); ov.style.display = 'none'; }
-                }
+                const ov = document.getElementById('rotate-overlay');
+                if (ov) { ov.classList.remove('dismissed'); if (ov.style.display) ov.style.display = ''; }
+            } catch (e) {}
+        }
+        // Live orientation wiring: when the orientation actually flips, clear the transient
+        // "Continue anyway" dismissal so portrait re-shows the prompt. We only react to a
+        // real portrait<->landscape flip (not every spurious resize, e.g. the mobile address
+        // bar) so tapping "Continue anyway" stays effective during one portrait moment.
+        function wireRotateOverlay() {
+            try {
+                let lastPortrait = null;
+                const check = () => {
+                    try {
+                        let portrait;
+                        try { portrait = window.matchMedia('(orientation: portrait)').matches; }
+                        catch (e) { portrait = window.innerHeight >= window.innerWidth; }
+                        if (lastPortrait === null) { lastPortrait = portrait; return; }
+                        if (portrait !== lastPortrait) {
+                            lastPortrait = portrait;
+                            const ov = document.getElementById('rotate-overlay');
+                            if (ov) { ov.classList.remove('dismissed'); if (ov.style.display) ov.style.display = ''; }
+                        }
+                    } catch (e) {}
+                };
+                window.addEventListener('orientationchange', () => setTimeout(check, 60));
+                window.addEventListener('resize', check);
+                check();
             } catch (e) {}
         }
         function boot() {
             try { const sl = localStorage.getItem('soup_lang'); if (sl === 'es' || sl === 'en') LANG = sl; } catch (e) {}
             applyRotateDismissOnBoot();
+            try { wireRotateOverlay(); } catch (e) {}
             // Señal "primer frame": la home ya está en el HTML inicial, así que la enviamos
             // en cuanto el navegador pinta (doble rAF). Fuera de Playables es no-op silencioso.
             try { requestAnimationFrame(() => requestAnimationFrame(() => ytPlayables.firstFrameReady())); } catch (e) { ytPlayables.firstFrameReady(); }
