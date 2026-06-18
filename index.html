@@ -46,7 +46,7 @@
         #asset-chef-hand { position: absolute; z-index: 4; transform: translate(-50%, -50%); left: 0px; top: -40px; width: 720px; pointer-events: none; }
         /* BEST-EFFORT chef-hat overlay: positioned over the chef's head. Tuned by eye
            against the 720px chef sprite; collectible-only fallback if it ever looks off. */
-        #asset-chefhat { position: absolute; z-index: 3; transform: translate(-50%, -50%); left: 6px; top: -250px; width: 250px; pointer-events: none; filter: drop-shadow(0 4px 10px rgba(0,0,0,0.35)); }
+        #asset-chefhat { position: absolute; z-index: 3; transform: translate(-50%, -50%); left: 0px; top: -210px; width: 360px; pointer-events: none; filter: drop-shadow(0 4px 10px rgba(0,0,0,0.35)); }
         /* Decorative legs behind the cauldron (below pot/liquid z-index:2); left/top/width tuned to the pot's footprint */
         #cauldron-legs { position: absolute; z-index: 1; transform: translate(-50%, -50%); left: 20px; top: 500px; width: 700px; pointer-events: none; }
         #asset-soup { position: absolute; z-index: 2; transform: translate(-50%, -50%); left: 70px; top: 250px; width: 1250px; pointer-events: none; transition: transform 0.1s; }
@@ -62,7 +62,7 @@
              width  -> overall size of the charm spoon
              left/top -> position offset within #sticky-center
              rotate -> tilt (default rig uses -27deg) */
-        #spoon-rig.charm-spoon { width: 300px; left: 0px; top: 60px; transform: translate(-50%, -50%) rotate(-18deg); transform-origin: 50% 50%; }
+        #spoon-rig.charm-spoon { width: 600px; left: -30px; top: 0px; transform: translate(-50%, -50%) rotate(-24deg); transform-origin: 50% 50%; }
         #soup-steam { position: absolute; left: 70px; top: 168px; transform: translate(-50%, 0); width: 470px; height: 90px; pointer-events: none; z-index: 2; overflow: visible; }
         .steam-wisp { position: absolute; bottom: 0; border-radius: 50%; background: radial-gradient(ellipse at center, rgba(255,255,255,0.52) 0%, rgba(165,243,252,0.34) 45%, transparent 74%); filter: blur(10px); animation: steamRise 4.2s ease-out infinite; opacity: 0; will-change: transform, opacity; }
         .steam-wisp:nth-child(1) { width: 72px; height: 46px; left: 6%; animation-delay: 0s; filter: blur(8px); animation-duration: 3.6s; }
@@ -199,6 +199,23 @@
         .side-fab { background: var(--glass-strong); backdrop-filter: var(--glass-blur-sm); -webkit-backdrop-filter: var(--glass-blur-sm); border: 1px solid rgba(216,180,254,0.4); border-radius: 14px; padding: 10px 14px; font-size: 0.8rem; font-weight: bold; color: #fff; cursor: pointer; text-transform: uppercase; letter-spacing: 0.5px; text-shadow: 0 1px 3px rgba(0,0,0,0.6); transition: 0.2s; text-align: center; }
         .side-fab:hover { border-color: var(--go); filter: brightness(1.12); }
         .side-fab .badge2 { display: inline-block; background: var(--go); color: #1e1b4b; border-radius: 10px; padding: 0 6px; font-size: 0.65rem; margin-left: 4px; }
+        /* === Global Leaderboard (Ranks) panel === */
+        .lb-name-row { display: flex; gap: 8px; margin-bottom: 12px; }
+        .lb-name-row input { flex: 1; min-width: 0; background: rgba(255,255,255,0.08); border: 1px solid var(--glass-bd); border-radius: 10px; padding: 8px 12px; color: #fff; font-size: 0.85rem; }
+        .lb-name-row input:focus { outline: none; border-color: var(--go); }
+        .lb-tabs { display: flex; gap: 6px; margin-bottom: 12px; }
+        .lb-tab { flex: 1; padding: 8px 4px; border-radius: 10px; background: rgba(255,255,255,0.05); border: 1px solid var(--glass-bd); color: #cbd5e1; cursor: pointer; font-size: 0.7rem; font-weight: bold; text-transform: uppercase; letter-spacing: 0.4px; transition: 0.2s; }
+        .lb-tab:hover { border-color: var(--glass-bd-go); }
+        .lb-tab.active { background: linear-gradient(135deg, #7e22ce, #3b82f6); color: #fff; border-color: var(--go); }
+        .lb-note { font-size: 0.72rem; color: #fbbf24; margin: 0 0 10px; min-height: 1em; }
+        .lb-list { display: flex; flex-direction: column; gap: 5px; text-align: left; max-height: 46vh; overflow-y: auto; margin-bottom: 8px; }
+        .lb-row { display: flex; align-items: center; gap: 10px; padding: 8px 12px; border-radius: 10px; background: rgba(255,255,255,0.05); border: 1px solid var(--glass-bd); }
+        .lb-row.you { border-color: var(--go); background: rgba(224,160,8,0.14); box-shadow: 0 0 14px rgba(224,160,8,0.25); }
+        .lb-rank { font-weight: bold; color: var(--gold-soft); min-width: 36px; font-size: 0.85rem; }
+        .lb-plat { font-size: 0.95rem; line-height: 1; }
+        .lb-name { flex: 1; min-width: 0; color: #fff; font-size: 0.85rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .lb-val { font-weight: bold; color: var(--go); font-size: 0.85rem; white-space: nowrap; }
+        .lb-msg { text-align: center; color: #cbd5e1; padding: 16px; font-size: 0.85rem; }
         /* === Ambient sound player (Feature A) === */
         .amb-hint { font-size: 0.8rem; color: #cbd5e1; margin: 0 0 12px; }
         .amb-row { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; background: rgba(255,255,255,0.05); border: 1px solid #fff2; border-radius: 10px; padding: 8px 10px; margin-bottom: 8px; text-align: left; }
@@ -380,6 +397,21 @@
         body.q-low #skin-reveal { backdrop-filter: none; -webkit-backdrop-filter: none; background: rgba(10, 3, 20, 0.94); }
         body.q-low .sr-rays, body.q-low .sr-sparkles { display: none; }
         #reward-fab .charm-fab-img { width: 26px; height: 26px; vertical-align: middle; border-radius: 5px; }
+        .ad-sim-overlay { position: fixed; inset: 0; z-index: 99000; display: flex; align-items: center; justify-content: center; background: rgba(8, 3, 18, 0.92); backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur); }
+        .ad-sim-box { text-align: center; padding: 28px 40px; border-radius: 20px; background: var(--glass-strong); border: 1px solid var(--glass-bd-go); box-shadow: 0 12px 48px rgba(0,0,0,0.55), 0 0 40px rgba(224,160,8,0.22); }
+        .ad-sim-tag { font-size: 0.7rem; letter-spacing: 3px; text-transform: uppercase; color: var(--gold-soft); opacity: 0.85; }
+        .ad-sim-count { font-size: 3.4rem; font-weight: 900; color: var(--go); text-shadow: 0 0 18px var(--go); margin: 8px 0; line-height: 1; }
+        .ad-sim-hint { font-size: 0.85rem; color: var(--cream); opacity: 0.8; }
+        .reward-list { display: flex; flex-direction: column; gap: 10px; text-align: left; }
+        .reward-card { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 14px; background: var(--glass); border: 1px solid var(--glass-bd-go); }
+        .reward-card-icon { font-size: 1.7rem; flex: 0 0 auto; filter: drop-shadow(0 0 6px rgba(224,160,8,0.5)); }
+        .reward-card-body { flex: 1; min-width: 0; }
+        .reward-card-name { font-weight: 800; color: var(--gold-soft); font-size: 0.95rem; }
+        .reward-card-desc { font-size: 0.78rem; color: var(--cream); opacity: 0.82; }
+        .reward-card-state { font-size: 0.72rem; color: var(--gold-soft); opacity: 0.7; margin-top: 2px; }
+        .reward-card-btn { flex: 0 0 auto; min-height: 40px; padding: 8px 14px; border-radius: 12px; border: 1px solid var(--go); background: linear-gradient(135deg, #f59e0b, #b45309); color: #1e1b4b; font-weight: 800; cursor: pointer; transition: 0.18s; }
+        .reward-card-btn:hover { filter: brightness(1.08); }
+        .reward-card-btn:disabled { opacity: 0.45; cursor: default; filter: grayscale(0.5); background: var(--glass-strong); color: var(--cream); border-color: var(--glass-bd); }
         #collection-fab .charm-fab-img { width: 22px; height: 22px; vertical-align: middle; border-radius: 5px; margin-left: 4px; }
         .ach-row { display: flex; align-items: center; gap: 10px; background: rgba(255,255,255,0.05); border: 1px solid #fff2; border-radius: 10px; padding: 8px 10px; margin-bottom: 8px; text-align: left; }
         .ach-row.got { border-color: #4ade80; }
@@ -472,13 +504,15 @@
         <div class="side-fab" id="collection-fab" onclick="collection.open()"><span data-i18n="collection_btn">🎴 Charms</span><span id="collection-fab-thumb"></span></div>
         <div class="side-fab" onclick="quests.open()"><span data-i18n="quests_btn">📜 Chef's Orders</span><span id="quest-badge" class="badge2" style="display:none">0</span></div>
         <div class="side-fab" onclick="atree.open()" data-i18n="tree_btn">🌳 Angel Tree</div>
-        <div class="side-fab" id="reward-fab" style="min-height:44px" onclick="claimReward('cps2')"><span id="reward-fab-label">🎁</span></div>
+        <div class="side-fab" id="reward-fab" style="min-height:44px;display:none" onclick="rewardsUI.open()"><span id="reward-fab-label">🎁</span></div>
         <div class="side-fab" id="ambient-fab" onclick="ambient.open()" data-i18n="ambient_btn">🎧 Ambience</div>
         <div class="side-fab" id="creator-fab" onclick="creator.open()"><span data-i18n="creator_btn">📺 Creator</span><span id="creator-fab-live" class="badge2" style="display:none">●</span></div>
+        <div class="side-fab" id="lb-fab" onclick="lbUI.open()" data-i18n="lb_btn">🏆 Ranks</div>
         <div class="side-fab" id="lang-fab" onclick="setLang(LANG==='en'?'es':'en')">🌐 EN</div>
     </div>
     <div id="live-badge" onclick="creator.goLive()" title="Live now!" data-i18n-title="creator_live_now"><span data-i18n="creator_live">🔴 LIVE</span></div>
-    <div id="offline-modal" class="gx-modal"><div class="gx-box"><h2 data-i18n="offline_title">Your soup kept cooking</h2><p id="offline-text" style="font-size:1rem; line-height:1.5"></p><div style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin-top:6px"><button class="gx-btn" style="min-height:44px; background:linear-gradient(135deg,#f59e0b,#b45309); border-color:var(--go)" onclick="offline.double()" data-i18n="offline_double">x2 (Free reward)</button><button class="gx-btn" style="min-height:44px" onclick="offline.claim()" data-i18n="claim">Claim</button></div></div></div>
+    <div id="offline-modal" class="gx-modal"><div class="gx-box"><h2 data-i18n="offline_title">Your soup kept cooking</h2><p id="offline-text" style="font-size:1rem; line-height:1.5"></p><div style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin-top:6px"><button class="gx-btn" style="min-height:44px; background:linear-gradient(135deg,#f59e0b,#b45309); border-color:var(--go)" id="offline-double-btn" onclick="offline.double()" data-i18n="offline_double">x2 (Free reward)</button><button class="gx-btn" style="min-height:44px" onclick="offline.claim()" data-i18n="claim">Claim</button></div></div></div>
+    <div id="reward-modal" class="gx-modal"><div class="gx-box"><h2 data-i18n="reward_modal_title">Watch an ad</h2><p style="font-size:0.9rem; opacity:0.85; margin:4px 0 14px" data-i18n="reward_modal_sub">Watch a short ad for a reward</p><div id="reward-list" class="reward-list"></div><button class="gx-btn" style="margin-top:14px; min-height:44px" onclick="rewardsUI.close()" data-i18n="close">Close</button></div></div>
     <div id="quest-modal" class="gx-modal"><div class="gx-box"><h2 data-i18n="quests_title">Chef's Orders</h2><div id="quest-list"></div><div id="ach-list" style="margin-top:14px"></div><button class="gx-btn" style="margin-top:10px" onclick="quests.close()" data-i18n="close">Close</button></div></div>
     <div id="tree-modal" class="gx-modal"><div class="gx-box"><h2 data-i18n="tree_title">Angel Awakening Tree</h2><p style="font-size:0.85rem; color:#cbd5e1"><span data-i18n="tree_shards_avail">Available Angel Shards:</span> <b id="tree-shards" style="color:var(--go)">0</b></p><div id="tree-list"></div><button class="gx-btn" style="margin-top:10px" onclick="atree.close()" data-i18n="close">Close</button></div></div>
     <div id="pause-modal" class="gx-modal"><div class="gx-box" id="pause-box">
@@ -551,7 +585,329 @@
         <div id="creator-links"></div>
         <button class="gx-btn" style="margin-top:12px" onclick="creator.close()" data-i18n="close">Close</button>
     </div></div>
+    <div id="lb-modal" class="gx-modal"><div class="gx-box">
+        <h2 data-i18n="lb_title">🏆 Global Ranks</h2>
+        <div class="lb-name-row">
+            <input id="lb-name-input" type="text" maxlength="20" autocomplete="off" data-i18n-ph="lb_name_ph" placeholder="Display name">
+            <button class="gx-btn sm" type="button" onclick="lbUI.saveName()" data-i18n="lb_save_name">Save</button>
+        </div>
+        <div class="lb-tabs">
+            <div class="lb-tab active" data-board="score" onclick="lbUI.setBoard('score')" data-i18n="lb_tab_score">Total Score</div>
+            <div class="lb-tab" data-board="prestige" onclick="lbUI.setBoard('prestige')" data-i18n="lb_tab_prestige">Prestige</div>
+            <div class="lb-tab" data-board="prix" onclick="lbUI.setBoard('prix')" data-i18n="lb_tab_prix">Grand Prix</div>
+        </div>
+        <div id="lb-note" class="lb-note"></div>
+        <div id="lb-list" class="lb-list"></div>
+        <button class="gx-btn" style="margin-top:6px" type="button" onclick="lbUI.close()" data-i18n="close">Close</button>
+    </div></div>
     <script src="assets/skins/catalog.js"></script>
+    <!-- ====================================================================
+         === EMBEDDED LEADERBOARD MODULE (from leaderboard/leaderboard-client.js)
+         === Self-contained global `leaderboard` object. Single-file game, so the
+         === module is pasted in verbatim (live Supabase CONFIG kept). Public API
+         === is identical: identity / setName / submit / top / bumpPrixWin /
+         === getPrixWins / flush / isLive. supabase-js is loaded LAZILY (only on
+         === first live use) and ALL failures fall back to offline/mock data, so
+         === the game boots and plays fully with no network. The in-game UI panel
+         === is wired further below (`lbUI`), which overrides openPanel().
+         === To update: re-copy from leaderboard/leaderboard-client.js.
+         ==================================================================== -->
+    <script>
+    (function (global) {
+      'use strict';
+
+      var CONFIG = {
+        SUPABASE_URL: 'https://ffmcmaujryvyzbhnctzc.supabase.co',
+        SUPABASE_ANON_KEY: 'sb_publishable_GOoZkZVue7yyxR_bTFroXQ_ZDlTIV_t',
+        PLATFORM: 'web',
+        SUPABASE_CDN: 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2',
+        DEBOUNCE_MS: 8000
+      };
+
+      var IDENTITY_KEY = 'soup_lb_identity';
+      var SCHEMA = 1;
+
+      function isConfigured() {
+        return CONFIG.SUPABASE_URL.indexOf('http') === 0 &&
+               CONFIG.SUPABASE_ANON_KEY.indexOf('__') !== 0 &&
+               CONFIG.SUPABASE_ANON_KEY.length > 20;
+      }
+
+      var STORE = {
+        get: function () {
+          try { return localStorage.getItem(IDENTITY_KEY); } catch (e) { return null; }
+        },
+        set: function (str) {
+          try { localStorage.setItem(IDENTITY_KEY, str); } catch (e) {}
+        }
+      };
+
+      var SEED = [
+        { name: 'ChefSkully',     platform: 'youtube', score: 982134500, prestige: 42, prix_wins: 318 },
+        { name: 'SopaMaestra',    platform: 'android', score: 654200100, prestige: 37, prix_wins: 271 },
+        { name: 'BoneBroth_Boss', platform: 'steam',   score: 500120000, prestige: 31, prix_wins: 244 },
+        { name: 'CucharaDeOro',   platform: 'ios',     score: 312050000, prestige: 28, prix_wins: 190 },
+        { name: 'MidnightStew',   platform: 'web',     score: 188900000, prestige: 24, prix_wins: 165 },
+        { name: 'AngelitoChef',   platform: 'youtube', score: 120400000, prestige: 19, prix_wins: 132 },
+        { name: 'SkullSimmer',    platform: 'android', score: 85200000,  prestige: 15, prix_wins: 98 },
+        { name: 'CalderoFeliz',   platform: 'steam',   score: 44150000,  prestige: 11, prix_wins: 61 },
+        { name: 'TinyLadle',      platform: 'ios',     score: 12030000,  prestige: 7,  prix_wins: 29 },
+        { name: 'NewChef_Pia',    platform: 'web',     score: 2100000,   prestige: 3,  prix_wins: 8 }
+      ];
+
+      var BOARD_COLUMN = { score: 'score', prestige: 'prestige', prix: 'prix_wins' };
+
+      function uuidv4() {
+        try {
+          if (global.crypto && typeof global.crypto.randomUUID === 'function') {
+            return global.crypto.randomUUID();
+          }
+          if (global.crypto && global.crypto.getRandomValues) {
+            var b = new Uint8Array(16);
+            global.crypto.getRandomValues(b);
+            b[6] = (b[6] & 0x0f) | 0x40;
+            b[8] = (b[8] & 0x3f) | 0x80;
+            var h = [];
+            for (var i = 0; i < 16; i++) h.push((b[i] + 0x100).toString(16).slice(1));
+            return h[0]+h[1]+h[2]+h[3]+'-'+h[4]+h[5]+'-'+h[6]+h[7]+'-'+h[8]+h[9]+'-'+h[10]+h[11]+h[12]+h[13]+h[14]+h[15];
+          }
+        } catch (e) {}
+        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+          var r = (Math.random() * 16) | 0, v = c === 'x' ? r : (r & 0x3) | 0x8;
+          return v.toString(16);
+        });
+      }
+
+      var BLOCKLIST = /(nigger|faggot|kike|spic|chink|cunt|rape)/i;
+      function cleanName(raw) {
+        if (raw == null) return 'Chef';
+        var n = String(raw)
+          .replace(/[\u0000-\u001F\u007F]/g, '')
+          .replace(/\s+/g, ' ')
+          .trim()
+          .replace(/[^0-9A-Za-z _.!\-\u00C0-\u017F]/g, '')
+          .trim();
+        if (n.length > 20) n = n.slice(0, 20);
+        if (n.length < 3) return '';
+        if (BLOCKLIST.test(n)) return '';
+        return n;
+      }
+
+      function randomChefName() {
+        return 'Chef #' + (1000 + Math.floor(Math.random() * 9000));
+      }
+
+      var _id = null;
+      var _client = null;
+      var _clientPromise = null;
+      var _lastSubmit = 0;
+      var _pending = null;
+      var _submitTimer = null;
+
+      function loadIdentity() {
+        var raw = STORE.get();
+        if (raw) {
+          try {
+            var d = JSON.parse(raw);
+            if (d && typeof d === 'object' && d.uuid) {
+              _id = {
+                uuid: String(d.uuid),
+                name: typeof d.name === 'string' ? d.name : randomChefName(),
+                prixWins: Number.isFinite(d.prixWins) ? d.prixWins : 0,
+                scoreHi: Number.isFinite(d.scoreHi) ? d.scoreHi : 0,
+                v: SCHEMA
+              };
+              return _id;
+            }
+          } catch (e) {}
+        }
+        _id = { uuid: uuidv4(), name: randomChefName(), prixWins: 0, scoreHi: 0, v: SCHEMA };
+        saveIdentity();
+        return _id;
+      }
+
+      function saveIdentity() {
+        if (!_id) return;
+        STORE.set(JSON.stringify(_id));
+      }
+
+      function ensureClient() {
+        if (!isConfigured()) return Promise.resolve(null);
+        if (_client) return Promise.resolve(_client);
+        if (_clientPromise) return _clientPromise;
+
+        _clientPromise = new Promise(function (resolve) {
+          function make() {
+            try {
+              var lib = global.supabase;
+              if (lib && typeof lib.createClient === 'function') {
+                _client = lib.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY, {
+                  auth: { persistSession: false, autoRefreshToken: false }
+                });
+                resolve(_client);
+                return true;
+              }
+            } catch (e) {}
+            return false;
+          }
+          if (make()) return;
+          if (typeof document === 'undefined') { resolve(null); return; }
+          var existing = document.getElementById('lb-supabase-cdn');
+          if (existing) {
+            existing.addEventListener('load', function () { if (!make()) resolve(null); });
+            existing.addEventListener('error', function () { resolve(null); });
+            return;
+          }
+          var s = document.createElement('script');
+          s.id = 'lb-supabase-cdn';
+          s.src = CONFIG.SUPABASE_CDN;
+          s.async = true;
+          s.onload = function () { if (!make()) resolve(null); };
+          s.onerror = function () { resolve(null); };
+          document.head.appendChild(s);
+        });
+        return _clientPromise;
+      }
+
+      var leaderboard = {
+
+        isLive: function () { return isConfigured(); },
+
+        identity: function () {
+          if (!_id) loadIdentity();
+          return { uuid: _id.uuid, name: _id.name };
+        },
+
+        setName: function (raw) {
+          if (!_id) loadIdentity();
+          var clean = cleanName(raw);
+          _id.name = clean || _id.name || randomChefName();
+          saveIdentity();
+          this.submit({});
+          return _id.name;
+        },
+
+        getPrixWins: function () { if (!_id) loadIdentity(); return _id.prixWins; },
+        bumpPrixWin: function (n) {
+          if (!_id) loadIdentity();
+          _id.prixWins += (Number.isFinite(n) ? n : 1);
+          saveIdentity();
+          return _id.prixWins;
+        },
+
+        submit: function (vals) {
+          if (!_id) loadIdentity();
+          vals = vals || {};
+
+          if (Number.isFinite(vals.score)) {
+            _id.scoreHi = Math.max(_id.scoreHi, Math.floor(vals.score));
+          }
+          if (Number.isFinite(vals.prix)) {
+            _id.prixWins = Math.max(_id.prixWins, Math.floor(vals.prix));
+          }
+          saveIdentity();
+
+          _pending = _pending || {};
+          if (Number.isFinite(vals.score))    _pending.score    = _id.scoreHi;
+          if (Number.isFinite(vals.prestige)) _pending.prestige = Math.floor(vals.prestige);
+          if (Number.isFinite(vals.prix))     _pending.prix     = _id.prixWins;
+
+          if (!isConfigured()) { _pending = null; return; }
+
+          var now = Date.now();
+          var wait = Math.max(0, CONFIG.DEBOUNCE_MS - (now - _lastSubmit));
+          if (_submitTimer) return;
+          var self = this;
+          _submitTimer = setTimeout(function () {
+            _submitTimer = null;
+            self._flush();
+          }, wait);
+        },
+
+        flush: function () {
+          if (_submitTimer) { clearTimeout(_submitTimer); _submitTimer = null; }
+          return this._flush();
+        },
+
+        _flush: function () {
+          if (!isConfigured() || !_pending) { _pending = null; return Promise.resolve(null); }
+          var payload = _pending; _pending = null;
+          _lastSubmit = Date.now();
+          return ensureClient().then(function (client) {
+            if (!client) return null;
+            return client.rpc('submit_score', {
+              p_id: _id.uuid,
+              p_name: _id.name,
+              p_platform: CONFIG.PLATFORM,
+              p_score: Number.isFinite(payload.score) ? payload.score : null,
+              p_prestige: Number.isFinite(payload.prestige) ? payload.prestige : null,
+              p_prix: Number.isFinite(payload.prix) ? payload.prix : null
+            }).then(function (res) {
+              if (res && res.error) { try { console.warn('[leaderboard] submit:', res.error.message); } catch (e) {} }
+              return res ? res.data : null;
+            });
+          }).catch(function () { return null; });
+        },
+
+        top: function (board, n) {
+          var col = BOARD_COLUMN[board] || 'score';
+          n = Math.max(1, Math.min(500, n || 50));
+          if (!_id) loadIdentity();
+          var myUuid = _id.uuid;
+
+          if (!isConfigured()) {
+            return Promise.resolve(this._mockTop(col, n));
+          }
+          var self = this;
+          return ensureClient().then(function (client) {
+            if (!client) return self._mockTop(col, n);
+            return client
+              .from('players')
+              .select('id, display_name, platform, ' + col)
+              .order(col, { ascending: false })
+              .limit(n)
+              .then(function (res) {
+                if (!res || res.error || !Array.isArray(res.data)) {
+                  return self._mockTop(col, n);
+                }
+                return res.data.map(function (row, i) {
+                  return {
+                    rank: i + 1,
+                    name: row.display_name,
+                    value: row[col],
+                    platform: row.platform,
+                    you: row.id === myUuid
+                  };
+                });
+              });
+          }).catch(function () { return self._mockTop(col, n); });
+        },
+
+        _mockTop: function (col, n) {
+          var rows = SEED.slice().sort(function (a, b) { return b[col] - a[col]; }).slice(0, n);
+          return rows.map(function (r, i) {
+            return { rank: i + 1, name: r.name, value: r[col], platform: r.platform, you: false };
+          });
+        },
+
+        _seed: function () { return SEED.slice(); },
+
+        openPanel: function () {
+          try { console.info('[leaderboard] openPanel() not wired yet — see INTEGRATION NOTES.'); } catch (e) {}
+        }
+      };
+
+      if (typeof document !== 'undefined') {
+        document.addEventListener('visibilitychange', function () {
+          if (document.hidden) { try { leaderboard.flush(); } catch (e) {} }
+        });
+      }
+
+      global.leaderboard = leaderboard;
+
+    })(typeof window !== 'undefined' ? window : this);
+    </script>
+    <!-- ==================== END EMBEDDED LEADERBOARD MODULE ==================== -->
     <script>
         let LANG = 'en';
         // ====================================================================
@@ -596,7 +952,8 @@
                 lore1:"Skullchef arrived from Esquelotia to heal Earth.", lore2:"The dark entity stole love from Esquelotia.", lore3:"Small Angel gave his life to heal his planet.",
                 lore4:"Skullchef journeyed with Angel's soul in soup.", lore5:"The soup is ready. Awaken the Soul to ascend.", lore6:"Success. Small Angel's energy is woven into Earth.",
                 reward_cps2:"x2 CPS (1h)", reward_skip15:"+15 min CPS", reward_tap:"Auto-Stir 60s", reward_watch:"Watch", reward_free:"Free reward",
-                reward_cooldown:"in {time}", reward_daily_left:"{n}/{max} today", reward_granted:"Reward granted: {r} 🎁", ad_failed:"Reward not available right now", offline_double:"x2 (Free reward)",
+                reward_cooldown:"in {time}", reward_daily_left:"{n}/{max} today", reward_granted:"Reward granted: {r} 🎁", ad_failed:"Ad not completed — no reward", offline_double:"x2 (Watch ad)",
+                reward_fab:"Watch ad", reward_brew2:"Double Brew", reward_brew2_d:"x2 production for 5 min", reward_instapot:"Instant Pot", reward_instapot_d:"Instant batch · ~5 min of earnings", reward_lucky:"Lucky Drop", reward_lucky_d:"A free charm drop", reward_daily_done:"Done for today", reward_later:"Come back later", reward_modal_title:"Watch an ad", reward_modal_sub:"Watch a short ad for a reward", ad_sim_label:"Advertisement", ad_sim_hint:"Your reward is on the way…", ad_unavailable:"Ads aren't available here",
                 rotate_title:"Rotate your device", rotate_msg:"Smallcreek Skullchef plays best in landscape. Turn your device sideways to keep cooking.",
                 settings_title:"Settings", settings_quality:"Quality", quality_auto:"Auto", quality_high:"High", quality_low:"Low",
                 settings_fullscreen:"Fullscreen", fs_enter:"⛶ Enter", fs_exit:"⛶ Exit",
@@ -618,7 +975,15 @@
                 ambient_btn:"🎧 Ambience", ambient_title:"Ambient Sounds", ambient_hint:"Layer relaxing loops while you cook.", ambient_master:"Master ambient volume", ambient_unavailable:"Audio file not found",
                 amb_rain:"Rain", amb_fire:"Crackling Fire", amb_waves:"Sea Waves", amb_soup:"Bubbling Soup",
                 music_title:"Music", music_play:"Play", music_pause:"Pause", music_next:"Next", music_prev:"Previous", music_none:"No music yet",
-                creator_btn:"📺 Creator", creator_title:"Creator", creator_hint:"Follow the SmallCreek kitchen.", creator_youtube:"YouTube", creator_tiktok:"TikTok", creator_live:"🔴 LIVE", creator_live_now:"Live now!", creator_none:"No links available yet."
+                creator_btn:"📺 Creator", creator_title:"Creator", creator_hint:"Follow the SmallCreek kitchen.", creator_youtube:"YouTube", creator_tiktok:"TikTok", creator_live:"🔴 LIVE", creator_live_now:"Live now!", creator_none:"No links available yet.",
+                lb_btn:"🏆 Ranks", lb_title:"🏆 Global Ranks", lb_tab_score:"Total Score", lb_tab_prestige:"Prestige", lb_tab_prix:"Grand Prix",
+                lb_name_ph:"Display name", lb_save_name:"Save", lb_name_saved:"Name set: {name} ✓", lb_name_invalid:"Invalid name (3–20 chars) ✗",
+                lb_offline:"Offline · showing example data", lb_loading:"Loading ranks…", lb_empty:"No ranks yet",
+                /* TEMP CREATOR TOOL i18n — REMOVE BEFORE LAUNCH */
+                creator_reset_spoons:"Reset spoons (creator)", creator_reset_spoons_done:"Album spoons reset — re-buy to test",
+                /* ===== TEMP CREATOR UNLOCK GESTURE i18n — REMOVE BEFORE LAUNCH ===== */
+                creator_mode_on:"Creator mode ON", creator_mode_off:"Creator mode OFF"
+                /* ===== END ===== */
             },
             es: {
                 soul_awakened:"[ ALMA DESPERTADA ]", prix_title:"ESQUELOTIA GRAN PREMIO", select_champion:"¡Elige Campeón!", return_cauldron:"VOLVER AL CALDERO",
@@ -652,7 +1017,8 @@
                 lore1:"Skullchef llegó de Esquelotia para sanar la Tierra.", lore2:"La entidad oscura robó el amor de Esquelotia.", lore3:"El Pequeño Ángel dio su vida para sanar su planeta.",
                 lore4:"Skullchef viajó con el alma del Ángel en la sopa.", lore5:"La sopa está lista. Despierta el Alma para ascender.", lore6:"Logrado. La energía del Pequeño Ángel se teje en la Tierra.",
                 reward_cps2:"x2 CPS (1h)", reward_skip15:"+15 min CPS", reward_tap:"Auto-Remover 60s", reward_watch:"Ver", reward_free:"Recompensa gratis",
-                reward_cooldown:"en {time}", reward_daily_left:"{n}/{max} hoy", reward_granted:"Recompensa concedida: {r} 🎁", ad_failed:"Recompensa no disponible ahora", offline_double:"x2 (Recompensa gratis)",
+                reward_cooldown:"en {time}", reward_daily_left:"{n}/{max} hoy", reward_granted:"Recompensa concedida: {r} 🎁", ad_failed:"Anuncio no completado — sin recompensa", offline_double:"x2 (Ver anuncio)",
+                reward_fab:"Ver anuncio", reward_brew2:"Caldo Doble", reward_brew2_d:"x2 producción durante 5 min", reward_instapot:"Olla Instantánea", reward_instapot_d:"Lote instantáneo · ~5 min de ganancias", reward_lucky:"Golpe de Suerte", reward_lucky_d:"Un amuleto gratis", reward_daily_done:"Listo por hoy", reward_later:"Vuelve más tarde", reward_modal_title:"Mira un anuncio", reward_modal_sub:"Mira un anuncio corto por una recompensa", ad_sim_label:"Anuncio", ad_sim_hint:"Tu recompensa está en camino…", ad_unavailable:"Los anuncios no están disponibles aquí",
                 rotate_title:"Gira tu dispositivo", rotate_msg:"Smallcreek Skullchef se juega mejor en horizontal. Gira tu dispositivo para seguir cocinando.",
                 settings_title:"Ajustes", settings_quality:"Calidad", quality_auto:"Auto", quality_high:"Alta", quality_low:"Baja",
                 settings_fullscreen:"Pantalla completa", fs_enter:"⛶ Activar", fs_exit:"⛶ Salir",
@@ -674,13 +1040,22 @@
                 ambient_btn:"🎧 Ambiente", ambient_title:"Sonidos de Ambiente", ambient_hint:"Mezcla bucles relajantes mientras cocinas.", ambient_master:"Volumen ambiente general", ambient_unavailable:"Archivo de audio no encontrado",
                 amb_rain:"Lluvia", amb_fire:"Fuego Crepitante", amb_waves:"Olas del Mar", amb_soup:"Sopa Burbujeante",
                 music_title:"Música", music_play:"Reproducir", music_pause:"Pausa", music_next:"Siguiente", music_prev:"Anterior", music_none:"Aún no hay música",
-                creator_btn:"📺 Creador", creator_title:"Creador", creator_hint:"Sigue la cocina de SmallCreek.", creator_youtube:"YouTube", creator_tiktok:"TikTok", creator_live:"🔴 EN VIVO", creator_live_now:"¡En directo!", creator_none:"Aún no hay enlaces disponibles."
+                creator_btn:"📺 Creador", creator_title:"Creador", creator_hint:"Sigue la cocina de SmallCreek.", creator_youtube:"YouTube", creator_tiktok:"TikTok", creator_live:"🔴 EN VIVO", creator_live_now:"¡En directo!", creator_none:"Aún no hay enlaces disponibles.",
+                lb_btn:"🏆 Rangos", lb_title:"🏆 Rangos Globales", lb_tab_score:"Puntuación", lb_tab_prestige:"Prestigio", lb_tab_prix:"Gran Premio",
+                lb_name_ph:"Nombre visible", lb_save_name:"Guardar", lb_name_saved:"Nombre guardado: {name} ✓", lb_name_invalid:"Nombre inválido (3–20 caracteres) ✗",
+                lb_offline:"Sin conexión · mostrando datos de ejemplo", lb_loading:"Cargando rangos…", lb_empty:"Aún no hay rangos",
+                /* TEMP CREATOR TOOL i18n — REMOVE BEFORE LAUNCH */
+                creator_reset_spoons:"Reiniciar cucharas (creador)", creator_reset_spoons_done:"Cucharas del álbum reiniciadas — vuelve a comprarlas",
+                /* ===== TEMP CREATOR UNLOCK GESTURE i18n — REMOVE BEFORE LAUNCH ===== */
+                creator_mode_on:"Modo creador ACTIVADO", creator_mode_off:"Modo creador DESACTIVADO"
+                /* ===== END ===== */
             }
         };
         function t(k, p) { let d = I18N[LANG] || I18N.en; let s = (d && d[k] != null) ? d[k] : (I18N.en[k] != null ? I18N.en[k] : k); if (p) { for (const key in p) s = s.split('{' + key + '}').join(p[key]); } return s; }
         function applyStaticI18n() {
             document.querySelectorAll('[data-i18n]').forEach(el => { el.textContent = t(el.getAttribute('data-i18n')); });
             document.querySelectorAll('[data-i18n-title]').forEach(el => { el.title = t(el.getAttribute('data-i18n-title')); });
+            document.querySelectorAll('[data-i18n-ph]').forEach(el => { el.placeholder = t(el.getAttribute('data-i18n-ph')); });
         }
         function setLang(l) {
             LANG = (l === 'es') ? 'es' : 'en';
@@ -699,6 +1074,7 @@
             const am = document.getElementById('ach-modal'); if (am && am.classList.contains('open')) achievementsUI.render();
             try { const abm = document.getElementById('ambient-modal'); if (abm && abm.classList.contains('open')) { ambient._render(); if (typeof music !== 'undefined') music._render(); } } catch (e) {}
             try { const crm = document.getElementById('creator-modal'); if (crm && crm.classList.contains('open')) creator.render(); creator.syncLive(); } catch (e) {}
+            try { const lbm = document.getElementById('lb-modal'); if (lbm && lbm.classList.contains('open')) lbUI.render(); } catch (e) {}
         }
         const sound = {
             defs: { stir:['audio/stir1.mp3','audio/stir2.mp3'], bubble:['audio/bubble.mp3'], buy:['audio/buy.mp3'], prestige:['audio/prestige.mp3'], victory:['audio/victory.mp3'] },
@@ -1226,8 +1602,31 @@
                 if (CREATOR.youtube) btns.push(`<button class="gx-btn creator-link" type="button" onclick="creator.go(CREATOR.youtube)">▶ ${t('creator_youtube')}</button>`);
                 if (CREATOR.tiktok)  btns.push(`<button class="gx-btn creator-link" type="button" onclick="creator.go(CREATOR.tiktok)">♪ ${t('creator_tiktok')}</button>`);
                 if (this.isLiveNow()) btns.push(`<button class="gx-btn creator-link creator-live" type="button" onclick="creator.goLive()">${t('creator_live')}</button>`);
+                /* ===== TEMP CREATOR TOOL: reset spoons — REMOVE BEFORE LAUNCH ===== */
+                if (this.isDev()) btns.push(`<button class="gx-btn creator-link" type="button" style="background:linear-gradient(135deg,#7f1d1d,#ef4444);border-color:#fecaca" onclick="creator.resetSpoons()">${t('creator_reset_spoons')}</button>`);
+                /* ===== END TEMP CREATOR TOOL ===== */
                 box.innerHTML = btns.length ? btns.join('') : `<p class="amb-hint">${t('creator_none')}</p>`;
             },
+            /* ===== TEMP CREATOR TOOL: reset spoons — REMOVE BEFORE LAUNCH =====
+               Gating: visible/usable only when the creator has run
+               localStorage.setItem('__sc_creator','1') once on this device, so
+               normal players never see or trigger it. Delete this block + the
+               render() push above + the creator_reset_spoons* i18n keys to remove. */
+            isDev() { try { return localStorage.getItem('__sc_creator') === '1'; } catch (e) { return false; } },
+            resetSpoons() {
+                try {
+                    // Un-own the 3 SACRED SPOONS ALBUM spoons (rare/epic/legendary, ids 0/1/2)
+                    // and clear any equipped selection so the buy buttons reappear. Touches
+                    // ONLY spoon ownership — leaves charms/skins/score/prestige/helpers intact.
+                    game.spoons.forEach(s => { s.owned = false; s.equipped = false; });
+                    game._spoonUiKey = '';
+                    game.applySpoonVisual();
+                    game.renderSpoons();
+                    game.save();
+                    gx.toast(t('creator_reset_spoons_done'));
+                } catch (e) { console.warn('[creator] reset spoons failed', e); }
+            },
+            /* ===== END TEMP CREATOR TOOL ===== */
             syncLive() {
                 const show = this.isLiveNow();
                 const badge = document.getElementById('live-badge');
@@ -1447,6 +1846,8 @@
                 try { localStorage.setItem('soup_p_v17', str); } catch (e) {}
                 // HOOK NUBE: punto único de guardado en la nube (stub local por ahora).
                 try { cloudSave.save(str); } catch (e) {}
+                // Leaderboard: cheap, debounced + monotonic inside the module; safe offline.
+                try { leaderboard.submit({ score: this.e, prestige: this.s }); } catch (e) {}
             },
             // Clamp defensivo de TODOS los numéricos del save (anti NaN/Infinity/negativos
             // y topes razonables). No rompe progreso legítimo (los topes son muy holgados).
@@ -1805,6 +2206,7 @@
                     show.classList.remove('active'); const o = document.getElementById('prestige-overlay'); document.getElementById('pres-lore').innerText = t('pres_lore'); o.style.display = 'flex'; setTimeout(()=>o.style.opacity='1', 20);
                     setTimeout(() => {
                         this.s++; this.as++; this._buffs = [];
+                        try { leaderboard.submit({ prestige: this.s, score: this.e }); } catch (e) {}
                         ach.grant('firstPres');
                         const eco = this.tree.eco;
                         this.e = 0; this.l = 0; this.cp.forEach(c => { const base = c.id === 0 ? 20 : (c.id === 1 ? 125 : (c.id === 2 ? 1500 : 18000)); c.lv = eco; c.ch = false; c.cs = base; for (let j = 0; j < eco; j++) c.cs = Math.floor(c.cs * 1.15); });
@@ -2128,7 +2530,7 @@
             stopFx() { const tr = document.getElementById('race-track'); if(tr) { tr.classList.remove('racing'); tr.style.animationDuration = ''; } this.rs.forEach(r => { const el = document.getElementById(`r-${r.lane}`); if(el) el.classList.remove('run'); }); },
             check() { const w = this.rs.find(r => r.pos >= 100); if(w) { this.a = false; clearInterval(this.tk); this.stopFx(); this.w = w.isP; this.end(); } },
             end() { document.getElementById('p-run').style.display='none'; document.getElementById('p-end').style.display='block';
-                const r = document.getElementById('p-rank'), m = document.getElementById('p-reward'); if(this.w) { r.innerText=t('first_place'); m.innerText=t('victory_crown', {name: t(this.ch.nk)}); this.ch.ch = true; game.track('crowns', 1); ach.grant('firstChamp'); }
+                const r = document.getElementById('p-rank'), m = document.getElementById('p-reward'); if(this.w) { r.innerText=t('first_place'); m.innerText=t('victory_crown', {name: t(this.ch.nk)}); this.ch.ch = true; game.track('crowns', 1); try { leaderboard.bumpPrixWin(); leaderboard.submit({ prix: leaderboard.getPrixWins() }); } catch (e) {} ach.grant('firstChamp'); }
                 else { let p = Math.floor(1e6 * Math.pow(5, game.s) * 0.01); r.innerText=t('defeat'); m.innerText=t('awarded_eb', {eb: p.toLocaleString()}); game.e += p; }
                 game.render();
             },
@@ -2142,6 +2544,76 @@
                 setTimeout(() => { if (t.parentNode) t.remove(); }, 4200);
             }
         };
+        // === In-game Leaderboard (Ranks) UI — renders data from the embedded
+        // `leaderboard` module. All network/offline handling lives in the module;
+        // this only renders DATA + i18n labels, and never blocks gameplay.
+        const lbUI = {
+            board: 'score',
+            _token: 0,
+            PLAT: { youtube: '📺', steam: '🎮', android: '🤖', ios: '🍎', web: '🌐' },
+            open() {
+                const m = document.getElementById('lb-modal'); if (!m) return;
+                const inp = document.getElementById('lb-name-input');
+                try { if (inp) inp.value = leaderboard.identity().name || ''; } catch (e) {}
+                m.classList.add('open');
+                this.render();
+            },
+            close() { const m = document.getElementById('lb-modal'); if (m) m.classList.remove('open'); },
+            setBoard(b) { this.board = (b === 'prestige' || b === 'prix') ? b : 'score'; this.render(); },
+            syncTabs() {
+                document.querySelectorAll('#lb-modal .lb-tab').forEach(el => {
+                    el.classList.toggle('active', el.dataset.board === this.board);
+                });
+            },
+            saveName() {
+                const inp = document.getElementById('lb-name-input'); if (!inp) return;
+                const raw = inp.value;
+                let nm = '';
+                try { nm = leaderboard.setName(raw); } catch (e) {}
+                if (nm) inp.value = nm;
+                if (nm && this._looksLikeUserName(raw, nm)) gx.toast(t('lb_name_saved', { name: nm }));
+                else gx.toast(t('lb_name_invalid'));
+                this.render();
+            },
+            _looksLikeUserName(raw, accepted) {
+                // setName returns a fallback (existing/random) name when input is invalid;
+                // treat as success only when the accepted name matches the cleaned input.
+                const clean = String(raw == null ? '' : raw).replace(/\s+/g, ' ').trim();
+                return clean.length >= 3 && accepted && accepted.length >= 3 &&
+                       accepted.toLowerCase() === clean.slice(0, 20).toLowerCase();
+            },
+            fmtVal(board, v) {
+                let n = Number(v); if (!isFinite(n)) n = 0;
+                return Math.floor(n).toLocaleString();
+            },
+            esc(s) { return String(s == null ? '' : s).replace(/[<>&]/g, c => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;' }[c])); },
+            render() {
+                this.syncTabs();
+                let live = false;
+                try { live = !!leaderboard.isLive(); } catch (e) {}
+                const note = document.getElementById('lb-note');
+                if (note) note.textContent = live ? '' : t('lb_offline');
+                const list = document.getElementById('lb-list'); if (!list) return;
+                list.innerHTML = `<div class="lb-msg">${t('lb_loading')}</div>`;
+                const board = this.board;
+                const token = ++this._token;
+                let p;
+                try { p = leaderboard.top(board, 50); } catch (e) { p = Promise.resolve([]); }
+                Promise.resolve(p).then(rows => {
+                    if (token !== this._token) return;
+                    if (!rows || !rows.length) { list.innerHTML = `<div class="lb-msg">${t('lb_empty')}</div>`; return; }
+                    list.innerHTML = rows.map(r => {
+                        const plat = this.PLAT[r.platform] || '🌐';
+                        return `<div class="lb-row ${r.you ? 'you' : ''}"><span class="lb-rank">#${r.rank}</span><span class="lb-plat">${plat}</span><span class="lb-name">${this.esc(r.name)}${r.you ? ' ★' : ''}</span><span class="lb-val">${this.fmtVal(board, r.value)}</span></div>`;
+                    }).join('');
+                }).catch(() => {
+                    if (token !== this._token) return;
+                    list.innerHTML = `<div class="lb-msg">${t('lb_empty')}</div>`;
+                });
+            }
+        };
+        // Wire the module's openPanel() stub to the real in-game panel.
+        try { leaderboard.openPanel = function () { lbUI.open(); }; } catch (e) {}
         // === Capa YouTube Playables (integración DEFENSIVA y desacoplada) ===
         // Detecta el SDK global de YouTube Playables (window.ytgame). Si NO existe
         // (builds offline/local/Steam/móvil), TODOS sus métodos son NO-OP silenciosos:
@@ -2356,106 +2828,183 @@
             renderText() {
                 const txt = document.getElementById('offline-text');
                 if (txt) txt.innerHTML = t('offline_body', {time: this.time || '0m', eb: Math.floor(this.amt).toLocaleString()});
+                const db = document.getElementById('offline-double-btn');
+                if (db) db.style.display = (ads.isAvailable() && rewardSystem.canClaim('offline2')) ? '' : 'none';
             },
             claim() {
                 if (this.amt > 0) { game.e += this.amt; game.floatNum(window.innerWidth / 2, 170, this.amt); sound.play('bubble'); this.amt = 0; }
                 const md = document.getElementById('offline-modal'); if (md) md.classList.remove('open');
             },
-            // Botón "x2" del modal: intenta la recompensa (duplica offline.amt vía claimReward)
-            // ANTES de reclamar. Si la recompensa no está disponible (cooldown/tope), claimReward
-            // avisa con un toast y se reclama la ganancia normal igualmente.
+            // Modal "x2" button: tries the rewarded ad (doubles offline.amt via claimReward)
+            // BEFORE claiming. If ads aren't available (Steam/desktop) it just claims normally.
             async double() {
-                try { await claimReward('offline2'); } catch (e) {}
+                if (ads.isAvailable()) { try { await claimReward('offline2'); } catch (e) {} }
                 this.claim();
             }
         };
         // ====================================================================
-        // === SISTEMA DE RECOMPENSAS (desacoplado, listo para "rewarded ads") ===
+        // === REWARDED ADS (self-contained, platform-aware) ==================
         // ====================================================================
-        // Diseño en 3 capas independientes:
-        //   1) adProvider  -> abstracción "mostrar anuncio con recompensa". HOY usa
-        //                     freeProvider (regalo gratis con cooldown) en todas las
-        //                     plataformas. En builds móviles futuras se enchufa AdMob.
-        //   2) REWARDS     -> catálogo de recompensas como DATOS (cooldown + tope diario
-        //                     + efecto apply()). No conoce nada de la red de anuncios.
-        //   3) claimReward -> ÚNICO punto que comprueba límites, llama al proveedor y,
-        //                     solo si completed, aplica el efecto y registra el uso.
+        // Three decoupled layers:
+        //   1) ads        -> picks a provider adapter and exposes isAvailable() +
+        //                    showRewarded(rewardKey, onReward, onFail). Real ad on
+        //                    YouTube Playables / mobile (AdMob); a testable simulated
+        //                    overlay on web/local. HIDDEN on Steam/desktop.
+        //   2) REWARDS    -> reward catalog as DATA (cooldown + daily cap + apply()).
+        //                    Knows nothing about the ad network.
+        //   3) claimReward-> the ONLY grant point: checks limits, shows the ad and only
+        //                    on a COMPLETED ad applies the effect and records the use.
         //
-        // Para activar AdMob en móvil: cambia BUILD a 'android'/'ios' (idealmente en build)
-        // e implementa adMobProvider.showRewarded() con el SDK real (ver TODO abajo).
-        // --------------------------------------------------------------------
-        // Build actual. Decide qué proveedor de anuncios se usa.
-        // 'web' | 'playables' | 'steam' -> freeProvider (recompensa gratuita con cooldown).
-        // 'android' | 'ios' -> adMobProvider si está disponible; si no, freeProvider.
+        // BUILD selects platform behaviour and is also read by the achievements layer.
+        // Set it at packaging time: 'web' | 'playables' | 'steam' | 'android' | 'ios'.
         const BUILD = 'web';
 
-        // Proveedor POR DEFECTO: no hay anuncio real. La limitación viene del cooldown/tope
-        // del catálogo, no del anuncio. Funciona en local/Playables/Steam/móvil sin red.
-        const freeProvider = {
-            id: 'free',
-            isAvailable() { return true; },
-            // Resuelve inmediatamente como "completado" -> la recompensa es un regalo gratis.
-            async showRewarded() { return { completed: true }; }
+        // --- Provider adapter: simulated ad (web / local / testing fallback) ---
+        // Shows a short non-skippable overlay with a countdown, then rewards. Available
+        // everywhere EXCEPT standalone desktop builds (Steam/desktop) where ads don't apply.
+        const adSimProvider = {
+            id: 'sim',
+            isAvailable() { return BUILD !== 'steam' && BUILD !== 'desktop'; },
+            showRewarded(rewardKey, onReward, onFail) { adOverlay.play(3, onReward, onFail); }
         };
 
-        // STUB para móvil futuro (Google AdMob). NO integra SDK real todavía.
+        // --- Provider adapter: YouTube Playables rewarded ads ---
+        // Reuses the SDK handle detected by the ytPlayables layer (window.ytgame). Guarded
+        // so a missing/partial SDK never throws and simply falls through to the simulator.
+        const adYtProvider = {
+            id: 'yt',
+            _api() {
+                let sdk = null;
+                try { sdk = (ytPlayables && ytPlayables._sdk) ? ytPlayables._sdk : (window.ytgame || null); } catch (e) { sdk = null; }
+                // TODO(Playables SDK 2026): confirm the exact rewarded-ads namespace/method.
+                // Interstitials historically live under ytgame.ads.*; rewarded support is
+                // host-gated. If the real call differs, adapt _api()/showRewarded() here.
+                return (sdk && sdk.ads) ? sdk.ads : null;
+            },
+            isAvailable() {
+                const api = this._api();
+                return !!(api && typeof api.requestRewardedAd === 'function');
+            },
+            showRewarded(rewardKey, onReward, onFail) {
+                const api = this._api();
+                if (!api || typeof api.requestRewardedAd !== 'function') { onFail(); return; }
+                try {
+                    // TODO(Playables SDK 2026): confirm the exact call + result shape.
+                    // A truthy "rewarded" resolution is treated as a completed view.
+                    Promise.resolve(api.requestRewardedAd()).then(function (res) {
+                        if (res && (res.rewarded === true || res === true)) onReward(); else onFail();
+                    }).catch(function () { onFail(); });
+                } catch (e) { onFail(); }
+            }
+        };
+
+        // --- Provider adapter: mobile (Capacitor + AdMob) ---
+        // Guarded hook. Real ad unit IDs are injected at NATIVE BUILD TIME (see TODO).
         const adMobProvider = {
             id: 'admob',
-            // Mientras no haya SDK cargado, marcamos no disponible para que el sistema
-            // caiga en freeProvider (ver pickAdProvider). Cuando integres el SDK, pon aquí
-            // la comprobación real (p.ej. que exista window.admob y haya un anuncio precargado).
+            _plugin() {
+                try {
+                    const cap = window.Capacitor;
+                    if (!cap) return null;
+                    return (cap.Plugins && cap.Plugins.AdMob) || window.AdMob || null;
+                } catch (e) { return null; }
+            },
+            // Kept false until the native flow below is wired, so the system falls back to
+            // the simulator on mobile too. Once integrated, return true only when a
+            // RewardedAd is actually preloaded.
             isAvailable() { return false; },
-            async showRewarded() {
-                // TODO(AdMob móvil): integrar el SDK nativo / plugin Cordova-Capacitor.
-                //   1) Precargar un RewardedAd al iniciar y tras cada uso.
-                //   2) Aquí: mostrarlo y devolver una Promise que se resuelva en el callback:
-                //        - onUserEarnedReward -> resolve({ completed: true })
-                //        - onAdDismissed sin recompensa / onAdFailedToShow -> resolve({ completed: false })
-                //      Ejemplo (pseudocódigo):
-                //        return new Promise(res => {
-                //            rewardedAd.onUserEarnedReward = () => res({ completed: true });
-                //            rewardedAd.onAdDismissed = () => res({ completed: false });
-                //            rewardedAd.onAdFailedToShow = () => res({ completed: false });
-                //            rewardedAd.show();
-                //        });
-                // De momento delegamos en el regalo gratuito para no bloquear nada.
-                return freeProvider.showRewarded();
+            showRewarded(rewardKey, onReward, onFail) {
+                // TODO(AdMob native build, @capacitor-community/admob):
+                //   1) Provide the real Rewarded ad unit IDs at native build time.
+                //      DO NOT hardcode IDs here (a fake/empty ID can break the native build):
+                //        const AD_UNIT_ID = '';   // <-- set per-platform at build time
+                //   2) await AdMob.prepareRewardVideoAd({ adId: AD_UNIT_ID });
+                //   3) AdMob.addListener('onRewardedVideoAdReward',       () => onReward());
+                //      AdMob.addListener('onRewardedVideoAdClosed',       () => onFail());  // closed early
+                //      AdMob.addListener('onRewardedVideoAdFailedToLoad', () => onFail());
+                //   4) await AdMob.showRewardVideoAd();
+                //   Then flip isAvailable() to check the preloaded ad. Fail closed for now.
+                onFail();
             }
         };
 
-        // Selección de proveedor según el build (el informe recomienda freeProvider en
-        // web/playables/steam, y AdMob solo en móvil cuando esté disponible).
-        function pickAdProvider() {
-            switch (BUILD) {
-                case 'android':
-                case 'ios':
-                    return adMobProvider.isAvailable() ? adMobProvider : freeProvider;
-                case 'playables':
-                case 'steam':
-                case 'web':
-                default:
-                    return freeProvider;
+        // Picks the adapter for the current platform. Real providers win when present; the
+        // simulator is the web/test fallback. Provider stays null on Steam/desktop -> ads off.
+        const ads = {
+            _provider: null,
+            providerReady: false,
+            init() {
+                this._provider = this._pick();
+                this.providerReady = !!this._provider;
+                try { rewardSystem.renderButton(); } catch (e) {}
+            },
+            _pick() {
+                if ((BUILD === 'android' || BUILD === 'ios') && adMobProvider.isAvailable()) return adMobProvider;
+                if (adYtProvider.isAvailable()) return adYtProvider;
+                if (adSimProvider.isAvailable()) return adSimProvider;
+                return null;
+            },
+            isAvailable() { return !!this._provider && this._provider.isAvailable(); },
+            // Shows a rewarded ad. Calls onReward ONLY if the ad completed; otherwise onFail.
+            showRewarded(rewardKey, onReward, onFail) {
+                const fail = (typeof onFail === 'function') ? onFail : function () {};
+                const reward = (typeof onReward === 'function') ? onReward : function () {};
+                if (!this.isAvailable()) { fail(); return; }
+                let settled = false;
+                const ok = function () { if (settled) return; settled = true; reward(); };
+                const ko = function () { if (settled) return; settled = true; fail(); };
+                try { this._provider.showRewarded(rewardKey, ok, ko); } catch (e) { ko(); }
             }
-        }
-        const adProvider = pickAdProvider();
+        };
 
-        // Catálogo de recompensas como DATOS. cd = cooldown en segundos, daily = tope/día.
-        // apply() es el ÚNICO efecto; solo lo invoca claimReward tras un anuncio completado.
+        // Simulated-ad overlay: non-skippable countdown, then fires onReward. Testable now.
+        const adOverlay = {
+            _node: null, _timer: null,
+            play(seconds, onReward, onFail) {
+                if (this._node) { if (typeof onFail === 'function') onFail(); return; }
+                let left = Math.max(1, Math.floor(seconds) || 3);
+                const ov = document.createElement('div');
+                ov.className = 'ad-sim-overlay';
+                ov.innerHTML = '<div class="ad-sim-box">'
+                    + '<div class="ad-sim-tag">' + t('ad_sim_label') + '</div>'
+                    + '<div class="ad-sim-count">' + left + '</div>'
+                    + '<div class="ad-sim-hint">' + t('ad_sim_hint') + '</div>'
+                    + '</div>';
+                document.body.appendChild(ov);
+                this._node = ov;
+                const countEl = ov.querySelector('.ad-sim-count');
+                const self = this;
+                this._timer = setInterval(function () {
+                    left--;
+                    if (left > 0) { if (countEl) countEl.textContent = left; return; }
+                    self._close();
+                    if (typeof onReward === 'function') onReward();
+                }, 1000);
+            },
+            _close() {
+                if (this._timer) { clearInterval(this._timer); this._timer = null; }
+                if (this._node && this._node.parentNode) this._node.remove();
+                this._node = null;
+            }
+        };
+
+        // Reward catalog as DATA. cd = cooldown (seconds), daily = per-day cap.
+        // apply() is the ONLY effect; claimReward invokes it solely after a completed ad.
         const REWARDS = {
-            // x2 CPS durante 1h.
-            cps2:     { labelKey:'reward_cps2',    cd:1800, daily:4, apply() { game.addBuff('cps', 2, 3600, 'reward_cps2'); } },
-            // Duplicar la ganancia offline pendiente (una vez) y refrescar el modal.
-            offline2: { labelKey:'offline_double', cd:0,    daily:2, apply() { offline.amt *= 2; offline.renderText(); } },
-            // +15 min de CPS al instante.
-            skip15:   { labelKey:'reward_skip15',  cd:3600, daily:3, apply() { const g = game.getCps() * 900; game.e += g; game.floatNum(window.innerWidth / 2, 170, g); } },
-            // Auto-clic durante 60s (reutiliza la lógica de game.click vía eventos sintéticos).
-            autotap:  { labelKey:'reward_tap', cd:1200, daily:4, apply() { rewardSystem.startAutoTap(60); } }
+            // Double Brew: x2 production for 5 minutes (reuses the buff + buff-chip UI).
+            brew2:    { labelKey:'reward_brew2', descKey:'reward_brew2_d', icon:'🍲', cd:600,  daily:5, apply() { game.addBuff('cps', 2, 300, 'reward_brew2'); } },
+            // Instant Pot: lump scaled to current production (~5 min of earnings) so it stays
+            // fair early and late instead of a flat trivial amount.
+            instapot: { labelKey:'reward_instapot', descKey:'reward_instapot_d', icon:'⚡', cd:900, daily:4, apply() { const g = game.getCps() * 300; game.e += g; game.floatNum(window.innerWidth / 2, 170, g); } },
+            // Lucky Drop: a free charm drop honouring the existing rarity odds.
+            lucky:    { labelKey:'reward_lucky', descKey:'reward_lucky_d', icon:'🎴', cd:1800, daily:2, apply() { try { collection.grant(collection.rollRarity()); } catch (e) {} } },
+            // Used by the offline modal "x2" button: doubles pending offline earnings.
+            offline2: { labelKey:'offline_double', descKey:'offline_double', icon:'⏩', cd:0, daily:2, apply() { offline.amt *= 2; offline.renderText(); } }
         };
 
         const rewardSystem = {
-            _autoTapTimer: null, _autoTapEnd: 0,
             dayKey() { try { return new Date().toISOString().slice(0, 10); } catch (e) { return 'na'; } },
-            // Devuelve (y crea/resetea por día) el registro anti-abuso de una recompensa.
+            // Returns (and creates/resets per day) the anti-abuse record for a reward.
             rec(id) {
                 if (!game.rewards || typeof game.rewards !== 'object') game.rewards = {};
                 let r = game.rewards[id];
@@ -2475,70 +3024,106 @@
                 return Math.max(0, def.daily - this.rec(id).count);
             },
             canClaim(id) {
-                return !!REWARDS[id] && adProvider.isAvailable() && this.cooldownLeft(id) === 0 && this.dailyLeft(id) > 0;
+                return !!REWARDS[id] && ads.isAvailable() && this.cooldownLeft(id) === 0 && this.dailyLeft(id) > 0;
             },
-            // Formatea segundos como "Xm" o "Xs" para los mensajes de cooldown.
+            // Formats seconds as "Xm" or "Xs" for cooldown messages.
             fmtTime(sec) {
                 sec = Math.max(0, Math.ceil(sec));
                 if (sec >= 60) return Math.ceil(sec / 60) + 'm';
                 return sec + 's';
             },
-            // Auto-clic: dispara game.click con un evento sintético en el centro de la sopa.
-            startAutoTap(seconds) {
-                this._autoTapEnd = Date.now() + seconds * 1000;
-                if (this._autoTapTimer) return; // ya activo: solo extiende el final
-                const stage = document.getElementById('main-stage');
-                this._autoTapTimer = setInterval(() => {
-                    if (Date.now() >= this._autoTapEnd) { clearInterval(this._autoTapTimer); this._autoTapTimer = null; return; }
-                    if (game.p) return;
-                    const cx = window.innerWidth / 2, cy = window.innerHeight / 2;
-                    // Evento sintético compatible con game.click (usa target.closest y clientX/Y).
-                    game.click({ target: stage || document.body, clientX: cx, clientY: cy });
-                }, 150);
-            },
-            // Refresca el texto/estado del botón lateral de recompensa (recompensa principal cps2).
+            // Refreshes the side FAB: hidden on Steam/desktop (ads off); otherwise shows how
+            // many rewards are ready, or the soonest cooldown / "come back later".
             renderButton() {
-                const lbl = document.getElementById('reward-fab-label');
                 const fab = document.getElementById('reward-fab');
-                if (!lbl || !fab) return;
-                const id = 'cps2';
-                const name = t(REWARDS[id].labelKey);
-                const cd = this.cooldownLeft(id), left = this.dailyLeft(id);
+                const lbl = document.getElementById('reward-fab-label');
+                if (!fab || !lbl) return;
+                if (!ads.isAvailable()) { if (fab.style.display !== 'none') fab.style.display = 'none'; return; }
+                if (fab.style.display === 'none') fab.style.display = '';
+                const ids = rewardsUI.LIST;
+                const ready = ids.filter(id => this.canClaim(id)).length;
                 let txt;
-                if (!adProvider.isAvailable()) { txt = '🎁 ' + name; fab.style.opacity = '0.5'; }
-                else if (left <= 0) { txt = '🎁 ' + name + ' · ' + t('reward_daily_left', { n: 0, max: REWARDS[id].daily }); fab.style.opacity = '0.5'; }
-                else if (cd > 0) { txt = '🎁 ' + name + ' · ' + t('reward_cooldown', { time: this.fmtTime(cd) }); fab.style.opacity = '0.6'; }
-                else { txt = '🎁 ' + name + ' · ' + t('reward_daily_left', { n: left, max: REWARDS[id].daily }); fab.style.opacity = '1'; }
+                if (ready > 0) { txt = '🎁 ' + t('reward_fab') + ' ·' + ready; fab.style.opacity = '1'; }
+                else {
+                    const cds = ids.map(id => this.cooldownLeft(id)).filter(s => s > 0);
+                    if (cds.length) txt = '🎁 ' + t('reward_cooldown', { time: this.fmtTime(Math.min.apply(null, cds)) });
+                    else txt = '🎁 ' + t('reward_later');
+                    fab.style.opacity = '0.6';
+                }
                 if (lbl.textContent !== txt) lbl.textContent = txt;
             }
         };
 
-        // ÚNICO punto que concede recompensas. Comprueba cooldown + tope diario (persistidos),
-        // llama al proveedor de anuncios y SOLO si completed aplica el efecto y registra el uso.
-        async function claimReward(rewardId) {
-            const def = REWARDS[rewardId];
-            if (!def) return false;
-            if (!adProvider.isAvailable()) { gx.toast(t('ad_failed')); return false; }
-            if (rewardSystem.cooldownLeft(rewardId) > 0) {
-                gx.toast(t('reward_cooldown', { time: rewardSystem.fmtTime(rewardSystem.cooldownLeft(rewardId)) }));
-                return false;
-            }
-            if (rewardSystem.dailyLeft(rewardId) <= 0) {
-                gx.toast(t('reward_daily_left', { n: 0, max: def.daily }));
-                return false;
-            }
-            let res = null;
-            try { res = await adProvider.showRewarded(); } catch (e) { res = null; }
-            if (!res || !res.completed) { gx.toast(t('ad_failed')); return false; }
-            const r = rewardSystem.rec(rewardId);
-            r.last = Date.now();
-            r.count += 1;
-            try { def.apply(); } catch (e) {}
-            try { game.save(); } catch (e) {}
-            rewardSystem.renderButton();
-            gx.toast(t('reward_granted', { r: t(def.labelKey) }));
-            return true;
+        // The ONLY grant point. Checks cooldown + daily cap (persisted), shows the ad and
+        // ONLY on a completed ad applies the effect and records the use. Returns a Promise
+        // resolving true on grant (so callers like the offline modal can await it).
+        function claimReward(rewardId) {
+            return new Promise(function (resolve) {
+                const def = REWARDS[rewardId];
+                if (!def) { resolve(false); return; }
+                if (!ads.isAvailable()) { gx.toast(t('ad_unavailable')); resolve(false); return; }
+                if (rewardSystem.cooldownLeft(rewardId) > 0) {
+                    gx.toast(t('reward_cooldown', { time: rewardSystem.fmtTime(rewardSystem.cooldownLeft(rewardId)) }));
+                    resolve(false); return;
+                }
+                if (rewardSystem.dailyLeft(rewardId) <= 0) {
+                    gx.toast(t('reward_daily_left', { n: 0, max: def.daily }));
+                    resolve(false); return;
+                }
+                ads.showRewarded(rewardId, function () {
+                    const r = rewardSystem.rec(rewardId);
+                    r.last = Date.now();
+                    r.count += 1;
+                    try { def.apply(); } catch (e) {}
+                    try { game.save(); } catch (e) {}
+                    rewardSystem.renderButton();
+                    try { rewardsUI.render(); } catch (e) {}
+                    gx.toast(t('reward_granted', { r: t(def.labelKey) }));
+                    try { sound.play('bubble'); } catch (e) {}
+                    resolve(true);
+                }, function () {
+                    gx.toast(t('ad_failed'));
+                    resolve(false);
+                });
+            });
         }
+
+        // Side-FAB rewarded-ad menu. Lists the rewards; each row shows its state and a Watch
+        // button (disabled on cooldown / cap). The entry point is hidden by renderButton()
+        // when ads.isAvailable() is false (Steam/desktop).
+        const rewardsUI = {
+            LIST: ['brew2', 'instapot', 'lucky'],
+            open() {
+                if (!ads.isAvailable()) return;
+                this.render();
+                const m = document.getElementById('reward-modal'); if (m) m.classList.add('open');
+            },
+            close() { const m = document.getElementById('reward-modal'); if (m) m.classList.remove('open'); },
+            render() {
+                const wrap = document.getElementById('reward-list'); if (!wrap) return;
+                wrap.innerHTML = this.LIST.map(function (id) {
+                    const def = REWARDS[id];
+                    const cd = rewardSystem.cooldownLeft(id), left = rewardSystem.dailyLeft(id);
+                    const can = rewardSystem.canClaim(id);
+                    let state;
+                    if (left <= 0) state = t('reward_daily_done');
+                    else if (cd > 0) state = t('reward_cooldown', { time: rewardSystem.fmtTime(cd) });
+                    else state = t('reward_daily_left', { n: left, max: def.daily });
+                    return '<div class="reward-card">'
+                        + '<div class="reward-card-icon">' + def.icon + '</div>'
+                        + '<div class="reward-card-body">'
+                        + '<div class="reward-card-name">' + t(def.labelKey) + '</div>'
+                        + '<div class="reward-card-desc">' + t(def.descKey) + '</div>'
+                        + '<div class="reward-card-state">' + state + '</div>'
+                        + '</div>'
+                        + '<button class="reward-card-btn" ' + (can ? '' : 'disabled') + ' onclick="rewardsUI.watch(\'' + id + '\')">▶ ' + t('reward_watch') + '</button>'
+                        + '</div>';
+                }).join('');
+            },
+            watch(id) {
+                claimReward(id).then(() => { this.render(); rewardSystem.renderButton(); });
+            }
+        };
         const bubble = {
             timer: 60 + Math.floor(Math.random() * 120), node: null, hideTimer: null,
             reset() { this.timer = 60 + Math.floor(Math.random() * 120); },
@@ -2851,8 +3436,8 @@
         const collectionProvider = localCollectionProvider;
         const collection = {
             RARITIES: [
-                { k: 'common', weight: 50 }, { k: 'uncommon', weight: 25 }, { k: 'rare', weight: 14 },
-                { k: 'epic', weight: 7 }, { k: 'legendary', weight: 3 }, { k: 'superleg', weight: 1 }
+                { k: 'common', weight: 55 }, { k: 'uncommon', weight: 28 }, { k: 'rare', weight: 12 },
+                { k: 'epic', weight: 4 }, { k: 'legendary', weight: 0.7 }, { k: 'superleg', weight: 0.3 }
             ],
             rarRank: { common: 0, uncommon: 1, rare: 2, epic: 3, legendary: 4, superleg: 5 },
             RAR_GLOW: { common: '#94a3b8', uncommon: '#4ade80', rare: '#a5f3fc', epic: '#d8b4fe', legendary: '#fbbf24', superleg: '#fb7185' },
@@ -3384,6 +3969,9 @@
             try { requestAnimationFrame(() => requestAnimationFrame(() => ytPlayables.firstFrameReady())); } catch (e) { ytPlayables.firstFrameReady(); }
             try { quality.load(); } catch (e) {}
             sound.init(); game.init();
+            // Leaderboard identity: ensures UUID + display name exist (own localStorage
+            // key 'soup_lb_identity'; never touches the integrity-wrapped 'soup_p_v17').
+            try { leaderboard.identity(); } catch (e) {}
             /* ===== TEMP CREATOR GRANT — REMOVE BEFORE RELEASE ===== */
             try {
                 if (!localStorage.getItem('__sc_grant_all_charms_v1')) {
@@ -3398,6 +3986,38 @@
                 }
             } catch (e) { console.warn('[creator] grant failed', e); }
             /* ===== END TEMP CREATOR GRANT ===== */
+            /* ===== TEMP CREATOR UNLOCK GESTURE — REMOVE BEFORE LAUNCH =====
+               No-console toggle: 7 quick taps/clicks within ~3s on the home title
+               flips the __sc_creator flag that creator.isDev() reads. Works with
+               mouse + touch (uses 'click', which fires on tap). Does NOT touch the
+               Play button or any other start-screen control. Delete this whole block
+               and the creator_mode_on/off i18n keys to remove. */
+            try {
+                const __scTitle = document.getElementById('home-title');
+                if (__scTitle && !__scTitle.dataset.scGesture) {
+                    __scTitle.dataset.scGesture = '1';
+                    __scTitle.style.cursor = 'default';
+                    let __scTaps = [];
+                    __scTitle.addEventListener('click', function () {
+                        const now = Date.now();
+                        __scTaps.push(now);
+                        __scTaps = __scTaps.filter(ts => now - ts <= 3000);
+                        if (__scTaps.length >= 7) {
+                            __scTaps = [];
+                            let on = false;
+                            try { on = localStorage.getItem('__sc_creator') === '1'; } catch (e) {}
+                            try {
+                                if (on) localStorage.removeItem('__sc_creator');
+                                else localStorage.setItem('__sc_creator', '1');
+                            } catch (e) {}
+                            try { gx.toast(t(on ? 'creator_mode_off' : 'creator_mode_on')); } catch (e) {}
+                            // Live-refresh the Creator panel if it's open so tools appear/vanish at once.
+                            try { const md = document.getElementById('creator-modal'); if (md && md.classList.contains('open')) creator.render(); } catch (e) {}
+                        }
+                    });
+                }
+            } catch (e) {}
+            /* ===== END TEMP CREATOR UNLOCK GESTURE ===== */
             applyStaticI18n();
             const f = document.getElementById('lang-fab'); if (f) f.textContent = '🌐 ' + LANG.toUpperCase();
             home.init();
@@ -3412,6 +4032,8 @@
         }
         // Arranca el SDK de Playables cuanto antes (no-op total fuera de Playables).
         ytPlayables.init();
+        // Pick the rewarded-ads provider (real on Playables/mobile, simulated on web; off on Steam/desktop).
+        ads.init();
         // Optimización de arranque: NO esperamos a window.onload (que se bloquea hasta que
         // TODOS los assets pesados estén cargados). Inicializamos en cuanto el DOM está listo
         // para que el primer frame (la home) sea inmediato y nada bloquee el render inicial.
