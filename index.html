@@ -385,7 +385,7 @@
         <div class="side-fab" id="creator-fab" onclick="creator.open()"><span data-i18n="creator_btn">📺 Creator</span><span id="creator-fab-live" class="badge2" style="display:none">●</span></div>
         <div class="side-fab" id="lang-fab" onclick="setLang(LANG==='en'?'es':'en')">🌐 EN</div>
     </div>
-    <div id="live-badge" onclick="creator.go(CREATOR.liveUrl)" title="Live now!" data-i18n-title="creator_live_now"><span data-i18n="creator_live">🔴 LIVE</span></div>
+    <div id="live-badge" onclick="creator.goLive()" title="Live now!" data-i18n-title="creator_live_now"><span data-i18n="creator_live">🔴 LIVE</span></div>
     <div id="offline-modal" class="gx-modal"><div class="gx-box"><h2 data-i18n="offline_title">Your soup kept cooking</h2><p id="offline-text" style="font-size:1rem; line-height:1.5"></p><div style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin-top:6px"><button class="gx-btn" style="min-height:44px; background:linear-gradient(135deg,#f59e0b,#b45309); border-color:var(--go)" onclick="offline.double()" data-i18n="offline_double">x2 (Free reward)</button><button class="gx-btn" style="min-height:44px" onclick="offline.claim()" data-i18n="claim">Claim</button></div></div></div>
     <div id="quest-modal" class="gx-modal"><div class="gx-box"><h2 data-i18n="quests_title">Chef's Orders</h2><div id="quest-list"></div><div id="ach-list" style="margin-top:14px"></div><button class="gx-btn" style="margin-top:10px" onclick="quests.close()" data-i18n="close">Close</button></div></div>
     <div id="tree-modal" class="gx-modal"><div class="gx-box"><h2 data-i18n="tree_title">Angel Awakening Tree</h2><p style="font-size:0.85rem; color:#cbd5e1"><span data-i18n="tree_shards_avail">Available Angel Shards:</span> <b id="tree-shards" style="color:var(--go)">0</b></p><div id="tree-list"></div><button class="gx-btn" style="margin-top:10px" onclick="atree.close()" data-i18n="close">Close</button></div></div>
@@ -451,7 +451,7 @@
         //   liveUrl          : URL del directo en curso (YouTube/TikTok Live, etc.).
         //   isLive           : pon true para mostrar el badge "🔴 LIVE" enlazando a liveUrl.
         // Solo se usan ENLACES externos (window.open). NO se incrusta ningún reproductor.
-        const CREATOR = { youtube: 'https://www.youtube.com/@smallcreekskullchefasmr', tiktok: 'https://www.tiktok.com/@smallcreek_skullchefog', liveUrl: '', isLive: false };
+        const CREATOR = { youtube: 'https://www.youtube.com/@smallcreekskullchefasmr', tiktok: 'https://www.tiktok.com/@smallcreek_skullchefog', liveUrl: '', isLive: false, statusUrl: 'https://raw.githubusercontent.com/Hunhau/smallcreek-skullchef/main/live.json' };
         const I18N = {
             en: {
                 soul_awakened:"[ SOUL AWAKENED ]", prix_title:"ESQUELOTIA GRAND PRIX", select_champion:"Select Champion!", return_cauldron:"RETURN TO CAULDRON",
@@ -1091,23 +1091,61 @@
         //       // Gatear SIEMPRE por BUILD; en 'web'/'playables' dejar solo enlaces.
         //   }
         const creator = {
+            // Estado del flag remoto de directo (live.json en el repo del dueño).
+            // SIN API de YouTube, SIN credenciales: solo un JSON plano que el dueño
+            // enciende/apaga con directo-on.ps1 / directo-off.ps1.
+            _remoteLive: false,   // último valor leído de live.json (.live === true)
+            _remoteUrl: '',       // último valor leído de live.json (.url)
+            _pollStarted: false,  // evita arrancar el intervalo más de una vez
             open() { this.render(); const md = document.getElementById('creator-modal'); if (md) md.classList.add('open'); },
             close() { const md = document.getElementById('creator-modal'); if (md) md.classList.remove('open'); },
             go(url) { if (!url) return; try { window.open(url, '_blank', 'noopener'); } catch (e) {} },
+            // Destino del badge "🔴 LIVE": url remota -> liveUrl manual -> canal/live.
+            liveTarget() { return this._remoteUrl || CREATOR.liveUrl || (CREATOR.youtube ? CREATOR.youtube + '/live' : ''); },
+            goLive() { this.go(this.liveTarget()); },
+            // ¿Está en directo? El flag remoto O el override manual CREATOR.isLive.
+            isLiveNow() { return !!(this._remoteLive || CREATOR.isLive); },
             render() {
                 const box = document.getElementById('creator-links'); if (!box) return;
                 const btns = [];
                 if (CREATOR.youtube) btns.push(`<button class="gx-btn creator-link" type="button" onclick="creator.go(CREATOR.youtube)">▶ ${t('creator_youtube')}</button>`);
                 if (CREATOR.tiktok)  btns.push(`<button class="gx-btn creator-link" type="button" onclick="creator.go(CREATOR.tiktok)">♪ ${t('creator_tiktok')}</button>`);
-                if (CREATOR.isLive && CREATOR.liveUrl) btns.push(`<button class="gx-btn creator-link creator-live" type="button" onclick="creator.go(CREATOR.liveUrl)">${t('creator_live')}</button>`);
+                if (this.isLiveNow()) btns.push(`<button class="gx-btn creator-link creator-live" type="button" onclick="creator.goLive()">${t('creator_live')}</button>`);
                 box.innerHTML = btns.length ? btns.join('') : `<p class="amb-hint">${t('creator_none')}</p>`;
             },
             syncLive() {
-                const show = !!(CREATOR.isLive && CREATOR.liveUrl);
+                const show = this.isLiveNow();
                 const badge = document.getElementById('live-badge');
                 if (badge) { badge.style.display = show ? 'flex' : 'none'; const sp = badge.querySelector('[data-i18n]'); if (sp) sp.textContent = t('creator_live'); badge.title = t('creator_live_now'); }
                 const fabLive = document.getElementById('creator-fab-live');
                 if (fabLive) fabLive.style.display = show ? 'inline-block' : 'none';
+            },
+            // Lee el flag remoto live.json (sin API, sin credenciales). 100% tolerante:
+            // cualquier fallo (red bloqueada en Playables, JSON inválido, etc.) deja el
+            // badge oculto y NUNCA lanza ni escribe en consola ni bloquea el arranque.
+            async checkRemoteLive() {
+                try {
+                    if (!CREATOR.statusUrl) return;
+                    const res = await fetch(CREATOR.statusUrl + '?t=' + Date.now(), { cache: 'no-store' });
+                    if (!res || !res.ok) { this._remoteLive = false; this._remoteUrl = ''; this.syncLive(); return; }
+                    const data = await res.json();
+                    this._remoteLive = !!(data && data.live === true);
+                    this._remoteUrl = (data && typeof data.url === 'string') ? data.url : '';
+                } catch (e) {
+                    this._remoteLive = false; this._remoteUrl = '';
+                }
+                try { this.syncLive(); const md = document.getElementById('creator-modal'); if (md && md.classList.contains('open')) this.render(); } catch (e) {}
+            },
+            // Arranca el sondeo perezoso: una lectura tras el primer pintado y luego
+            // cada ~60s. No bloquea el arranque y se protege ante cualquier error.
+            startLivePolling() {
+                if (this._pollStarted) return; this._pollStarted = true;
+                try {
+                    const kick = () => { try { this.checkRemoteLive(); } catch (e) {} };
+                    if (typeof requestAnimationFrame === 'function') requestAnimationFrame(() => setTimeout(kick, 0));
+                    else setTimeout(kick, 0);
+                    setInterval(kick, 60000);
+                } catch (e) {}
             }
         };
         // === Versionado del esquema de guardado ===
@@ -2971,7 +3009,7 @@
             try { collection.preload(); } catch (e) {}
             try { ambient.init(); } catch (e) {}
             try { music.init(); } catch (e) {}
-            try { creator.render(); creator.syncLive(); } catch (e) {}
+            try { creator.render(); creator.syncLive(); creator.startLivePolling(); } catch (e) {}
             // Juego inicializado y jugable. Fuera de Playables es no-op silencioso.
             ytPlayables.gameReady();
         }
