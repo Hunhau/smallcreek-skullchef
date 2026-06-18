@@ -326,8 +326,6 @@
         @keyframes rotateHint { 0%, 100% { transform: rotate(-10deg); } 50% { transform: rotate(80deg); } }
         #rotate-title { margin: 0; font-size: clamp(1.5rem, 7vw, 2.2rem); font-weight: 800; color: var(--gold-soft); text-shadow: 0 2px 0 #7c2d12, 0 0 22px rgba(224,160,8,0.5); }
         #rotate-msg { margin: 0; max-width: 30ch; font-size: clamp(0.9rem, 4vw, 1.05rem); line-height: 1.5; color: #e7d3bd; opacity: 0.9; }
-        #rotate-continue { margin-top: 6px; background: linear-gradient(135deg, #7e22ce, #3b82f6); color: #fff; border: 2px solid #fff3; border-radius: 12px; padding: 12px 26px; font-weight: bold; cursor: pointer; font-size: 0.95rem; letter-spacing: 0.5px; min-height: 48px; transition: 0.2s; }
-        #rotate-continue:hover { filter: brightness(1.12); }
         /* Mostrar el aviso sólo en vertical + (pantalla estrecha O dispositivo táctil). */
         @media (orientation: portrait) and (max-width: 900px) { #rotate-overlay { display: flex; } }
         @media (orientation: portrait) and (hover: none) and (pointer: coarse) { #rotate-overlay { display: flex; } }
@@ -640,7 +638,6 @@
         <div id="rotate-icon">🔄</div>
         <h2 id="rotate-title" data-i18n="rotate_title">Rotate your device</h2>
         <p id="rotate-msg" data-i18n="rotate_msg">This game is best played in landscape. Turn your device sideways to keep cooking.</p>
-        <button id="rotate-continue" type="button" onclick="dismissRotateOverlay()" data-i18n="rotate_continue">Continue anyway</button>
     </div>
     <img id="angel-showcase" src="assets/img/angel.png" loading="lazy" decoding="async">
     <div id="prestige-overlay"><h1 data-i18n="soul_awakened" style="color:var(--go); font-size:4rem; text-shadow:0 0 30px var(--go);">[ SOUL AWAKENED ]</h1><p id="pres-lore" style="max-width:600px; text-align:center; font-size:1.4rem; line-height:1.6; margin:20px;"></p></div>
@@ -1284,7 +1281,7 @@
         // build differs, reload ONCE with a cache-busting ?v= query. sessionStorage guards
         // against reload loops. Fully defensive: any error is silent and never blocks the
         // game. Parent bumps BOTH version.json and BUILD_V on every future deploy.
-        const BUILD_V = "build-2";
+        const BUILD_V = "build-3";
         (function checkForUpdate() {
             try {
                 fetch('version.json?ts=' + Date.now(), { cache: 'no-store' })
@@ -5310,8 +5307,8 @@
         // Phone-only landscape gate: defers a callback (e.g. starting the tutorial)
         // until the device is in LANDSCAPE, then fires it exactly once. On desktop, or
         // when the phone is already in landscape, the callback runs immediately so the
-        // normal flow is unchanged. Tapping the rotate hint's "Continue anyway" also
-        // flushes any pending callback (see dismissRotateOverlay). Defensive throughout.
+        // normal flow is unchanged. The orientationchange/resize listeners flush pending
+        // callbacks once landscape is reached. Defensive throughout.
         const landscapeGate = {
             _pending: [], _armed: false, _h: null,
             isPhone() { try { return window.matchMedia('(pointer: coarse)').matches && Math.min(window.innerWidth, window.innerHeight) <= 600; } catch (e) { return false; } },
@@ -5345,20 +5342,11 @@
                 } catch (e) {}
             }
         };
-        // Portrait rotate hint. The prompt is driven LIVE by CSS media queries (shown in
-        // portrait on phones, hidden in landscape). "Continue anyway" is now a TRANSIENT
-        // escape hatch ONLY: it hides the prompt for the current portrait moment but is
-        // NOT persisted, so the prompt reliably returns on reload or if the phone is
-        // rotated back to portrait. The default is always: portrait shows the prompt.
+        // Portrait rotate gate. Landscape is STRICTLY enforced on phones: the prompt is
+        // driven LIVE by CSS media queries (shown in portrait, hidden in landscape) and
+        // there is NO "Continue anyway" bypass — the only way past it is to physically
+        // rotate the device to landscape. The default is always: portrait shows the prompt.
         const ROTATE_DISMISS_KEY = 'soup_rotate_dismissed_v1';
-        function dismissRotateOverlay() {
-            try {
-                const ov = document.getElementById('rotate-overlay');
-                if (ov) { ov.classList.add('dismissed'); }
-                // Player chose to proceed in portrait: release any deferred tutorial start.
-                try { landscapeGate._flush(true); } catch (e) {}
-            } catch (e) {}
-        }
         // Migration + reset: an earlier build PERSISTED a permanent dismissal flag that
         // could suppress the portrait prompt forever. Clear it (and any stale inline/class
         // state) on every boot so the rotate gate is reliable.
