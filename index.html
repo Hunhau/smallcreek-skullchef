@@ -609,6 +609,7 @@
                 const evs = ['pointerdown', 'touchstart', 'keydown'];
                 const handler = () => { this.unlock(); evs.forEach(ev => document.removeEventListener(ev, handler)); };
                 evs.forEach(ev => document.addEventListener(ev, handler, { once: true, passive: true }));
+                try { document.addEventListener('visibilitychange', () => { if (document.hidden) { try { this._stirStopNow(); } catch (e) {} } }, { passive: true }); } catch (e) {}
             },
             unlock() {
                 if (this._unlocked) return; this._unlocked = true;
@@ -663,7 +664,90 @@
                     const p = a.play(); if (p && p.catch) p.catch(()=>{});
                 } catch (e) {}
             },
-            setMuted(m) { this.muted = !!m; this.save(); this.updateUi(); try { if (typeof ambient !== 'undefined' && ambient._inited) ambient.syncPlayback(); } catch (e) {} },
+            // === STIR LOOP (sostenido, gobernado por actividad) =================
+            // El removido es continuo: arranca en el PRIMER clic y se mantiene
+            // estable alternando stir1/stir2 (encadenado vía 'ended', sin cortes ni
+            // solapes). Cada clic solo lo MANTIENE vivo (_stir.last). Tras ~700ms
+            // sin clics hace fade-out (~180ms) y se detiene. Respeta mute, volumen
+            // y visibilitychange. Si faltan los archivos, es un no-op silencioso.
+            _stir: { active:false, last:0, timer:null, idx:0, voices:null, cur:null, fade:null, broken:false },
+            _stirVol() { return Math.min(1, Math.max(0, (this.vols.stir != null ? this.vols.stir : 0.3) * this.volume)); },
+            _stirEnsure() {
+                const S = this._stir;
+                if (S.voices || S.broken) return S.voices;
+                try {
+                    const srcs = this.defs.stir || [];
+                    if (!srcs.length) { S.broken = true; return null; }
+                    S.voices = srcs.map(src => { const a = new Audio(); a.addEventListener('error', () => { S.broken = true; }, { passive: true }); a.src = src; a.preload = 'auto'; return a; });
+                } catch (e) { S.broken = true; S.voices = null; }
+                return S.voices;
+            },
+            _stirPlayNext() {
+                const S = this._stir;
+                if (!S.active) return;
+                const voices = S.voices;
+                if (!voices || !voices.length) { this._stirStopNow(); return; }
+                const a = voices[S.idx % voices.length];
+                S.idx = (S.idx + 1) % voices.length;
+                S.cur = a;
+                try {
+                    a.onended = null;
+                    a.volume = this._stirVol();
+                    a.playbackRate = Math.min(2, Math.max(0.5, 1 + (Math.random() * 2 - 1) * 0.03));
+                    a.currentTime = 0;
+                    a.onended = () => { if (this._stir.active) this._stirPlayNext(); };
+                    const p = a.play(); if (p && p.catch) p.catch(() => {});
+                } catch (e) { this._stirStopNow(); }
+            },
+            stirPulse() {
+                if (this.muted || this.volume <= 0) return;
+                const S = this._stir;
+                if (S.broken) return;
+                const voices = this._stirEnsure();
+                if (!voices) return;
+                const now = (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now();
+                S.last = now;
+                // Si estábamos en fade-out y el jugador vuelve a remover, cancelamos
+                // el fade y restauramos el volumen de la voz actual (sin retrigger).
+                if (S.fade) { clearInterval(S.fade); S.fade = null; if (S.cur) { try { S.cur.volume = this._stirVol(); } catch (e) {} } }
+                if (!S.active) {
+                    S.active = true; S.idx = 0;
+                    this._stirPlayNext();
+                    if (!S.timer) S.timer = setInterval(() => this._stirWatch(), 130);
+                }
+            },
+            _stirWatch() {
+                const S = this._stir;
+                if (!S.active) { if (S.timer) { clearInterval(S.timer); S.timer = null; } return; }
+                const hidden = (typeof document !== 'undefined' && document.hidden);
+                if (this.muted || this.volume <= 0 || hidden) { this._stirStopNow(); return; }
+                const now = (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now();
+                const IDLE_MS = 700;
+                if ((now - S.last) > IDLE_MS && !S.fade) this._stirFadeOut();
+            },
+            _stirFadeOut() {
+                const S = this._stir;
+                const a = S.cur;
+                if (!a) { this._stirStopNow(); return; }
+                const start = (typeof a.volume === 'number') ? a.volume : this._stirVol();
+                const steps = 9; let i = 0;
+                if (S.fade) clearInterval(S.fade);
+                S.fade = setInterval(() => {
+                    i++;
+                    try { a.volume = Math.max(0, start * (1 - i / steps)); } catch (e) {}
+                    if (i >= steps) { clearInterval(S.fade); S.fade = null; this._stirStopNow(); }
+                }, 20);
+            },
+            _stirStopNow() {
+                const S = this._stir;
+                S.active = false;
+                if (S.timer) { clearInterval(S.timer); S.timer = null; }
+                if (S.fade) { clearInterval(S.fade); S.fade = null; }
+                const voices = S.voices;
+                if (voices) voices.forEach(a => { try { a.onended = null; a.pause(); a.currentTime = 0; a.volume = this._stirVol(); } catch (e) {} });
+                S.cur = null; S.idx = 0;
+            },
+            setMuted(m) { this.muted = !!m; if (this.muted) { try { this._stirStopNow(); } catch (e) {} } this.save(); this.updateUi(); try { if (typeof ambient !== 'undefined' && ambient._inited) ambient.syncPlayback(); } catch (e) {} },
             toggleMute() { this.setMuted(!this.muted); },
             setVolume(val) { const n = Number(val); this.volume = isFinite(n) ? Math.min(1, Math.max(0, n)) : this.volume; if (this.volume > 0 && this.muted) this.muted = false; this.save(); this.updateUi(); },
             updateUi() {
@@ -1333,7 +1417,7 @@
                 this.track('clicks', 1); this.track('eb', gain);
                 if (!game.ach.firstClick) ach.grant('firstClick');
                 this.floatNum(ev.clientX, ev.clientY, gain);
-                sound.play('stir');
+                sound.stirPulse();
                 document.getElementById('asset-spoon').classList.add('manual-stir');
                 setTimeout(() => { document.getElementById('asset-spoon').classList.remove('manual-stir'); this.cl = false; }, 120);
                 const o = this.soupPartOrigin();
