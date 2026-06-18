@@ -9,36 +9,60 @@
          de imágenes/audio se cargan de forma diferida para no bloquear el render inicial. -->
     <link rel="preload" as="image" href="assets/img/angel.png" fetchpriority="high">
     <style>
-        :root { --en: #a5f3fc; --go: #fbbf24; --ac: #d8b4fe; --ui: rgba(15, 23, 42, 0.96); --sc: rgba(30, 27, 75, 0.85); }
+        :root { --en: #a5f3fc; --ac: #d8b4fe; --ui: rgba(15, 23, 42, 0.96); --sc: rgba(30, 27, 75, 0.85);
+            /* === Unified premium gold accent (matches start-screen button, not pale neon) === */
+            --gold: #e0a008; --gold-deep: #a86a06; --gold-soft: #f9dd9b; --cream: #fdf4e6;
+            --go: var(--gold);
+            /* === GLASS (glassmorphism) tokens — tinted to bg.jpg's violet ===
+               Tints alone (no blur) must stay legible, so the fallback never relies on blur.
+               .q-low bumps opacity and drops blur for low-end/mobile perf. */
+            --glass: rgba(46, 16, 74, 0.42); --glass-strong: rgba(33, 12, 56, 0.66);
+            --glass-bd: rgba(255, 255, 255, 0.12); --glass-bd-go: rgba(224, 160, 8, 0.5);
+            --glass-blur: blur(8px); --glass-blur-sm: blur(4px); }
+        body.q-low { --glass: rgba(40, 14, 64, 0.84); --glass-strong: rgba(26, 9, 46, 0.92); --glass-blur: none; --glass-blur-sm: none; }
         * { box-sizing: border-box; touch-action: manipulation; -webkit-user-select: none; user-select: none; -webkit-tap-highlight-color: transparent; }
         body { margin: 0; padding: 0; width: 100vw; height: 100vh; overflow: hidden; background: url('assets/img/bg.jpg') center/cover no-repeat !important; color: white; font-family: 'Segoe UI', Tahoma, sans-serif; display: flex; }
         #game-wrapper { display: flex; width: 100%; height: 100%; position: relative; transition: filter 0.8s; }
         #white-out { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #fff; opacity: 0; pointer-events: none; z-index: 100000; transition: opacity 0.5s; }
-        #hud { position: absolute; top: max(20px, env(safe-area-inset-top)); left: 50%; transform: translateX(-50%); display: flex; gap: 30px; z-index: 5000; background: rgba(0,0,0,0.72); padding: 10px 40px; border-radius: 50px; border: 1px solid #fff2; pointer-events: none; }
+        #hud { position: absolute; top: max(20px, env(safe-area-inset-top)); left: 50%; transform: translateX(-50%); display: flex; gap: 30px; z-index: 5000; background: var(--glass-strong); backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur); padding: 10px 40px; border-radius: 50px; border: 1px solid var(--glass-bd); box-shadow: 0 8px 28px rgba(0,0,0,0.35); pointer-events: none; }
         #score-box, #shard-box { font-weight: bold; text-transform: uppercase; letter-spacing: 1px; }
         #score-box { font-family: 'Courier New', monospace; font-size: 2.2rem; color: var(--en); text-shadow: 0 0 10px #22d3ee; }
         #score-box.glow { animation: scoreGlow 0.45s ease-out; }
         @keyframes scoreGlow { 0% { text-shadow: 0 0 10px #22d3ee; filter: brightness(1); } 30% { text-shadow: 0 0 22px #67e8f9, 0 0 42px #22d3ee; filter: brightness(1.65); } 100% { text-shadow: 0 0 10px #22d3ee; filter: brightness(1); } }
         #shard-box { font-size: 1.4rem; color: var(--go); align-self: center; }
         #cps-tag { position: absolute; top: 85px; left: 50%; transform: translateX(-50%); font-size: 1.1rem; color: var(--ac); z-index: 5000; opacity: 0.9; }
-        #lore-scroll { position: absolute; top: 20px; left: 20px; width: 340px; background: rgba(30, 27, 75, 0.94); border: 2px solid var(--ac); border-radius: 15px; padding: 15px; z-index: 8000; }
+        #lore-scroll { position: absolute; top: 20px; left: 20px; width: 340px; background: var(--glass); backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur); border: 1px solid rgba(216,180,254,0.35); border-radius: 15px; padding: 15px; z-index: 8000; box-shadow: 0 8px 28px rgba(0,0,0,0.35); }
         #lore-title { font-size: 0.8rem; text-transform: uppercase; color: var(--ac); font-weight: bold; border-bottom: 1px solid #fff2; margin-bottom: 5px; }
         #lore-text { font-size: 0.85rem; line-height: 1.4; font-style: italic; }
         #altar-panel { position: absolute; top: 20px; right: 400px; z-index: 7000; display: flex; flex-direction: column; align-items: center; }
         #btn-prestige { background-image: url("assets/img/angel.png") !important; background-size: contain !important; background-repeat: no-repeat !important; background-position: center !important; width: 180px; height: 260px; border: none !important; background-color: transparent !important; transition: 0.4s; cursor: not-allowed; opacity: 0.4; display: flex; flex-direction: column; justify-content: flex-end; }
         #btn-prestige.locked { animation: none; filter: none; }
         #btn-prestige.unlocked { opacity: 1.0; cursor: pointer; filter: drop-shadow(0 0 20px var(--go)); animation: breathe 2s infinite alternate; }
-        .prestige-label { width: 210px; padding: 8px; border-radius: 10px; background: rgba(0,0,0,0.85); border: 1px solid #fff3; font-size: 0.65rem; text-align: center; text-transform: uppercase; transform: translateX(-15px); }
-        #pres-stat { font-size: 0.8rem; font-weight: bold; background: rgba(0,0,0,0.4); padding: 5px 12px; border-radius: 20px; margin-top: 10px; text-shadow: 0 0 8px #fff; }
+        .prestige-label { width: 210px; padding: 8px; border-radius: 10px; background: var(--glass-strong); border: 1px solid var(--glass-bd); font-size: 0.65rem; text-align: center; text-transform: uppercase; transform: translateX(-15px); text-shadow: 0 1px 3px rgba(0,0,0,0.7); }
+        #pres-stat { font-size: 0.8rem; font-weight: bold; background: var(--glass); padding: 5px 12px; border-radius: 20px; margin-top: 10px; border: 1px solid var(--glass-bd); text-shadow: 0 0 8px #fff; }
         #main-stage { flex-grow: 1; position: relative; cursor: pointer; overflow: hidden; }
         #sticky-center { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: 10px; height: 10px; }
         #asset-chef { position: absolute; z-index: 1; transform: translate(-50%, -50%); left: 0px; top: -40px; width: 720px; pointer-events: none; }
         #asset-chef-hand { position: absolute; z-index: 4; transform: translate(-50%, -50%); left: 0px; top: -40px; width: 720px; pointer-events: none; }
+        /* BEST-EFFORT chef-hat overlay: positioned over the chef's head. Tuned by eye
+           against the 720px chef sprite; collectible-only fallback if it ever looks off. */
+        #asset-chefhat { position: absolute; z-index: 3; transform: translate(-50%, -50%); left: 6px; top: -250px; width: 250px; pointer-events: none; filter: drop-shadow(0 4px 10px rgba(0,0,0,0.35)); }
+        /* Decorative legs behind the cauldron (below pot/liquid z-index:2); left/top/width tuned to the pot's footprint */
+        #cauldron-legs { position: absolute; z-index: 1; transform: translate(-50%, -50%); left: 20px; top: 500px; width: 700px; pointer-events: none; }
         #asset-soup { position: absolute; z-index: 2; transform: translate(-50%, -50%); left: 70px; top: 250px; width: 1250px; pointer-events: none; transition: transform 0.1s; }
         #soup-liquid { position: absolute; z-index: 2; transform: translate(-50%, -50%) translateZ(0); left: 70px; top: 250px; width: 1250px; pointer-events: none; -webkit-mask-image: radial-gradient(ellipse 33% 31% at 47% 47%, #000 68%, rgba(0,0,0,0) 92%); mask-image: radial-gradient(ellipse 33% 31% at 47% 47%, #000 68%, rgba(0,0,0,0) 92%); -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; will-change: transform; contain: paint; }
         #asset-soup-liquid { display: block; width: 100%; pointer-events: none; transform-origin: 47% 47%; will-change: transform; backface-visibility: hidden; }
         #spoon-rig { position: absolute; z-index: 3; left: -95px; top: 5px; width: 840px; transform: translate(-50%, -50%) rotate(-27deg); transform-origin: 85% 15%; pointer-events: none; }
         #asset-spoon { width: 100%; transition: transform 0.1s; transform-origin: inherit; }
+        /* TUNABLE — placement of an EQUIPPED collection spoon charm (family:'spoon').
+           Charm spoon PNGs are ~square art (~256px), unlike the wide default spoon.png
+           that fills the 840px rig above. These values re-fit the rig so a square charm
+           sits under the chef's hand like the default spoon. The image stays width:100%
+           of the rig, so changing the rig width scales the charm. Tweak to taste:
+             width  -> overall size of the charm spoon
+             left/top -> position offset within #sticky-center
+             rotate -> tilt (default rig uses -27deg) */
+        #spoon-rig.charm-spoon { width: 300px; left: 0px; top: 60px; transform: translate(-50%, -50%) rotate(-18deg); transform-origin: 50% 50%; }
         #soup-steam { position: absolute; left: 70px; top: 168px; transform: translate(-50%, 0); width: 470px; height: 90px; pointer-events: none; z-index: 2; overflow: visible; }
         .steam-wisp { position: absolute; bottom: 0; border-radius: 50%; background: radial-gradient(ellipse at center, rgba(255,255,255,0.52) 0%, rgba(165,243,252,0.34) 45%, transparent 74%); filter: blur(10px); animation: steamRise 4.2s ease-out infinite; opacity: 0; will-change: transform, opacity; }
         .steam-wisp:nth-child(1) { width: 72px; height: 46px; left: 6%; animation-delay: 0s; filter: blur(8px); animation-duration: 3.6s; }
@@ -63,39 +87,39 @@
         .steam-wisp:nth-child(20) { width: 54px; height: 36px; left: 97%; animation-delay: 4.18s; filter: blur(12px); animation-duration: 4.4s; }
         @keyframes steamRise { 0% { transform: translateY(0) scale(0.7); opacity: 0; } 8% { opacity: 0.44; } 45% { opacity: 0.36; } 72% { opacity: 0.20; } 100% { transform: translateY(-95px) scale(1.3); opacity: 0; } }
         #companion-column { position: absolute; left: 20px; top: 160px; bottom: 420px; transform: none; display: flex; flex-direction: column; justify-content: center; gap: 10px; z-index: 4000; pointer-events: none; }
-        .companion-slot { position: relative; width: 95px; height: 95px; background: rgba(255,255,255,0.05); border: 1px solid var(--ac); border-radius: 20px; display: flex; justify-content: center; align-items: center; }
+        .companion-slot { position: relative; width: 95px; height: 95px; background: var(--glass); border: 1px solid rgba(216,180,254,0.4); border-radius: 20px; display: flex; justify-content: center; align-items: center; box-shadow: 0 4px 16px rgba(0,0,0,0.28); }
         .slot-img { width: 85%; height: 85%; object-fit: contain; animation: bob 3s infinite; }
         .lv-badge { position: absolute; bottom: -5px; right: -5px; background: #2e1065; border: 2px solid var(--go); border-radius: 6px; padding: 1px 5px; font-size: 0.65rem; font-weight: bold; color: var(--go); z-index: 20; }
         .slot-crown { position: absolute; top: -15px; left: 50%; transform: translateX(-50%); font-size: 1.5rem; filter: drop-shadow(0 0 5px var(--go)); }
-        #side-shop { width: 380px; background: var(--ui); border-left: 1px solid #fff2; padding: 20px; z-index: 6000; overflow-y: auto; }
-        .companion-card { background: rgba(255,255,255,0.05); border-radius: 12px; padding: 12px; margin-bottom: 12px; cursor: not-allowed; border: 2px solid transparent; display: flex; align-items: center; opacity: 0.4; transition: 0.3s; }
-        .companion-card.affordable { opacity: 1; cursor: pointer; border-color: var(--ac); background: rgba(168, 85, 247, 0.1); }
-        #buy-mode-toggle { padding: 8px 12px; background: linear-gradient(135deg, #7e22ce, #3b82f6); border-radius: 10px; text-align: center; font-weight: bold; border: 2px solid #fff3; margin-bottom: 12px; cursor: pointer; font-size: 0.85rem; letter-spacing: 0.5px; color: #fff; transition: 0.2s; }
+        #side-shop { width: 380px; background: var(--glass-strong); backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur); border-left: 1px solid var(--glass-bd); padding: 20px; z-index: 6000; overflow-y: auto; }
+        .companion-card { background: var(--glass); border-radius: 12px; padding: 12px; margin-bottom: 12px; cursor: not-allowed; border: 2px solid transparent; display: flex; align-items: center; opacity: 0.4; transition: 0.3s; }
+        .companion-card.affordable { opacity: 1; cursor: pointer; border-color: var(--ac); background: rgba(168, 85, 247, 0.18); }
+        #buy-mode-toggle { padding: 8px 12px; background: var(--glass); border-radius: 10px; text-align: center; font-weight: bold; border: 1px solid var(--glass-bd); margin-bottom: 12px; cursor: pointer; font-size: 0.85rem; letter-spacing: 0.5px; color: #fff; text-shadow: 0 1px 3px rgba(0,0,0,0.6); transition: 0.2s; }
         #buy-mode-toggle:hover { filter: brightness(1.1); border-color: var(--ac); }
         .comp-img { width: 60px; height: 60px; border-radius: 10px; margin-right: 12px; object-fit: cover; }
-        .spoon-card { background: rgba(255,255,255,0.05); border-radius: 12px; padding: 12px; margin-bottom: 12px; border: 2px solid transparent; display: flex; flex-direction: column; align-items: center; gap: 8px; transition: 0.3s; text-align: center; }
+        .spoon-card { background: var(--glass); border-radius: 12px; padding: 12px; margin-bottom: 12px; border: 2px solid transparent; display: flex; flex-direction: column; align-items: center; gap: 8px; transition: 0.3s; text-align: center; }
         .spoon-card.rare { border-color: #a5f3fc; }
         .spoon-card.epic { border-color: #d8b4fe; }
-        .spoon-card.legendary { border-color: #fbbf24; animation: spoonLegendPulse 2s infinite alternate; }
-        .spoon-card.equipped { box-shadow: 0 0 18px rgba(251, 191, 36, 0.45); }
+        .spoon-card.legendary { border-color: var(--go); animation: spoonLegendPulse 2s infinite alternate; }
+        .spoon-card.equipped { box-shadow: 0 0 18px rgba(224, 160, 8, 0.45); }
         .spoon-card-img { width: 100%; max-width: 150px; border-radius: 8px; object-fit: contain; background: rgba(0,0,0,0.3); }
-        @keyframes spoonLegendPulse { from { box-shadow: 0 0 8px rgba(251, 191, 36, 0.3); border-color: #fbbf24; } to { box-shadow: 0 0 22px rgba(251, 191, 36, 0.65); border-color: #fde68a; } }
-        .spoon-equipped-badge { display: inline-block; font-size: 0.7rem; font-weight: bold; color: var(--go); padding: 4px 10px; border-radius: 6px; border: 1px solid var(--go); background: rgba(251, 191, 36, 0.15); animation: breathe 2s infinite alternate; letter-spacing: 0.5px; margin-top: 4px; }
+        @keyframes spoonLegendPulse { from { box-shadow: 0 0 8px rgba(224, 160, 8, 0.3); border-color: var(--go); } to { box-shadow: 0 0 22px rgba(224, 160, 8, 0.65); border-color: var(--gold-soft); } }
+        .spoon-equipped-badge { display: inline-block; font-size: 0.7rem; font-weight: bold; color: var(--go); padding: 4px 10px; border-radius: 6px; border: 1px solid var(--go); background: rgba(224, 160, 8, 0.15); animation: breathe 2s infinite alternate; letter-spacing: 0.5px; margin-top: 4px; }
         .spoon-rarity { display: inline-block; font-size: 0.55rem; font-weight: bold; padding: 2px 6px; border-radius: 4px; margin-bottom: 3px; letter-spacing: 0.5px; }
         .spoon-rarity.rare { background: #0e7490; color: #a5f3fc; }
         .spoon-rarity.epic { background: #6b21a8; color: #e9d5ff; }
         .spoon-rarity.legendary { background: #854d0e; color: var(--go); }
         .spoon-benefit { font-size: 0.65rem; color: #94a3b8; line-height: 1.3; margin: 2px 0 4px; }
-        .spoon-cost { font-size: 0.7rem; font-weight: bold; color: #fbbf24; }
+        .spoon-cost { font-size: 0.7rem; font-weight: bold; color: var(--go); }
         .spoon-btn { margin-top: 5px; padding: 4px 10px; border-radius: 6px; font-size: 0.65rem; font-weight: bold; border: 1px solid #fff3; cursor: pointer; text-transform: uppercase; letter-spacing: 0.4px; }
         .spoon-btn.locked { background: #334155; color: #64748b; cursor: not-allowed; border-color: #475569; }
         .spoon-btn.buy { background: linear-gradient(135deg, #7e22ce, #3b82f6); color: #fff; }
         .spoon-btn.equip { background: rgba(168, 85, 247, 0.35); color: var(--ac); border-color: var(--ac); }
-        .spoon-btn.equipped { background: rgba(251, 191, 36, 0.2); color: var(--go); border-color: var(--go); cursor: default; }
+        .spoon-btn.equipped { background: rgba(224, 160, 8, 0.2); color: var(--gold-soft); border-color: var(--go); cursor: default; }
         #spoons-album-title { font-size: 0.75rem; text-align: center; color: var(--ac); margin: 18px 0 10px; padding-top: 14px; border-top: 1px solid #fff2; text-transform: uppercase; letter-spacing: 1px; opacity: 0.85; }
         #spoons-album-section { margin-top: 4px; }
         #prestige-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 80000; display: none; opacity: 0; background: linear-gradient(180deg, #020617 0%, #1e1b4b 50%, #2e1065 100%); flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.8s; }
-        #victory-cinema { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 65000; display: none; align-items: center; justify-content: center; pointer-events: none; }
+        #victory-cinema { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 65000; display: none; align-items: center; justify-content: center; pointer-events: none; opacity: 1; transition: opacity 0.8s ease, transform 0.8s ease; }
         #cinema-plushie { position: absolute; top: 45%; left: 50%; transform: translate(-50%, -50%) scale(2.5); max-width: 300px; max-height: 25vh; object-fit: contain; filter: drop-shadow(0 0 30px var(--ac)); transition: all 1s; }
         #cinema-crown { position: absolute; top: -150px; left: 50%; transform: translateX(-50%) scale(2.2); font-size: 4rem; z-index: 999999 !important; }
         #race-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle, #1e1b4b, #000); z-index: 100000; display: none; flex-direction: column; align-items: center; justify-content: center; }
@@ -157,20 +181,22 @@
         canvas { position: absolute; top: 0; left: 0; pointer-events: none; z-index: 1000; }
         .click-float { position: fixed; color: #a5f3fc; font-weight: bold; font-size: 1.25rem; text-shadow: 0 0 8px #22d3ee, 0 0 16px rgba(34, 211, 238, 0.35); user-select: none; pointer-events: none; z-index: 3000; white-space: nowrap; animation: floatUp 800ms ease-out forwards; }
         @keyframes floatUp { from { opacity: 1; transform: translate(-50%, -50%); } to { opacity: 0; transform: translate(-50%, calc(-50% - 50px)); } }
-        #audio-ctrl { position: fixed; bottom: max(18px, env(safe-area-inset-bottom)); right: max(18px, env(safe-area-inset-right)); z-index: 90000; display: flex; align-items: center; gap: 10px; background: rgba(0,0,0,0.72); padding: 8px 14px; border-radius: 30px; border: 1px solid #fff2; }
-        #audio-mute { background: transparent; border: none; color: #fff; font-size: 1.3rem; cursor: pointer; line-height: 1; padding: 0; filter: drop-shadow(0 0 6px var(--en)); }
-        #audio-vol { width: 90px; height: 4px; accent-color: var(--ac); cursor: pointer; }
+        #audio-ctrl { position: fixed; bottom: max(18px, env(safe-area-inset-bottom)); right: max(18px, env(safe-area-inset-right)); z-index: 90000; display: flex; align-items: center; gap: 10px; background: var(--glass-strong); backdrop-filter: var(--glass-blur-sm); -webkit-backdrop-filter: var(--glass-blur-sm); padding: 8px 14px; border-radius: 30px; border: 1px solid var(--glass-bd-go); transition: border-color 0.2s; }
+        #audio-mute { background: transparent; border: none; color: var(--gold-soft); font-size: 1.3rem; cursor: pointer; line-height: 1; padding: 0; filter: drop-shadow(0 0 6px var(--go)); transition: filter 0.2s, color 0.2s; }
+        #audio-vol { width: 90px; height: 4px; accent-color: var(--go); cursor: pointer; }
+        #audio-ctrl.muted { border-color: var(--glass-bd); }
+        #audio-ctrl.muted #audio-mute { color: #fff; filter: none; opacity: 0.6; }
         #audio-ctrl.muted #audio-vol { opacity: 0.35; }
-        .gx-modal { position: fixed; inset: 0; z-index: 95000; display: none; align-items: center; justify-content: center; background: rgba(2,6,23,0.78); backdrop-filter: blur(6px); }
+        .gx-modal { position: fixed; inset: 0; z-index: 95000; display: none; align-items: center; justify-content: center; background: rgba(12, 4, 24, 0.7); backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur); }
         .gx-modal.open { display: flex; }
-        .gx-box { background: linear-gradient(160deg, #1e1b4b, #2e1065); border: 2px solid var(--ac); border-radius: 18px; padding: 24px; max-width: 460px; width: 90%; box-shadow: 0 0 40px rgba(168,85,247,0.45); text-align: center; max-height: 84vh; overflow-y: auto; }
+        .gx-box { background: var(--glass-strong); backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur); border: 1px solid var(--glass-bd); border-radius: 18px; padding: 24px; max-width: 460px; width: 90%; box-shadow: 0 12px 48px rgba(0,0,0,0.5), 0 0 40px rgba(168,85,247,0.25); text-align: center; max-height: 84vh; overflow-y: auto; }
         .gx-box h2 { color: var(--go); text-shadow: 0 0 14px var(--go); margin: 0 0 12px; font-size: 1.5rem; }
         .gx-btn { background: linear-gradient(135deg, #7e22ce, #3b82f6); color: #fff; border: 2px solid #fff3; border-radius: 12px; padding: 10px 22px; font-weight: bold; cursor: pointer; font-size: 0.9rem; letter-spacing: 0.5px; transition: 0.2s; }
         .gx-btn:hover { filter: brightness(1.12); }
         .gx-btn.sm { padding: 5px 12px; font-size: 0.72rem; }
         .gx-btn:disabled { opacity: 0.45; cursor: not-allowed; }
         #side-buttons { position: absolute; left: max(20px, env(safe-area-inset-left)); bottom: max(20px, env(safe-area-inset-bottom)); z-index: 8000; display: flex; flex-direction: column; gap: 10px; }
-        .side-fab { background: rgba(15,23,42,0.96); border: 2px solid var(--ac); border-radius: 14px; padding: 10px 14px; font-size: 0.8rem; font-weight: bold; color: #fff; cursor: pointer; text-transform: uppercase; letter-spacing: 0.5px; transition: 0.2s; text-align: center; }
+        .side-fab { background: var(--glass-strong); backdrop-filter: var(--glass-blur-sm); -webkit-backdrop-filter: var(--glass-blur-sm); border: 1px solid rgba(216,180,254,0.4); border-radius: 14px; padding: 10px 14px; font-size: 0.8rem; font-weight: bold; color: #fff; cursor: pointer; text-transform: uppercase; letter-spacing: 0.5px; text-shadow: 0 1px 3px rgba(0,0,0,0.6); transition: 0.2s; text-align: center; }
         .side-fab:hover { border-color: var(--go); filter: brightness(1.12); }
         .side-fab .badge2 { display: inline-block; background: var(--go); color: #1e1b4b; border-radius: 10px; padding: 0 6px; font-size: 0.65rem; margin-left: 4px; }
         /* === Ambient sound player (Feature A) === */
@@ -179,7 +205,7 @@
         .amb-row.on { border-color: var(--go); }
         .amb-toggle { flex: 1; min-width: 120px; display: flex; align-items: center; gap: 8px; background: transparent; border: none; color: #fff; font-size: 0.85rem; font-weight: bold; cursor: pointer; text-align: left; padding: 4px 0; }
         .amb-toggle .amb-state { margin-left: auto; color: var(--go); font-size: 0.8rem; }
-        .amb-slider { width: 96px; height: 4px; accent-color: var(--ac); cursor: pointer; }
+        .amb-slider { width: 96px; height: 4px; accent-color: var(--go); cursor: pointer; }
         .amb-toggle:disabled, .amb-slider:disabled { opacity: 0.4; cursor: not-allowed; }
         .amb-unavail { width: 100%; font-size: 0.62rem; color: #fca5a5; letter-spacing: 0.3px; }
         .music-sec { background: rgba(168,85,247,0.10); border: 1px solid var(--ac); border-radius: 12px; padding: 10px 12px; margin-bottom: 14px; text-align: left; }
@@ -197,7 +223,7 @@
         #creator-fab-live { background: #ef4444 !important; color: #fff !important; animation: breathe 1.4s infinite alternate; }
         #live-badge { position: fixed; top: max(12px, env(safe-area-inset-top)); left: 50%; transform: translateX(-50%); z-index: 90000; display: none; align-items: center; gap: 6px; background: rgba(127,29,29,0.92); border: 1px solid #fecaca; color: #fff; padding: 5px 14px; border-radius: 20px; font-size: 0.78rem; font-weight: bold; cursor: pointer; letter-spacing: 0.6px; box-shadow: 0 0 14px rgba(239,68,68,0.6); animation: breathe 1.4s infinite alternate; }
         #buff-bar { position: absolute; top: 118px; left: 50%; transform: translateX(-50%); z-index: 6000; display: flex; gap: 10px; pointer-events: none; }
-        .buff-chip { background: rgba(0,0,0,0.78); border: 1px solid var(--go); border-radius: 20px; padding: 5px 14px; font-size: 0.8rem; font-weight: bold; color: var(--go); text-shadow: 0 0 8px var(--go); animation: breathe 1.4s infinite alternate; }
+        .buff-chip { background: var(--glass-strong); border: 1px solid var(--go); border-radius: 20px; padding: 5px 14px; font-size: 0.8rem; font-weight: bold; color: var(--go); text-shadow: 0 0 8px var(--go); animation: breathe 1.4s infinite alternate; }
         .golden-bubble { position: absolute; z-index: 5500; width: 90px; height: 90px; cursor: pointer; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #fff, #fde68a 40%, #f59e0b 75%, #b45309); box-shadow: 0 0 25px 6px rgba(251,191,36,0.7); display: flex; align-items: center; justify-content: center; font-size: 2.2rem; animation: bubbleFloat 3s ease-in-out infinite; pointer-events: auto; }
         @keyframes bubbleFloat { 0%, 100% { transform: translateY(0) scale(1); } 50% { transform: translateY(-22px) scale(1.06); } }
         #soup-ripples { position: absolute; left: 0; top: 0; width: 100%; height: 100%; pointer-events: none; z-index: 2; overflow: hidden; }
@@ -206,30 +232,41 @@
         .quest-row { background: rgba(255,255,255,0.05); border: 1px solid #fff2; border-radius: 10px; padding: 10px; margin-bottom: 10px; text-align: left; }
         .quest-row.done2 { border-color: #4ade80; }
         .q-bar { height: 8px; background: #334155; border-radius: 5px; overflow: hidden; margin: 6px 0; }
-        .q-fill { height: 100%; background: linear-gradient(90deg, #a5f3fc, #fbbf24); }
+        .q-fill { height: 100%; background: linear-gradient(90deg, #a5f3fc, var(--go)); }
         .tnode { background: rgba(255,255,255,0.05); border: 1px solid var(--ac); border-radius: 10px; padding: 10px; margin-bottom: 10px; text-align: left; }
         .tnode.maxed { border-color: var(--go); }
         #gx-toast-wrap { position: fixed; top: 150px; left: 50%; transform: translateX(-50%); z-index: 96000; display: flex; flex-direction: column; gap: 8px; align-items: center; pointer-events: none; }
         .gx-toast { background: linear-gradient(135deg, #7e22ce, #3b82f6); border: 2px solid var(--go); border-radius: 12px; padding: 10px 18px; font-weight: bold; font-size: 0.9rem; box-shadow: 0 0 20px rgba(251,191,36,0.5); animation: toastIn 0.4s ease-out, toastOut 0.5s ease-in 3.5s forwards; }
         @keyframes toastIn { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes toastOut { to { opacity: 0; transform: translateY(-20px); } }
-        #home-overlay { position: fixed; inset: 0; z-index: 200000; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: clamp(12px, 2.6vh, 24px); text-align: center; overflow-y: auto; padding: calc(env(safe-area-inset-top) + 24px) calc(env(safe-area-inset-right) + 20px) calc(env(safe-area-inset-bottom) + 24px) calc(env(safe-area-inset-left) + 20px); background: radial-gradient(ellipse at 50% 28%, rgba(82, 49, 24, 0.72), rgba(18, 11, 7, 0.93)), linear-gradient(160deg, #2b1a0e 0%, #1a1208 60%, #0c0907 100%); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); transition: opacity 0.55s ease, transform 0.55s ease; }
+        #home-overlay { position: fixed; inset: 0; z-index: 200000; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: clamp(12px, 2.6vh, 24px); text-align: center; overflow-y: auto; padding: calc(env(safe-area-inset-top) + 24px) calc(env(safe-area-inset-right) + 20px) calc(env(safe-area-inset-bottom) + 24px) calc(env(safe-area-inset-left) + 20px); background: url('assets/img/bg.jpg') center/cover no-repeat; transition: opacity 0.55s ease, transform 0.55s ease; }
         #home-overlay.closing { opacity: 0; transform: scale(1.05); pointer-events: none; }
-        #home-card { display: flex; flex-direction: column; align-items: center; gap: clamp(10px, 2.2vh, 20px); width: 100%; max-width: 440px; animation: homeRise 0.7s cubic-bezier(0.19,1,0.22,1) both; }
+        /* HERO scene — reuses the SAME PNGs as #main-stage (cached, no new assets). New ids
+           only, so the protected #cauldron-legs/#asset-soup/#soup-liquid are never touched.
+           Offsets/widths are the main-stage px values rescaled into vmin so the composition
+           stays proportional and centered on any screen. */
+        #home-hero { position: absolute; inset: 0; overflow: hidden; pointer-events: none; z-index: 0; }
+        #home-hero img { position: absolute; pointer-events: none; transform: translate(-50%, -50%); filter: drop-shadow(0 12px 30px rgba(0,0,0,0.45)); }
+        #hero-chef  { left: calc(50% + 0vmin);   top: calc(45% - 2.9vmin);  width: 53vmin;   z-index: 1; }
+        #hero-legs  { left: calc(50% + 1.5vmin);  top: calc(45% + 36.8vmin); width: 51.5vmin; z-index: 1; }
+        #hero-pot   { left: calc(50% + 5.2vmin);  top: calc(45% + 18.4vmin); width: 92vmin;   z-index: 2; }
+        #hero-spoon { left: calc(50% - 7vmin);    top: calc(45% + 0.4vmin);  width: 61.8vmin; transform: translate(-50%, -50%) rotate(-27deg); transform-origin: center; z-index: 3; }
+        #home-vignette { position: absolute; inset: 0; pointer-events: none; z-index: 4; background: radial-gradient(ellipse 78% 64% at 50% 48%, rgba(10,4,22,0.18) 24%, rgba(8,3,16,0.62) 64%, rgba(5,2,12,0.9) 100%); }
+        #home-card { position: relative; z-index: 5; display: flex; flex-direction: column; align-items: center; gap: clamp(10px, 2.2vh, 20px); width: 100%; max-width: 440px; animation: homeRise 0.7s cubic-bezier(0.19,1,0.22,1) both; }
         @keyframes homeRise { from { opacity: 0; transform: translateY(26px) scale(0.97); } to { opacity: 1; transform: none; } }
         #home-logo { width: clamp(110px, 24vh, 190px); object-fit: contain; filter: drop-shadow(0 0 28px rgba(251, 191, 36, 0.55)); animation: breathe 3.4s infinite alternate; }
-        #home-title { font-size: clamp(2.3rem, 9vw, 3.6rem); font-weight: 800; letter-spacing: 1px; margin: 0; color: #fde68a; text-shadow: 0 2px 0 #7c2d12, 0 0 26px rgba(251,191,36,0.5); line-height: 1; }
-        #home-subtitle { font-size: clamp(0.95rem, 4.2vw, 1.35rem); font-weight: 700; letter-spacing: 4px; text-transform: uppercase; margin: 0; color: #fcd9a8; opacity: 0.92; }
-        #home-tagline { font-size: clamp(0.82rem, 3.4vw, 1rem); font-style: italic; color: #e7d3bd; opacity: 0.82; margin: 0; max-width: 32ch; line-height: 1.45; }
-        #home-play { margin-top: 4px; min-width: 220px; min-height: 60px; padding: 16px 48px; font-size: 1.5rem; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; color: #3a1f0a; border: none; border-radius: 50px; cursor: pointer; background: linear-gradient(135deg, #fde68a, #f59e0b 55%, #d97706); box-shadow: 0 8px 24px rgba(217,119,6,0.5), inset 0 2px 4px rgba(255,255,255,0.4); transition: transform 0.18s ease, filter 0.18s ease, box-shadow 0.18s ease; animation: playPulse 2.2s infinite; }
+        #home-title { font-size: clamp(2.3rem, 9vw, 3.6rem); font-weight: 800; letter-spacing: 1px; margin: 0; color: #fdf4e6; text-shadow: 0 2px 0 #5b2310, 0 0 22px rgba(253,224,138,0.35), 0 3px 16px rgba(0,0,0,0.8); line-height: 1; }
+        #home-subtitle { font-size: clamp(0.95rem, 4.2vw, 1.35rem); font-weight: 700; letter-spacing: 4px; text-transform: uppercase; margin: 0; color: #f1e2c6; opacity: 0.95; text-shadow: 0 2px 10px rgba(0,0,0,0.75); }
+        #home-tagline { font-size: clamp(0.82rem, 3.4vw, 1rem); font-style: italic; color: #e7d3bd; opacity: 0.85; margin: 0; max-width: 32ch; line-height: 1.45; text-shadow: 0 2px 8px rgba(0,0,0,0.7); }
+        #home-play { margin-top: 4px; min-width: 220px; min-height: 60px; padding: 16px 48px; font-size: 1.5rem; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; color: #3a1f0a; border: none; border-radius: 50px; cursor: pointer; background: linear-gradient(135deg, #f9dd9b, #e0a008 52%, #a86a06); box-shadow: 0 8px 26px rgba(168,106,6,0.55), inset 0 2px 4px rgba(255,255,255,0.45); transition: transform 0.18s ease, filter 0.18s ease, box-shadow 0.18s ease; animation: playPulse 2.2s infinite; }
         #home-play:hover { filter: brightness(1.07); transform: translateY(-2px); }
         #home-play:active { transform: translateY(1px) scale(0.98); }
         @keyframes playPulse { 0%,100% { box-shadow: 0 8px 24px rgba(217,119,6,0.45), inset 0 2px 4px rgba(255,255,255,0.4); } 50% { box-shadow: 0 8px 34px rgba(251,191,36,0.7), inset 0 2px 4px rgba(255,255,255,0.4); } }
-        #home-settings { display: flex; flex-direction: column; gap: 12px; width: 100%; padding: 16px; border-radius: 18px; background: rgba(42, 26, 14, 0.55); border: 1px solid rgba(251,191,36,0.25); backdrop-filter: blur(6px); }
+        #home-settings { display: flex; flex-direction: column; gap: 12px; width: 100%; padding: 16px; border-radius: 18px; background: var(--glass-strong); border: 1px solid var(--glass-bd); backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur); box-shadow: 0 10px 36px rgba(0,0,0,0.4); }
         .home-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
         .home-row-label { font-size: 0.82rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: #fcd9a8; opacity: 0.85; }
         .home-ctrl { display: flex; align-items: center; gap: 10px; }
-        .home-btn { min-height: 44px; min-width: 64px; padding: 8px 16px; border-radius: 12px; border: 1px solid rgba(251,191,36,0.4); background: rgba(120, 53, 15, 0.45); color: #fde68a; font-weight: 700; font-size: 0.9rem; cursor: pointer; transition: 0.18s; }
+        .home-btn { min-height: 44px; min-width: 64px; padding: 8px 16px; border-radius: 12px; border: 1px solid var(--glass-bd); background: var(--glass); color: var(--gold-soft); font-weight: 700; font-size: 0.9rem; cursor: pointer; transition: 0.18s; }
         .home-btn:hover { border-color: var(--go); filter: brightness(1.12); }
         #home-mute { font-size: 1.3rem; line-height: 1; padding: 8px 12px; min-width: 52px; }
         #home-vol { width: 120px; height: 5px; accent-color: var(--go); cursor: pointer; }
@@ -243,10 +280,10 @@
         /* OVERLAY DE ROTACIÓN: pide girar el dispositivo a horizontal. Oculto por defecto;
            z-index por encima de la home (200000). Respeta safe-areas. Sólo se muestra en
            PORTRAIT y en móvil/pantalla estrecha (no molesta en escritorio). */
-        #rotate-overlay { position: fixed; inset: 0; z-index: 300000; display: none; flex-direction: column; align-items: center; justify-content: center; gap: clamp(14px, 3vh, 24px); text-align: center; color: #fde68a; padding: calc(env(safe-area-inset-top) + 24px) calc(env(safe-area-inset-right) + 20px) calc(env(safe-area-inset-bottom) + 24px) calc(env(safe-area-inset-left) + 20px); background: radial-gradient(ellipse at 50% 35%, rgba(82, 49, 24, 0.85), rgba(12, 9, 7, 0.97)); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); }
+        #rotate-overlay { position: fixed; inset: 0; z-index: 300000; display: none; flex-direction: column; align-items: center; justify-content: center; gap: clamp(14px, 3vh, 24px); text-align: center; color: var(--gold-soft); padding: calc(env(safe-area-inset-top) + 24px) calc(env(safe-area-inset-right) + 20px) calc(env(safe-area-inset-bottom) + 24px) calc(env(safe-area-inset-left) + 20px); background: radial-gradient(ellipse at 50% 35%, rgba(82, 49, 24, 0.85), rgba(12, 9, 7, 0.97)); backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur); }
         #rotate-icon { font-size: clamp(3.5rem, 18vw, 6rem); line-height: 1; filter: drop-shadow(0 0 22px rgba(251, 191, 36, 0.5)); animation: rotateHint 2.2s ease-in-out infinite; }
         @keyframes rotateHint { 0%, 100% { transform: rotate(-10deg); } 50% { transform: rotate(80deg); } }
-        #rotate-title { margin: 0; font-size: clamp(1.5rem, 7vw, 2.2rem); font-weight: 800; color: #fde68a; text-shadow: 0 2px 0 #7c2d12, 0 0 22px rgba(251,191,36,0.5); }
+        #rotate-title { margin: 0; font-size: clamp(1.5rem, 7vw, 2.2rem); font-weight: 800; color: var(--gold-soft); text-shadow: 0 2px 0 #7c2d12, 0 0 22px rgba(224,160,8,0.5); }
         #rotate-msg { margin: 0; max-width: 30ch; font-size: clamp(0.9rem, 4vw, 1.05rem); line-height: 1.5; color: #e7d3bd; opacity: 0.9; }
         /* Mostrar el aviso sólo en vertical + (pantalla estrecha O dispositivo táctil). */
         @media (orientation: portrait) and (max-width: 900px) { #rotate-overlay { display: flex; } }
@@ -267,7 +304,7 @@
         /* === Ajustes in-game + menú de pausa + colección/logros (Tareas 2/5/6) === */
         .seg-group { display: inline-flex; gap: 4px; background: rgba(0,0,0,0.3); border-radius: 10px; padding: 4px; }
         .seg-btn { min-height: 36px; padding: 6px 12px; border-radius: 8px; border: 1px solid transparent; background: transparent; color: #fcd9a8; font-weight: 700; font-size: 0.82rem; cursor: pointer; transition: 0.15s; }
-        .seg-btn.active { background: rgba(120, 53, 15, 0.6); border-color: var(--go); color: #fde68a; }
+        .seg-btn.active { background: rgba(120, 53, 15, 0.6); border-color: var(--go); color: var(--gold-soft); }
         .seg-btn:hover { filter: brightness(1.15); }
         #pause-box .gx-btn, #pause-box .home-btn { width: 100%; }
         #pause-main { display: flex; flex-direction: column; gap: 10px; }
@@ -277,22 +314,71 @@
         .q-low .steam-wisp { filter: blur(6px) !important; }
         .coll-stats { font-size: 0.82rem; color: #cbd5e1; margin: 2px 0 10px; line-height: 1.4; }
         .coll-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 10px; }
-        .charm-tile { position: relative; background: rgba(255,255,255,0.05); border: 2px solid #fff2; border-radius: 12px; padding: 6px; cursor: pointer; transition: 0.18s; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+        .charm-tile { position: relative; background: var(--glass); border: 2px solid var(--glass-bd); border-radius: 12px; padding: 6px; cursor: pointer; transition: 0.18s; display: flex; flex-direction: column; align-items: center; gap: 4px; }
         .charm-tile:hover { filter: brightness(1.1); transform: translateY(-2px); }
-        .charm-tile.equipped { box-shadow: 0 0 14px rgba(251,191,36,0.5); }
+        .charm-tile.equipped { box-shadow: 0 0 14px rgba(224,160,8,0.5); }
         .charm-tile.r-common { border-color: #94a3b8; }
         .charm-tile.r-uncommon { border-color: #4ade80; }
         .charm-tile.r-rare { border-color: #a5f3fc; }
         .charm-tile.r-epic { border-color: #d8b4fe; }
-        .charm-tile.r-legendary { border-color: #fbbf24; box-shadow: 0 0 10px rgba(251,191,36,0.35); }
+        .charm-tile.r-legendary { border-color: var(--go); box-shadow: 0 0 10px rgba(224,160,8,0.35); }
         .charm-tile.r-superleg { border-color: #fb7185; box-shadow: 0 0 16px rgba(251,113,133,0.55); animation: charmHolo 2.4s linear infinite; }
         @keyframes charmHolo { 0%{border-color:#fb7185;box-shadow:0 0 16px rgba(251,113,133,0.55);} 25%{border-color:#fbbf24;box-shadow:0 0 18px rgba(251,191,36,0.6);} 50%{border-color:#34d399;box-shadow:0 0 18px rgba(52,211,153,0.6);} 75%{border-color:#60a5fa;box-shadow:0 0 18px rgba(96,165,250,0.6);} 100%{border-color:#fb7185;box-shadow:0 0 16px rgba(251,113,133,0.55);} }
-        .charm-img { width: 100%; max-width: 84px; aspect-ratio: 1/1; image-rendering: auto; border-radius: 8px; background: rgba(0,0,0,0.25); }
+        .charm-img { width: 100%; max-width: 84px; aspect-ratio: 1/1; image-rendering: auto; border-radius: 8px; background: rgba(0,0,0,0.25); object-fit: contain; }
+        .charm-img.r-rare { box-shadow: 0 0 6px rgba(165,243,252,0.5); }
+        .charm-img.r-epic { box-shadow: 0 0 8px rgba(216,180,254,0.55); }
+        .charm-img.r-legendary { box-shadow: 0 0 10px rgba(251,191,36,0.6); }
+        .charm-img.r-superleg { box-shadow: 0 0 12px rgba(251,113,133,0.65); }
+        .charm-img.charm-ph { display: flex; align-items: center; justify-content: center; color: #cbd5e1; font-weight: bold; font-size: 1.6rem; line-height: 1; }
         .charm-rar { font-size: 0.58rem; font-weight: bold; text-transform: uppercase; letter-spacing: 0.4px; }
         .charm-rar.r-common { color: #94a3b8; } .charm-rar.r-uncommon { color: #4ade80; } .charm-rar.r-rare { color: #a5f3fc; }
-        .charm-rar.r-epic { color: #d8b4fe; } .charm-rar.r-legendary { color: #fbbf24; } .charm-rar.r-superleg { color: #fb7185; }
+        .charm-rar.r-epic { color: #d8b4fe; } .charm-rar.r-legendary { color: var(--go); } .charm-rar.r-superleg { color: #fb7185; }
         .charm-name { font-size: 0.6rem; color: #cbd5e1; text-align: center; line-height: 1.1; }
         .charm-dup { position: absolute; top: -6px; right: -6px; background: #2e1065; border: 1px solid var(--go); border-radius: 8px; padding: 0 5px; font-size: 0.62rem; font-weight: bold; color: var(--go); }
+        .charm-inspect { position: absolute; top: 4px; left: 4px; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; background: var(--glass-strong); border: 1px solid var(--glass-bd-go); border-radius: 8px; color: var(--gold-soft); font-size: 0.82rem; line-height: 1; cursor: pointer; padding: 0; transition: 0.18s; z-index: 2; text-shadow: 0 1px 3px rgba(0,0,0,0.6); }
+        .charm-inspect:hover { border-color: var(--go); filter: brightness(1.15); transform: scale(1.06); }
+        #charm-preview { position: fixed; inset: 0; z-index: 96000; display: none; align-items: center; justify-content: center; padding: 24px; background: rgba(12, 4, 24, 0.78); backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur); }
+        #charm-preview.open { display: flex; }
+        .cp-box { position: relative; display: flex; flex-direction: column; align-items: center; gap: 14px; max-width: 92vw; max-height: 92vh; background: var(--glass-strong); backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur); border: 1px solid var(--glass-bd); border-radius: 22px; padding: 26px 26px 22px; box-shadow: 0 16px 56px rgba(0,0,0,0.55), 0 0 48px rgba(168,85,247,0.28); }
+        .cp-close { position: absolute; top: 10px; right: 12px; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; background: var(--glass); border: 1px solid var(--glass-bd-go); border-radius: 50%; color: var(--gold-soft); font-size: 1.2rem; line-height: 1; cursor: pointer; padding: 0; transition: 0.18s; }
+        .cp-close:hover { border-color: var(--go); filter: brightness(1.15); transform: rotate(90deg); }
+        .cp-stage { width: 70vmin; max-width: 70vmin; max-height: 62vh; aspect-ratio: 1/1; display: flex; align-items: center; justify-content: center; border-radius: 18px; background: radial-gradient(ellipse at 50% 40%, rgba(255,255,255,0.08), rgba(0,0,0,0.32)); border: 1px solid var(--glass-bd); overflow: hidden; }
+        .cp-img { max-width: 100%; max-height: 100%; object-fit: contain; image-rendering: auto; filter: drop-shadow(0 10px 28px rgba(0,0,0,0.5)); }
+        .cp-img.charm-ph { display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; color: #cbd5e1; font-weight: bold; font-size: 4rem; }
+        .cp-name { font-size: 1.25rem; font-weight: 800; color: var(--gold-soft); text-align: center; text-shadow: 0 0 14px rgba(224,160,8,0.4); margin: 0; }
+        .cp-rar { font-size: 0.85rem; font-weight: bold; text-transform: uppercase; letter-spacing: 0.6px; }
+        .cp-stage.r-rare { box-shadow: inset 0 0 26px rgba(165,243,252,0.28); }
+        .cp-stage.r-epic { box-shadow: inset 0 0 28px rgba(216,180,254,0.3); }
+        .cp-stage.r-legendary { box-shadow: inset 0 0 30px rgba(251,191,36,0.34); border-color: var(--glass-bd-go); }
+        .cp-stage.r-superleg { box-shadow: inset 0 0 34px rgba(251,113,133,0.4); border-color: #fb7185; }
+        body.q-low #charm-preview { backdrop-filter: none; -webkit-backdrop-filter: none; background: rgba(12, 4, 24, 0.92); }
+        body.q-low .cp-box { backdrop-filter: none; -webkit-backdrop-filter: none; }
+        /* ===== SKIN DROP REVEAL OVERLAY ===== */
+        /* TUNABLE timings: --sr-pop (image scale-in) and JS auto-dismiss (see collection.showReveal). */
+        #skin-reveal { position: fixed; inset: 0; z-index: 97000; display: none; align-items: center; justify-content: center; padding: 24px; background: rgba(10, 3, 20, 0.82); backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur); }
+        #skin-reveal.open { display: flex; animation: srFadeIn 0.3s ease; }
+        @keyframes srFadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .sr-box { position: relative; display: flex; flex-direction: column; align-items: center; gap: 14px; max-width: 92vw; max-height: 94vh; padding: 30px 30px 24px; border-radius: 24px; background: var(--glass-strong); border: 1px solid var(--glass-bd-go); box-shadow: 0 18px 60px rgba(0,0,0,0.6), 0 0 60px rgba(251,191,36,0.22); overflow: hidden; }
+        .sr-rays { position: absolute; top: 42%; left: 50%; width: 160vmin; height: 160vmin; transform: translate(-50%, -50%); pointer-events: none; z-index: 0; background: repeating-conic-gradient(from 0deg, rgba(255,225,150,0.16) 0deg 8deg, rgba(255,225,150,0) 8deg 16deg); animation: srSpin 14s linear infinite; opacity: 0.7; }
+        @keyframes srSpin { to { transform: translate(-50%, -50%) rotate(360deg); } }
+        .sr-sparkles { position: absolute; inset: 0; pointer-events: none; z-index: 2; overflow: hidden; }
+        .sr-spark { position: absolute; width: 10px; height: 10px; border-radius: 50%; background: radial-gradient(circle, #fff 0%, var(--gold-soft, #fbe089) 45%, rgba(255,255,255,0) 70%); opacity: 0; animation: srSpark 1.4s ease-out forwards; }
+        @keyframes srSpark { 0% { transform: translate(0,0) scale(0.2); opacity: 0; } 20% { opacity: 1; } 100% { transform: translate(var(--sx), var(--sy)) scale(1); opacity: 0; } }
+        .sr-badge { position: relative; z-index: 3; font-size: 1.05rem; font-weight: 900; letter-spacing: 1.4px; color: var(--gold-soft, #fbe089); text-shadow: 0 0 16px rgba(251,191,36,0.7); text-transform: uppercase; }
+        .sr-stage { position: relative; z-index: 3; width: 60vmin; max-width: 420px; max-height: 56vh; aspect-ratio: 1/1; display: flex; align-items: center; justify-content: center; border-radius: 20px; background: radial-gradient(ellipse at 50% 40%, rgba(255,255,255,0.12), rgba(0,0,0,0.34)); border: 1px solid var(--glass-bd); overflow: hidden; }
+        .sr-img { max-width: 100%; max-height: 100%; object-fit: contain; filter: drop-shadow(0 12px 30px rgba(0,0,0,0.55)); transform: scale(0.2); opacity: 0; }
+        #skin-reveal.open .sr-img { animation: srPop 0.7s cubic-bezier(0.22, 1.2, 0.4, 1) 0.1s forwards; }
+        @keyframes srPop { 0% { transform: scale(0.2) rotate(-12deg); opacity: 0; } 60% { transform: scale(1.08) rotate(3deg); opacity: 1; } 100% { transform: scale(1) rotate(0deg); opacity: 1; } }
+        .sr-name { position: relative; z-index: 3; font-size: 1.35rem; font-weight: 800; color: var(--gold-soft, #fbe089); text-align: center; text-shadow: 0 0 14px rgba(224,160,8,0.45); margin: 0; }
+        .sr-rar { position: relative; z-index: 3; font-size: 0.92rem; font-weight: bold; text-transform: uppercase; letter-spacing: 0.7px; }
+        .sr-btn { position: relative; z-index: 3; margin-top: 4px; padding: 12px 26px; border-radius: 12px; border: 2px solid #fff; background: linear-gradient(135deg, #7e22ce, #3b82f6); color: #fff; font-weight: bold; font-size: 0.95rem; cursor: pointer; transition: 0.18s; }
+        .sr-btn:hover { filter: brightness(1.12); transform: translateY(-1px); }
+        .sr-stage.r-rare { box-shadow: inset 0 0 28px rgba(165,243,252,0.3); }
+        .sr-stage.r-epic { box-shadow: inset 0 0 30px rgba(216,180,254,0.32); }
+        .sr-stage.r-legendary { box-shadow: inset 0 0 32px rgba(251,191,36,0.36); border-color: var(--glass-bd-go); }
+        .sr-stage.r-superleg { box-shadow: inset 0 0 36px rgba(251,113,133,0.42); border-color: #fb7185; }
+        body.q-low #skin-reveal { backdrop-filter: none; -webkit-backdrop-filter: none; background: rgba(10, 3, 20, 0.94); }
+        body.q-low .sr-rays, body.q-low .sr-sparkles { display: none; }
         #reward-fab .charm-fab-img { width: 26px; height: 26px; vertical-align: middle; border-radius: 5px; }
         #collection-fab .charm-fab-img { width: 22px; height: 22px; vertical-align: middle; border-radius: 5px; margin-left: 4px; }
         .ach-row { display: flex; align-items: center; gap: 10px; background: rgba(255,255,255,0.05); border: 1px solid #fff2; border-radius: 10px; padding: 8px 10px; margin-bottom: 8px; text-align: left; }
@@ -305,8 +391,14 @@
 </head>
 <body>
     <div id="home-overlay">
+        <div id="home-hero" aria-hidden="true">
+            <img id="hero-chef" src="assets/img/chef.png" alt="" decoding="async">
+            <img id="hero-legs" src="assets/img/cauldron-legs.png" alt="" decoding="async">
+            <img id="hero-pot" src="assets/img/soup.png" alt="" decoding="async">
+            <img id="hero-spoon" src="assets/img/spoon.png" alt="" decoding="async">
+        </div>
+        <div id="home-vignette" aria-hidden="true"></div>
         <div id="home-card">
-            <img id="home-logo" src="assets/img/angel.png" alt="" decoding="async" fetchpriority="high">
             <h1 id="home-title" data-i18n="home_title">Smallcreek Skullchef</h1>
             <p id="home-subtitle" data-i18n="home_subtitle">The Wooden Soup</p>
             <p id="home-tagline" data-i18n="home_tagline">A cozy ASMR soup to stir, sip and unwind.</p>
@@ -369,7 +461,7 @@
         <div id="lore-scroll"><div id="lore-title">CHRONICLE</div><div id="lore-text">...</div></div>
         <div id="companion-column"></div>
         <div id="altar-panel"><div id="btn-prestige" onclick="game.pres()"><div class="prestige-label" id="pres-txt">LOCKED</div></div><div id="pres-stat">Lv. 0 (+0%)</div></div>
-        <section id="main-stage" onpointerdown="game.click(event)"><canvas id="particle-canvas"></canvas><div id="sticky-center"><img id="asset-chef" src="assets/img/chef.png" decoding="async"><img id="asset-chef-hand" src="assets/img/chef-hand.png" decoding="async"><img id="asset-soup" src="assets/img/soup.png" decoding="async"><div id="soup-liquid"><img id="asset-soup-liquid" src="assets/img/soup.png" decoding="async"></div><div id="soup-steam"><div class="steam-wisp"></div><div class="steam-wisp"></div><div class="steam-wisp"></div><div class="steam-wisp"></div><div class="steam-wisp"></div><div class="steam-wisp"></div></div><div id="spoon-rig"><img id="asset-spoon" src="assets/img/spoon.png" decoding="async"></div></div><div id="soup-ripples"></div></section>
+        <section id="main-stage" onpointerdown="game.click(event)"><canvas id="particle-canvas"></canvas><div id="sticky-center"><img id="asset-chef" src="assets/img/chef.png" decoding="async"><img id="asset-chef-hand" src="assets/img/chef-hand.png" decoding="async"><img id="cauldron-legs" src="assets/img/cauldron-legs.png" alt="" decoding="async"><img id="asset-soup" src="assets/img/soup.png" decoding="async"><div id="soup-liquid"><img id="asset-soup-liquid" src="assets/img/soup.png" decoding="async"></div><div id="soup-steam"><div class="steam-wisp"></div><div class="steam-wisp"></div><div class="steam-wisp"></div><div class="steam-wisp"></div><div class="steam-wisp"></div><div class="steam-wisp"></div></div><div id="spoon-rig"><img id="asset-spoon" src="assets/img/spoon.png" decoding="async"></div></div><div id="soup-ripples"></div></section>
         <aside id="side-shop"><h1 data-i18n="shop" style="text-align:center; font-size:1.3rem;">SHOP</h1><div id="shop-companions-panel"><div id="buy-mode-toggle" onclick="game.cycleBuyMode()">Buy x1</div><div id="prix-btn" style="padding:12px; background:linear-gradient(135deg,#7e22ce,#3b82f6); border-radius:10px; text-align:center; font-weight:bold; border:2px solid #fff; margin-bottom:15px; display:none; cursor:pointer;" onclick="prix.open()">Enter Grand Prix</div><div id="companion-list"></div><div id="spoons-album-section"><div id="spoons-album-title" data-i18n="spoons_album_title">SACRED SPOONS ALBUM</div><div id="spoons-album"></div></div></div></aside>
     </div>
     <div id="audio-ctrl"><button id="audio-mute" type="button" onclick="sound.toggleMute()" data-i18n-title="audio_mute_title" title="Mute / Unmute sound">🔊</button><input id="audio-vol" type="range" min="0" max="100" value="100" oninput="sound.setVolume(this.value/100)" data-i18n-title="audio_vol_title" title="Volume"></div>
@@ -412,6 +504,25 @@
         <div id="collection-grid" class="coll-grid"></div>
         <button class="gx-btn" style="margin-top:14px" onclick="collection.close()" data-i18n="close">Close</button>
     </div></div>
+    <div id="charm-preview" onclick="if(event.target===this)collection.closePreview()">
+        <div class="cp-box">
+            <button class="cp-close" type="button" onclick="collection.closePreview()" aria-label="Close">✕</button>
+            <div id="charm-preview-stage" class="cp-stage"></div>
+            <h3 id="charm-preview-name" class="cp-name"></h3>
+            <div id="charm-preview-rar" class="cp-rar"></div>
+        </div>
+    </div>
+    <div id="skin-reveal" onclick="if(event.target===this)collection.closeReveal()">
+        <div class="sr-box">
+            <div class="sr-rays"></div>
+            <div class="sr-sparkles" id="skin-reveal-sparkles"></div>
+            <div class="sr-badge" id="skin-reveal-badge" data-i18n="reveal_new_charm">NEW CHARM!</div>
+            <div id="skin-reveal-stage" class="sr-stage"><img id="skin-reveal-img" class="sr-img" src="" alt="" onerror="collection.imgFail(this)"></div>
+            <h3 id="skin-reveal-name" class="sr-name"></h3>
+            <div id="skin-reveal-rar" class="sr-rar"></div>
+            <button id="skin-reveal-btn" class="sr-btn" type="button" onclick="collection.closeReveal()" data-i18n="reveal_continue">Add to Charms</button>
+        </div>
+    </div>
     <div id="ach-modal" class="gx-modal"><div class="gx-box">
         <h2 data-i18n="achievements_header">Achievements</h2>
         <div id="ach-modal-list"></div>
@@ -495,7 +606,9 @@
                 coll_equip:"Equip", coll_equipped:"Equipped", coll_unequip:"Unequip",
                 coll_next_drop:"Next charm in {time}", coll_daily_left:"{n}/{max} drops today", coll_daily_done:"Daily drops complete · resets tomorrow",
                 coll_drop_toast:"🎴 New charm! {rarity}", coll_dup_toast:"🎴 Duplicate charm ({rarity})", coll_item_name:"Charm #{id}",
+                reveal_new_charm:"NEW CHARM!", reveal_continue:"Add to Charms",
                 coll_fam_helper:"Helper", coll_fam_spoon:"Spoon", coll_fam_chefhat:"Chef Hat", coll_unknown:"Unknown skin",
+                coll_inspect:"Inspect", coll_inspect_aria:"View charm in large size",
                 r_common:"Common", r_uncommon:"Uncommon", r_rare:"Rare", r_epic:"Epic", r_legendary:"Legendary", r_superleg:"Super Legendary",
                 achievements_btn:"🏆 Achievements", ach_progress:"{cur}/{goal}",
                 ach_firstClick_n:"First Stir", ach_firstClick_d:"Stir the soup for the first time",
@@ -549,7 +662,9 @@
                 coll_equip:"Equipar", coll_equipped:"Equipado", coll_unequip:"Quitar",
                 coll_next_drop:"Próximo amuleto en {time}", coll_daily_left:"{n}/{max} drops hoy", coll_daily_done:"Drops diarios completos · se reinician mañana",
                 coll_drop_toast:"🎴 ¡Nuevo amuleto! {rarity}", coll_dup_toast:"🎴 Amuleto repetido ({rarity})", coll_item_name:"Amuleto #{id}",
+                reveal_new_charm:"¡NUEVO AMULETO!", reveal_continue:"Añadir a Amuletos",
                 coll_fam_helper:"Ayudante", coll_fam_spoon:"Cuchara", coll_fam_chefhat:"Gorro de Chef", coll_unknown:"Skin desconocida",
+                coll_inspect:"Revisar", coll_inspect_aria:"Ver el amuleto en grande",
                 r_common:"Común", r_uncommon:"Poco común", r_rare:"Raro", r_epic:"Épico", r_legendary:"Legendario", r_superleg:"Súper Legendario",
                 achievements_btn:"🏆 Logros", ach_progress:"{cur}/{goal}",
                 ach_firstClick_n:"Primer Removido", ach_firstClick_d:"Remueve la sopa por primera vez",
@@ -1267,10 +1382,10 @@
             ],
             milestoneMsg: ['milestone_coco', 'milestone_bunny', 'milestone_pio', 'milestone_ivan'],
             CROWN_HEAD: {
-                0: { x: 0.500, y: 0.150, w: 0.24 },
-                1: { x: 0.504, y: 0.255, w: 0.20 },
-                2: { x: 0.513, y: 0.085, w: 0.24 },
-                3: { x: 0.499, y: 0.130, w: 0.18 }
+                0: { x: 0.500, y: -0.030, w: 0.24 },
+                1: { x: 0.504, y: 0.075, w: 0.20 },
+                2: { x: 0.513, y: -0.095, w: 0.24 },
+                3: { x: 0.499, y: -0.050, w: 0.18 }
             },
             cp: [
                 {id:0, nk:'comp_coco', cs:20, pw:0.02, lv:0, ch:false, im:'assets/img/coco.png'},
@@ -1383,6 +1498,7 @@
                 }
                 try { collection.normalize(); } catch (e) {}
                 this.applySpoonVisual(); this.rebuild();
+                try { collection.applyEquippedVisual(); } catch (e) {}
                 offline.evaluate();
                 quests.ensureDaily();
             },
@@ -1431,7 +1547,7 @@
             },
             track(type, amt) { if (this.daily && this.daily.counters && this.daily.counters[type] != null) this.daily.counters[type] += amt; quests.bump(type, amt); },
             getPrixCd() { const eq = this.getEquippedSpoon(); return (eq && eq.id === 2) ? 300 : 600; },
-            applySpoonVisual() { const el = document.getElementById('asset-spoon'); if (!el) return; const s = this.getEquippedSpoon(); el.src = (s && s.owned) ? s.spoonImg : this.defaultSpoonImg; },
+            applySpoonVisual() { const el = document.getElementById('asset-spoon'); if (!el) return; const rig = document.getElementById('spoon-rig'); if (rig) rig.classList.remove('charm-spoon'); const s = this.getEquippedSpoon(); el.src = (s && s.owned) ? s.spoonImg : this.defaultSpoonImg; },
             spoonUiKey() {
                 return this.spoons.map(s => (s.owned ? 'o' : 'u') + (s.equipped ? 'e' : '-') + (this.e >= this.effSpoonCost(s) ? 'a' : 'l')).join('|');
             },
@@ -1454,6 +1570,8 @@
                     landed = true;
                     clearTimeout(animTimer);
                     const slot = document.getElementById('asset-spoon');
+                    const rig = document.getElementById('spoon-rig');
+                    if (rig) rig.classList.remove('charm-spoon');
                     if (slot) slot.src = spoon.spoonImg;
                     if (clone) {
                         clone.style.transition = 'opacity 200ms ease';
@@ -1500,6 +1618,7 @@
                 if (this.e < cost) return;
                 this.e -= cost;
                 s.owned = true;
+                sound.play('prestige');
                 this._spoonAnimating = true;
                 this.summonSpoon(s, btn || document.getElementById('spoons-album'), () => {
                     this.spoons.forEach(sp => sp.equipped = false);
@@ -1697,14 +1816,28 @@
                 this.p = true; sound.play('victory');
                 const v = document.getElementById('victory-cinema'), p = document.getElementById('cinema-plushie'), cr = document.getElementById('cinema-crown'), wo = document.getElementById('white-out');
                 const off = (game.CROWN_HEAD[c.id] || { x: 0.5, y: 0.18, w: 0.22 });
-                p.src = c.im;
+                // Crown the champion using the skin equipped in ITS OWN helper slot, but only
+                // when the helper is owned (lv>0); otherwise fall back to the default sprite.
+                // Uses the SAME image-source logic as the scene (collection.equips[slot]).
+                let champImg = collection.HELPER_DEFAULT_IMG[c.id] || c.im;
+                try {
+                    const fam = collection.HELPER_FAM_BY_IDX[c.id];
+                    const eqId = fam ? collection.equippedIn(fam) : null;
+                    const eq = eqId ? collection.skinById(eqId) : null;
+                    if (eq && eq.img && c.lv > 0) champImg = eq.img;
+                } catch (e) { champImg = c.im; }
+                p.src = champImg;
                 cr.style.transition = 'none';
                 cr.style.left = '50%';
                 cr.style.top = '-150px';
                 cr.style.transform = 'translate(-50%, -50%) scale(2.2)';
                 v.style.display = 'flex';
+                v.style.transition = 'none';
+                v.style.opacity = '1';
+                v.style.transform = '';
                 wo.style.opacity = '0';
                 void cr.offsetHeight;
+                v.style.transition = '';
                 let landY = '45%';
                 const place = () => {
                     const r = p.getBoundingClientRect();
@@ -1719,12 +1852,19 @@
                     cr.style.setProperty('top', landY, 'important');
                 };
                 setTimeout(place, 100);
+                // Salida suave: tras aterrizar la corona (~1.3s) mantenemos el momento
+                // "coronado" un instante y luego hacemos un cross-fade del overlay de
+                // vuelta al juego (sin flash blanco). La corona sigue pegada al plushie
+                // porque escalamos/desvanecemos el contenedor entero; no se resetea hasta
+                // que el overlay ya es invisible.
                 setTimeout(() => {
-                    wo.style.opacity = '1';
-                    setTimeout(() => { wo.style.opacity = '0'; }, 150);
-                }, 3800);
+                    v.style.opacity = '0';
+                    v.style.transform = 'translateY(10px) scale(0.9)';
+                }, 2800);
                 setTimeout(() => {
                     v.style.display = 'none';
+                    v.style.opacity = '';
+                    v.style.transform = '';
                     cr.style.transition = '';
                     cr.style.top = '-150px';
                     cr.style.left = '50%';
@@ -1733,7 +1873,7 @@
                     this.p = false;
                     this.rebuild();
                     this.render();
-                }, 4100);
+                }, 3700);
             },
             loop() {
                 if (this.p && bubble.node) bubble.despawn();
@@ -2696,7 +2836,7 @@
             id: 'local',
             grantDrop(item) { return item; },
             getInventory() { return (game.coll && game.coll.items) ? game.coll.items : {}; },
-            equip(key) { if (game.coll) game.coll.equipped = key || null; return true; }
+            equip(equips) { if (game.coll) game.coll.equips = (equips && typeof equips === 'object') ? equips : {}; return true; }
         };
         // STUB Steam Inventory / mercado (BLOQUEADO por requisitos externos).
         const steamMarketProvider = {
@@ -2721,6 +2861,28 @@
             catalog() { const c = (window.SKIN_CATALOG || []); return Array.isArray(c) ? c : []; },
             skinById(id) { const cat = this.catalog(); for (let i = 0; i < cat.length; i++) { if (cat[i] && cat[i].id === id) return cat[i]; } return null; },
             skinsOfRarity(rar) { return this.catalog().filter(s => s && s.id && s.rarity === rar); },
+            // === PER-SLOT EQUIP MODEL ===
+            // Independent equip slots. Each helper family is its own slot, plus one spoon
+            // and one chef-hat slot. The equipped state lives in c.equips[slotKey] = skinId|null.
+            SLOTS: ['coco', 'bunny', 'pio', 'ivan', 'spoon', 'hat'],
+            // Derive the slot key for a skin from its family. Helper skins map to their
+            // helper token (the id prefix: coco/bunny/pio/ivan); spoon -> 'spoon';
+            // chefhat -> 'hat'. Returns null if the skin doesn't map to any slot.
+            slotOf(skin) {
+                if (!skin) return null;
+                if (skin.family === 'spoon') return 'spoon';
+                if (skin.family === 'chefhat') return 'hat';
+                if (skin.family === 'helper') {
+                    const token = String(skin.id || '').split('_')[0];
+                    return (this.HELPER_SLOT[token] != null) ? token : null;
+                }
+                return null;
+            },
+            slotOfId(id) { return this.slotOf(this.skinById(id)); },
+            // Currently-equipped skin id for a slot key (or null).
+            equippedIn(slotKey) { const c = game.coll; return (c && c.equips && c.equips[slotKey]) ? c.equips[slotKey] : null; },
+            // A skin id is "equipped" iff it's the current skin for its own slot.
+            isEquipped(id) { const slot = this.slotOfId(id); return !!slot && this.equippedIn(slot) === id; },
             preload() { const self = this; try { setTimeout(function () { const cat = self.catalog(); for (let i = 0; i < cat.length; i++) { if (cat[i] && cat[i].img) self.img(cat[i].img); } }, 1500); } catch (e) {} },
             itemKey(it) { return String(it.id); },
             normalize() {
@@ -2744,7 +2906,23 @@
                 c.acc = (Number.isFinite(c.acc) && c.acc >= 0) ? Math.min(c.acc, this.DROP_INTERVAL * 2) : 0;
                 c.day = (typeof c.day === 'string') ? c.day : '';
                 c.today = (Number.isFinite(c.today) && c.today >= 0) ? Math.min(Math.floor(c.today), 100000) : 0;
-                c.equipped = (typeof c.equipped === 'string' && c.items[c.equipped]) ? c.equipped : null;
+                // --- Per-slot equip map (with backward-compatible migration). ---
+                // Build a fresh, validated map keyed by slot. A slot keeps a value only if
+                // the id is owned AND the skin actually belongs to that slot.
+                const prevEquips = (c.equips && typeof c.equips === 'object') ? c.equips : {};
+                const equips = {};
+                for (const slot of this.SLOTS) {
+                    const id = prevEquips[slot];
+                    equips[slot] = (typeof id === 'string' && c.items[id] && this.slotOfId(id) === slot) ? id : null;
+                }
+                // MIGRATION: old single-equip value (c.equipped) -> place it in its slot if
+                // that slot is still empty. Then retire the legacy field.
+                if (typeof c.equipped === 'string' && c.items[c.equipped]) {
+                    const mslot = this.slotOfId(c.equipped);
+                    if (mslot && !equips[mslot]) equips[mslot] = c.equipped;
+                }
+                delete c.equipped;
+                c.equips = equips;
                 game.coll = c;
                 return c;
             },
@@ -2777,11 +2955,16 @@
                 if (!pool.length) return null;
                 const skin = pool[Math.floor(Math.random() * pool.length)];
                 const id = String(skin.id);
-                if (c.items[id]) { c.items[id].count++; gx.toast(t('coll_dup_toast', { rarity: t('r_' + rarity) })); }
-                else { c.items[id] = { id, rarity, count: 1 }; gx.toast(t('coll_drop_toast', { rarity: t('r_' + rarity) })); }
+                if (c.items[id]) { c.items[id].count++; gx.toast(t('coll_dup_toast', { rarity: t('r_' + rarity) })); sound.play('bubble'); }
+                else {
+                    c.items[id] = { id, rarity, count: 1 };
+                    gx.toast(t('coll_drop_toast', { rarity: t('r_' + rarity) }));
+                    // NEW skin only: show the full-screen reveal + victory fanfare (same sound as a Grand Prix win).
+                    try { this.showReveal(skin, rarity); } catch (e) {}
+                    sound.play('victory');
+                }
                 c.today++;
                 collectionProvider.grantDrop(c.items[id]);
-                sound.play('bubble');
                 if (rarity === 'legendary' || rarity === 'superleg') { try { ach.grant('mythicCharm'); } catch (e) {} }
                 try { ach.check(); } catch (e) {}
                 try { game.save(); } catch (e) {}
@@ -2792,10 +2975,100 @@
             equip(key) {
                 const c = this.normalize();
                 if (!c.items[key]) return;
-                c.equipped = (c.equipped === key) ? null : key;
-                collectionProvider.equip(c.equipped);
+                const slot = this.slotOfId(key);
+                if (!slot) return;
+                // Toggle within THIS slot only. Equipping to a slot that already holds a
+                // different skin swaps it; equipping the same skin again unequips it.
+                // Other slots are never touched, so each helper/spoon/hat is independent.
+                c.equips[slot] = (c.equips[slot] === key) ? null : key;
+                if (c.equips[slot] === key) { try { sound.play('bubble'); } catch (e) {} }
+                this._fabId = c.equips[slot] || this._fabId;
+                collectionProvider.equip(c.equips);
                 try { game.save(); } catch (e) {}
                 this.refreshFab(); this.render();
+                try { this.applyEquippedVisual(); } catch (e) {}
+            },
+            // Mapeo familia de ayudante -> índice en game.cp, y su sprite por defecto.
+            HELPER_SLOT: { coco: 0, bunny: 1, pio: 2, ivan: 3 },
+            HELPER_FAM_BY_IDX: { 0: 'coco', 1: 'bunny', 2: 'pio', 3: 'ivan' },
+            HELPER_DEFAULT_IMG: { 0: 'assets/img/coco.png', 1: 'assets/img/bunny.png', 2: 'assets/img/pio.png', 3: 'assets/img/ivan.png' },
+            // Aplica TODAS las skins equipadas (por slot) a la escena:
+            //   spoon  -> #asset-spoon (cuchara en la mano del chef)
+            //   coco/bunny/pio/ivan -> sprite del ayudante correspondiente (cp[])
+            //   hat    -> overlay best-effort del gorro sobre la cabeza del chef
+            // Cada slot es independiente; un slot vacío restaura su visual por defecto.
+            applyEquippedVisual() {
+                const c = this.normalize();
+                const eq = c.equips || {};
+                // --- CUCHARA (slot 'spoon') ---
+                try {
+                    const el = document.getElementById('asset-spoon');
+                    const rig = document.getElementById('spoon-rig');
+                    if (el) {
+                        const sp = eq.spoon ? this.skinById(eq.spoon) : null;
+                        if (sp && sp.img) {
+                            // Charm spoon: reuse the rig but with the tunable .charm-spoon
+                            // placement (CSS) so the ~square charm art sits under the hand.
+                            el.src = sp.img;
+                            if (rig) rig.classList.add('charm-spoon');
+                        } else {
+                            // Default / sacred (album) spoon -> restore the standard rig.
+                            if (rig) rig.classList.remove('charm-spoon');
+                            game.applySpoonVisual();
+                        }
+                    }
+                } catch (e) {}
+                // --- AYUDANTES (slots coco/bunny/pio/ivan) ---
+                try { this.applyHelperVisual(); } catch (e) {}
+                // --- GORRO DE CHEF (slot 'hat', best-effort) ---
+                try { this.applyHatVisual(eq.hat ? this.skinById(eq.hat) : null); } catch (e) {}
+            },
+            // Aplica la skin equipada de CADA slot de ayudante a su sprite (o el sprite por
+            // defecto si el slot está vacío) y re-renderiza escena + tienda al instante.
+            applyHelperVisual() {
+                try {
+                    const c = this.normalize();
+                    const eq = c.equips || {};
+                    // 1) Cada slot de ayudante apunta a su skin equipada o, si está vacío, al
+                    //    sprite por defecto. Fijamos `im` SIEMPRE (independiente de comprado)
+                    //    para que la tarjeta de TIENDA muestre la skin como preview; la ESCENA
+                    //    sólo dibuja ayudantes COMPRADOS (lv>0) en el paso 2, así que una skin
+                    //    de un ayudante no comprado nunca entra en la escena de juego.
+                    for (const famKey in this.HELPER_SLOT) {
+                        const idx = this.HELPER_SLOT[famKey];
+                        if (!game.cp[idx]) continue;
+                        const skin = eq[famKey] ? this.skinById(eq[famKey]) : null;
+                        game.cp[idx].im = (skin && skin.img) ? skin.img : this.HELPER_DEFAULT_IMG[idx];
+                    }
+                    // 2) ESCENA (companion-column a la izquierda): sólo ayudantes COMPRADOS.
+                    game.cp.forEach(cc => { if (cc.lv > 0) game.slot(cc); });
+                    // 3) TIENDA: re-render de las tarjetas para que equipar/desequipar se vea
+                    //    al instante (comprado o no) SIN necesidad de recomprar.
+                    try { game.render(); } catch (e) {}
+                } catch (e) {}
+            },
+            // Overlay best-effort del gorro: crea/oculta un <img id="asset-chefhat">
+            // dentro de #sticky-center. La posición/escala se afinan en CSS.
+            applyHatVisual(skin) {
+                try {
+                    let hat = document.getElementById('asset-chefhat');
+                    if (skin && skin.img) {
+                        if (!hat) {
+                            const center = document.getElementById('sticky-center');
+                            if (!center) return;
+                            hat = document.createElement('img');
+                            hat.id = 'asset-chefhat';
+                            hat.decoding = 'async';
+                            hat.alt = '';
+                            hat.onerror = function () { this.style.display = 'none'; };
+                            center.appendChild(hat);
+                        }
+                        hat.style.display = '';
+                        hat.src = skin.img;
+                    } else if (hat) {
+                        hat.style.display = 'none';
+                    }
+                } catch (e) {}
             },
             hexA(hex, a) { try { const n = parseInt(hex.slice(1), 16); return `rgba(${(n >> 16) & 255},${(n >> 8) & 255},${n & 255},${a})`; } catch (e) { return `rgba(148,163,184,${a})`; } },
             // Carga perezosa de sprites; al cargar, invalida la caché y refresca la UI abierta.
@@ -2806,8 +3079,8 @@
                 const self = this;
                 o.el.onload = function () { o.ok = true; self._cache = {}; try { self.refreshFab(); } catch (e) {} try { const m = document.getElementById('collection-modal'); if (m && m.classList.contains('open')) self.render(); } catch (e) {} };
                 o.el.onerror = function () { o.ok = false; };
-                try { o.el.crossOrigin = 'anonymous'; } catch (e) {}
                 o.el.src = src;
+                if (o.el.complete && o.el.naturalWidth > 0) { o.ok = true; }
                 this._imgs[src] = o;
                 return o;
             },
@@ -2895,8 +3168,10 @@
                 if (o && o.ok) {
                     const r = this.fitRect(o.el.naturalWidth || o.el.width || 1, o.el.naturalHeight || o.el.height || 1, size, 0.86);
                     x.drawImage(o.el, r.dx, r.dy, r.dw, r.dh);
+                    this._lastDrawOk = true;
                 } else {
                     this.drawPlaceholder(x, size);
+                    this._lastDrawOk = false;
                 }
                 this.drawFrame(x, rarity, size);
                 try { return cv.toDataURL('image/png'); } catch (e) { return ''; }
@@ -2906,14 +3181,27 @@
                 const ck = this.itemKey(item) + ':' + item.rarity + ':' + size;
                 if (this._cache[ck]) return this._cache[ck];
                 const url = this.draw(item, size);
-                if (url) this._cache[ck] = url;
+                if (url && this._lastDrawOk) this._cache[ck] = url;
                 return url;
+            },
+            // Reemplaza un <img> roto por un placeholder "?" en lugar de dejar el src vacío.
+            imgFail(el) {
+                try { const d = document.createElement('div'); d.className = (el.className || 'charm-img') + ' charm-ph'; d.textContent = '?'; el.replaceWith(d); }
+                catch (e) { try { el.classList.add('charm-ph'); el.removeAttribute('src'); } catch (e2) {} }
             },
             refreshFab() {
                 const thumb = document.getElementById('collection-fab-thumb'); if (!thumb) return;
                 const c = game.coll;
-                if (c && c.equipped && c.items && c.items[c.equipped]) { const it = c.items[c.equipped]; thumb.innerHTML = `<img class="charm-fab-img" src="${this.thumb(it, 48)}" alt="">`; }
-                else thumb.innerHTML = '';
+                // With independent slots there can be several equipped skins; the FAB shows a
+                // single representative thumbnail: the most-recently equipped one if it's
+                // still equipped, otherwise the first equipped skin found across the slots.
+                let id = null;
+                if (c && c.equips) {
+                    if (this._fabId && this.isEquipped(this._fabId)) id = this._fabId;
+                    else { for (const slot of this.SLOTS) { if (c.equips[slot]) { id = c.equips[slot]; break; } } }
+                }
+                const skin = id ? this.skinById(id) : null;
+                thumb.innerHTML = (skin && skin.img) ? `<img class="charm-fab-img" src="${skin.img}" alt="" onerror="this.style.display='none'">` : '';
             },
             nameFor(it) {
                 const skin = this.skinById(it.id);
@@ -2937,6 +3225,88 @@
             },
             open() { this.render(); document.getElementById('collection-modal').classList.add('open'); },
             close() { document.getElementById('collection-modal').classList.remove('open'); },
+            preview(id) {
+                const ov = document.getElementById('charm-preview'); if (!ov) return;
+                const c = game.coll;
+                const it = (c && c.items && c.items[id]) ? c.items[id] : null;
+                const skin = this.skinById(id);
+                const rarity = skin ? skin.rarity : (it ? it.rarity : 'common');
+                const glow = this.RAR_GLOW[rarity] || '#94a3b8';
+                const stage = document.getElementById('charm-preview-stage');
+                if (stage) {
+                    stage.className = 'cp-stage r-' + rarity;
+                    stage.innerHTML = (skin && skin.img)
+                        ? `<img class="cp-img" src="${skin.img}" alt="" onerror="collection.imgFail(this)">`
+                        : `<div class="cp-img charm-ph">?</div>`;
+                }
+                const nameEl = document.getElementById('charm-preview-name');
+                if (nameEl) nameEl.textContent = it ? this.nameFor(it) : (skin ? ((LANG === 'es' ? (skin.name_es || skin.name_en) : (skin.name_en || skin.name_es)) || id) : t('coll_unknown'));
+                const rarEl = document.getElementById('charm-preview-rar');
+                if (rarEl) {
+                    const fam = it ? this.familyName(it) : '';
+                    rarEl.textContent = (fam ? fam + ' · ' : '') + t('r_' + rarity);
+                    rarEl.style.color = glow;
+                    rarEl.style.textShadow = '0 0 12px ' + this.hexA(glow, 0.55);
+                }
+                ov.classList.add('open');
+            },
+            closePreview() { const ov = document.getElementById('charm-preview'); if (ov) ov.classList.remove('open'); },
+            // TUNABLE: auto-dismiss delay (ms) for the drop reveal. Set to 0 to disable
+            // auto-dismiss and require the button/backdrop. Number of sparkles below too.
+            REVEAL_AUTODISMISS_MS: 0,
+            REVEAL_SPARKLES: 18,
+            // Full-screen reveal shown ONLY when a brand-new skin is obtained (see grant()).
+            // The skin is already in c.items by the time this runs; this is purely cosmetic
+            // and never blocks the game loop.
+            showReveal(skin, rarity) {
+                try {
+                    const ov = document.getElementById('skin-reveal'); if (!ov || !skin) return;
+                    const rar = rarity || skin.rarity || 'common';
+                    const glow = this.RAR_GLOW[rar] || '#94a3b8';
+                    const stage = document.getElementById('skin-reveal-stage');
+                    if (stage) {
+                        stage.className = 'sr-stage r-' + rar;
+                        stage.innerHTML = (skin.img)
+                            ? `<img id="skin-reveal-img" class="sr-img" src="${skin.img}" alt="" onerror="collection.imgFail(this)">`
+                            : `<div class="sr-img charm-ph" style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;font-size:5rem;color:#cbd5e1;">?</div>`;
+                    }
+                    const nameEl = document.getElementById('skin-reveal-name');
+                    if (nameEl) nameEl.textContent = (LANG === 'es' ? (skin.name_es || skin.name_en) : (skin.name_en || skin.name_es)) || skin.id;
+                    const rarEl = document.getElementById('skin-reveal-rar');
+                    if (rarEl) {
+                        const fam = t('coll_fam_' + skin.family);
+                        rarEl.textContent = (fam ? fam + ' · ' : '') + t('r_' + rar);
+                        rarEl.style.color = glow;
+                        rarEl.style.textShadow = '0 0 12px ' + this.hexA(glow, 0.55);
+                    }
+                    this.buildRevealSparkles(glow);
+                    ov.classList.add('open');
+                    if (this._revealTimer) { clearTimeout(this._revealTimer); this._revealTimer = null; }
+                    if (this.REVEAL_AUTODISMISS_MS > 0) {
+                        this._revealTimer = setTimeout(() => this.closeReveal(), this.REVEAL_AUTODISMISS_MS);
+                    }
+                } catch (e) {}
+            },
+            buildRevealSparkles(glow) {
+                try {
+                    const wrap = document.getElementById('skin-reveal-sparkles'); if (!wrap) return;
+                    let html = '';
+                    const n = this.REVEAL_SPARKLES || 0;
+                    for (let i = 0; i < n; i++) {
+                        const ang = Math.random() * Math.PI * 2;
+                        const dist = 120 + Math.random() * 220;
+                        const sx = Math.cos(ang) * dist, sy = Math.sin(ang) * dist;
+                        const delay = (Math.random() * 0.6).toFixed(2);
+                        const size = (6 + Math.random() * 10).toFixed(1);
+                        html += `<span class="sr-spark" style="left:50%;top:46%;width:${size}px;height:${size}px;--sx:${sx.toFixed(0)}px;--sy:${sy.toFixed(0)}px;animation-delay:${delay}s;background:radial-gradient(circle, #fff 0%, ${glow} 45%, rgba(255,255,255,0) 70%);"></span>`;
+                    }
+                    wrap.innerHTML = html;
+                } catch (e) {}
+            },
+            closeReveal() {
+                try { if (this._revealTimer) { clearTimeout(this._revealTimer); this._revealTimer = null; } } catch (e) {}
+                const ov = document.getElementById('skin-reveal'); if (ov) ov.classList.remove('open');
+            },
             render() {
                 const c = this.normalize();
                 const stats = document.getElementById('collection-stats');
@@ -2946,14 +3316,27 @@
                 if (!keys.length) { grid.innerHTML = `<div style="grid-column:1/-1; color:#94a3b8; font-size:0.85rem; padding:14px">${t('coll_empty')}</div>`; return; }
                 keys.sort((a, b) => (this.rarRank[c.items[b].rarity] - this.rarRank[c.items[a].rarity]) || (a < b ? -1 : a > b ? 1 : 0));
                 grid.innerHTML = keys.map(k => {
-                    const it = c.items[k], eqd = c.equipped === k;
+                    // A tile is "equipped" iff it's the current skin for ITS OWN slot.
+                    const it = c.items[k], eqd = this.isEquipped(k);
                     const dup = it.count > 1 ? `<span class="charm-dup">x${it.count}</span>` : '';
                     const fam = this.familyName(it);
                     const kk = String(k).replace(/'/g, "\\'");
-                    return `<div class="charm-tile r-${it.rarity} ${eqd ? 'equipped' : ''}" onclick="collection.equip('${kk}')">${dup}<img class="charm-img" src="${this.thumb(it, 96)}" alt=""><span class="charm-name">${this.nameFor(it)}</span><span class="charm-rar r-${it.rarity}">${fam ? fam + ' · ' : ''}${t('r_' + it.rarity)}</span><span style="font-size:0.58rem;color:${eqd ? '#fbbf24' : '#94a3b8'}">${eqd ? t('coll_equipped') : t('coll_equip')}</span></div>`;
+                    const skin = this.skinById(it.id);
+                    const art = (skin && skin.img)
+                        ? `<img class="charm-img r-${it.rarity}" src="${skin.img}" alt="?" onerror="collection.imgFail(this)">`
+                        : `<div class="charm-img charm-ph r-${it.rarity}">?</div>`;
+                    const insp = `<button class="charm-inspect" type="button" title="${t('coll_inspect')}" aria-label="${t('coll_inspect_aria')}" onclick="event.stopPropagation();collection.preview('${kk}')">🔍</button>`;
+                    return `<div class="charm-tile r-${it.rarity} ${eqd ? 'equipped' : ''}" onclick="collection.equip('${kk}')">${insp}${dup}${art}<span class="charm-name">${this.nameFor(it)}</span><span class="charm-rar r-${it.rarity}">${fam ? fam + ' · ' : ''}${t('r_' + it.rarity)}</span><span style="font-size:0.58rem;color:${eqd ? '#fbbf24' : '#94a3b8'}">${eqd ? t('coll_equipped') : t('coll_equip')}</span></div>`;
                 }).join('');
             }
         };
+        try {
+            document.addEventListener('keydown', function (e) {
+                if (e.key !== 'Escape') return;
+                const ov = document.getElementById('charm-preview');
+                if (ov && ov.classList.contains('open')) { e.stopPropagation(); collection.closePreview(); }
+            });
+        } catch (e) {}
         // ====================================================================
         // === LOGROS: adaptador agnóstico + UI (Tarea 6) ===
         // ====================================================================
@@ -3001,6 +3384,20 @@
             try { requestAnimationFrame(() => requestAnimationFrame(() => ytPlayables.firstFrameReady())); } catch (e) { ytPlayables.firstFrameReady(); }
             try { quality.load(); } catch (e) {}
             sound.init(); game.init();
+            /* ===== TEMP CREATOR GRANT — REMOVE BEFORE RELEASE ===== */
+            try {
+                if (!localStorage.getItem('__sc_grant_all_charms_v1')) {
+                    var __cc = collection.normalize();
+                    (window.SKIN_CATALOG || []).forEach(function (s) {
+                        if (s && s.id) __cc.items[s.id] = { id: s.id, rarity: s.rarity, count: (__cc.items[s.id] && __cc.items[s.id].count) || 1 };
+                    });
+                    game.coll = __cc; collection.normalize(); game.save();
+                    localStorage.setItem('__sc_grant_all_charms_v1', '1');
+                    try { collection.refreshFab(); } catch (e) {}
+                    console.log('[creator] all charms granted once');
+                }
+            } catch (e) { console.warn('[creator] grant failed', e); }
+            /* ===== END TEMP CREATOR GRANT ===== */
             applyStaticI18n();
             const f = document.getElementById('lang-fab'); if (f) f.textContent = '🌐 ' + LANG.toUpperCase();
             home.init();
