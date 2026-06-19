@@ -1910,7 +1910,7 @@
         // while still retrying if a reload didn't actually land the new build. Fully
         // defensive: any error is silent and never blocks the game. Parent bumps BOTH
         // version.json and BUILD_V on every future deploy.
-        const BUILD_V = "build-31";
+        const BUILD_V = "build-32";
         (function () {
             function hardReloadTo(v) {
                 try {
@@ -5304,8 +5304,10 @@
                     startFly();
                 };
                 // Start the moment the sprite is decoded/painted, but never block gameplay:
-                // a short failsafe fires the throw even if decode is slow or never resolves.
-                const flyReadyFailSafe = setTimeout(beginFly, 500);
+                // a last-resort failsafe (~2.5s) fires the throw only if decode is unusually
+                // slow or never resolves, so we don't preempt a cold decode and reveal an
+                // invisible sprite (bubbles + throw with no visible helper).
+                const flyReadyFailSafe = setTimeout(beginFly, 2500);
                 const waitForSprite = () => {
                     if (h.complete && h.naturalWidth > 0) { beginFly(); return; }
                     if (typeof h.decode === 'function') {
