@@ -508,6 +508,9 @@
         #m-launch button { position: relative; }
         #m-launch button.has-badge::after { content: ''; position: absolute; top: -3px; right: -3px; width: 12px; height: 12px; border-radius: 50%; background: #ef4444; border: 2px solid #1e1b4b; box-shadow: 0 0 8px rgba(239, 68, 68, 0.85); }
         .helpers-count { background: var(--go); color: #1e1b4b; border-radius: 9px; padding: 0 5px; font-size: 0.62rem; font-weight: bold; margin-left: 2px; }
+        /* Tiny visible build tag (diagnostic): lets the player report exactly which build
+           their device actually loaded, so stale-cache vs layout issues can be told apart. */
+        #build-tag { position: fixed; left: 50%; bottom: 1px; transform: translateX(-50%); font: 700 9px/1 monospace; letter-spacing: 0.5px; color: rgba(255,255,255,0.5); background: rgba(0,0,0,0.3); padding: 1px 6px; border-radius: 6px; z-index: 100000; pointer-events: none; }
         @media (pointer: coarse) and (orientation: landscape) and (max-height: 600px) {
             body { overflow: hidden; }
             /* The scene is the star: main stage fills the width (shop is a slide-in now). */
@@ -1124,6 +1127,7 @@
         <button id="m-shop-btn" type="button" onclick="mobileUI.toggleShop()" aria-label="Shop"><span data-i18n="m_shop_btn">🛒 Shop</span></button>
     </div>
     <div id="m-scrim" onclick="mobileUI.closeAll()"></div>
+    <div id="build-tag"></div>
     <div id="offline-modal" class="gx-modal"><div class="gx-box"><h2 data-i18n="offline_title">Your soup kept cooking</h2><p id="offline-text" style="font-size:1rem; line-height:1.5"></p><div style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin-top:6px"><button class="gx-btn" style="min-height:44px; background:linear-gradient(135deg,#f59e0b,#b45309); border-color:var(--go)" id="offline-double-btn" onclick="offline.double()" data-i18n="offline_double">x2 (Free reward)</button><button class="gx-btn" style="min-height:44px" onclick="offline.claim()" data-i18n="claim">Claim</button></div></div></div>
     <div id="import-modal" class="gx-modal"><div class="gx-box">
         <h2 data-i18n="backup_import_title">📥 Import Backup</h2>
@@ -1768,7 +1772,7 @@
         // while still retrying if a reload didn't actually land the new build. Fully
         // defensive: any error is silent and never blocks the game. Parent bumps BOTH
         // version.json and BUILD_V on every future deploy.
-        const BUILD_V = "build-18";
+        const BUILD_V = "build-19";
         (function () {
             function hardReloadTo(v) {
                 try {
@@ -1797,6 +1801,9 @@
                 document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'visible') checkForUpdate(); });
                 window.addEventListener('focus', checkForUpdate);
                 window.addEventListener('pageshow', function (e) { if (e && e.persisted) checkForUpdate(); });
+            } catch (e) {}
+            try {
+                document.addEventListener('DOMContentLoaded', function () { var b = document.getElementById('build-tag'); if (b) b.textContent = BUILD_V; });
             } catch (e) {}
         })();
         let LANG = 'en';
