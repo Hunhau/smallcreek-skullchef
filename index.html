@@ -56,7 +56,7 @@
         #pres-stat { font-size: 0.8rem; font-weight: bold; background: var(--glass); padding: 5px 12px; border-radius: 20px; margin-top: 10px; border: 1px solid var(--glass-bd); text-shadow: 0 0 8px #fff; }
         #main-stage { flex-grow: 1; position: relative; cursor: pointer; overflow: hidden; touch-action: none; -webkit-user-drag: none; }
         #sticky-center { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: 10px; height: 10px; }
-        /* Chef feed mouth: #asset-chef always shows chef.png; #asset-chef-mouth overlay toggles for chew. */
+        /* Chef feed mouth: single sprite; JS swaps #asset-chef src closed ↔ open. */
         #chef-rig { position: absolute; z-index: 1; transform: translate(-50%, -50%); left: 0px; top: -40px; width: 720px; aspect-ratio: 1024 / 1656; pointer-events: none; line-height: 0; }
         #chef-rig #asset-chef {
             position: absolute; inset: 0; width: 100%; height: 100%;
@@ -3198,7 +3198,7 @@
             CHEW_SLICE_MS: 500,
             CHEW_MAX_TOGGLES: 3,
             CHEF_SRC_CLOSED: 'assets/img/chef.png',
-            CHEF_MOUTH_OVERLAY: 'assets/img/chef-mouth-delta.png',
+            CHEF_SRC_OPEN: 'assets/img/chef-mouth-open.png',
             SOUP_FX_BUBBLE_MAX: 58,
             SOUP_FX_BUBBLES: {
                 ink:     { colors: ['#6b21a8', '#7c3aed', '#a78bfa', '#581c87', '#c4b5fd', '#8b5cf6'], motion: 'swirl',   count: 44, size: [10, 42] },
@@ -3367,21 +3367,23 @@
             },
             resize() { this.ctx.canvas.width = window.innerWidth; this.ctx.canvas.height = window.innerHeight; this._soupRect = null; this._stageRect = null; this._scoreTarget = null; },
             _chefEl() { return document.getElementById('asset-chef'); },
-            _chefMouthEl() { return document.getElementById('asset-chef-mouth'); },
+            _chefMouthHideOverlay() {
+                const mouth = document.getElementById('asset-chef-mouth');
+                if (mouth) mouth.style.display = 'none';
+            },
             _chefMouthShowClosed() {
                 const chef = this._chefEl();
-                const mouth = this._chefMouthEl();
-                if (chef && !chef.src.includes('chef.png')) chef.src = this.CHEF_SRC_CLOSED;
-                if (mouth) mouth.style.display = 'none';
+                if (!chef) return;
+                this._chefMouthHideOverlay();
                 this._chefMouthVisual = 'closed';
+                chef.src = this.CHEF_SRC_CLOSED;
             },
             _chefMouthShowOpen() {
-                const mouth = this._chefMouthEl();
-                if (mouth) {
-                    if (mouth.src && !mouth.src.includes('chef-mouth-delta')) mouth.src = this.CHEF_MOUTH_OVERLAY;
-                    mouth.style.display = 'block';
-                }
+                const chef = this._chefEl();
+                if (!chef) return;
+                this._chefMouthHideOverlay();
                 this._chefMouthVisual = 'open';
+                chef.src = this.CHEF_SRC_OPEN;
             },
             _chefMouthStopChewLoop() {
                 this._chefMouthChewActive = false;
@@ -4387,14 +4389,17 @@
                     }
                 } catch (e) {}
                 chewMs = Math.max(this.CHEF_FALLBACK_EAT_MS || 2000, chewMs);
-                this._chefMouthOpenState = true;
+                let isOpen = true;
+                let togglesLeft = this.CHEW_MAX_TOGGLES != null ? this.CHEW_MAX_TOGGLES : 3;
                 this._chefMouthShowOpen();
                 const sliceMs = this.CHEW_SLICE_MS || 500;
                 this._chewIv = setInterval(() => {
-                    if (!this._chefMouthChewActive) return;
-                    this._chefMouthOpenState = !this._chefMouthOpenState;
-                    if (this._chefMouthOpenState) this._chefMouthShowOpen();
+                    if (!this._chefMouthChewActive || togglesLeft <= 0) return;
+                    togglesLeft--;
+                    isOpen = !isOpen;
+                    if (isOpen) this._chefMouthShowOpen();
                     else this._chefMouthShowClosed();
+                    if (togglesLeft <= 0) this._chefMouthStopChewLoop();
                 }, sliceMs);
                 this._chefMouthCloseTimer = setTimeout(() => this._endChefFeedChew(seq), chewMs + 80);
                 try { gx.toast(t('chef_taste_ingredient')); } catch (e) {}
