@@ -1,6 +1,6 @@
 /* Smallcreek Skullchef — offline shell cache (PWA / Add to Home Screen).
    Bump CACHE_VERSION when deploying so stale shells refresh. */
-const CACHE_VERSION = 'build-17';
+const CACHE_VERSION = 'build-18';
 const CACHE_NAME = 'skullchef-shell-' + CACHE_VERSION;
 
 const PRECACHE = [
@@ -69,8 +69,11 @@ self.addEventListener('fetch', (event) => {
   }
 
   if (req.mode === 'navigate') {
+    // Network-first AND cache-bypassing: always pull a fresh index.html when online so a
+    // resumed/relaunched PWA never boots a stale shell from the HTTP cache. Falls back to
+    // the cached shell only when offline.
     event.respondWith(
-      fetch(req)
+      fetch(req.url, { cache: 'no-store' })
         .then((res) => {
           const copy = res.clone();
           caches.open(CACHE_NAME).then((c) => c.put('./index.html', copy)).catch(() => {});

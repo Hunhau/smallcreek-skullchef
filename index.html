@@ -1759,27 +1759,44 @@
     <script>
         // === AUTO-UPDATE / ANTI-STALE-CACHE ===========================================
         // BUILD_V MUST equal version.json's "v" in this commit (so no reload happens now).
-        // On each visit we quietly fetch version.json (no-store) and, if the deployed
-        // build differs, reload ONCE with a cache-busting ?v= query. sessionStorage guards
-        // against reload loops. Fully defensive: any error is silent and never blocks the
-        // game. Parent bumps BOTH version.json and BUILD_V on every future deploy.
-        const BUILD_V = "build-17";
-        (function checkForUpdate() {
-            try {
-                fetch('version.json?ts=' + Date.now(), { cache: 'no-store' })
-                    .then(function (r) { return r.json(); })
-                    .then(function (data) {
-                        try {
+        // We fetch version.json (no-store) on load AND every time the app returns to the
+        // foreground (visibilitychange/focus/pageshow) — installed PWAs are usually just
+        // RESUMED from background without a fresh page load, so a load-only check would
+        // never see new builds. If the deployed build differs we reload with a
+        // cache-busting query (busts the HTTP cache even on the old service worker). A
+        // per-version ATTEMPT COUNTER (not a permanent flag) guards against reload loops
+        // while still retrying if a reload didn't actually land the new build. Fully
+        // defensive: any error is silent and never blocks the game. Parent bumps BOTH
+        // version.json and BUILD_V on every future deploy.
+        const BUILD_V = "build-18";
+        (function () {
+            function hardReloadTo(v) {
+                try {
+                    var key = 'sc_upd_' + v;
+                    var n = parseInt(sessionStorage.getItem(key) || '0', 10) || 0;
+                    if (n >= 2) return; // give up after 2 tries to avoid a reload loop
+                    sessionStorage.setItem(key, String(n + 1));
+                    location.replace(location.pathname + '?v=' + encodeURIComponent(v) + '_' + Date.now());
+                } catch (e) {}
+            }
+            function checkForUpdate() {
+                try {
+                    fetch('version.json?ts=' + Date.now(), { cache: 'no-store' })
+                        .then(function (r) { return r.json(); })
+                        .then(function (data) {
                             if (data && data.v && data.v !== BUILD_V) {
-                                var key = 'sc_reloaded_' + data.v;
-                                if (sessionStorage.getItem(key) !== '1') {
-                                    sessionStorage.setItem(key, '1');
-                                    location.replace(location.pathname + '?v=' + encodeURIComponent(data.v));
-                                }
+                                try { if (navigator.serviceWorker) navigator.serviceWorker.getRegistration().then(function (reg) { if (reg) reg.update(); }).catch(function () {}); } catch (e) {}
+                                hardReloadTo(data.v);
                             }
-                        } catch (e) {}
-                    })
-                    .catch(function () {});
+                        })
+                        .catch(function () {});
+                } catch (e) {}
+            }
+            checkForUpdate();
+            try {
+                document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'visible') checkForUpdate(); });
+                window.addEventListener('focus', checkForUpdate);
+                window.addEventListener('pageshow', function (e) { if (e && e.persisted) checkForUpdate(); });
             } catch (e) {}
         })();
         let LANG = 'en';
