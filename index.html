@@ -3577,7 +3577,11 @@
                 const s = this.getEquippedSpoon();
                 if (this.spoonHidden && s && s.owned) {
                     el.src = this.defaultSpoonImg;
-                    if (rig) rig.style.display = 'none';
+                    if (rig) {
+                        rig.style.display = '';
+                        rig.classList.remove('charm-spoon');
+                        rig.style.transform = '';
+                    }
                     return;
                 }
                 if (rig) rig.style.display = '';
