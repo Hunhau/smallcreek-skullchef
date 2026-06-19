@@ -429,6 +429,19 @@
         .gx-toast.gx-toast-out { animation: toastOut 0.45s ease-in forwards; }
         @keyframes toastIn { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes toastOut { to { opacity: 0; transform: translateY(-20px); } }
+        /* Landscape phone toasts — placed AFTER base rule so left-pin wins over center. */
+        @media (pointer: coarse) and (orientation: landscape) and (max-height: 600px) {
+            #gx-toast-wrap {
+                top: calc(env(safe-area-inset-top) + 56px) !important;
+                left: max(8px, env(safe-area-inset-left)) !important;
+                right: auto !important;
+                transform: none !important;
+                align-items: flex-start !important;
+                max-width: min(168px, 34vw) !important;
+                gap: 4px !important;
+            }
+            .gx-toast { padding: 4px 10px !important; font-size: 0.7rem !important; border-radius: 9px; line-height: 1.25; text-align: left !important; }
+        }
         #home-overlay { position: fixed; inset: 0; z-index: 200000; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: clamp(12px, 2.6vh, 24px); text-align: center; overflow-y: auto; padding: calc(env(safe-area-inset-top) + 24px) calc(env(safe-area-inset-right) + 20px) calc(env(safe-area-inset-bottom) + 24px) calc(env(safe-area-inset-left) + 20px); background: url('assets/img/bg.jpg') center/cover no-repeat; transition: opacity 0.55s ease, transform 0.55s ease; }
         #home-overlay.closing { opacity: 0; transform: scale(1.05); pointer-events: none; }
         /* HERO scene — reuses the SAME PNGs as #main-stage (cached, no new assets). New ids
@@ -573,11 +586,18 @@
             .lv-badge { bottom: -4px; right: -4px; padding: 0 3px; font-size: 0.52rem; border-width: 1px; }
             .slot-crown { top: -10px; font-size: 0.9rem; }
 
-            /* Toasts ("carteles"): same rule as portrait — pin them HIGH + compact near the
-               top so even stacked notifications stay out of the way and don't cover the
-               helper/chef. Landscape top band is short, so keep them especially tight. */
-            #gx-toast-wrap { top: calc(env(safe-area-inset-top) + 6px); gap: 4px; max-width: 78vw; }
-            .gx-toast { padding: 4px 10px; font-size: 0.7rem; border-radius: 9px; line-height: 1.25; }
+            /* Toasts ("carteles"): pin LEFT where there is free space — NOT centered on
+               the chef's face. Landscape top band is short; keep them compact. */
+            #gx-toast-wrap {
+                top: calc(env(safe-area-inset-top) + 56px);
+                left: max(8px, env(safe-area-inset-left));
+                right: auto;
+                transform: none;
+                align-items: flex-start;
+                max-width: min(168px, 34vw);
+                gap: 4px;
+            }
+            .gx-toast { padding: 4px 10px; font-size: 0.7rem; border-radius: 9px; line-height: 1.25; text-align: left; }
 
             /* ---- SHOP: slide-in sheet from the right (compact + readable) ---- */
             #side-shop {
@@ -1833,7 +1853,7 @@
         // while still retrying if a reload didn't actually land the new build. Fully
         // defensive: any error is silent and never blocks the game. Parent bumps BOTH
         // version.json and BUILD_V on every future deploy.
-        const BUILD_V = "build-22";
+        const BUILD_V = "build-23";
         (function () {
             function hardReloadTo(v) {
                 try {
@@ -2204,25 +2224,19 @@
                 const evs = ['pointerdown', 'touchstart', 'keydown'];
                 const handler = () => { this.unlock(); evs.forEach(ev => document.removeEventListener(ev, handler)); };
                 evs.forEach(ev => document.addEventListener(ev, handler, { once: true, passive: true }));
-                try { document.addEventListener('visibilitychange', () => { if (document.hidden) { try { this._stirStopNow(); } catch (e) {} } }, { passive: true }); } catch (e) {}
-                // FOREGROUND RECOVERY: mobile browsers SUSPEND the AudioContext and can
-                // INTERRUPT pooled <audio> playback when the page is hidden (screen sleep,
-                // tab switch, incoming call). They don't always auto-resume on return, so the
-                // click/SFX silently die. On every return-to-foreground signal we resume the
-                // AudioContext and FLAG that the <audio> pool needs re-priming; the actual
-                // re-prime (a muted play/pause) runs on the NEXT user gesture, which iOS
-                // requires. All wrapped in try/catch and no-ops if nothing is suspended.
                 try {
-                    const wake = () => { try { this.resumeAudio(); } catch (e) {} };
-                    document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') { this._needReprime = true; wake(); } }, { passive: true });
+                    const wake = () => { try { this.recoverFromBackground(); } catch (e) {} };
+                    document.addEventListener('visibilitychange', () => {
+                        if (document.hidden) { try { this._stirStopNow(); } catch (e) {} }
+                        else { this._needReprime = true; wake(); }
+                    }, { passive: true });
                     window.addEventListener('focus', () => { this._needReprime = true; wake(); }, { passive: true });
                     window.addEventListener('pageshow', () => { this._needReprime = true; wake(); }, { passive: true });
-                    const gestureWake = () => { wake(); if (this._needReprime) { this._needReprime = false; this._reprimePool(); } };
+                    const gestureWake = () => { if (this._needReprime) { this._needReprime = false; wake(); } else { try { this.resumeAudio(); } catch (e) {} } };
                     ['pointerdown', 'touchstart', 'click'].forEach(ev => document.addEventListener(ev, gestureWake, { passive: true }));
                 } catch (e) {}
             },
             // Resume any Web Audio context (eat synth) if the OS suspended/interrupted it.
-            // Safe to call repeatedly; a no-op when the context is already running or absent.
             resumeAudio() {
                 try {
                     const ctx = this._eatCtx;
@@ -2231,23 +2245,34 @@
                     }
                 } catch (e) {}
             },
-            // Re-arm the pooled <audio> elements after the OS interrupted the audio session
-            // (iOS especially). Mirrors unlock()'s muted play/pause priming, but may run again
-            // on each foreground gesture. Silent (muted) and guarded so it never changes which
-            // sounds play or their volume.
-            _reprimePool() {
+            // Full audio recovery after screen sleep / tab background. Re-primes EVERY pooled
+            // voice (not just one per group) and resets the stir loop so the next click can
+            // start sound again without restarting the game.
+            recoverFromBackground() {
                 if (!this._inited || this.muted || this.volume <= 0) return;
+                this.resumeAudio();
                 const prime = (a) => {
                     if (!a) return;
-                    try { const wasMuted = a.muted; a.muted = true; const p = a.play(); if (p && p.catch) p.catch(() => {}); a.pause(); a.currentTime = 0; a.muted = wasMuted; } catch (e) {}
+                    try {
+                        const wasMuted = a.muted;
+                        a.muted = true;
+                        const p = a.play();
+                        const done = () => { try { a.pause(); a.currentTime = 0; a.muted = wasMuted; } catch (e) {} };
+                        if (p && p.then) p.then(done).catch(() => { try { a.load(); a.muted = wasMuted; } catch (e) {} });
+                        else done();
+                    } catch (e) { try { a.load(); } catch (e2) {} }
                 };
                 try {
-                    for (const k in this.pool) { const arr = this.pool[k]; if (arr && arr.length) prime(arr[0]); }
-                    const eatVoices = this.flat.eat || [];
-                    for (let i = 0; i < eatVoices.length; i++) prime(eatVoices[i]);
+                    for (const k in this.flat) {
+                        const arr = this.flat[k];
+                        if (arr) for (let i = 0; i < arr.length; i++) prime(arr[i]);
+                    }
                     prime(this._eatPreload);
+                    this._stirStopNow();
                 } catch (e) {}
             },
+            // Legacy alias kept for any external callers.
+            _reprimePool() { this.recoverFromBackground(); },
             unlock() {
                 if (this._unlocked) return; this._unlocked = true;
                 const prime = (a) => {
@@ -2326,8 +2351,9 @@
                     a.playbackRate = pitch > 0 ? Math.min(2, Math.max(0.5, 1 + (Math.random() * 2 - 1) * pitch)) : 1;
                     a.currentTime = 0;
                     a._startedAt = now;
-                    const p = a.play(); if (p && p.catch) p.catch(()=>{});
-                } catch (e) {}
+                    const p = a.play();
+                    if (p && p.catch) p.catch(() => { this._needReprime = true; try { this.recoverFromBackground(); } catch (e) {} });
+                } catch (e) { this._needReprime = true; try { this.recoverFromBackground(); } catch (e2) {} }
             },
             // Crunch SFX: pooled eat.mp3 (unlocked on gesture); synth fallback if play fails.
             _eatCtx: null,
@@ -4272,7 +4298,7 @@
                 if (_now - this._clickGate < 33) return;
                 this._clickGate = _now;
                 try { if (ev && ev.pointerType === 'mouse' && ev.button !== 0) return; } catch (e) {}
-                try { sound.unlock(); } catch (e) {}
+                try { sound.unlock(); if (sound._needReprime) { sound.recoverFromBackground(); sound._needReprime = false; } else { sound.resumeAudio(); } } catch (e) {}
                 const m = Number.isFinite(this.m) ? Math.min(Math.max(this.m, 1), 6) : 1;
                 const exp = Math.min(this.cp[1].lv * this.champMult(this.cp[1].ch) * 0.5, 24);
                 let gain = m * Math.pow(1.33, exp) * (1 + this.s * 0.5);
