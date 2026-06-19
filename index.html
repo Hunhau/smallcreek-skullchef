@@ -1763,7 +1763,7 @@
         // build differs, reload ONCE with a cache-busting ?v= query. sessionStorage guards
         // against reload loops. Fully defensive: any error is silent and never blocks the
         // game. Parent bumps BOTH version.json and BUILD_V on every future deploy.
-        const BUILD_V = "build-16";
+        const BUILD_V = "build-17";
         (function checkForUpdate() {
             try {
                 fetch('version.json?ts=' + Date.now(), { cache: 'no-store' })
@@ -3305,7 +3305,7 @@
             }
         };
         const game = {
-            e:0, te:0, l:0, s:0, c:0, p:false, f:0, cl:false, m:1, cd:0, buyMode:1, defaultSpoonImg:'assets/img/spoon.png', _inited:false, logicTick:null, uiTick:null, saveTick:null, _floatNodes:[], _spoonAnimating:false, _spoonUiKey:'', _hatAnimating:false, _hatUiKey:'', _steamIdleTick:0, _dispScore:0, _autoPartAcc:0, _wave:0, _ballWave:0, _ballSpeed:1, _lastClick:0, soupBalls:[], _rippleNodes:[], _ambientRippleTick:0, _soupRect:null, _surf:null, _stageRect:null, _spoonEl:null,
+            e:0, te:0, l:0, s:0, c:0, p:false, f:0, cl:false, m:1, cd:0, buyMode:1, defaultSpoonImg:'assets/img/spoon.png', _inited:false, logicTick:null, uiTick:null, saveTick:null, _floatNodes:[], _spoonAnimating:false, _spoonUiKey:'', _hatAnimating:false, _hatUiKey:'', _steamIdleTick:0, _dispScore:0, _autoPartAcc:0, _wave:0, _ballWave:0, _ballSpeed:1, _lastClick:0, soupBalls:[], _rippleNodes:[], _ambientRippleTick:0, _soupRect:null, _surf:null, _stageRect:null, _spoonEl:null, _scoreBoxEl:null, _soupLiquidEl:null, _floatPool:[], _floatIdx:0, _ripplePool:[], _rippleIdx:0, _scorePulseQueued:false, _scorePulseArmed:false, _floatThrottle:0, _floatAcc:0, _clickRippleN:0, _clickGate:0,
             as:0, lastSeen:0, _buffs:[], tree:{caldo:0, manos:0, eco:0, cuchara:0, tiempo:0, aura:0, fortuna:0, eterno:0}, daily:null, ach:{}, rewards:{}, coll:null, farm:null, decor:null, _tampered:false,
             treeDefs: [
                 {k:'caldo', mx:20, cb:1},
@@ -3844,7 +3844,7 @@
             },
             // Applies the equipped charm spoon's per-skin placement to #spoon-rig. When `stirF`
             // is a number, oscillates the rotation for the idle-stir animation (called by loop()).
-            _applySpoonRig(stirF) { const rig = document.getElementById('spoon-rig'); if (!rig) return; const p = this._spoonPlace; if (!p) return; try { rig.style.transform = collection.placementCss(p, (typeof stirF === 'number' ? Math.sin(stirF) * 5 : 0)); } catch (e) {} },
+            _applySpoonRig(stirF) { const rig = this._spoonRigEl || (this._spoonRigEl = document.getElementById('spoon-rig')); if (!rig) return; const p = this._spoonPlace; if (!p) return; try { rig.style.transform = collection.placementCss(p, (typeof stirF === 'number' ? Math.sin(stirF) * 5 : 0)); } catch (e) {} },
             _applySpoonStirNow() {
                 if (this._chefFeedInProgress()) return;
                 const rig = this._spoonRigEl || (this._spoonRigEl = document.getElementById('spoon-rig'));
@@ -4169,7 +4169,13 @@
                 try { const fm = document.getElementById('farm-modal'); if (fm && fm.classList.contains('open')) farm.render(); } catch (e) {}
             },
             click(ev) {
-                if(this.p || this.cl || ev.target.closest('#side-shop') || ev.target.closest('#altar-panel')) return;
+                if(this.p || ev.target.closest('#side-shop') || ev.target.closest('#altar-panel')) return;
+                // Lightweight tap gate: drop only clicks within the same ~2 frames (kills a true
+                // double-fire) instead of the old 120ms lock that capped tapping to ~8/s and made
+                // fast tapping feel laggy. The stir visual keeps its own 120ms timer below.
+                const _now = performance.now();
+                if (_now - this._clickGate < 33) return;
+                this._clickGate = _now;
                 try { if (ev && ev.pointerType === 'mouse' && ev.button !== 0) return; } catch (e) {}
                 try { sound.unlock(); } catch (e) {}
                 const m = Number.isFinite(this.m) ? Math.min(Math.max(this.m, 1), 6) : 1;
@@ -4180,7 +4186,7 @@
                 if (eq && eq.id === 1 && Math.random() < 0.05) gain *= 10;
                 gain *= this.milestoneMult(this.cp[1].lv) * this.bongoClickMult() * this.treeClickMult() * this.treeAuraMult() * this.treeEternalMult() * this.buffMult('click');
                 if (!Number.isFinite(gain) || gain <= 0) return;
-                this.cl = true; this.e += gain; this.te += gain; this._lastClick = performance.now();
+                this.e += gain; this.te += gain; this._lastClick = _now;
                 // Keep the stir/soup audio loop alive FIRST, before any DOM work, so the
                 // audio call is never queued behind layout/paint on the main thread.
                 sound.stirPulse();
@@ -4190,15 +4196,16 @@
                 this.f += 0.65;
                 this._applySpoonStirNow();
                 const spoon = this._spoonEl || (this._spoonEl = document.getElementById('asset-spoon'));
-                if (spoon) spoon.classList.add('manual-stir');
-                setTimeout(() => { if (spoon) spoon.classList.remove('manual-stir'); this.cl = false; }, 120);
+                if (spoon) { spoon.classList.add('manual-stir'); clearTimeout(this._stirT); this._stirT = setTimeout(() => { spoon.classList.remove('manual-stir'); }, 120); }
                 // DOM writes only (no forced layout reads now that the stage rect is cached).
                 const px = (ev && (ev.clientX || ev.pageX)) || (window.innerWidth * 0.5);
                 const py = (ev && (ev.clientY || ev.pageY)) || (window.innerHeight * 0.5);
                 this.floatNum(px, py, gain);
                 const o = this.soupPartOrigin();
                 this.part(o.x + (Math.random() - 0.5) * 40, o.y + (Math.random() - 0.5) * 20, 'energy');
-                this.spawnRipple(px, py);
+                // On low/mobile, spawn a click ripple every other tap (still ~one per ~stir beat).
+                if (quality.effMode() === 'low') { this._clickRippleN++; if (this._clickRippleN % 2 === 1) this.spawnRipple(px, py); }
+                else this.spawnRipple(px, py);
                 try { if (typeof tutorial !== 'undefined' && tutorial.active) tutorial.notify('stir'); } catch (e) {}
             },
             /** Summon pose: midpoint of the gap between chef (#asset-chef) and shop purchase column (#side-shop). */
@@ -5243,7 +5250,7 @@
                     if (this._autoPartAcc > 40) this._autoPartAcc = 40;
                 }
                 if (!this.p && (this._frame % 2 === 0)) {
-                    const sl = document.getElementById('asset-soup-liquid');
+                    const sl = this._soupLiquidEl || (this._soupLiquidEl = document.getElementById('asset-soup-liquid'));
                     if (sl) {
                         const w = this._wave;
                         const wm = quality.params.waveMul;
@@ -5270,6 +5277,7 @@
                     this._steamIdleTick = 0;
                 }
                 this.draw();
+                this._flushScorePulse();
                 // Pausa el bucle de animación cuando la pestaña está oculta (no anima en 2º plano).
                 if (document.hidden) { this._loopPaused = true; return; }
                 requestAnimationFrame(()=>this.loop());
@@ -5290,16 +5298,47 @@
                 this.renderHats();
             },
             floatNum(x, y, gain) {
-                if (this._floatNodes.length >= 8) { const old = this._floatNodes.shift(); if (old && old.parentNode) old.remove(); }
-                const el = document.createElement('div');
-                el.className = 'click-float';
+                // On low/mobile, coalesce: show at most one float per ~100ms, accumulating gain.
+                if (quality.effMode() === 'low') {
+                    const now = performance.now();
+                    if (now - this._floatThrottle < 100) { this._floatAcc += gain; return; }
+                    this._floatThrottle = now;
+                    gain += this._floatAcc; this._floatAcc = 0;
+                }
+                const fmt = gain >= 100 ? Math.floor(gain).toLocaleString() : (gain % 1 === 0 ? String(Math.floor(gain)) : gain.toFixed(1));
+                // Reuse a pooled node (max 8) instead of create/append/remove on every click.
+                const pool = this._floatPool;
+                let el = null;
+                for (let i = 0; i < pool.length; i++) { if (!pool[i]._busy) { el = pool[i]; break; } }
+                if (!el) {
+                    if (pool.length < 8) {
+                        el = document.createElement('div');
+                        el.className = 'click-float';
+                        el.style.animation = 'none';   // motion driven by WAAPI / restarted below
+                        document.body.appendChild(el);
+                        pool.push(el);
+                    } else {
+                        el = pool[this._floatIdx]; this._floatIdx = (this._floatIdx + 1) % pool.length;
+                        if (el._anim) { try { el._anim.cancel(); } catch (e) {} }
+                    }
+                }
+                el._busy = true;
+                el.style.display = '';
                 el.style.left = x + 'px';
                 el.style.top = y + 'px';
-                const fmt = gain >= 100 ? Math.floor(gain).toLocaleString() : (gain % 1 === 0 ? String(Math.floor(gain)) : gain.toFixed(1));
                 el.textContent = '+' + fmt + ' EB';
-                document.body.appendChild(el);
-                this._floatNodes.push(el);
-                el.addEventListener('animationend', () => { el.remove(); const i = this._floatNodes.indexOf(el); if (i >= 0) this._floatNodes.splice(i, 1); }, { once: true });
+                if (el.animate) {
+                    const a = el.animate(
+                        [ { opacity: 1, transform: 'translate(-50%, -50%)' },
+                          { opacity: 0, transform: 'translate(-50%, -50%) translateY(-50px)' } ],
+                        { duration: 800, easing: 'ease-out', fill: 'forwards' });
+                    el._anim = a;
+                    a.onfinish = () => { el._busy = false; el.style.display = 'none'; };
+                } else {
+                    el.style.animation = 'none';
+                    requestAnimationFrame(() => { el.style.animation = 'floatUp 800ms ease-out forwards'; });
+                    el.onanimationend = () => { el._busy = false; el.style.display = 'none'; };
+                }
             },
             particles: [],
             soupPartOrigin() {
@@ -5357,7 +5396,8 @@
                 c.globalAlpha = 1;
             },
             spawnRipple(cx, cy, tint) {
-                const cont = document.getElementById('soup-ripples'), stage = document.getElementById('main-stage');
+                const cont = this._rippleContEl || (this._rippleContEl = document.getElementById('soup-ripples'));
+                const stage = document.getElementById('main-stage');
                 if (!cont || !stage) return;
                 let sr = this._soupRect; const so = document.getElementById('asset-soup');
                 if (!sr && so) sr = so.getBoundingClientRect();
@@ -5377,16 +5417,41 @@
                 // Use the cached stage rect to avoid forcing layout on every click (which
                 // janks the main thread and stutters the stir/soup audio loop on phones).
                 const st = this._stageRect || (this._stageRect = stage.getBoundingClientRect());
-                if (this._rippleNodes.length >= 7) { const old = this._rippleNodes.shift(); if (old && old.parentNode) old.remove(); }
-                const el = document.createElement('div');
+                // Reuse a pooled node (max 7) instead of create/append/remove on every click.
+                const pool = this._ripplePool;
+                let el = null;
+                for (let i = 0; i < pool.length; i++) { if (!pool[i]._busy) { el = pool[i]; break; } }
+                if (!el) {
+                    if (pool.length < 7) {
+                        el = document.createElement('div');
+                        el.style.animation = 'none';   // motion driven by WAAPI / restarted below
+                        cont.appendChild(el);
+                        pool.push(el);
+                    } else {
+                        el = pool[this._rippleIdx]; this._rippleIdx = (this._rippleIdx + 1) % pool.length;
+                        if (el._anim) { try { el._anim.cancel(); } catch (e) {} }
+                    }
+                }
+                el._busy = true;
                 el.className = 'liquid-ripple' + (tint ? ' ing-tint' : '');
                 if (tint) {
                     el.style.borderColor = tint.border || 'rgba(186,246,255,0.85)';
                     el.style.boxShadow = `0 0 16px ${tint.glow || 'rgba(165,243,252,0.55)'}, inset 0 0 10px rgba(255,255,255,0.32)`;
-                }
+                } else { el.style.borderColor = ''; el.style.boxShadow = ''; }
+                el.style.display = '';
                 el.style.left = (px - st.left) + 'px'; el.style.top = (py - st.top) + 'px';
-                cont.appendChild(el); this._rippleNodes.push(el);
-                el.addEventListener('animationend', () => { el.remove(); const i = this._rippleNodes.indexOf(el); if (i >= 0) this._rippleNodes.splice(i, 1); }, { once: true });
+                if (el.animate) {
+                    el.style.animation = 'none';
+                    const a = el.animate(
+                        [ { opacity: 0.8, transform: 'translate(-50%, -50%) scale(0.3)' },
+                          { opacity: 0, transform: 'translate(-50%, -50%) scale(5.4)' } ],
+                        { duration: tint ? 1850 : 1900, easing: 'cubic-bezier(0.22,0.61,0.36,1)', fill: 'forwards' });
+                    el._anim = a;
+                    a.onfinish = () => { el._busy = false; el.style.display = 'none'; };
+                } else {
+                    el.style.animation = (tint ? 'liquidRipple 1.85s' : 'liquidRipple 1.9s') + ' cubic-bezier(0.22,0.61,0.36,1) forwards';
+                    el.onanimationend = () => { el._busy = false; el.style.display = 'none'; };
+                }
             },
             scorePartTarget() {
                 // El marcador no se mueve: cacheamos su posición y la refrescamos cada 30 frames.
@@ -5398,9 +5463,25 @@
                 return this._scoreTarget;
             },
             pulseScore() {
-                const b = document.getElementById('score-box');
-                if (!b) return;
-                b.classList.remove('glow'); void b.offsetWidth; b.classList.add('glow');
+                // Debounce: just flag it. The actual class/animation work happens at most
+                // once per frame in _flushScorePulse(), called from loop(). This avoids the
+                // synchronous layout (void offsetWidth) that used to run for EVERY energy
+                // particle arrival inside the rAF loop while tapping fast.
+                this._scorePulseQueued = true;
+            },
+            _flushScorePulse() {
+                const b = this._scoreBoxEl || (this._scoreBoxEl = document.getElementById('score-box'));
+                if (!b) { this._scorePulseQueued = false; return; }
+                // Step 2 (next frame): clear the temporary inline 'none' so the CSS animation
+                // replays — no forced reflow needed because a full frame elapsed in between.
+                if (this._scorePulseArmed) { this._scorePulseArmed = false; b.style.animation = ''; return; }
+                if (this._scorePulseQueued) {
+                    this._scorePulseQueued = false;
+                    if (quality.effMode() === 'low') return;   // no score glow on low/mobile
+                    if (!b.classList.contains('glow')) b.classList.add('glow');
+                    b.style.animation = 'none';                 // kill current run (no layout read)
+                    this._scorePulseArmed = true;               // re-enable next frame to replay
+                }
             },
             part(x, y, t) {
                 if (t === 'steam') {
@@ -5412,7 +5493,7 @@
                 // TOPE GLOBAL de partículas: si se supera, se descartan las nuevas para
                 // evitar la explosión con CPS alto. El máximo mantiene el efecto visual.
                 const MAX_PARTS = quality.params.maxParts;
-                const want = (t === 'magic' ? 30 : 8);
+                const want = (t === 'magic' ? 30 : quality.params.clickParts);
                 const room = MAX_PARTS - this.particles.length;
                 if (room <= 0) return;
                 const n = Math.min(want, room);
@@ -5421,8 +5502,12 @@
             draw() {
                 const ctx = this.ctx;
                 ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-                if (!this.p) this.drawSoupBalls();
-                const scoreTarget = this.scorePartTarget();
+                // On low/mobile, skip the per-frame soup-ball fills (10 radial gradients) and the
+                // homing physics; energy particles just fade upward (see below). Saves main-thread
+                // + GPU work during rapid tapping.
+                const lowQ = quality.effMode() === 'low';
+                if (!this.p && !lowQ) this.drawSoupBalls();
+                const scoreTarget = lowQ ? null : this.scorePartTarget();
                 // Compactación in-place: recorremos una sola vez y vamos guardando las
                 // partículas vivas al frente del array. Evita el splice(i,1) dentro de un
                 // forEach (que es O(n²) por el desplazamiento y, además, se salta elementos
@@ -5434,7 +5519,11 @@
                     const p = parts[i];
                     if (p.t === 'energy') {
                         if (p.boost === undefined) p.boost = 9;
-                        if (p.boost > 0) { p.boost--; p.vy += 0.18; }
+                        if (lowQ) {
+                            // No homing-to-score on low: gentle upward drift + fade, so no
+                            // per-arrival pulseScore()/scorePartTarget() work in the rAF loop.
+                            p.vy += 0.06;
+                        } else if (p.boost > 0) { p.boost--; p.vy += 0.18; }
                         else {
                             const dx = scoreTarget.x - p.x, dy = scoreTarget.y - p.y;
                             const dist = Math.hypot(dx, dy);
@@ -7251,10 +7340,10 @@
         const quality = {
             mode: 'auto',
             presets: {
-                high: { maxParts: 80, partCap: 4, steamMax: 38, waveMul: 1 },
-                low:  { maxParts: 30, partCap: 2, steamMax: 14, waveMul: 0.5 }
+                high: { maxParts: 80, partCap: 4, steamMax: 38, waveMul: 1, clickParts: 8 },
+                low:  { maxParts: 30, partCap: 2, steamMax: 14, waveMul: 0.5, clickParts: 3 }
             },
-            params: { maxParts: 80, partCap: 4, steamMax: 38, waveMul: 1 },
+            params: { maxParts: 80, partCap: 4, steamMax: 38, waveMul: 1, clickParts: 8 },
             // "Auto": heurístico simple por núcleos lógicos (sin sampleo costoso de FPS).
             // En teléfonos (touch + pantalla pequeña) usamos 'low' para reducir el trabajo
             // por frame del hilo principal y evitar que las partículas hagan tartamudear el
@@ -7270,7 +7359,7 @@
             apply() {
                 const m = this.effMode();
                 const p = this.presets[m] || this.presets.high;
-                this.params = { maxParts: p.maxParts, partCap: p.partCap, steamMax: p.steamMax, waveMul: p.waveMul };
+                this.params = { maxParts: p.maxParts, partCap: p.partCap, steamMax: p.steamMax, waveMul: p.waveMul, clickParts: p.clickParts };
                 try { document.body.classList.toggle('q-low', m === 'low'); } catch (e) {}
                 this.syncUi();
             },
