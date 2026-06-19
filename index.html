@@ -307,7 +307,7 @@
         @keyframes sfxBubbleDrift { 0% { opacity: 0; transform: translate(-50%,-50%) scale(0.35); } 16% { opacity: 1; } 78% { opacity: 1; } 100% { opacity: 0; transform: translate(calc(-50% + var(--bx, 0px)), calc(-50% - var(--rise, 42px))) scale(0.8); } }
         @keyframes sfxBubblePopRing { 0% { opacity: 0; transform: translate(-50%,-50%) scale(0.4); } 35% { opacity: 0.85; transform: translate(-50%,-50%) scale(1.5); } 100% { opacity: 0; transform: translate(-50%,-50%) scale(2.2); } }
         .liquid-ripple.ing-tint { border-width: 2.5px; animation-duration: 1.85s; }
-        .summon-clone { position: fixed; z-index: 25000; pointer-events: none; transition: all 1s cubic-bezier(0.19, 1, 0.22, 1); filter: drop-shadow(0 0 25px var(--ac)); object-fit: contain; width: min(400px, 42vw); max-width: min(420px, 44vw); max-height: min(290px, 40vh); image-rendering: auto; -webkit-optimize-contrast; }
+        .summon-clone { position: fixed; z-index: 25000; pointer-events: none; transition: all 1s cubic-bezier(0.19, 1, 0.22, 1); filter: drop-shadow(0 0 25px var(--ac)); object-fit: contain; width: min(400px, 42vw); max-width: min(420px, 44vw); min-height: 90px; max-height: min(290px, 40vh); image-rendering: auto; -webkit-optimize-contrast; }
         @keyframes forgeSpoonDirect {
             0% {
                 left: var(--start-x);
@@ -1901,7 +1901,7 @@
         // while still retrying if a reload didn't actually land the new build. Fully
         // defensive: any error is silent and never blocks the game. Parent bumps BOTH
         // version.json and BUILD_V on every future deploy.
-        const BUILD_V = "build-29";
+        const BUILD_V = "build-30";
         (function () {
             function hardReloadTo(v) {
                 try {
@@ -5222,31 +5222,40 @@
                     });
                 };
                 const landFailSafe = setTimeout(landClone, 12000);
-                setTimeout(() => {
+                // Fly the clone to its pose and run the ingredient throw. The whole visible
+                // window (fly -> throw -> land -> remove) only lasts ~2.5s, so if the sprite
+                // image hasn't decoded yet it can be removed before it ever paints — the
+                // intermittent "only particles, no helper" bug (cache/decode dependent, so
+                // ~1-in-3). We therefore defer the fly+throw+removal until the image has
+                // actually decoded, and use double-rAF so the CSS transition reliably runs.
+                const startFly = () => {
                     if (!h.parentNode) { landClone(); return; }
                     const pose = this.summonPoseOrigin();
-                    h.style.left = pose.x + 'px'; h.style.top = pose.y + 'px';
                     // Peak "appear" scale. Landscape phones are short + wide, so the default
                     // 2.1 blows the (already CSS-shrunk) clone up to ~2x the chef's width and
                     // plants it on top of him — use a much smaller peak there so the helper
                     // stays clearly smaller than the chef and sits beside him.
                     const peakScale = window.matchMedia('(pointer: coarse) and (orientation: landscape) and (max-height: 600px)').matches ? 0.8 : 2.1;
-                    h.style.transform = 'translate(-50%,-50%) scale(' + peakScale + ') rotate(360deg)';
-                    // Safeguard: if geometry pushed the clone off-screen or made it invisible,
-                    // nudge it beside the chef so the throw animation is always visible.
-                    requestAnimationFrame(() => {
+                    requestAnimationFrame(() => requestAnimationFrame(() => {
                         if (!h.parentNode) return;
-                        const r = h.getBoundingClientRect();
-                        if (r.width < 12 || r.height < 12 || r.right < 8 || r.left > window.innerWidth - 8 || r.bottom < 8) {
-                            const chef = document.getElementById('asset-chef');
-                            const cr = chef ? chef.getBoundingClientRect() : null;
-                            if (cr && cr.width > 8) {
-                                h.style.left = Math.min(cr.right + 80, window.innerWidth - 100) + 'px';
-                                h.style.top = (cr.top + cr.height * 0.25) + 'px';
-                                h.style.transform = 'translate(-50%,-50%) scale(1) rotate(360deg)';
+                        h.style.left = pose.x + 'px'; h.style.top = pose.y + 'px';
+                        h.style.transform = 'translate(-50%,-50%) scale(' + peakScale + ') rotate(360deg)';
+                        // Safeguard: if geometry pushed the clone off-screen or made it invisible,
+                        // nudge it beside the chef so the throw animation is always visible.
+                        requestAnimationFrame(() => {
+                            if (!h.parentNode) return;
+                            const rc = h.getBoundingClientRect();
+                            if (rc.width < 12 || rc.height < 12 || rc.right < 8 || rc.left > window.innerWidth - 8 || rc.bottom < 8) {
+                                const chef = document.getElementById('asset-chef');
+                                const cr = chef ? chef.getBoundingClientRect() : null;
+                                if (cr && cr.width > 8) {
+                                    h.style.left = Math.min(cr.right + 80, window.innerWidth - 100) + 'px';
+                                    h.style.top = (cr.top + cr.height * 0.25) + 'px';
+                                    h.style.transform = 'translate(-50%,-50%) scale(1) rotate(360deg)';
+                                }
                             }
-                        }
-                    });
+                        });
+                    }));
                     this.part(pose.x, pose.y, 'magic');
                     const skipCost = testLevel != null && creator.isDev();
                     if (skipCost || farm.consumeThrow(c.id, lv, feed)) {
@@ -5255,7 +5264,26 @@
                         farm.toastEmpty(c.id, lv);
                         landClone();
                     }
-                }, 50);
+                };
+                let flyStarted = false;
+                const beginFly = () => {
+                    if (flyStarted) return;
+                    flyStarted = true;
+                    clearTimeout(flyReadyFailSafe);
+                    startFly();
+                };
+                // Start the moment the sprite is decoded/painted, but never block gameplay:
+                // a short failsafe fires the throw even if decode is slow or never resolves.
+                const flyReadyFailSafe = setTimeout(beginFly, 500);
+                const waitForSprite = () => {
+                    if (h.complete && h.naturalWidth > 0) { beginFly(); return; }
+                    if (typeof h.decode === 'function') {
+                        h.decode().then(beginFly).catch(() => {});
+                    }
+                    h.addEventListener('load', beginFly, { once: true });
+                };
+                // Defer one frame so the start transform (scale 0.2) is committed first.
+                requestAnimationFrame(waitForSprite);
             },
             devTestSummonFx(helperId, kind) {
                 if (!creator.isDev()) return;
