@@ -1891,8 +1891,8 @@
             try { if (typeof tutorial !== 'undefined' && tutorial.active) tutorial.render(); } catch (e) {}
         }
         const sound = {
-            defs: { stir:['audio/stir1.mp3','audio/stir2.mp3'], bubble:['audio/bubble.mp3'], buy:['audio/buy.mp3'], prestige:['audio/prestige.mp3'], victory:['audio/victory.mp3'], eat:['audio/eat.mp3'], rainStart:['audio/audiorain_start.mp3'], bubblePop:['audio/audiobubble_pop.mp3'], farmAbrir:['audio/farm_abrir.mp3'], farmPlantar:['audio/farm_plantar.mp3'], farmRegar:['audio/farm_regar.mp3'], farmListo:['audio/farm_listo.mp3'], farmCosechar:['audio/farm_cosechar.mp3','audio/farm_cosechar_1.mp3','audio/farm_cosechar_2.mp3','audio/farm_cosechar_3.mp3'], farmReplantar:['audio/farm_replantar.mp3'], farmSinStock:['audio/farm_sin_stock.mp3'], farmPrestigio:['audio/farm_prestigio.mp3'], farmBonus:['audio/farm_bonus.mp3'] },
-            vols: { stir:0.3, bubble:0.25, buy:0.5, prestige:0.7, victory:0.85, eat:0.48, rainStart:0.55, bubblePop:0.30, farmAbrir:0.45, farmPlantar:0.42, farmRegar:0.4, farmListo:0.5, farmCosechar:0.48, farmReplantar:0.4, farmSinStock:0.45, farmPrestigio:0.65, farmBonus:0.55 },
+            defs: { stir:['audio/stir1.mp3','audio/stir2.mp3'], bubble:['audio/bubble.mp3'], buy:['audio/buy.mp3'], prestige:['audio/prestige.mp3'], victory:['audio/victory.mp3'], eat:['audio/eat.mp3'], rainStart:['audio/audiorain_start.mp3'], bubblePop:['audio/audiobubble_pop.mp3'], farmAbrir:['audio/farm_abrir.mp3'], farmPlantar:['audio/farm_plantar.mp3'], farmRegar:['audio/farm_regar.mp3'], farmListo:['audio/farm_listo.mp3'], farmCosechar:['audio/farm_cosechar.mp3','audio/farm_cosechar_1.mp3','audio/farm_cosechar_2.mp3','audio/farm_cosechar_3.mp3'], farmSinStock:['audio/farm_sin_stock.mp3'], farmPrestigio:['audio/farm_prestigio.mp3'], farmBonus:['audio/farm_bonus.mp3'] },
+            vols: { stir:0.3, bubble:0.25, buy:0.5, prestige:0.7, victory:0.85, eat:0.48, rainStart:0.55, bubblePop:0.30, farmAbrir:0.45, farmPlantar:0.42, farmRegar:0.4, farmListo:0.5, farmCosechar:0.48, farmSinStock:0.45, farmPrestigio:0.65, farmBonus:0.55 },
             // === SFX rapid-fire shaping (ADITIVO) ===========================
             // minGap = intervalo mínimo (ms) entre re-disparos del MISMO sonido
             //          para que el clic-ametralladora no genere un muro de copias.
@@ -1913,7 +1913,6 @@
                 farmRegar: { minGap: 200, poly: 2, pitch: 0.03 },
                 farmListo: { minGap: 800, poly: 2, pitch: 0.04 },
                 farmCosechar: { minGap: 100, poly: 3, pitch: 0.04 },
-                farmReplantar: { minGap: 120, poly: 2, pitch: 0.03 },
                 farmSinStock: { minGap: 600, poly: 1, pitch: 0 },
                 farmPrestigio: { minGap: 0, poly: 1, pitch: 0 },
                 farmBonus: { minGap: 200, poly: 2, pitch: 0.04 },
@@ -5921,7 +5920,7 @@
                 else plot.readyAt = 0;
                 plot._farmSt = replant ? 'growing' : 'empty';
                 try { sound.playFarm('farmCosechar', 'bubble'); } catch (e) {}
-                if (replant) { try { setTimeout(() => { try { sound.playFarm('farmReplantar', 'bubble'); } catch (e2) {} }, 180); } catch (e3) {} }
+                if (replant) { try { setTimeout(() => { try { sound.playFarm('farmPlantar', 'bubble'); } catch (e2) {} }, 180); } catch (e3) {} }
                 game.save(); this.render(); this.updateBadge();
             },
             tickReady() {
