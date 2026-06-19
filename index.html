@@ -7374,6 +7374,21 @@
                     c.items[s.skinId] = { id: s.skinId, rarity: sk.rarity, count: 1 };
                 }
             },
+            // Sacred-album (EB shop) hats live in game.hats; mirror owned ones into coll.items
+            // so they appear in the Amuletos grid like every other catalog skin.
+            syncShopHats(c) {
+                if (!c || !c.items) return;
+                let hats;
+                try { hats = game.hats; } catch (e) { return; }
+                if (!Array.isArray(hats)) return;
+                for (let i = 0; i < hats.length; i++) {
+                    const h = hats[i];
+                    if (!h || !h.owned || !h.skinId || c.items[h.skinId]) continue;
+                    const sk = this.skinById(h.skinId);
+                    if (!sk) continue;
+                    c.items[h.skinId] = { id: h.skinId, rarity: sk.rarity, count: 1 };
+                }
+            },
             addOwnedCharm(id) {
                 const c = this.normalize();
                 const sk = this.skinById(id);
