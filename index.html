@@ -512,6 +512,11 @@
             body { overflow: hidden; }
             /* The scene is the star: main stage fills the width (shop is a slide-in now). */
             #main-stage { flex-grow: 1; width: 100%; }
+            /* On-stage helper character clone: landscape phones are short + wide, so HEIGHT
+               is the scarce axis — cap it hard by vh so the helper stays clearly smaller than
+               the chef and never covers him. Does NOT affect thrown ingredients
+               (.ingredient-proj keep their own size). */
+            .summon-clone { width: min(210px, 26vw); max-width: min(228px, 28vw); max-height: min(150px, 30vh); }
             /* Clearly-labeled energy counter (centered): each stat is a small uppercase
                label stacked over a big readable number, with a recognizable icon (🍲 energy
                balls / ⬨ angel shards). max-width + overflow keep it on-screen; the labels
@@ -565,6 +570,12 @@
             .lv-badge { bottom: -4px; right: -4px; padding: 0 3px; font-size: 0.52rem; border-width: 1px; }
             .slot-crown { top: -10px; font-size: 0.9rem; }
 
+            /* Toasts ("carteles"): same rule as portrait — pin them HIGH + compact near the
+               top so even stacked notifications stay out of the way and don't cover the
+               helper/chef. Landscape top band is short, so keep them especially tight. */
+            #gx-toast-wrap { top: calc(env(safe-area-inset-top) + 6px); gap: 4px; max-width: 78vw; }
+            .gx-toast { padding: 4px 10px; font-size: 0.7rem; border-radius: 9px; line-height: 1.25; }
+
             /* ---- SHOP: slide-in sheet from the right (compact + readable) ---- */
             #side-shop {
                 position: fixed; top: 0; right: 0;
@@ -577,13 +588,24 @@
                 font-size: 0.82rem;
             }
             #side-shop.m-open { transform: translateX(0); }
-            #side-shop h1 { font-size: 0.95rem; }
-            #buy-mode-toggle { padding: 5px 7px; margin-bottom: 7px; font-size: 0.72rem; }
+            #side-shop h1 { font-size: 0.9rem; margin: 0 0 6px; }
+            #buy-mode-toggle { padding: 5px 7px; margin-bottom: 6px; font-size: 0.72rem; }
             /* Helper (companion) purchase cards: tight, but card stays >=44px tall to tap */
-            #companion-list .companion-card { padding: 6px; margin-bottom: 6px; border-radius: 9px; min-height: 44px; }
-            #companion-list .comp-img { width: 34px; height: 34px; margin-right: 7px; border-radius: 8px; }
-            #companion-list .companion-card b { font-size: 0.78rem; }
-            #companion-list .companion-card .card-price { font-size: 0.74rem; }
+            #companion-list .companion-card { padding: 5px 6px; margin-bottom: 5px; border-radius: 9px; min-height: 44px; }
+            #companion-list .comp-img { width: 32px; height: 32px; margin-right: 7px; border-radius: 8px; }
+            #companion-list .companion-card b { font-size: 0.76rem; }
+            #companion-list .companion-card .card-price { font-size: 0.72rem; }
+            /* Spoons / hats ALBUMS: compact cards + smaller thumbnails so the whole shop
+               (companions + both albums) fits the short landscape sheet with minimal scroll. */
+            #spoons-album-title, #hats-album-title { font-size: 0.66rem; margin: 8px 0 5px; padding-top: 7px; }
+            #spoons-album-section, #hats-album-section { margin-top: 2px; }
+            #side-shop .spoon-card { padding: 6px; margin-bottom: 6px; gap: 4px; border-radius: 9px; }
+            #side-shop .spoon-card-img { max-width: 88px; }
+            #side-shop .spoon-rarity { font-size: 0.5rem; margin-bottom: 2px; }
+            #side-shop .spoon-benefit { font-size: 0.58rem; line-height: 1.2; margin: 1px 0 2px; }
+            #side-shop .spoon-cost { font-size: 0.62rem; }
+            #side-shop .spoon-btn { margin-top: 3px; padding: 4px 9px; font-size: 0.6rem; }
+            #side-shop .spoon-equipped-badge { font-size: 0.6rem; padding: 3px 8px; margin-top: 3px; }
 
             /* ---- MENU TRAY: slide-in from the left (compact, >=44px rows) ---- */
             #side-buttons {
@@ -622,6 +644,26 @@
             /* Keep the audio pill out of the launcher's way */
             #audio-ctrl { bottom: max(10px, env(safe-area-inset-bottom)); right: max(10px, env(safe-area-inset-right)); padding: 6px 10px; }
             #audio-vol { width: 64px; }
+
+            /* ---- CULTIVOS (farm) modal: fit the short landscape viewport with little/no
+               scroll — the accumulated-ingredient chips AND the plant/water/harvest plots
+               should be visible together. Shrink the box chrome, ingredient chips and plots. */
+            #farm-modal.gx-modal.open { align-items: flex-start; padding: max(4px, env(safe-area-inset-top)) max(6px, env(safe-area-inset-right)) max(4px, env(safe-area-inset-bottom)) max(6px, env(safe-area-inset-left)); }
+            /* .gx-modal added for higher specificity so this wins over the generic landscape
+               (and base) #farm-modal .farm-box rules declared later in the sheet. */
+            #farm-modal.gx-modal .farm-box { width: min(560px, 100%); max-height: calc(100dvh - 8px - env(safe-area-inset-top) - env(safe-area-inset-bottom)); }
+            #farm-modal .farm-head { padding: 7px 40px 6px; }
+            #farm-modal .farm-head h2 { font-size: 1rem; }
+            #farm-modal .farm-foot { padding-top: 5px; }
+            #farm-modal .farm-foot .gx-btn { min-height: 34px !important; padding: 6px 12px; }
+            .farm-stock-grid { gap: 3px; margin: 5px 0; }
+            .farm-stock-chip { font-size: 0.56rem; padding: 3px 2px; border-radius: 8px; }
+            .farm-plots { gap: 4px; margin-top: 4px; }
+            .farm-plot { min-height: 50px; padding: 4px 2px; gap: 2px; border-radius: 9px; }
+            .farm-glyph { font-size: 1rem; }
+            .farm-timer { font-size: 0.52rem; }
+            .farm-plot-btn, .farm-plot-label { font-size: 0.5rem; padding: 2px 4px; min-height: 22px; border-radius: 7px; }
+            .farm-water-btn { min-height: 26px; min-width: 26px; font-size: 0.82rem; padding: 2px 6px; }
         }
         /* SHORTER landscape phones: tighten the left stack (chronicle/chip/column move up)
            and shrink the slot so up to 5 helpers still fit one column above the launchers. */
@@ -1721,7 +1763,7 @@
         // build differs, reload ONCE with a cache-busting ?v= query. sessionStorage guards
         // against reload loops. Fully defensive: any error is silent and never blocks the
         // game. Parent bumps BOTH version.json and BUILD_V on every future deploy.
-        const BUILD_V = "build-15";
+        const BUILD_V = "build-16";
         (function checkForUpdate() {
             try {
                 fetch('version.json?ts=' + Date.now(), { cache: 'no-store' })
@@ -2068,6 +2110,48 @@
                 const handler = () => { this.unlock(); evs.forEach(ev => document.removeEventListener(ev, handler)); };
                 evs.forEach(ev => document.addEventListener(ev, handler, { once: true, passive: true }));
                 try { document.addEventListener('visibilitychange', () => { if (document.hidden) { try { this._stirStopNow(); } catch (e) {} } }, { passive: true }); } catch (e) {}
+                // FOREGROUND RECOVERY: mobile browsers SUSPEND the AudioContext and can
+                // INTERRUPT pooled <audio> playback when the page is hidden (screen sleep,
+                // tab switch, incoming call). They don't always auto-resume on return, so the
+                // click/SFX silently die. On every return-to-foreground signal we resume the
+                // AudioContext and FLAG that the <audio> pool needs re-priming; the actual
+                // re-prime (a muted play/pause) runs on the NEXT user gesture, which iOS
+                // requires. All wrapped in try/catch and no-ops if nothing is suspended.
+                try {
+                    const wake = () => { try { this.resumeAudio(); } catch (e) {} };
+                    document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') { this._needReprime = true; wake(); } }, { passive: true });
+                    window.addEventListener('focus', () => { this._needReprime = true; wake(); }, { passive: true });
+                    window.addEventListener('pageshow', () => { this._needReprime = true; wake(); }, { passive: true });
+                    const gestureWake = () => { wake(); if (this._needReprime) { this._needReprime = false; this._reprimePool(); } };
+                    ['pointerdown', 'touchstart', 'click'].forEach(ev => document.addEventListener(ev, gestureWake, { passive: true }));
+                } catch (e) {}
+            },
+            // Resume any Web Audio context (eat synth) if the OS suspended/interrupted it.
+            // Safe to call repeatedly; a no-op when the context is already running or absent.
+            resumeAudio() {
+                try {
+                    const ctx = this._eatCtx;
+                    if (ctx && (ctx.state === 'suspended' || ctx.state === 'interrupted')) {
+                        const p = ctx.resume(); if (p && p.catch) p.catch(() => {});
+                    }
+                } catch (e) {}
+            },
+            // Re-arm the pooled <audio> elements after the OS interrupted the audio session
+            // (iOS especially). Mirrors unlock()'s muted play/pause priming, but may run again
+            // on each foreground gesture. Silent (muted) and guarded so it never changes which
+            // sounds play or their volume.
+            _reprimePool() {
+                if (!this._inited || this.muted || this.volume <= 0) return;
+                const prime = (a) => {
+                    if (!a) return;
+                    try { const wasMuted = a.muted; a.muted = true; const p = a.play(); if (p && p.catch) p.catch(() => {}); a.pause(); a.currentTime = 0; a.muted = wasMuted; } catch (e) {}
+                };
+                try {
+                    for (const k in this.pool) { const arr = this.pool[k]; if (arr && arr.length) prime(arr[0]); }
+                    const eatVoices = this.flat.eat || [];
+                    for (let i = 0; i < eatVoices.length; i++) prime(eatVoices[i]);
+                    prime(this._eatPreload);
+                } catch (e) {}
             },
             unlock() {
                 if (this._unlocked) return; this._unlocked = true;
@@ -4163,6 +4247,19 @@
                     return {
                         x: Math.min(Math.max(cx, stageR.left + 28), stageR.right - 28),
                         y: Math.min(Math.max(liftY, minY), stageR.bottom - 72)
+                    };
+                }
+                // LANDSCAPE PHONE ONLY: the shop is also an off-screen slide-in sheet here,
+                // so the chef↔shop midpoint again collapses onto the chef/cauldron. Landscape
+                // is short + wide, so lifting straight up would collide with the toast zone —
+                // instead offset the helper to the SIDE (toward where the shop slides in from
+                // the right) and bias it slightly up, beside the chef rather than on top of him.
+                if (window.matchMedia('(pointer: coarse) and (orientation: landscape) and (max-height: 600px)').matches) {
+                    const cyMid = (chefR.top + chefR.bottom) * 0.5;
+                    const sideX = chefR.right + Math.max(40, chefR.width * 0.14);
+                    return {
+                        x: Math.min(Math.max(sideX, stageR.left + 40), stageR.right - 40),
+                        y: Math.min(Math.max(cyMid - chefR.height * 0.18, stageR.top + 70), stageR.bottom - 60)
                     };
                 }
                 const chefLeft = chefR.left, chefRight = chefR.right, chefTop = chefR.top, chefBottom = chefR.bottom;
