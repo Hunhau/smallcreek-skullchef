@@ -68,7 +68,9 @@
             pointer-events: none; border: none; outline: none; box-shadow: none;
             object-fit: fill; object-position: 0 0; display: none; z-index: 1;
         }
-        #chef-rig.chef-eating { animation: chefEatBounce 0.58s ease-out; }
+        #chef-rig.chef-eating,
+        #asset-chef-hand.chef-eating,
+        #spoon-rig.chef-eating { animation: chefEatBounce 0.58s ease-out; }
         #asset-chef-hand { position: absolute; z-index: 4; transform: translate(-50%, -50%); left: 0px; top: -40px; width: 720px; pointer-events: none; }
         /* BEST-EFFORT chef-hat overlay: positioned over the chef's head. Tuned by eye
            against the 720px chef sprite; collectible-only fallback if it ever looks off. */
@@ -3138,7 +3140,7 @@
             }
         };
         const game = {
-            e:0, te:0, l:0, s:0, c:0, p:false, f:0, cl:false, m:1, cd:0, buyMode:1, defaultSpoonImg:'assets/img/spoon.png', _inited:false, logicTick:null, uiTick:null, saveTick:null, _floatNodes:[], _spoonAnimating:false, _spoonUiKey:'', spoonHidden:false, _hatAnimating:false, _hatUiKey:'', hatHidden:false, _steamIdleTick:0, _dispScore:0, _autoPartAcc:0, _wave:0, _ballWave:0, _ballSpeed:1, _lastClick:0, soupBalls:[], _rippleNodes:[], _ambientRippleTick:0, _soupRect:null, _surf:null, _stageRect:null, _spoonEl:null,
+            e:0, te:0, l:0, s:0, c:0, p:false, f:0, cl:false, m:1, cd:0, buyMode:1, defaultSpoonImg:'assets/img/spoon.png', _inited:false, logicTick:null, uiTick:null, saveTick:null, _floatNodes:[], _spoonAnimating:false, _spoonUiKey:'', _hatAnimating:false, _hatUiKey:'', _steamIdleTick:0, _dispScore:0, _autoPartAcc:0, _wave:0, _ballWave:0, _ballSpeed:1, _lastClick:0, soupBalls:[], _rippleNodes:[], _ambientRippleTick:0, _soupRect:null, _surf:null, _stageRect:null, _spoonEl:null,
             as:0, lastSeen:0, _buffs:[], tree:{caldo:0, manos:0, eco:0, cuchara:0, tiempo:0, aura:0, fortuna:0, eterno:0}, daily:null, ach:{}, rewards:{}, coll:null, farm:null, decor:null, _tampered:false,
             treeDefs: [
                 {k:'caldo', mx:20, cb:1},
@@ -3265,14 +3267,14 @@
             },
             // Launch shop: 3 EB-purchasable catalog spoons only. All other spoon skins drop via collection.
             spoons: [
-                { id: 0, skinId: 'spoon_epic_pizza', cardKey:'spoon0_card', nameKey:'spoon0_name', bonusKey:'spoon0_bonus', rarity: "epic", cost: 25000, owned: false, equipped: false },
-                { id: 1, skinId: 'spoon_legendary_sushi', cardKey:'spoon1_card', nameKey:'spoon1_name', bonusKey:'spoon1_bonus', rarity: "legendary", cost: 225000, owned: false, equipped: false },
-                { id: 2, skinId: 'spoon_superleg_milkshake', cardKey:'spoon2_card', nameKey:'spoon2_name', bonusKey:'spoon2_bonus', rarity: "superleg", cost: 850000, owned: false, equipped: false }
+                { id: 0, skinId: 'spoon_epic_pizza', cardKey:'spoon0_card', nameKey:'spoon0_name', bonusKey:'spoon0_bonus', rarity: "epic", cost: 25000, owned: false, equipped: false, hidden: false },
+                { id: 1, skinId: 'spoon_legendary_sushi', cardKey:'spoon1_card', nameKey:'spoon1_name', bonusKey:'spoon1_bonus', rarity: "legendary", cost: 225000, owned: false, equipped: false, hidden: false },
+                { id: 2, skinId: 'spoon_superleg_milkshake', cardKey:'spoon2_card', nameKey:'spoon2_name', bonusKey:'spoon2_bonus', rarity: "superleg", cost: 850000, owned: false, equipped: false, hidden: false }
             ],
             hats: [
-                { id: 0, skinId: 'chefhat_epic_pizza', cardKey:'hat0_card', nameKey:'hat0_name', bonusKey:'hat0_bonus', rarity: "epic", cost: 25000, owned: false, equipped: false },
-                { id: 1, skinId: 'chefhat_legendary_sushi', cardKey:'hat1_card', nameKey:'hat1_name', bonusKey:'hat1_bonus', rarity: "legendary", cost: 225000, owned: false, equipped: false },
-                { id: 2, skinId: 'chefhat_superleg_milkshake', cardKey:'hat2_card', nameKey:'hat2_name', bonusKey:'hat2_bonus', rarity: "superleg", cost: 850000, owned: false, equipped: false }
+                { id: 0, skinId: 'chefhat_epic_pizza', cardKey:'hat0_card', nameKey:'hat0_name', bonusKey:'hat0_bonus', rarity: "epic", cost: 25000, owned: false, equipped: false, hidden: false },
+                { id: 1, skinId: 'chefhat_legendary_sushi', cardKey:'hat1_card', nameKey:'hat1_name', bonusKey:'hat1_bonus', rarity: "legendary", cost: 225000, owned: false, equipped: false, hidden: false },
+                { id: 2, skinId: 'chefhat_superleg_milkshake', cardKey:'hat2_card', nameKey:'hat2_name', bonusKey:'hat2_bonus', rarity: "superleg", cost: 850000, owned: false, equipped: false, hidden: false }
             ],
             shopSpoonSkinIds() { return this.spoons.map(s => s.skinId).filter(Boolean); },
             shopHatSkinIds() { return this.hats.map(h => h.skinId).filter(Boolean); },
@@ -3397,8 +3399,7 @@
             _runChefMouthChewLoop() {
                 this._chefMouthStopChewLoop();
                 this._chefMouthChewActive = true;
-                const rig = this._chefRigEl();
-                if (rig) { rig.classList.remove('chef-eating'); void rig.offsetWidth; rig.classList.add('chef-eating'); }
+                this._setChefEating(true, true);
                 this._chefMouthVisual = null;
                 this._chefMouthOpenState = true;
                 this._chefMouthShowOpen();
@@ -3412,7 +3413,7 @@
             },
             getSaveData() {
                 this.lastSeen = Date.now();
-                return {v:SCHEMA_VERSION, e:this.e, te:this.te, l:this.l, s:this.s, as:this.as, c:this.cp.map(x=>({lv:x.lv, ch:x.ch})), cd:this.cd, bm:this.buyMode, sp:this.spoons.map(s=>({o:s.owned, eq:s.equipped})), shi:!!this.spoonHidden, hp:this.hats.map(h=>({o:h.owned, eq:h.equipped})), hh:!!this.hatHidden, lastSeen:this.lastSeen, tree:this.tree, daily:this.daily, ach:this.ach, rewards:this.rewards, coll:this.coll, farm:this.farm, decor:this.decor};
+                return {v:SCHEMA_VERSION, e:this.e, te:this.te, l:this.l, s:this.s, as:this.as, c:this.cp.map(x=>({lv:x.lv, ch:x.ch})), cd:this.cd, bm:this.buyMode, sp:this.spoons.map(s=>({o:s.owned, eq:s.equipped, h:!!s.hidden})), hp:this.hats.map(h=>({o:h.owned, eq:h.equipped, h:!!h.hidden})), lastSeen:this.lastSeen, tree:this.tree, daily:this.daily, ach:this.ach, rewards:this.rewards, coll:this.coll, farm:this.farm, decor:this.decor};
             },
             save() {
                 const data = this.getSaveData();
@@ -3464,14 +3465,21 @@
                     if (d.sp && Array.isArray(d.sp)) d.sp.forEach((item, i) => {
                         if (!this.spoons[i]) return;
                         if (typeof item === 'boolean') { this.spoons[i].owned = item; }
-                        else { this.spoons[i].owned = !!item.o; this.spoons[i].equipped = !!item.eq; }
+                        else {
+                            this.spoons[i].owned = !!item.o;
+                            this.spoons[i].equipped = !!item.eq;
+                            this.spoons[i].hidden = item.h !== undefined ? !!item.h : !!(d.shi && item.eq);
+                        }
                     });
                     if (d.hp && Array.isArray(d.hp)) d.hp.forEach((item, i) => {
                         if (!this.hats[i]) return;
                         if (typeof item === 'boolean') { this.hats[i].owned = item; }
-                        else { this.hats[i].owned = !!item.o; this.hats[i].equipped = !!item.eq; }
+                        else {
+                            this.hats[i].owned = !!item.o;
+                            this.hats[i].equipped = !!item.eq;
+                            this.hats[i].hidden = item.h !== undefined ? !!item.h : !!(d.hh && item.eq);
+                        }
                     });
-                    this.hatHidden = !!d.hh;
                     if (d.eq !== undefined && typeof d.eq === 'string') {
                         const mig = { bone: 0, tentacle: 1, golden: 2 };
                         const idx = mig[d.eq];
@@ -3481,7 +3489,14 @@
                     if (eq.length > 1) { this.spoons.forEach(s => s.equipped = false); eq[0].equipped = true; }
                     const eqH = this.hats.filter(h => h.equipped);
                     if (eqH.length > 1) { this.hats.forEach(h => h.equipped = false); eqH[0].equipped = true; }
-                    this.spoonHidden = !!d.shi;
+                    if (d.shi && !d.sp?.some(item => item && typeof item === 'object' && item.h !== undefined)) {
+                        const eqSp = this.spoons.find(s => s.equipped);
+                        if (eqSp) eqSp.hidden = true;
+                    }
+                    if (d.hh && !d.hp?.some(item => item && typeof item === 'object' && item.h !== undefined)) {
+                        const eqHt = this.hats.find(h => h.equipped);
+                        if (eqHt) eqHt.hidden = true;
+                    }
                     this.lastSeen = Number.isFinite(d.lastSeen) ? d.lastSeen : 0;
                     if (d.tree && typeof d.tree === 'object') { this.treeDefs.forEach(def => { const v = d.tree[def.k]; if (Number.isFinite(v)) this.tree[def.k] = Math.min(def.mx, Math.max(0, Math.floor(v))); }); }
                     if (d.daily && typeof d.daily === 'object' && d.daily.counters && Array.isArray(d.daily.missions)) this.daily = d.daily;
@@ -3513,6 +3528,15 @@
             cycleBuyMode() { this.buyMode = this.buyMode === 1 ? 10 : (this.buyMode === 10 ? 'max' : 1); this.updateBuyModeBtn(); this.render(); },
             getEquippedSpoon() { return this.spoons.find(s => s.equipped); },
             getEquippedShopHat() { return this.hats.find(h => h.equipped); },
+            equippedSpoonHidden() { const s = this.getEquippedSpoon(); return !!(s && s.owned && s.hidden); },
+            equippedHatHidden() { const h = this.getEquippedShopHat(); return !!(h && h.owned && h.hidden); },
+            resetShopForPrestige() {
+                this.spoons.forEach(s => { s.owned = false; s.equipped = false; s.hidden = false; });
+                this.hats.forEach(h => { h.owned = false; h.equipped = false; h.hidden = false; });
+                try { collection.clearShopPurchases(); } catch (e) {}
+                try { this.applySpoonVisual(); } catch (e) {}
+                try { collection.applyEquippedVisual(); } catch (e) {}
+            },
             getCps() {
                 let b = 0;
                 this.cp.forEach(c => { if (c.id !== 2) b += (c.lv * c.pw * (1 + this.s * 0.5) * this.champMult(c.ch) * this.milestoneMult(c.lv)); });
@@ -3585,31 +3609,60 @@
             },
             track(type, amt) { if (this.daily && this.daily.counters && this.daily.counters[type] != null) this.daily.counters[type] += amt; quests.bump(type, amt); },
             getPrixCd() { const eq = this.getEquippedSpoon(); return (eq && eq.id === 2) ? 300 : 600; },
+            _chefFeedInProgress() { return !!(this._chefMouthChewActive || this._chefFeedPendingTimer); },
+            _chefHandEl() { return document.getElementById('asset-chef-hand'); },
+            _setChefEating(on, restart) {
+                const hand = this._chefHandEl();
+                const spoonRig = document.getElementById('spoon-rig');
+                const hideSpoonFeed = this.equippedSpoonHidden();
+                for (const el of [this._chefRigEl(), hand, spoonRig]) {
+                    if (!el) continue;
+                    if (el === spoonRig && hideSpoonFeed) continue;
+                    if (on) {
+                        if (restart) { el.classList.remove('chef-eating'); void el.offsetWidth; }
+                        el.classList.add('chef-eating');
+                    } else el.classList.remove('chef-eating');
+                }
+            },
             applySpoonVisual() {
                 const el = document.getElementById('asset-spoon'); if (!el) return;
                 const rig = document.getElementById('spoon-rig');
-                if (rig) { rig.classList.remove('charm-spoon'); rig.style.transform = ''; }
-                this._spoonPlace = null;
+                const feeding = this._chefFeedInProgress();
                 const s = this.getEquippedSpoon();
-                if (this.spoonHidden && s && s.owned) {
+                if (this.equippedSpoonHidden()) {
                     el.src = this.defaultSpoonImg;
                     if (rig) {
-                        rig.style.display = '';
-                        rig.classList.remove('charm-spoon');
-                        rig.style.transform = '';
+                        if (feeding) {
+                            rig.style.display = 'none';
+                            rig.classList.remove('chef-eating');
+                        } else {
+                            rig.style.display = '';
+                            rig.classList.remove('charm-spoon', 'chef-eating');
+                            rig.style.transform = '';
+                        }
                     }
+                    if (!feeding) this._spoonPlace = null;
                     return;
                 }
+                if (feeding && rig) {
+                    rig.style.display = '';
+                    rig.style.transform = '';
+                    return;
+                }
+                if (rig) { rig.classList.remove('charm-spoon'); rig.style.transform = ''; }
+                this._spoonPlace = null;
                 if (rig) rig.style.display = '';
                 if (s && s.owned) { if (!this._applyShopSpoonVisual(el, rig, s)) el.src = this.spoonSceneImg(s); }
                 else el.src = this.defaultSpoonImg;
             },
             toggleSpoonHidden(id) {
                 const s = this.spoons.find(x => x.id === id);
-                if (!s || !s.owned || !s.equipped) return;
-                this.spoonHidden = !this.spoonHidden;
-                try { this.applySpoonVisual(); } catch (e) {}
-                try { collection.applyEquippedVisual(); } catch (e) {}
+                if (!s || !s.owned) return;
+                s.hidden = !s.hidden;
+                if (s.equipped) {
+                    try { this.applySpoonVisual(); } catch (e) {}
+                    try { collection.applyEquippedVisual(); } catch (e) {}
+                }
                 this.save();
                 this._spoonUiKey = '';
                 this.renderSpoons();
@@ -3618,13 +3671,14 @@
             // is a number, oscillates the rotation for the idle-stir animation (called by loop()).
             _applySpoonRig(stirF) { const rig = document.getElementById('spoon-rig'); if (!rig) return; const p = this._spoonPlace; if (!p) return; try { rig.style.transform = collection.placementCss(p, (typeof stirF === 'number' ? Math.sin(stirF) * 5 : 0)); } catch (e) {} },
             _applySpoonStirNow() {
+                if (this._chefFeedInProgress()) return;
                 const rig = document.getElementById('spoon-rig');
                 if (!rig) return;
                 if (this._spoonPlace) this._applySpoonRig(this.f);
                 else rig.style.transform = `translate(-50%,-50%) rotate(${-27 + Math.sin(this.f) * 5}deg)`;
             },
             spoonUiKey() {
-                return this.spoons.map(s => (s.owned ? 'o' : 'u') + (s.equipped ? 'e' : '-') + (s.owned && s.equipped && this.spoonHidden ? 'h' : 'v') + (this.e >= this.effSpoonCost(s) ? 'a' : 'l')).join('|');
+                return this.spoons.map(s => (s.owned ? 'o' : 'u') + (s.equipped ? 'e' : '-') + (s.owned && s.hidden ? 'h' : 'v') + (this.e >= this.effSpoonCost(s) ? 'a' : 'l')).join('|');
             },
             summonSpoon(spoon, originEl, onLand) {
                 let clone, done = false, landed = false;
@@ -3699,7 +3753,6 @@
                 this.summonSpoon(s, btn || document.getElementById('spoons-album'), () => {
                     this.spoons.forEach(sp => sp.equipped = false);
                     s.equipped = true;
-                    this.spoonHidden = false;
                     this.applySpoonVisual();
                     this.save();
                     this._spoonUiKey = '';
@@ -3713,7 +3766,6 @@
                 this.summonSpoon(s, btn || document.getElementById('spoons-album'), () => {
                     this.spoons.forEach(sp => sp.equipped = false);
                     s.equipped = true;
-                    this.spoonHidden = false;
                     this.applySpoonVisual();
                     this.save();
                     this._spoonUiKey = '';
@@ -4262,8 +4314,8 @@
                     this._chefFeedPendingTimer = null;
                 }
                 this._chefMouthStopAnim();
-                const rig = this._chefRigEl();
-                if (rig) { rig.classList.remove('chef-eating'); void rig.offsetWidth; rig.classList.add('chef-eating'); }
+                this._setChefEating(true, true);
+                try { this.applySpoonVisual(); } catch (e) {}
                 this._chefMouthShowOpen();
                 const seq = this._chefFeedSeq;
                 this._chefFeedPendingTimer = setTimeout(() => {
@@ -4272,14 +4324,18 @@
                 }, 4500);
             },
             chefFeedClose() {
+                if (this._chefFeedPendingTimer) {
+                    clearTimeout(this._chefFeedPendingTimer);
+                    this._chefFeedPendingTimer = null;
+                }
                 this._chefMouthStopAnim();
                 if (this._chefMouthCloseTimer) {
                     clearTimeout(this._chefMouthCloseTimer);
                     this._chefMouthCloseTimer = null;
                 }
                 this._chefMouthShowClosed();
-                const rig = this._chefRigEl();
-                if (rig) rig.classList.remove('chef-eating');
+                this._setChefEating(false);
+                try { this.applySpoonVisual(); } catch (e) {}
             },
             chefFeedHit(cfg) {
                 this._applyChefFaceTint();
@@ -4298,8 +4354,8 @@
                 }
                 this._chefMouthStopChewLoop();
                 this._chefMouthShowClosed();
-                const rig = this._chefRigEl();
-                if (rig) rig.classList.remove('chef-eating');
+                this._setChefEating(false);
+                try { this.applySpoonVisual(); } catch (e) {}
                 try { sound.stopEat(); } catch (e) {}
             },
             chefFeedEatSequence() {
@@ -4316,8 +4372,8 @@
                 const seq = this._chefFeedSeq || 0;
                 this._chefFeedFinished = null;
                 this._chefMouthChewActive = true;
-                const rig = this._chefRigEl();
-                if (rig) { rig.classList.remove('chef-eating'); void rig.offsetWidth; rig.classList.add('chef-eating'); }
+                this._setChefEating(true, true);
+                try { this.applySpoonVisual(); } catch (e) {}
                 let chewMs = this.CHEF_FALLBACK_EAT_MS || 2000;
                 try {
                     sound.unlock();
@@ -4896,7 +4952,8 @@
                 const sr = this._soupRect;
                 const clickStir = performance.now() - this._lastClick < 1500;
                 if (!this.p) { this._wave += 0.018; const tgt = clickStir ? 1.9 : 1; this._ballSpeed += (tgt - this._ballSpeed) * 0.04; this._ballWave += 0.012 * this._ballSpeed; }
-                const stirActive = !this.p && (this.c > 0 || clickStir);
+                const feedActive = this._chefFeedInProgress();
+                const stirActive = !this.p && !feedActive && (this.c > 0 || clickStir);
                 if (stirActive) {
                     this.f += this.c > 0 ? (0.04 + Math.log10(this.c + 1) * 0.05) : 0.055;
                     if (sp) {
