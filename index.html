@@ -440,6 +440,19 @@
                 gap: 4px !important;
             }
             .gx-toast { padding: 4px 10px !important; font-size: 0.7rem !important; border-radius: 9px; line-height: 1.25; text-align: left !important; }
+            /* Buff/event banners (e.g. "Extra Ingredient Boost", Frenzy, Boiling Broth):
+               the base rule centers these on the chef's face. Pin them LEFT like the toasts,
+               just below the toast band, so they never cover the chef in landscape. */
+            #buff-bar {
+                top: calc(env(safe-area-inset-top) + 88px) !important;
+                left: max(8px, env(safe-area-inset-left)) !important;
+                transform: none !important;
+                max-width: min(180px, 40vw);
+                flex-wrap: wrap;
+                justify-content: flex-start;
+                gap: 4px;
+            }
+            .buff-chip { padding: 3px 9px !important; font-size: 0.64rem; }
         }
         #home-overlay { position: fixed; inset: 0; z-index: 200000; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: clamp(12px, 2.6vh, 24px); text-align: center; overflow-y: auto; padding: calc(env(safe-area-inset-top) + 24px) calc(env(safe-area-inset-right) + 20px) calc(env(safe-area-inset-bottom) + 24px) calc(env(safe-area-inset-left) + 20px); background: url('assets/img/bg.jpg') center/cover no-repeat; transition: opacity 0.55s ease, transform 0.55s ease; }
         #home-overlay.closing { opacity: 0; transform: scale(1.05); pointer-events: none; }
@@ -520,9 +533,6 @@
         #m-launch button { position: relative; }
         #m-launch button.has-badge::after { content: ''; position: absolute; top: -3px; right: -3px; width: 12px; height: 12px; border-radius: 50%; background: #ef4444; border: 2px solid #1e1b4b; box-shadow: 0 0 8px rgba(239, 68, 68, 0.85); }
         .helpers-count { background: var(--go); color: #1e1b4b; border-radius: 9px; padding: 0 5px; font-size: 0.62rem; font-weight: bold; margin-left: 2px; }
-        /* Tiny visible build tag (diagnostic): lets the player report exactly which build
-           their device actually loaded, so stale-cache vs layout issues can be told apart. */
-        #build-tag { position: fixed; left: 50%; bottom: 1px; transform: translateX(-50%); font: 700 9px/1 monospace; letter-spacing: 0.5px; color: rgba(255,255,255,0.5); background: rgba(0,0,0,0.3); padding: 1px 6px; border-radius: 6px; z-index: 100000; pointer-events: none; }
         @media (pointer: coarse) and (orientation: landscape) and (max-height: 600px) {
             body { overflow: hidden; }
             /* The scene is the star: main stage fills the width (shop is a slide-in now). */
@@ -1256,7 +1266,6 @@
         <button id="m-shop-btn" type="button" onclick="mobileUI.toggleShop()" aria-label="Shop"><span data-i18n="m_shop_btn">🛒 Shop</span></button>
     </div>
     <div id="m-scrim" onclick="mobileUI.closeAll()"></div>
-    <div id="build-tag"></div>
     <div id="offline-modal" class="gx-modal"><div class="gx-box"><h2 data-i18n="offline_title">Your soup kept cooking</h2><p id="offline-text" style="font-size:1rem; line-height:1.5"></p><div style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin-top:6px"><button class="gx-btn" style="min-height:44px; background:linear-gradient(135deg,#f59e0b,#b45309); border-color:var(--go)" id="offline-double-btn" onclick="offline.double()" data-i18n="offline_double">x2 (Free reward)</button><button class="gx-btn" style="min-height:44px" onclick="offline.claim()" data-i18n="claim">Claim</button></div></div></div>
     <div id="import-modal" class="gx-modal"><div class="gx-box">
         <h2 data-i18n="backup_import_title">📥 Import Backup</h2>
@@ -1439,7 +1448,7 @@
         // ↓↓↓ SET THIS PER PLATFORM BUILD. Default 'web' = unchanged web behaviour. ↓↓↓
         var BUILD_TARGET_OVERRIDE = 'web'; // 'web' | 'playables' | 'steam' | 'android' | 'ios' | 'auto'
         // Store / production upload: set true to strip creator-only dev tools from players.
-        var PRODUCTION_BUILD = false;
+        var PRODUCTION_BUILD = true;
         // ↑↑↑ A packaging script may rewrite the lines above for each store build. ↑↑↑
 
         // Best-effort host detection. Only consulted when override === 'auto'.
@@ -1901,7 +1910,7 @@
         // while still retrying if a reload didn't actually land the new build. Fully
         // defensive: any error is silent and never blocks the game. Parent bumps BOTH
         // version.json and BUILD_V on every future deploy.
-        const BUILD_V = "build-30";
+        const BUILD_V = "build-31";
         (function () {
             function hardReloadTo(v) {
                 try {
@@ -1930,19 +1939,6 @@
                 document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'visible') checkForUpdate(); });
                 window.addEventListener('focus', checkForUpdate);
                 window.addEventListener('pageshow', function (e) { if (e && e.persisted) checkForUpdate(); });
-            } catch (e) {}
-            try {
-                var updTag = function () {
-                    var b = document.getElementById('build-tag'); if (!b) return;
-                    var mm = function (q) { try { return window.matchMedia(q).matches ? 1 : 0; } catch (e) { return '?'; } };
-                    b.textContent = BUILD_V + ' ' + window.innerWidth + 'x' + window.innerHeight
-                        + ' c' + mm('(pointer: coarse)')
-                        + ' P' + mm('(orientation: portrait) and (max-width: 768px)')
-                        + ' L' + mm('(pointer: coarse) and (orientation: landscape) and (max-height: 600px)');
-                };
-                document.addEventListener('DOMContentLoaded', updTag);
-                window.addEventListener('resize', updTag);
-                window.addEventListener('orientationchange', updTag);
             } catch (e) {}
         })();
         let LANG = 'en';
@@ -4502,7 +4498,16 @@
                     }
                     h.style.transform = 'translate(-50%,-50%) scale(0.35) rotate(0deg)';
                     if (typeof onLanded === 'function') setTimeout(onLanded, 320);
-                    setTimeout(() => { if (h.parentNode) h.remove(); }, 1000);
+                    // Paint-aware removal: never yank the clone before its bitmap has actually
+                    // painted, or a cold/slow decode leaves "only particles, no helper". Capped
+                    // (~1.9s extra) so a truly broken image can never make it linger forever.
+                    const removeWhenPainted = (tries) => {
+                        if (!h.parentNode) return;
+                        const painted = h.complete && h.naturalWidth > 0;
+                        if (painted || tries <= 0) { h.remove(); return; }
+                        setTimeout(() => removeWhenPainted(tries - 1), 160);
+                    };
+                    setTimeout(() => removeWhenPainted(12), 1000);
                 };
                 requestAnimationFrame(() => requestAnimationFrame(applyLand));
             },
@@ -4523,6 +4528,32 @@
                 } catch (e) {}
                 try { return collection.HELPER_DEFAULT_IMG[c.id] || c.im; } catch (e2) {}
                 return c.im;
+            },
+            // Pre-decode the exact sprite each helper will use on summon (equipped full-res
+            // skin PNG, else default). Skin PNGs are large, so a COLD first decode used to
+            // finish AFTER the summon clone was already removed — leaving "only particles, no
+            // helper" (~1-in-N, cache dependent). Warming + holding a reference keeps them in
+            // the decoded cache so the clone always has a painted bitmap ready. Re-run on init
+            // and whenever equipment changes.
+            _warmHelperSprites() {
+                try {
+                    if (!this._warmImgs) this._warmImgs = {};
+                    const srcs = new Set();
+                    (this.cp || []).forEach(c => {
+                        if (!c) return;
+                        try { const s = this.summonImgForHelper(c); if (s) srcs.add(s); } catch (e) {}
+                        try { const d = collection.HELPER_DEFAULT_IMG[c.id]; if (d) srcs.add(d); } catch (e) {}
+                    });
+                    srcs.forEach(src => {
+                        if (this._warmImgs[src]) return;
+                        const im = new Image();
+                        im.decoding = 'async';
+                        im.addEventListener('error', () => {}, { passive: true });
+                        im.src = src;
+                        this._warmImgs[src] = im;
+                        try { if (im.decode) im.decode().catch(() => {}); } catch (e) {}
+                    });
+                } catch (e) {}
             },
             isFeedMilestone(level) {
                 const lv = Math.floor(Number(level) || 0);
@@ -5854,8 +5885,11 @@
             stopFx() { const tr = document.getElementById('race-track'); if(tr) { tr.classList.remove('racing'); tr.style.animationDuration = ''; } this.rs.forEach(r => { const el = document.getElementById(`r-${r.lane}`); if(el) el.classList.remove('run'); }); },
             check() { const w = this.rs.find(r => r.pos >= 100); if(w) { this.a = false; clearInterval(this.tk); this.stopFx(); this.w = w.isP; this.end(); } },
             end() { document.getElementById('p-run').style.display='none'; document.getElementById('p-end').style.display='block';
-                const r = document.getElementById('p-rank'), m = document.getElementById('p-reward'); if(this.w) { r.innerText=t('first_place'); m.innerText=t('victory_crown', {name: t(this.ch.nk)}); this.ch.ch = (this.ch.ch || 0) + 1; game.track('crowns', 1); try { leaderboard.bumpPrixWin(); leaderboard.submit({ prix: leaderboard.getPrixWins() }); } catch (e) {} ach.grant('firstChamp'); }
+                const r = document.getElementById('p-rank'), m = document.getElementById('p-reward'); if(this.w) { r.innerText=t('first_place'); m.innerText=t('victory_crown', {name: t(this.ch.nk)}); this.ch.ch = (this.ch.ch || 0) + 1; game.track('crowns', 1); try { leaderboard.bumpPrixWin(); leaderboard.submit({ prix: leaderboard.getPrixWins() }); } catch (e) {} ach.grant('firstChamp'); try { game.save(); } catch (e) {} }
                 else { let p = Math.floor(1e6 * Math.pow(5, game.s) * 0.01); r.innerText=t('defeat'); m.innerText=t('awarded_eb', {eb: p.toLocaleString()}); game.e += p; game.te += p; }
+                // Refresh BOTH surfaces so the new champion multiplier shows immediately: the
+                // scene column crown (rebuild) and the shop card x-badge (render).
+                try { game.rebuild(); } catch (e) {}
                 game.render();
             },
             ret() { if(this.tk) { clearInterval(this.tk); this.tk = null; } if(this.cdIv) { clearInterval(this.cdIv); this.cdIv = null; } this.stopFx(); game.cd = game.getPrixCd(); document.getElementById('race-modal').style.display='none'; if(this.w) game.coron(this.ch); else game.p = false; }
@@ -8348,6 +8382,9 @@
                     // 3) TIENDA: re-render de las tarjetas para que equipar/desequipar se vea
                     //    al instante (comprado o no) SIN necesidad de recomprar.
                     try { game.render(); } catch (e) {}
+                    // 4) Pre-decodifica los sprites de invocación recién equipados para que la
+                    //    siguiente invocación no tope con un decode en frío (bug "solo partículas").
+                    try { game._warmHelperSprites(); } catch (e) {}
                 } catch (e) {}
             },
             // Overlay best-effort del gorro: crea/oculta un <img id="asset-chefhat">
@@ -9004,6 +9041,7 @@
             try { fullscreen.init(); } catch (e) {}
             try { collection.refreshFab(); } catch (e) {}
             try { collection.preload(); } catch (e) {}
+            try { game._warmHelperSprites(); } catch (e) {}
             try { ambient.init(); } catch (e) {}
             try { music.init(); } catch (e) {}
             try { creator.render(); creator.syncLive(); creator.startLivePolling(); } catch (e) {}
