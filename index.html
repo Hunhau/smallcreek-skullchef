@@ -1031,65 +1031,98 @@
         #farm-modal .farm-body { flex: 1; min-height: 0; overflow-x: hidden; overflow-y: auto; -webkit-overflow-scrolling: touch; padding-bottom: 4px; }
         #farm-modal .farm-foot { flex-shrink: 0; padding-top: 8px; }
         /* Landscape phone FARM — placed AFTER base #farm-modal rules so these win in the
-           cascade. Fits all 4 rows (2× stock + 2× plots) without scroll on ~390px-tall
-           viewports (e.g. 844×390). Overrides .gx-box padding/overflow that caused scroll. */
+           cascade. Fills the short landscape viewport height: all 4 rows (2× stock + 2×
+           plots) visible without scroll, but cells grow to use the space (not tiny). */
         @media (pointer: coarse) and (orientation: landscape) and (max-height: 600px) {
+            #farm-modal.gx-modal.open {
+                align-items: stretch !important;
+                justify-content: flex-start !important;
+                padding: max(4px, env(safe-area-inset-top)) max(6px, env(safe-area-inset-right)) max(4px, env(safe-area-inset-bottom)) max(6px, env(safe-area-inset-left)) !important;
+            }
             #farm-modal.gx-modal .farm-box {
                 width: min(560px, calc(100vw - 10px)) !important;
                 max-width: none !important;
-                max-height: calc(100dvh - 6px - env(safe-area-inset-top) - env(safe-area-inset-bottom)) !important;
+                min-height: calc(100dvh - 8px - env(safe-area-inset-top) - env(safe-area-inset-bottom)) !important;
+                max-height: calc(100dvh - 8px - env(safe-area-inset-top) - env(safe-area-inset-bottom)) !important;
+                height: calc(100dvh - 8px - env(safe-area-inset-top) - env(safe-area-inset-bottom)) !important;
                 padding: 0 !important;
                 overflow: hidden !important;
                 border-radius: 10px;
+                display: flex !important;
+                flex-direction: column !important;
             }
-            #farm-modal .farm-head { padding: 4px 34px 3px !important; margin: 0 !important; }
-            #farm-modal .farm-head h2 { font-size: 0.82rem !important; }
+            #farm-modal .farm-head { padding: 8px 36px 6px !important; margin: 0 !important; flex-shrink: 0 !important; }
+            #farm-modal .farm-head h2 { font-size: 0.95rem !important; }
             #farm-modal .farm-body {
-                overflow-y: visible !important;
+                flex: 1 1 auto !important;
+                min-height: 0 !important;
+                overflow-y: hidden !important;
                 overflow-x: hidden !important;
-                padding: 0 5px 3px !important;
-                flex: 0 1 auto !important;
+                padding: 4px 8px 6px !important;
+                display: flex !important;
+                flex-direction: column !important;
+                gap: 6px !important;
             }
             #farm-modal .farm-body > p { display: none !important; }
             #farm-modal .farm-body > label {
-                font-size: 0.52rem !important;
-                margin: 1px 0 !important;
-                gap: 4px !important;
-                line-height: 1.1 !important;
+                font-size: 0.6rem !important;
+                margin: 0 !important;
+                gap: 5px !important;
+                line-height: 1.15 !important;
+                flex-shrink: 0 !important;
             }
             #farm-modal .farm-foot { display: none !important; }
-            #farm-modal .farm-stock-grid { gap: 2px !important; margin: 2px 0 !important; }
-            #farm-modal .farm-stock-chip {
-                font-size: 0.48rem !important;
-                padding: 1px 1px !important;
-                line-height: 1.05 !important;
-                border-radius: 5px !important;
+            #farm-modal .farm-stock-grid {
+                flex: 1 1 0 !important;
+                min-height: 0 !important;
+                gap: 4px !important;
+                margin: 0 !important;
+                grid-template-rows: 1fr 1fr !important;
+                align-content: stretch !important;
             }
-            #farm-modal .farm-plots { gap: 2px !important; margin-top: 2px !important; }
+            #farm-modal .farm-stock-chip {
+                font-size: 0.58rem !important;
+                padding: 4px 2px !important;
+                line-height: 1.1 !important;
+                border-radius: 7px !important;
+                display: flex !important;
+                flex-direction: column !important;
+                align-items: center !important;
+                justify-content: center !important;
+                min-height: 0 !important;
+            }
+            #farm-modal .farm-plots {
+                flex: 1.15 1 0 !important;
+                min-height: 0 !important;
+                gap: 4px !important;
+                margin-top: 0 !important;
+                grid-template-rows: 1fr 1fr !important;
+                align-content: stretch !important;
+            }
             #farm-modal .farm-plot {
                 min-height: 0 !important;
-                height: 34px !important;
-                padding: 1px !important;
-                gap: 0 !important;
-                border-radius: 5px !important;
+                height: 100% !important;
+                padding: 4px 2px !important;
+                gap: 3px !important;
+                border-radius: 8px !important;
             }
-            #farm-modal .farm-glyph { font-size: 0.78rem !important; line-height: 1 !important; }
-            #farm-modal .farm-timer { font-size: 0.4rem !important; line-height: 1 !important; }
+            #farm-modal .farm-glyph { font-size: 1.1rem !important; line-height: 1 !important; }
+            #farm-modal .farm-timer { font-size: 0.52rem !important; line-height: 1 !important; }
             #farm-modal .farm-plot-btn,
             #farm-modal .farm-plot-label {
-                font-size: 0.38rem !important;
-                padding: 0 2px !important;
-                min-height: 12px !important;
-                border-radius: 3px !important;
+                font-size: 0.52rem !important;
+                padding: 2px 5px !important;
+                min-height: 20px !important;
+                border-radius: 6px !important;
                 line-height: 1 !important;
             }
             #farm-modal .farm-water-btn {
-                min-height: 18px !important;
-                min-width: 18px !important;
-                font-size: 0.65rem !important;
-                padding: 0 3px !important;
+                min-height: 24px !important;
+                min-width: 24px !important;
+                font-size: 0.85rem !important;
+                padding: 2px 6px !important;
             }
-            #farm-modal .farm-watered-mark { font-size: 0.55rem !important; }
+            #farm-modal .farm-watered-mark { font-size: 0.62rem !important; }
         }
         /* ===== DECORATIONS (summer pilot: bg swap + chef accessories) ===== */
         body.decor-bg-summer-fallback {
@@ -1853,7 +1886,7 @@
         // while still retrying if a reload didn't actually land the new build. Fully
         // defensive: any error is silent and never blocks the game. Parent bumps BOTH
         // version.json and BUILD_V on every future deploy.
-        const BUILD_V = "build-23";
+        const BUILD_V = "build-24";
         (function () {
             function hardReloadTo(v) {
                 try {
