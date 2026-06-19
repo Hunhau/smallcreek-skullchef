@@ -1891,8 +1891,8 @@
             try { if (typeof tutorial !== 'undefined' && tutorial.active) tutorial.render(); } catch (e) {}
         }
         const sound = {
-            defs: { stir:['audio/stir1.mp3','audio/stir2.mp3'], bubble:['audio/bubble.mp3'], buy:['audio/buy.mp3'], prestige:['audio/prestige.mp3'], victory:['audio/victory.mp3'], eat:['audio/eat.mp3'], rainStart:['audio/audiorain_start.mp3'], bubblePop:['audio/audiobubble_pop.mp3'] },
-            vols: { stir:0.3, bubble:0.25, buy:0.5, prestige:0.7, victory:0.85, eat:0.48, rainStart:0.55, bubblePop:0.30 },
+            defs: { stir:['audio/stir1.mp3','audio/stir2.mp3'], bubble:['audio/bubble.mp3'], buy:['audio/buy.mp3'], prestige:['audio/prestige.mp3'], victory:['audio/victory.mp3'], eat:['audio/eat.mp3'], rainStart:['audio/audiorain_start.mp3'], bubblePop:['audio/audiobubble_pop.mp3'], farmAbrir:['audio/farm_abrir.mp3'], farmPlantar:['audio/farm_plantar.mp3'], farmRegar:['audio/farm_regar.mp3'], farmListo:['audio/farm_listo.mp3'], farmCosechar:['audio/farm_cosechar.mp3','audio/farm_cosechar_1.mp3','audio/farm_cosechar_2.mp3','audio/farm_cosechar_3.mp3'], farmReplantar:['audio/farm_replantar.mp3'], farmSinStock:['audio/farm_sin_stock.mp3'], farmPrestigio:['audio/farm_prestigio.mp3'], farmBonus:['audio/farm_bonus.mp3'] },
+            vols: { stir:0.3, bubble:0.25, buy:0.5, prestige:0.7, victory:0.85, eat:0.48, rainStart:0.55, bubblePop:0.30, farmAbrir:0.45, farmPlantar:0.42, farmRegar:0.4, farmListo:0.5, farmCosechar:0.48, farmReplantar:0.4, farmSinStock:0.45, farmPrestigio:0.65, farmBonus:0.55 },
             // === SFX rapid-fire shaping (ADITIVO) ===========================
             // minGap = intervalo mínimo (ms) entre re-disparos del MISMO sonido
             //          para que el clic-ametralladora no genere un muro de copias.
@@ -1908,10 +1908,20 @@
                 rainStart:{ minGap: 900, poly: 1, pitch: 0.02 },
                 bubblePop:{ minGap: 220, poly: 2, pitch: 0.04 },
                 eat:      { minGap: 50, poly: 3, pitch: 0.06 },
+                farmAbrir: { minGap: 300, poly: 1, pitch: 0 },
+                farmPlantar: { minGap: 120, poly: 2, pitch: 0.03 },
+                farmRegar: { minGap: 200, poly: 2, pitch: 0.03 },
+                farmListo: { minGap: 800, poly: 2, pitch: 0.04 },
+                farmCosechar: { minGap: 100, poly: 3, pitch: 0.04 },
+                farmReplantar: { minGap: 120, poly: 2, pitch: 0.03 },
+                farmSinStock: { minGap: 600, poly: 1, pitch: 0 },
+                farmPrestigio: { minGap: 0, poly: 1, pitch: 0 },
+                farmBonus: { minGap: 200, poly: 2, pitch: 0.04 },
                 _default: { minGap: 0,  poly: 3, pitch: 0 }
             },
-            _last: {}, flat: {},
+            _last: {}, flat: {}, _farmBroken: {},
             pool: {}, voices: {}, muted:false, volume:1, _inited:false, _unlocked:false,
+            _farmAmb: { audio: null, broken: false, active: false },
             _eatPreload: null, _eatEndTimer: null, _eatAudio: null, _lastEatDur: 2000,
             init() {
                 if (this._inited) return; this._inited = true;
@@ -2192,7 +2202,44 @@
                 if (voices) voices.forEach(a => { try { a.onended = null; a.pause(); a.currentTime = 0; a.volume = this._stirVol(); } catch (e) {} });
                 S.cur = null; S.idx = 0;
             },
-            setMuted(m) { this.muted = !!m; if (this.muted) { try { this._stirStopNow(); } catch (e) {} } this.save(); this.updateUi(); try { if (typeof ambient !== 'undefined' && ambient._inited) ambient.syncPlayback(); } catch (e) {} try { if (typeof music !== 'undefined' && music._inited) music.syncPlayback(); } catch (e) {} },
+            playFarm(name, fallback) {
+                if (this.muted || this.volume <= 0) return;
+                this.unlock();
+                if (this._farmBroken[name]) { if (fallback) this.play(fallback); return; }
+                const flat = this.flat[name];
+                if (!flat || !flat.length) { if (fallback) this.play(fallback); return; }
+                const probe = flat[0];
+                if (probe.error) { this._farmBroken[name] = true; if (fallback) this.play(fallback); return; }
+                this.play(name);
+            },
+            _farmAmbVol() { return Math.min(1, Math.max(0, 0.22 * this.volume)); },
+            farmAmbStart() {
+                if (this.muted || this.volume <= 0) return;
+                const F = this._farmAmb;
+                if (F.active) return;
+                this.unlock();
+                if (F.broken) return;
+                try {
+                    if (!F.audio) {
+                        F.audio = new Audio('audio/farm_ambiente.mp3');
+                        F.audio.loop = true;
+                        F.audio.preload = 'auto';
+                        F.audio.addEventListener('error', () => { F.broken = true; this.farmAmbStop(); }, { passive: true });
+                    }
+                    if (F.broken) return;
+                    F.audio.volume = this._farmAmbVol();
+                    F.active = true;
+                    const p = F.audio.play();
+                    if (p && p.catch) p.catch(() => { F.broken = true; F.active = false; });
+                } catch (e) { F.broken = true; F.active = false; }
+            },
+            farmAmbStop() {
+                const F = this._farmAmb;
+                F.active = false;
+                if (!F.audio) return;
+                try { F.audio.pause(); F.audio.currentTime = 0; } catch (e) {}
+            },
+            setMuted(m) { this.muted = !!m; if (this.muted) { try { this._stirStopNow(); } catch (e) {} try { this.farmAmbStop(); } catch (e) {} } this.save(); this.updateUi(); try { if (typeof ambient !== 'undefined' && ambient._inited) ambient.syncPlayback(); } catch (e) {} try { if (typeof music !== 'undefined' && music._inited) music.syncPlayback(); } catch (e) {} },
             toggleMute() { this.setMuted(!this.muted); },
             setVolume(val) { const n = Number(val); this.volume = isFinite(n) ? Math.min(1, Math.max(0, n)) : this.volume; if (this.volume > 0 && this.muted) this.muted = false; this.save(); this.updateUi(); },
             updateUi() {
@@ -3498,7 +3545,7 @@
                 bubble.tick();
                 quests.ensureDaily();
                 try { collection.tick(1); } catch (e) {}
-                try { farm.updateBadge(); } catch (e) {}
+                try { farm.tickReady(); farm.updateBadge(); } catch (e) {}
             },
             updateLore() {
                 // this.m (the click multiplier tier) must be recomputed every call; the DOM
@@ -5815,12 +5862,16 @@
                     });
                 }
                 if (game.farm.autoReplant == null) game.farm.autoReplant = true;
+                game.farm.plots.forEach(plot => {
+                    if (plot._farmSt == null) plot._farmSt = this.plotState(plot);
+                });
             },
             resetForPrestige() {
                 game.farm = this.freshSave();
                 try { gx.toast(t('farm_prestige_reset')); } catch (e) {}
+                try { sound.playFarm('farmPrestigio', 'prestige'); } catch (e2) {}
                 this.updateBadge();
-                try { const fm = document.getElementById('farm-modal'); if (fm && fm.classList.contains('open')) this.render(); } catch (e2) {}
+                try { const fm = document.getElementById('farm-modal'); if (fm && fm.classList.contains('open')) this.render(); } catch (e3) {}
             },
             ingredientKey(helperId, level) {
                 const cfg = game.pickSummonIngredient(helperId, level);
@@ -5843,6 +5894,7 @@
                 const key = this.ingredientKey(helperId, level);
                 const glyph = FARM_GLYPHS[key] || '🌱';
                 try { gx.toast(t('farm_empty_throw', { glyph })); } catch (e) {}
+                try { sound.playFarm('farmSinStock', 'buy'); } catch (e2) {}
             },
             growMs(type) { return (FARM_GROW_SEC[type] || 45) * 1000; },
             plotState(plot) {
@@ -5854,7 +5906,8 @@
                 const plot = game.farm.plots[idx];
                 if (!plot || this.plotState(plot) !== 'empty') return;
                 plot.readyAt = Date.now() + this.growMs(plot.type);
-                try { sound.play('bubble'); } catch (e) {}
+                plot._farmSt = 'growing';
+                try { sound.playFarm('farmPlantar', 'bubble'); } catch (e) {}
                 game.save(); this.render();
             },
             harvest(idx) {
@@ -5863,10 +5916,26 @@
                 if (!plot || this.plotState(plot) !== 'ready') return;
                 const type = plot.type;
                 game.farm.stock[type] = (game.farm.stock[type] || 0) + 1;
-                if (game.farm.autoReplant) plot.readyAt = Date.now() + this.growMs(type);
+                const replant = !!game.farm.autoReplant;
+                if (replant) plot.readyAt = Date.now() + this.growMs(type);
                 else plot.readyAt = 0;
-                try { sound.play('bubble'); } catch (e) {}
+                plot._farmSt = replant ? 'growing' : 'empty';
+                try { sound.playFarm('farmCosechar', 'bubble'); } catch (e) {}
+                if (replant) { try { setTimeout(() => { try { sound.playFarm('farmReplantar', 'bubble'); } catch (e2) {} }, 180); } catch (e3) {} }
                 game.save(); this.render(); this.updateBadge();
+            },
+            tickReady() {
+                this.ensure();
+                let changed = false;
+                game.farm.plots.forEach(plot => {
+                    const st = this.plotState(plot);
+                    if (plot._farmSt === 'growing' && st === 'ready') {
+                        try { sound.playFarm('farmListo', 'bubble'); } catch (e) {}
+                        changed = true;
+                    }
+                    if (plot._farmSt !== st) plot._farmSt = st;
+                });
+                if (changed) this.updateBadge();
             },
             setAutoReplant(v) { this.ensure(); game.farm.autoReplant = !!v; game.save(); },
             formatTime(sec) {
@@ -5878,10 +5947,20 @@
                 const b = document.getElementById('farm-badge'); if (!b) return;
                 this.ensure();
                 const low = FARM_TYPE_IDS.some(id => (game.farm.stock[id] || 0) <= 3);
-                b.style.display = low ? 'inline-block' : 'none';
+                const ready = game.farm.plots.some(p => this.plotState(p) === 'ready');
+                b.style.display = (low || ready) ? 'inline-block' : 'none';
             },
-            open() { this.render(); const md = document.getElementById('farm-modal'); if (md) md.classList.add('open'); },
-            close() { const md = document.getElementById('farm-modal'); if (md) md.classList.remove('open'); },
+            open() {
+                this.render();
+                const md = document.getElementById('farm-modal');
+                if (md) md.classList.add('open');
+                try { sound.playFarm('farmAbrir', 'bubble'); sound.farmAmbStart(); } catch (e) {}
+            },
+            close() {
+                const md = document.getElementById('farm-modal');
+                if (md) md.classList.remove('open');
+                try { sound.farmAmbStop(); } catch (e) {}
+            },
             render() {
                 this.ensure();
                 const stockEl = document.getElementById('farm-stock');
