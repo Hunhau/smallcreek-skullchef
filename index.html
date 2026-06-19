@@ -638,9 +638,17 @@
            max-width 768px so desktop and tablets are byte-for-byte unchanged. */
         @media (orientation: portrait) and (max-width: 768px) {
             body { overflow: hidden; }
-            #game-wrapper { flex-direction: column; width: 100%; height: 100dvh; min-height: 100dvh; }
-            #main-stage { flex: 1 1 0; min-height: 0; width: 100% !important; }
-            /* Chef/cauldron: fitScene centers the group; slight DROP_Y grounds the cauldron. */
+            #game-wrapper { position: relative; width: 100%; height: 100dvh; min-height: 100dvh; overflow: hidden; }
+            /* Absolute fill: flex-only stage collapses to 0h when children are all position:absolute */
+            #main-stage { position: absolute; inset: 0; width: 100% !important; height: 100% !important; flex: none !important; min-height: 0; }
+            #main-stage #sticky-center {
+                top: 44% !important;
+                left: 50% !important;
+                bottom: auto !important;
+                transform: translate(-50%, -50%) scale(clamp(0.22, calc(78vw / 1350), 0.38)) !important;
+                transform-origin: center center;
+            }
+            /* Chef/cauldron: CSS scale above; fitScene skips inline transform in portrait */
             /* Clearly-labeled energy counter, RIGHT-anchored: each stat is a small uppercase
                label (with a recognizable icon — 🍲 energy balls / ⬨ angel shards) stacked
                over a big readable number. Labels wrap rather than push the pill off-screen;
@@ -694,9 +702,9 @@
             .lv-badge { bottom: -3px; right: -3px; padding: 0 2px; font-size: 0.48rem; border-width: 1px; }
             .slot-crown { top: -9px; font-size: 0.82rem; }
 
-            /* SHOP: slide-in sheet from the right */
+            /* SHOP: slide-in sheet from the right (fixed = out of flex row) */
             #side-shop {
-                position: fixed; top: 0; right: 0;
+                position: fixed !important; top: 0; right: 0;
                 height: 100vh; height: 100dvh;
                 width: min(330px, 84vw);
                 transform: translateX(102%); transition: transform 0.28s ease;
@@ -8241,18 +8249,21 @@
                     if (!isFinite(s) || s <= 0) return;
                     s = Math.max(0.22, Math.min(s, 1));
                     const portrait = window.matchMedia('(orientation: portrait) and (max-width: 768px)').matches;
+                    if (portrait) {
+                        sc.style.left = '50%';
+                        sc.style.top = '44%';
+                        sc.style.bottom = 'auto';
+                        sc.style.transformOrigin = 'center center';
+                        const ps = Math.max(0.22, Math.min((r.width * 0.78) / DW, 0.38));
+                        sc.style.transform = 'translate(-50%, -50%) scale(' + ps + ')';
+                        return;
+                    }
                     sc.style.left = '50%';
                     sc.style.bottom = 'auto';
-                    if (portrait) {
-                        sc.style.top = '46%';
-                        sc.style.transformOrigin = 'center center';
-                        sc.style.transform = 'translate(-50%, -50%) scale(' + s + ')';
-                    } else {
-                        sc.style.top = '';
-                        sc.style.transformOrigin = '';
-                        const dy = Math.round(r.height * DROP_Y);
-                        sc.style.transform = 'translate(-50%, calc(-50% + ' + dy + 'px)) scale(' + s + ')';
-                    }
+                    sc.style.top = '';
+                    sc.style.transformOrigin = '';
+                    const dy = Math.round(r.height * DROP_Y);
+                    sc.style.transform = 'translate(-50%, calc(-50% + ' + dy + 'px)) scale(' + s + ')';
                 } catch (e) {}
             },
             init() {
