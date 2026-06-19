@@ -1052,7 +1052,7 @@
         @media (pointer: coarse) and (orientation: landscape) and (max-height: 600px) {
             #farm-modal.gx-modal.open {
                 align-items: stretch !important;
-                justify-content: flex-start !important;
+                justify-content: center !important;
                 padding: max(4px, env(safe-area-inset-top)) max(6px, env(safe-area-inset-right)) max(4px, env(safe-area-inset-bottom)) max(6px, env(safe-area-inset-left)) !important;
             }
             #farm-modal.gx-modal .farm-box {
@@ -1902,7 +1902,7 @@
         // while still retrying if a reload didn't actually land the new build. Fully
         // defensive: any error is silent and never blocks the game. Parent bumps BOTH
         // version.json and BUILD_V on every future deploy.
-        const BUILD_V = "build-26";
+        const BUILD_V = "build-27";
         (function () {
             function hardReloadTo(v) {
                 try {
@@ -3493,7 +3493,7 @@
             }
         };
         const game = {
-            e:0, te:0, l:0, s:0, c:0, p:false, f:0, cl:false, m:1, cd:0, buyMode:1, defaultSpoonImg:'assets/img/spoon.png', _inited:false, logicTick:null, uiTick:null, saveTick:null, _floatNodes:[], _spoonAnimating:false, _spoonUiKey:'', _hatAnimating:false, _hatUiKey:'', _steamIdleTick:0, _dispScore:0, _autoPartAcc:0, _wave:0, _ballWave:0, _ballSpeed:1, _lastClick:0, soupBalls:[], _rippleNodes:[], _ambientRippleTick:0, _soupRect:null, _surf:null, _stageRect:null, _spoonEl:null, _scoreBoxEl:null, _soupLiquidEl:null, _floatPool:[], _floatIdx:0, _ripplePool:[], _rippleIdx:0, _scorePulseQueued:false, _scorePulseArmed:false, _floatThrottle:0, _floatAcc:0, _clickRippleN:0, _clickGate:0,
+            e:0, te:0, l:0, s:0, c:0, p:false, f:0, cl:false, m:1, cd:0, buyMode:1, defaultSpoonImg:'assets/img/spoon.png', _inited:false, logicTick:null, uiTick:null, saveTick:null, _floatNodes:[], _spoonAnimating:false, _spoonUiKey:'', _hatAnimating:false, _hatUiKey:'', _steamIdleTick:0, _dispScore:0, _autoPartAcc:0, _wave:0, _ballWave:0, _ballSpeed:1, _lastClick:0, soupBalls:[], _rippleNodes:[], _ambientRippleTick:0, _soupRect:null, _surf:null, _stageRect:null, _spoonEl:null, _scoreBoxEl:null, _soupLiquidEl:null, _floatPool:[], _floatIdx:0, _ripplePool:[], _rippleIdx:0, _scorePulseQueued:false, _scorePulseArmed:false, _floatThrottle:0, _floatAcc:0, _clickRippleN:0, _clickGate:0, _canvasDirty:false,
             as:0, lastSeen:0, _buffs:[], tree:{caldo:0, manos:0, eco:0, cuchara:0, tiempo:0, aura:0, fortuna:0, eterno:0}, daily:null, ach:{}, rewards:{}, coll:null, farm:null, decor:null, _tampered:false,
             treeDefs: [
                 {k:'caldo', mx:20, cb:1},
@@ -5443,7 +5443,7 @@
                 const lowQ = quality.effMode() === 'low';
                 const clickStir = performance.now() - this._lastClick < 1500;
                 // On mobile/low, halve idle rAF work (skip every other frame when not stirring).
-                if (lowQ && !this.p && !clickStir && (this._frame % 2 === 1)) {
+                if (lowQ && !this.p && !clickStir && this.particles.length === 0 && (this._frame % 2 === 1)) {
                     if (!document.hidden) requestAnimationFrame(() => this.loop());
                     return;
                 }
@@ -5733,8 +5733,14 @@
             draw() {
                 const ctx = this.ctx;
                 const lowQ = quality.effMode() === 'low';
-                if (lowQ && this.particles.length === 0) return;
+                if (lowQ && this.particles.length === 0) {
+                    // Clear the last frame exactly once when the array drains, otherwise the
+                    // final painted particles stay frozen on the canvas ("stuck bubbles").
+                    if (this._canvasDirty) { ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height); this._canvasDirty = false; }
+                    return;
+                }
                 ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+                this._canvasDirty = true;
                 // On low/mobile, skip the per-frame soup-ball fills (10 radial gradients) and the
                 // homing physics; energy particles just fade upward (see below). Saves main-thread
                 // + GPU work during rapid tapping.
