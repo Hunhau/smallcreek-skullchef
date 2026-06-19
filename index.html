@@ -635,8 +635,8 @@
            Portrait is fully playable: chef + cauldron centered as the focal point, with
            the shop and menu as the SAME collapsible slide-in sheets used in landscape,
            plus the collapsible owned-helpers column. Gated behind touch + portrait +
-           narrow width so desktop and tablets are byte-for-byte unchanged. */
-        @media (pointer: coarse) and (orientation: portrait) and (max-width: 600px) {
+           max-width 768px so desktop and tablets are byte-for-byte unchanged. */
+        @media (pointer: coarse) and (orientation: portrait) and (max-width: 768px) {
             body { overflow: hidden; }
             #main-stage { flex-grow: 1; width: 100%; }
             /* Pin cauldron feet to the stage floor (fitScene sets the scaled transform). */
@@ -664,15 +664,16 @@
             /* Altar / prestige: top-RIGHT, below the counter + CPS line */
             #altar-panel { right: max(6px, env(safe-area-inset-right)); top: calc(env(safe-area-inset-top) + 80px); transform: scale(0.56); transform-origin: top right; z-index: 6500; }
 
-            /* Owned-helpers: a single vertical column of up to 5, left side, below the chronicle */
+            /* Owned-helpers: compact LEFT/RIGHT rails beside the chef (center column free). */
             #helpers-toggle {
                 display: inline-flex; align-items: center; gap: 4px;
-                position: absolute; left: max(8px, env(safe-area-inset-left)); top: calc(env(safe-area-inset-top) + 82px);
+                position: absolute; left: 50%; transform: translateX(-50%);
+                top: calc(env(safe-area-inset-top) + 78px);
                 z-index: 6600; pointer-events: auto;
                 background: var(--glass-strong); backdrop-filter: var(--glass-blur-sm); -webkit-backdrop-filter: var(--glass-blur-sm);
                 border: 1px solid var(--glass-bd-go); border-radius: 12px;
-                color: var(--gold-soft); font-size: 0.74rem; font-weight: bold;
-                padding: 6px 10px; min-height: 32px; line-height: 1; cursor: pointer;
+                color: var(--gold-soft); font-size: 0.72rem; font-weight: bold;
+                padding: 5px 9px; min-height: 30px; line-height: 1; cursor: pointer;
                 text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
                 -webkit-tap-highlight-color: transparent; touch-action: manipulation;
                 -webkit-user-select: none; user-select: none;
@@ -680,15 +681,19 @@
             #helpers-toggle:active { filter: brightness(1.15); }
             .helpers-chevron { font-size: 0.66rem; }
             #companion-column {
-                left: max(8px, env(safe-area-inset-left)); top: calc(env(safe-area-inset-top) + 116px); bottom: 92px;
-                width: min(64px, 20vw);
-                flex-flow: column wrap; align-content: flex-start;
-                justify-content: flex-start; gap: 6px; overflow: hidden;
+                left: 0; right: 0; top: calc(env(safe-area-inset-top) + 112px); bottom: 96px;
+                width: auto; display: grid;
+                grid-template-columns: minmax(34px, 12vw) 1fr minmax(34px, 12vw);
+                grid-auto-rows: min-content; align-content: center;
+                justify-items: center; gap: 5px 0; overflow: visible;
             }
             body.helpers-collapsed #companion-column { display: none; }
-            .companion-slot { width: 50px; height: 50px; border-radius: 13px; }
-            .lv-badge { bottom: -4px; right: -4px; padding: 0 3px; font-size: 0.55rem; border-width: 1px; }
-            .slot-crown { top: -11px; font-size: 1rem; }
+            .companion-slot:nth-child(odd) { grid-column: 1; justify-self: start; margin-left: max(6px, env(safe-area-inset-left)); }
+            .companion-slot:nth-child(even) { grid-column: 3; justify-self: end; margin-right: max(6px, env(safe-area-inset-right)); }
+            .companion-slot { width: 38px; height: 38px; border-radius: 11px; box-shadow: 0 2px 10px rgba(0,0,0,0.22); }
+            .companion-slot .slot-img { width: 76%; height: 76%; }
+            .lv-badge { bottom: -3px; right: -3px; padding: 0 2px; font-size: 0.48rem; border-width: 1px; }
+            .slot-crown { top: -9px; font-size: 0.82rem; }
 
             /* SHOP: slide-in sheet from the right */
             #side-shop {
@@ -8129,8 +8134,12 @@
         // the desktop layout is left untouched.
         const mobileUI = {
             isPhone() {
-                try { return window.matchMedia('(pointer: coarse)').matches && Math.min(window.innerWidth, window.innerHeight) <= 600; }
-                catch (e) { return false; }
+                try {
+                    if (!window.matchMedia('(pointer: coarse)').matches) return false;
+                    if (window.matchMedia('(orientation: portrait) and (max-width: 768px)').matches) return true;
+                    if (window.matchMedia('(orientation: landscape) and (max-height: 600px)').matches) return true;
+                    return false;
+                } catch (e) { return false; }
             },
             _toggle(id) {
                 try {
@@ -8200,7 +8209,7 @@
                     let s = Math.min((r.width * FIT_W) / DW, (r.height * FIT_H) / DH);
                     if (!isFinite(s) || s <= 0) return;
                     s = Math.max(0.18, Math.min(s, 1));
-                    const portrait = window.matchMedia('(orientation: portrait) and (max-width: 600px)').matches;
+                    const portrait = window.matchMedia('(orientation: portrait) and (max-width: 768px)').matches;
                     if (portrait) {
                         const summer = document.body.classList.contains('decor-bg-summer-fallback')
                             || (typeof game !== 'undefined' && game.decor && game.decor.slots && game.decor.slots.background === 'summer_beach');
