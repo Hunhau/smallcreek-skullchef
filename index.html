@@ -599,18 +599,34 @@
             }
             .gx-toast { padding: 4px 10px; font-size: 0.7rem; border-radius: 9px; line-height: 1.25; text-align: left; }
 
-            /* ---- SHOP: slide-in sheet from the right (compact + readable) ---- */
+            /* ---- SHOP: centered panel (not stuck to the right edge) ---- */
             #side-shop {
-                position: fixed; top: 0; right: 0;
-                height: 100vh; height: 100dvh;
-                width: min(230px, 40vw);
-                transform: translateX(102%); transition: transform 0.28s ease;
-                z-index: 9500; border-left: 1px solid var(--glass-bd-go);
-                box-shadow: -14px 0 44px rgba(0, 0, 0, 0.5);
-                padding: calc(env(safe-area-inset-top) + 7px) calc(env(safe-area-inset-right) + 7px) calc(env(safe-area-inset-bottom) + 7px) 7px;
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                right: auto;
+                height: calc(100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 12px);
+                max-height: calc(100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 12px);
+                width: min(280px, 42vw);
+                transform: translate(-50%, -50%) scale(0.94);
+                opacity: 0;
+                visibility: hidden;
+                pointer-events: none;
+                transition: transform 0.28s ease, opacity 0.22s ease, visibility 0.28s;
+                z-index: 9500;
+                border: 1px solid var(--glass-bd-go);
+                border-radius: 14px;
+                box-shadow: 0 10px 44px rgba(0, 0, 0, 0.55);
+                padding: calc(env(safe-area-inset-top) + 7px) 10px calc(env(safe-area-inset-bottom) + 7px) 10px;
                 font-size: 0.82rem;
+                overflow-y: auto;
             }
-            #side-shop.m-open { transform: translateX(0); }
+            #side-shop.m-open {
+                transform: translate(-50%, -50%) scale(1);
+                opacity: 1;
+                visibility: visible;
+                pointer-events: auto;
+            }
             #side-shop h1 { font-size: 0.9rem; margin: 0 0 6px; }
             #buy-mode-toggle { padding: 5px 7px; margin-bottom: 6px; font-size: 0.72rem; }
             /* Helper (companion) purchase cards: tight, but card stays >=44px tall to tap */
@@ -1886,7 +1902,7 @@
         // while still retrying if a reload didn't actually land the new build. Fully
         // defensive: any error is silent and never blocks the game. Parent bumps BOTH
         // version.json and BUILD_V on every future deploy.
-        const BUILD_V = "build-24";
+        const BUILD_V = "build-25";
         (function () {
             function hardReloadTo(v) {
                 try {
@@ -3679,7 +3695,7 @@
                 if (this.uiTick) clearInterval(this.uiTick);
                 if (this.saveTick) clearInterval(this.saveTick);
                 this.logicTick = setInterval(()=>!this.p && this.logic(), 1000);
-                this.uiTick = setInterval(()=>!this.p && this.ui(), 250);
+                this.uiTick = setInterval(()=>!this.p && this.ui(), (typeof quality !== 'undefined' && quality.effMode() === 'low') ? 500 : 250);
                 this.saveTick = setInterval(()=>this.save(), 5000);
                 if (!this._visBound) {
                     this._visBound = true;
@@ -4331,7 +4347,10 @@
                 if (_now - this._clickGate < 33) return;
                 this._clickGate = _now;
                 try { if (ev && ev.pointerType === 'mouse' && ev.button !== 0) return; } catch (e) {}
-                try { sound.unlock(); if (sound._needReprime) { sound.recoverFromBackground(); sound._needReprime = false; } else { sound.resumeAudio(); } } catch (e) {}
+                try {
+                    if (sound._needReprime) { sound.unlock(); sound.recoverFromBackground(); sound._needReprime = false; }
+                    else sound.unlock();
+                } catch (e) {}
                 const m = Number.isFinite(this.m) ? Math.min(Math.max(this.m, 1), 6) : 1;
                 const exp = Math.min(this.cp[1].lv * this.champMult(this.cp[1].ch) * 0.5, 24);
                 let gain = m * Math.pow(1.33, exp) * (1 + this.s * 0.5);
@@ -4346,28 +4365,20 @@
                 sound.stirPulse();
                 this.track('clicks', 1); this.track('eb', gain);
                 if (!game.ach.firstClick) ach.grant('firstClick');
-                // Spoon animation: kick the rig phase + img wiggle (rig carries the visible stir arc).
                 this.f += 0.65;
-                this._applySpoonStirNow();
-                const spoon = this._spoonEl || (this._spoonEl = document.getElementById('asset-spoon'));
-                if (spoon) { spoon.classList.add('manual-stir'); clearTimeout(this._stirT); this._stirT = setTimeout(() => { spoon.classList.remove('manual-stir'); }, 120); }
-                // DOM writes only (no forced layout reads now that the stage rect is cached).
-                const px = (ev && (ev.clientX || ev.pageX)) || (window.innerWidth * 0.5);
-                const py = (ev && (ev.clientY || ev.pageY)) || (window.innerHeight * 0.5);
                 const lowQ = quality.effMode() === 'low';
                 if (lowQ) {
-                    // Mobile low: keep score + sound every tap; throttle ALL visual FX to
-                    // ~5/s so rapid tapping never floods the main thread with DOM/canvas work.
-                    this._clickAcc = (this._clickAcc || 0) + gain;
-                    const _fxNow = performance.now();
-                    if (_fxNow - (this._clickFxAt || 0) >= 180) {
-                        this._clickFxAt = _fxNow;
-                        const showGain = this._clickAcc; this._clickAcc = 0;
-                        this.floatNum(px, py, showGain);
-                        const o = this.soupPartOrigin();
-                        this.part(o.x, o.y, 'energy');
-                    }
+                    // Mobile low: score + sound only — zero click FX DOM/canvas work. Spoon
+                    // motion is handled by loop() while clickStir is active (every 2nd frame).
+                    const disp = Math.floor(this.e);
+                    const scoreEl = this._el('score');
+                    if (scoreEl && disp !== this._uiScore) { scoreEl.innerText = disp.toLocaleString(); this._uiScore = disp; }
                 } else {
+                    this._applySpoonStirNow();
+                    const spoon = this._spoonEl || (this._spoonEl = document.getElementById('asset-spoon'));
+                    if (spoon) { spoon.classList.add('manual-stir'); clearTimeout(this._stirT); this._stirT = setTimeout(() => { spoon.classList.remove('manual-stir'); }, 120); }
+                    const px = (ev && (ev.clientX || ev.pageX)) || (window.innerWidth * 0.5);
+                    const py = (ev && (ev.clientY || ev.pageY)) || (window.innerHeight * 0.5);
                     this.floatNum(px, py, gain);
                     const o = this.soupPartOrigin();
                     this.part(o.x + (Math.random() - 0.5) * 40, o.y + (Math.random() - 0.5) * 20, 'energy');
@@ -5406,6 +5417,13 @@
                 if (this.p && bubble.node) bubble.despawn();
                 const sp = this._spoonRigEl || (this._spoonRigEl = document.getElementById('spoon-rig'));
                 this._frame = (this._frame || 0) + 1;
+                const lowQ = quality.effMode() === 'low';
+                const clickStir = performance.now() - this._lastClick < 1500;
+                // On mobile/low, halve idle rAF work (skip every other frame when not stirring).
+                if (lowQ && !this.p && !clickStir && (this._frame % 2 === 1)) {
+                    if (!document.hidden) requestAnimationFrame(() => this.loop());
+                    return;
+                }
                 // El rect de #asset-soup se cachea y solo se relee cada 30 frames (o cuando se
                 // invalida en resize/visibilitychange). Evita forzar layout cada frame.
                 if (!this._soupRect || (this._frame % 30 === 0)) {
@@ -5419,12 +5437,10 @@
                     this._stageRect = stg ? stg.getBoundingClientRect() : null;
                 }
                 const sr = this._soupRect;
-                const clickStir = performance.now() - this._lastClick < 1500;
-                const lowQ = quality.effMode() === 'low';
                 if (!this.p) { this._wave += 0.018; const tgt = clickStir ? 1.9 : 1; this._ballSpeed += (tgt - this._ballSpeed) * 0.04; this._ballWave += 0.012 * this._ballSpeed; }
                 const feedActive = this._chefFeedInProgress();
                 const stirActive = !this.p && !feedActive && (this.c > 0 || clickStir);
-                if (stirActive) {
+                if (stirActive && !(lowQ && this._frame % 2 === 1)) {
                     this.f += this.c > 0 ? (0.04 + Math.log10(this.c + 1) * 0.05) : 0.055;
                     if (sp) {
                         if (this._spoonPlace) this._applySpoonRig(this.f);
