@@ -4151,9 +4151,10 @@
                 // head instead. Landscape/desktop keep the original midpoint logic below.
                 if (window.matchMedia('(orientation: portrait) and (max-width: 768px)').matches) {
                     const cx = (chefR.left + chefR.right) * 0.5;
-                    // Sit clearly above the chef's head: lift by ~0.7 of the chef height.
-                    const liftY = chefR.top - chefR.height * 0.7;
-                    const minY = stageR.top + 120; // keep clear of the top-center HUD line
+                    // Sit above the chef's head but BELOW the top-center toast zone (#gx-toast-wrap
+                    // is fixed at ~150px), so the "carteles" no longer cover the helper.
+                    const liftY = chefR.top - chefR.height * 0.35;
+                    const minY = stageR.top + 230; // stay below the toast/cartel stack
                     return {
                         x: Math.min(Math.max(cx, stageR.left + 28), stageR.right - 28),
                         y: Math.min(Math.max(liftY, minY), stageR.bottom - 72)
@@ -4958,11 +4959,15 @@
             },
             /* Portrait mobile only: after a successful purchase, slide the shop sheet away
                so the player can watch the summon / eat animation without closing it manually.
-               No-op on desktop/landscape (shop is a permanent docked sidebar there). */
+               DEBOUNCED: each purchase resets a short timer, so the player can buy several
+               times in a row (2, 3, 4, 5...) and the shop only closes once they pause —
+               then the animation is revealed. No-op on desktop/landscape (permanent sidebar). */
             _mAutoCloseShop() {
                 try {
                     if (typeof mobileUI === 'undefined') return;
-                    if (window.matchMedia('(orientation: portrait) and (max-width: 768px)').matches) mobileUI.closeAll();
+                    if (!window.matchMedia('(orientation: portrait) and (max-width: 768px)').matches) return;
+                    clearTimeout(this._mShopCloseTimer);
+                    this._mShopCloseTimer = setTimeout(() => { try { mobileUI.closeAll(); } catch (e) {} }, 2000);
                 } catch (e) {}
             },
             pres() {
