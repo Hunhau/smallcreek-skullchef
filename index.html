@@ -6998,8 +6998,12 @@
                 touch(tier, src);
                 return entry;
             }
+            function bumpThumbLimit(min) {
+                const n = Math.floor(Number(min) || 0);
+                if (n > limits.thumb) limits.thumb = n;
+            }
             initLimits();
-            return { initLimits, get, canLoadFull, limits: function () { return limits; } };
+            return { initLimits, get, canLoadFull, bumpThumbLimit, limits: function () { return limits; } };
         })();
         const collection = {
             RARITIES: [
@@ -7009,7 +7013,7 @@
             rarRank: { common: 0, uncommon: 1, rare: 2, epic: 3, legendary: 4, superleg: 5 },
             RAR_GLOW: { common: '#94a3b8', uncommon: '#4ade80', rare: '#a5f3fc', epic: '#d8b4fe', legendary: '#fbbf24', superleg: '#fb7185' },
             DROP_INTERVAL: 600, DAILY_CAP: 12,
-            _cache: {}, _gridIO: null,
+            _cache: {}, _gridIO: null, _loadedThumbs: null, _lastGridSig: '', _bulkGrant: false, _grantRenderTimer: null,
             catalog() { const c = (window.SKIN_CATALOG || []); return Array.isArray(c) ? c : []; },
             skinById(id) { const cat = this.catalog(); for (let i = 0; i < cat.length; i++) { if (cat[i] && cat[i].id === id) return cat[i]; } return null; },
             skinsOfRarity(rar) { return this.catalog().filter(s => s && s.id && s.rarity === rar); },
@@ -7181,16 +7185,34 @@
             },
             preload() { this.preloadEquipped(); },
             _onSkinAssetLoaded() {
+                if (this._bulkGrant) return;
+                // Canvas thumb cache only — grid uses live <img> lazy load; full render() here caused a flicker loop.
                 this._cache = {};
-                try { this.refreshFab(); } catch (e) {}
-                try { const m = document.getElementById('collection-modal'); if (m && m.classList.contains('open')) this.render(); } catch (e) {}
+            },
+            _gridThumbOk(el) {
+                try {
+                    const src = (el && el.dataset && el.dataset.src) || (el && el.src) || '';
+                    if (src) {
+                        if (!this._loadedThumbs) this._loadedThumbs = new Set();
+                        this._loadedThumbs.add(src);
+                    }
+                } catch (e) {}
             },
             _bindGridLazyThumbs(grid) {
                 if (this._gridIO) { try { this._gridIO.disconnect(); } catch (e) {} this._gridIO = null; }
                 const imgs = grid.querySelectorAll('img[data-src]');
                 if (!imgs.length) return;
                 if (!('IntersectionObserver' in window)) {
-                    imgs.forEach(function (img) { img.src = img.dataset.src; img.removeAttribute('data-src'); });
+                    const self = this;
+                    imgs.forEach(function (img) {
+                        const src = img.dataset.src;
+                        if (src) {
+                            self.img(src, 'thumb');
+                            img.onload = function () { self._gridThumbOk(img); };
+                            img.src = src;
+                            img.removeAttribute('data-src');
+                        }
+                    });
                     return;
                 }
                 const self = this;
@@ -7199,7 +7221,12 @@
                         if (!entry.isIntersecting) return;
                         const img = entry.target;
                         const src = img.dataset.src;
-                        if (src) { self.img(src, 'thumb'); img.src = src; img.removeAttribute('data-src'); }
+                        if (src) {
+                            self.img(src, 'thumb');
+                            img.onload = function () { self._gridThumbOk(img); };
+                            img.src = src;
+                            img.removeAttribute('data-src');
+                        }
                         self._gridIO.unobserve(img);
                     });
                 }, { root: grid, rootMargin: '100px', threshold: 0.01 });
@@ -7269,6 +7296,8 @@
                 const c = this.normalize();
                 const cat = this.catalog();
                 let added = 0;
+                this._bulkGrant = true;
+                clearTimeout(this._grantRenderTimer);
                 for (let i = 0; i < cat.length; i++) {
                     const sk = cat[i];
                     if (!sk || !sk.id) continue;
@@ -7278,10 +7307,14 @@
                 }
                 try { game.save(); } catch (e) {}
                 this.refreshFab();
-                try {
-                    const m = document.getElementById('collection-modal');
-                    if (m && m.classList.contains('open')) this.render();
-                } catch (e2) {}
+                const self = this;
+                this._grantRenderTimer = setTimeout(function () {
+                    self._bulkGrant = false;
+                    try {
+                        const m = document.getElementById('collection-modal');
+                        if (m && m.classList.contains('open')) self.render(true);
+                    } catch (e2) {}
+                }, 50);
                 return added;
             },
             dayKey() { try { return new Date().toISOString().slice(0, 10); } catch (e) { return 'na'; } },
@@ -7545,14 +7578,18 @@
             // Reemplaza un <img> roto: intenta PNG fallback, luego placeholder "?".
             imgFail(el) {
                 try {
-                    if (el && el.dataset && el.dataset.fallback && !el.dataset.fallbackUsed) {
+                    if (!el || !el.isConnected) return;
+                    if (el.dataset && el.dataset.fallback && !el.dataset.fallbackUsed) {
                         el.dataset.fallbackUsed = '1';
                         el.src = el.dataset.fallback;
                         return;
                     }
                 } catch (e) {}
-                try { const d = document.createElement('div'); d.className = (el.className || 'charm-img') + ' charm-ph'; d.textContent = '?'; el.replaceWith(d); }
-                catch (e) { try { el.classList.add('charm-ph'); el.removeAttribute('src'); } catch (e2) {} }
+                try {
+                    if (el.dataset && el.dataset.phDone) return;
+                    if (el.dataset) el.dataset.phDone = '1';
+                    const d = document.createElement('div'); d.className = (el.className || 'charm-img') + ' charm-ph'; d.textContent = '?'; el.replaceWith(d);
+                } catch (e) { try { el.classList.add('charm-ph'); el.removeAttribute('src'); } catch (e2) {} }
             },
             refreshFab() {
                 const thumb = document.getElementById('collection-fab-thumb'); if (!thumb) return;
@@ -7680,14 +7717,32 @@
                 try { if (this._revealTimer) { clearTimeout(this._revealTimer); this._revealTimer = null; } } catch (e) {}
                 const ov = document.getElementById('skin-reveal'); if (ov) ov.classList.remove('open');
             },
-            render() {
+            _gridSig(c, keys) {
+                let s = '';
+                for (let i = 0; i < keys.length; i++) {
+                    const k = keys[i], it = c.items[k];
+                    s += k + ':' + it.count + ':' + (this.isEquipped(k) ? 1 : 0) + '|';
+                }
+                return s;
+            },
+            render(force) {
                 const c = this.normalize();
                 const stats = document.getElementById('collection-stats');
                 if (stats) stats.innerHTML = `${t('coll_owned', { n: this.distinctCount() })} · ${t('coll_total_label', { n: this.totalCount() })}<br>${this.nextDropText()} · ${t('coll_daily_left', { n: this.DAILY_CAP - c.today, max: this.DAILY_CAP })}`;
                 const grid = document.getElementById('collection-grid'); if (!grid) return;
                 const keys = Object.keys(c.items);
-                if (!keys.length) { grid.innerHTML = `<div style="grid-column:1/-1; color:#94a3b8; font-size:0.85rem; padding:14px">${t('coll_empty')}</div>`; return; }
+                if (!keys.length) {
+                    grid.innerHTML = `<div style="grid-column:1/-1; color:#94a3b8; font-size:0.85rem; padding:14px">${t('coll_empty')}</div>`;
+                    this._lastGridSig = '';
+                    return;
+                }
                 keys.sort((a, b) => (this.rarRank[c.items[b].rarity] - this.rarRank[c.items[a].rarity]) || (a < b ? -1 : a > b ? 1 : 0));
+                const sig = this._gridSig(c, keys);
+                if (!force && sig === this._lastGridSig && grid.querySelector('.charm-tile')) return;
+                this._lastGridSig = sig;
+                if (keys.length > 80) { try { SkinAssetManager.bumpThumbLimit(Math.min(400, keys.length + 40)); } catch (e) {} }
+                if (!this._loadedThumbs) this._loadedThumbs = new Set();
+                const loaded = this._loadedThumbs;
                 grid.innerHTML = keys.map(k => {
                     // A tile is "equipped" iff it's the current skin for ITS OWN slot.
                     const it = c.items[k], eqd = this.isEquipped(k);
@@ -7698,7 +7753,9 @@
                     const thumbSrc = skin ? this.srcThumb(skin) : null;
                     const fb = skin ? (skin.img || '') : '';
                     const art = thumbSrc
-                        ? `<img class="charm-img r-${it.rarity}" data-src="${thumbSrc}" data-fallback="${fb}" alt="?" loading="lazy" decoding="async" onerror="collection.imgFail(this)">`
+                        ? (loaded.has(thumbSrc)
+                            ? `<img class="charm-img r-${it.rarity}" src="${thumbSrc}" data-fallback="${fb}" alt="" loading="lazy" decoding="async" onload="collection._gridThumbOk(this)" onerror="collection.imgFail(this)">`
+                            : `<img class="charm-img r-${it.rarity}" data-src="${thumbSrc}" data-fallback="${fb}" alt="" loading="lazy" decoding="async" onerror="collection.imgFail(this)">`)
                         : `<div class="charm-img charm-ph r-${it.rarity}">?</div>`;
                     const insp = `<button class="charm-inspect" type="button" title="${t('coll_inspect')}" aria-label="${t('coll_inspect_aria')}" onclick="event.stopPropagation();collection.preview('${kk}')">🔍</button>`;
                     return `<div class="charm-tile r-${it.rarity} ${eqd ? 'equipped' : ''}" onclick="collection.equip('${kk}')">${insp}${dup}${art}<span class="charm-name">${this.nameFor(it)}</span><span class="charm-rar r-${it.rarity}">${fam ? fam + ' · ' : ''}${t('r_' + it.rarity)}</span><span style="font-size:0.58rem;color:${eqd ? '#fbbf24' : '#94a3b8'}">${eqd ? t('coll_equipped') : t('coll_equip')}</span></div>`;
