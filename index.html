@@ -795,6 +795,8 @@
         .charm-tile.locked { opacity: 0.42; cursor: default; filter: grayscale(0.85) brightness(0.72); }
         .charm-tile.locked:hover { filter: grayscale(0.85) brightness(0.72); transform: none; }
         .charm-tile.locked .charm-img { opacity: 0.35; }
+        .charm-tile.collectible { cursor: default; }
+        .charm-tile.collectible:hover { filter: none; transform: none; }
         .charm-lock { position: absolute; top: 4px; left: 4px; font-size: 0.72rem; line-height: 1; opacity: 0.9; }
         @keyframes charmHolo { 0%{border-color:#fb7185;box-shadow:0 0 16px rgba(251,113,133,0.55);} 25%{border-color:#fbbf24;box-shadow:0 0 18px rgba(251,191,36,0.6);} 50%{border-color:#34d399;box-shadow:0 0 18px rgba(52,211,153,0.6);} 75%{border-color:#60a5fa;box-shadow:0 0 18px rgba(96,165,250,0.6);} 100%{border-color:#fb7185;box-shadow:0 0 16px rgba(251,113,133,0.55);} }
         .charm-img { width: 100%; max-width: 84px; aspect-ratio: 1/1; image-rendering: auto; border-radius: 8px; background: rgba(0,0,0,0.25); object-fit: contain; }
@@ -1733,7 +1735,7 @@
                 pause_btn:"☰ Menu", pause_title:"Paused", pause_resume:"▶ Resume", pause_settings:"⚙ Settings", pause_home:"🏠 Main Menu", pause_exit:"🚪 Exit", pause_back:"← Back",
                 collection_btn:"🎴 Charms", collection_title:"Charm Collection",
                 coll_empty:"No charms yet. Keep cooking — charms drop as you play!", coll_owned:"Collected {n} / {total} kinds", coll_total_label:"Total charms: {n}", coll_locked:"Locked", coll_locked_toast:"Keep playing to unlock this charm!",
-                coll_equip:"Equip", coll_equipped:"Equipped", coll_unequip:"Unequip",
+                coll_equip:"Equip", coll_equipped:"Equipped", coll_unequip:"Unequip", coll_collectible:"Collectible",
                 coll_next_drop:"Next charm in {time}", coll_daily_left:"{n}/{max} drops today", coll_daily_done:"Daily drops complete · resets tomorrow",
                 coll_drop_toast:"🎴 New charm! {rarity}", coll_dup_toast:"🎴 Duplicate charm ({rarity})", coll_item_name:"Charm #{id}",
                 reveal_new_charm:"NEW CHARM!", reveal_continue:"Add to Charms",
@@ -1845,7 +1847,7 @@
                 pause_btn:"☰ Menú", pause_title:"Pausa", pause_resume:"▶ Reanudar", pause_settings:"⚙ Ajustes", pause_home:"🏠 Menú principal", pause_exit:"🚪 Salir", pause_back:"← Volver",
                 collection_btn:"🎴 Amuletos", collection_title:"Colección de Amuletos",
                 coll_empty:"Aún no tienes amuletos. ¡Sigue cocinando — los amuletos caen mientras juegas!", coll_owned:"Coleccionados {n} / {total} tipos", coll_total_label:"Amuletos totales: {n}", coll_locked:"Bloqueado", coll_locked_toast:"¡Sigue jugando para desbloquear este amuleto!",
-                coll_equip:"Equipar", coll_equipped:"Equipado", coll_unequip:"Quitar",
+                coll_equip:"Equipar", coll_equipped:"Equipado", coll_unequip:"Quitar", coll_collectible:"Coleccionable",
                 coll_next_drop:"Próximo amuleto en {time}", coll_daily_left:"{n}/{max} drops hoy", coll_daily_done:"Drops diarios completos · se reinician mañana",
                 coll_drop_toast:"🎴 ¡Nuevo amuleto! {rarity}", coll_dup_toast:"🎴 Amuleto repetido ({rarity})", coll_item_name:"Amuleto #{id}",
                 reveal_new_charm:"¡NUEVO AMULETO!", reveal_continue:"Añadir a Amuletos",
@@ -7186,6 +7188,15 @@
                 return null;
             },
             slotOfId(id) { return this.slotOf(this.skinById(id)); },
+            // Spoon/hat skins equippable from Amuletos: EB shop album only (helpers always equippable).
+            isShopEquippable(id) {
+                const sk = this.skinById(id);
+                if (!sk) return false;
+                if (sk.family !== 'spoon' && sk.family !== 'chefhat') return true;
+                let shop = [];
+                try { shop = game.shopExclusiveSkinIds(); } catch (e) {}
+                return shop.indexOf(id) !== -1;
+            },
             // Currently-equipped skin id for a slot key (or null).
             equippedIn(slotKey) { const c = game.coll; return (c && c.equips && c.equips[slotKey]) ? c.equips[slotKey] : null; },
             // A skin id is "equipped" iff it's the current skin for its own slot.
@@ -7431,6 +7442,9 @@
                     if (mslot && !equips[mslot]) equips[mslot] = c.equipped;
                 }
                 delete c.equipped;
+                // Non-shop spoon/hat skins are collectibles only — clear stale equips.
+                if (equips.spoon && !this.isShopEquippable(equips.spoon)) equips.spoon = null;
+                if (equips.hat && !this.isShopEquippable(equips.hat)) equips.hat = null;
                 c.equips = equips;
                 this.syncShopSpoons(c);
                 this.syncShopHats(c);
@@ -7592,6 +7606,7 @@
                 if (!c.items[key]) return;
                 const slot = this.slotOfId(key);
                 if (!slot) return;
+                if (!this.isShopEquippable(key)) return;
                 // Toggle within THIS slot only. Equipping to a slot that already holds a
                 // different skin swaps it; equipping the same skin again unequips it.
                 // Other slots are never touched, so each helper/spoon/hat is independent.
@@ -8002,7 +8017,12 @@
                             : `<img class="charm-img r-${it.rarity}" data-src="${thumbSrc}" data-fallback="${fb}" alt="" loading="lazy" decoding="async" onerror="collection.imgFail(this)">`)
                         : `<div class="charm-img charm-ph r-${it.rarity}">?</div>`;
                     const insp = `<button class="charm-inspect" type="button" title="${t('coll_inspect')}" aria-label="${t('coll_inspect_aria')}" onclick="event.stopPropagation();collection.preview('${kk}')">🔍</button>`;
-                    return `<div class="charm-tile r-${it.rarity} ${eqd ? 'equipped' : ''}" onclick="collection.equip('${kk}')">${insp}${dup}${art}<span class="charm-name">${this.nameFor(it)}</span><span class="charm-rar r-${it.rarity}">${fam ? fam + ' · ' : ''}${t('r_' + it.rarity)}</span><span style="font-size:0.58rem;color:${eqd ? '#fbbf24' : '#94a3b8'}">${eqd ? t('coll_equipped') : t('coll_equip')}</span></div>`;
+                    const canEquip = this.isShopEquippable(k);
+                    const tileCls = `charm-tile r-${it.rarity}${eqd && canEquip ? ' equipped' : ''}${!canEquip ? ' collectible' : ''}`;
+                    const actionLbl = canEquip ? (eqd ? t('coll_equipped') : t('coll_equip')) : t('coll_collectible');
+                    const actionClr = canEquip ? (eqd ? '#fbbf24' : '#94a3b8') : '#64748b';
+                    const tileClick = canEquip ? ` onclick="collection.equip('${kk}')"` : '';
+                    return `<div class="${tileCls}"${tileClick}>${insp}${dup}${art}<span class="charm-name">${this.nameFor(it)}</span><span class="charm-rar r-${it.rarity}">${fam ? fam + ' · ' : ''}${t('r_' + it.rarity)}</span><span style="font-size:0.58rem;color:${actionClr}">${actionLbl}</span></div>`;
                 }).join('');
                 this._bindGridLazyThumbs(grid);
             },
