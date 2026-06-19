@@ -5952,17 +5952,31 @@
                 if (replant) { try { setTimeout(() => { try { sound.playFarm('farmPlantar', 'bubble'); } catch (e2) {} }, 180); } catch (e3) {} }
                 game.save(); this.render(); this.updateBadge();
             },
+            allPlantedReady() {
+                let hasPlanted = false;
+                for (const plot of game.farm.plots) {
+                    const st = this.plotState(plot);
+                    if (st === 'empty') continue;
+                    hasPlanted = true;
+                    if (st !== 'ready') return false;
+                }
+                return hasPlanted;
+            },
             tickReady() {
                 this.ensure();
                 let changed = false;
+                let anyJustReady = false;
                 game.farm.plots.forEach(plot => {
                     const st = this.plotState(plot);
                     if (plot._farmSt === 'growing' && st === 'ready') {
-                        try { sound.playFarm('farmListo', 'bubble'); } catch (e) {}
+                        anyJustReady = true;
                         changed = true;
                     }
                     if (plot._farmSt !== st) plot._farmSt = st;
                 });
+                if (anyJustReady && this.allPlantedReady()) {
+                    try { sound.playFarm('farmListo', 'bubble'); } catch (e) {}
+                }
                 if (changed) {
                     this.updateBadge();
                     try { const fm = document.getElementById('farm-modal'); if (fm && fm.classList.contains('open')) this.render(); } catch (e) {}
