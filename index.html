@@ -1716,7 +1716,7 @@
         // build differs, reload ONCE with a cache-busting ?v= query. sessionStorage guards
         // against reload loops. Fully defensive: any error is silent and never blocks the
         // game. Parent bumps BOTH version.json and BUILD_V on every future deploy.
-        const BUILD_V = "build-10";
+        const BUILD_V = "build-11";
         (function checkForUpdate() {
             try {
                 fetch('version.json?ts=' + Date.now(), { cache: 'no-store' })
@@ -4951,23 +4951,55 @@
                 if ([10, 25, 50, 100].some(th => prevLv < th && c.lv >= th)) { this.part(window.innerWidth / 2, window.innerHeight * 0.5, 'magic'); sound.play('bubble'); gx.toast(t(this.milestoneMsg[i] || 'milestone_generic')); }
                 ach.check();
                 this.rebuild();
-                this.summon(c, ev.currentTarget, this.isFeedMilestone(c.lv));
+                const feed = this.isFeedMilestone(c.lv);
+                if (this._mPortrait()) {
+                    // Portrait: don't throw while the shop covers the scene. Snapshot the buy
+                    // button position, then close the shop FIRST and fire the helper's
+                    // ingredient throw once it has slid away (see _mDeferSummonClose).
+                    let rect = null;
+                    try { if (ev && ev.currentTarget) rect = ev.currentTarget.getBoundingClientRect(); } catch (e) {}
+                    const originStub = rect ? { getBoundingClientRect: () => rect } : ev.currentTarget;
+                    this._mDeferSummonClose(() => this.summon(c, originStub, feed));
+                } else {
+                    this.summon(c, ev.currentTarget, feed);
+                }
                 this.render();
                 this.save();
                 try { if (typeof tutorial !== 'undefined' && tutorial.active) tutorial.notify('buy'); } catch (e) {}
-                this._mAutoCloseShop();
+            },
+            _mPortrait() {
+                try { return window.matchMedia('(orientation: portrait) and (max-width: 768px)').matches; } catch (e) { return false; }
             },
             /* Portrait mobile only: after a successful purchase, slide the shop sheet away
                so the player can watch the summon / eat animation without closing it manually.
                DEBOUNCED: each purchase resets a short timer, so the player can buy several
-               times in a row (2, 3, 4, 5...) and the shop only closes once they pause —
-               then the animation is revealed. No-op on desktop/landscape (permanent sidebar). */
+               times in a row (2, 3, 4, 5...) and the shop only closes once they pause.
+               No-op on desktop/landscape (permanent sidebar). */
             _mAutoCloseShop() {
+                if (this._mPortrait() && typeof mobileUI !== 'undefined') this._mScheduleShopClose();
+            },
+            /* Portrait companions: queue the visible ingredient-throw to fire AFTER the shop
+               slides closed, so the helpers start throwing into the now-visible cauldron —
+               a clear, gratifying payoff instead of an animation hidden behind the sheet. */
+            _mDeferSummonClose(thunk) {
                 try {
-                    if (typeof mobileUI === 'undefined') return;
-                    if (!window.matchMedia('(orientation: portrait) and (max-width: 768px)').matches) return;
+                    if (typeof thunk !== 'function') return;
+                    if (!this._mSummonQueue) this._mSummonQueue = [];
+                    this._mSummonQueue.push(thunk);
+                    this._mScheduleShopClose();
+                } catch (e) {}
+            },
+            /* Shared debounced close: closes the sheet quickly once buying pauses, then (after
+               the slide-out) fires any queued helper throws, staggered. Drains the queue
+               regardless of whether the last buy was a companion, spoon or hat. */
+            _mScheduleShopClose() {
+                try {
                     clearTimeout(this._mShopCloseTimer);
-                    this._mShopCloseTimer = setTimeout(() => { try { mobileUI.closeAll(); } catch (e) {} }, 2000);
+                    this._mShopCloseTimer = setTimeout(() => {
+                        try { if (typeof mobileUI !== 'undefined') mobileUI.closeAll(); } catch (e) {}
+                        const q = this._mSummonQueue || []; this._mSummonQueue = [];
+                        setTimeout(() => { q.forEach((fn, i) => setTimeout(() => { try { fn(); } catch (e) {} }, i * 240)); }, 320);
+                    }, 650);
                 } catch (e) {}
             },
             pres() {
