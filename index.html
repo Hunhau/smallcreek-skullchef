@@ -1200,6 +1200,13 @@
                     <span class="home-row-label" data-i18n="settings_fullscreen">Fullscreen</span>
                     <div class="home-ctrl"><button id="home-fs" class="home-btn" type="button" onclick="fullscreen.toggle()" data-i18n="fs_enter">⛶ Enter</button></div>
                 </div>
+                <div class="home-row" id="home-creator-sync" style="display:none">
+                    <span class="home-row-label" data-i18n="creator_sync_label">👑 Creator</span>
+                    <div class="home-ctrl">
+                        <button class="home-btn" type="button" onclick="backup.creatorCloudUpload()" data-i18n="creator_sync_upload">👑 Upload (PC→cloud)</button>
+                        <button class="home-btn" type="button" onclick="backup.creatorCloudRestore()" data-i18n="creator_sync_restore">👑 Restore (cloud→here)</button>
+                    </div>
+                </div>
                 <div class="home-row" id="home-backup">
                     <span class="home-row-label" data-i18n="backup_label">Backup</span>
                     <div class="home-ctrl">
@@ -1684,6 +1691,10 @@
           if (!_id) loadIdentity();
           return { uuid: _id.uuid, name: _id.name };
         },
+        reloadIdentity: function () {
+          _id = null;
+          return loadIdentity();
+        },
 
         setName: function (raw) {
           if (!_id) loadIdentity();
@@ -1951,7 +1962,7 @@
         // while still retrying if a reload didn't actually land the new build. Fully
         // defensive: any error is silent and never blocks the game. Parent bumps BOTH
         // version.json and BUILD_V on every future deploy.
-        const BUILD_V = "build-33";
+        const BUILD_V = "build-34";
         (function () {
             function hardReloadTo(v) {
                 try {
@@ -2001,6 +2012,7 @@
                 home_title:"Smallcreek Skullchef", home_subtitle:"The Wooden Soup", home_tagline:"A cozy ASMR soup to stir, sip and unwind.", home_play:"Play", home_language:"Language", home_audio:"Audio", home_credits:"Crafted with warmth in the SmallCreek kitchen.",
                 backup_label:"Backup", backup_export:"⬇ Export", backup_copy:"📋 Copy", backup_import:"📥 Paste", backup_file:"📂 File",
                 cloud_upload:"☁️ Cloud Save", cloud_restore:"☁️ Restore by Code", cloud_uploading:"Uploading to the cloud…", cloud_uploaded:"Progress saved to the cloud.", cloud_uploaded_copied:"Saved to the cloud — your code is copied!", cloud_your_code:"Your account code (copy it to move your progress to another device):", cloud_restore_prompt:"Paste your account code to restore your progress:", cloud_restoring:"Restoring from the cloud…", cloud_not_found:"No cloud save found for that code.", cloud_bad_code:"That account code is not valid.", cloud_offline:"The cloud is offline right now (leaderboard not connected).", cloud_error:"Cloud save failed. Please try again.",
+                creator_sync_label:"👑 Creator", creator_sync_upload:"👑 Upload (PC→cloud)", creator_sync_restore:"👑 Restore (cloud→here)", creator_sync_unlocked:"Creator sync unlocked.", creator_restore_confirm:"This will replace your progress on THIS device with your creator cloud save. Continue?",
                 backup_exported:"Backup file downloaded ⬇", backup_copied:"Backup code copied 📋", backup_imported:"Save imported! Reloading…", backup_invalid:"Invalid backup code ✗", backup_error:"Backup failed, try again ✗",
                 backup_import_prompt:"Paste your backup code here:", backup_copy_manual:"Copy this backup code:",
                 backup_import_title:"📥 Import Backup", backup_import_sub:"Paste your backup code below to restore your progress and leaderboard identity.", backup_import_ph:"Paste backup JSON here…", backup_import_do:"📥 Import", backup_confirm_overwrite:"This will overwrite your current progress and leaderboard identity on this device. Continue?",
@@ -2114,6 +2126,7 @@
                 home_title:"Smallcreek Skullchef", home_subtitle:"La Sopa de Madera", home_tagline:"Una sopa ASMR para remover, saborear y relajarte.", home_play:"Jugar", home_language:"Idioma", home_audio:"Audio", home_credits:"Hecho con cariño en la cocina de SmallCreek.",
                 backup_label:"Copia", backup_export:"⬇ Exportar", backup_copy:"📋 Copiar", backup_import:"📥 Pegar", backup_file:"📂 Archivo",
                 cloud_upload:"☁️ Subir a la nube", cloud_restore:"☁️ Restaurar con código", cloud_uploading:"Subiendo a la nube…", cloud_uploaded:"Progreso guardado en la nube.", cloud_uploaded_copied:"Guardado en la nube: ¡tu código está copiado!", cloud_your_code:"Tu código de cuenta (cópialo para llevar tu progreso a otro dispositivo):", cloud_restore_prompt:"Pega tu código de cuenta para restaurar tu progreso:", cloud_restoring:"Restaurando desde la nube…", cloud_not_found:"No hay copia en la nube para ese código.", cloud_bad_code:"Ese código de cuenta no es válido.", cloud_offline:"La nube está desconectada ahora mismo (ranking no conectado).", cloud_error:"Falló el guardado en la nube. Inténtalo de nuevo.",
+                creator_sync_label:"👑 Creador", creator_sync_upload:"👑 Subir partida (PC→nube)", creator_sync_restore:"👑 Restaurar (nube→aquí)", creator_sync_unlocked:"Sincronización de creador desbloqueada.", creator_restore_confirm:"Esto sustituirá tu progreso EN ESTE dispositivo por tu partida de creador en la nube. ¿Continuar?",
                 backup_exported:"Archivo de copia descargado ⬇", backup_copied:"Código de copia copiado 📋", backup_imported:"¡Partida importada! Recargando…", backup_invalid:"Código de copia inválido ✗", backup_error:"Fallo en la copia, inténtalo de nuevo ✗",
                 backup_import_prompt:"Pega aquí tu código de copia:", backup_copy_manual:"Copia este código de copia:",
                 backup_import_title:"📥 Importar copia", backup_import_sub:"Pega tu código de copia abajo para restaurar tu progreso y tu identidad de clasificación.", backup_import_ph:"Pega aquí el JSON de la copia…", backup_import_do:"📥 Importar", backup_confirm_overwrite:"Esto sobrescribirá tu progreso actual y tu identidad de clasificación en este dispositivo. ¿Continuar?",
@@ -6413,6 +6426,8 @@
             FILENAME: 'smallcreek-save',
             SAVE_KEY: 'soup_p_v17',
             IDENTITY_KEY: 'soup_lb_identity',
+            CREATOR_ID: '1832ff16-5fec-4afd-b570-f950e19eb434',
+            CREATOR_NAME: 'SmallcreekSkullchef',
             // Leaderboard identity (UUID + display name) as a parsed object, or null. This
             // is what lets the creator/player keep their ranking spot across origins.
             readIdentity() {
@@ -6554,6 +6569,57 @@
                 try { reader.readAsText(file); } catch (e) { gx.toast(t('backup_error')); }
             },
             // === CLOUD SAVE (cross-platform) ===================================
+            // Bind THIS device to the creator account (fixed UUID + name). Called
+            // automatically before a creator cloud upload so the bundle always
+            // carries the creator identity that earns the 👑 pinned rank row.
+            ensureCreatorIdentity() {
+                let cur = this.readIdentity() || {};
+                let prix = Number.isFinite(cur.prixWins) ? cur.prixWins : 0;
+                let scoreHi = Number.isFinite(cur.scoreHi) ? cur.scoreHi : 0;
+                try { prix = Math.max(prix, leaderboard.getPrixWins()); } catch (e) {}
+                try { scoreHi = Math.max(scoreHi, Math.floor(game.te || game.e || 0)); } catch (e) {}
+                const id = {
+                    uuid: this.CREATOR_ID,
+                    name: this.CREATOR_NAME,
+                    prixWins: prix,
+                    scoreHi: scoreHi,
+                    named: true,
+                    provisional: false,
+                    v: 1
+                };
+                try { localStorage.setItem(this.IDENTITY_KEY, JSON.stringify(id)); } catch (e) {}
+                try { leaderboard.reloadIdentity(); } catch (e) {}
+                return id;
+            },
+            // Creator-only: upload the PC save under the creator UUID so Android/iOS
+            // can pull the exact same progress + rank identity with one button.
+            async creatorCloudUpload() {
+                this.ensureCreatorIdentity();
+                try { await leaderboard.claimName(this.CREATOR_NAME).catch(() => {}); } catch (e) {}
+                try {
+                    leaderboard.submit({ score: game.te, prestige: game.s, prix: leaderboard.getPrixWins() });
+                    await leaderboard.flush();
+                } catch (e) {}
+                await this.cloudUpload();
+            },
+            // Creator-only: restore the cloud save keyed to the creator UUID (no code
+            // typing). Overwrites this device's local save + identity, then reloads.
+            creatorCloudRestore() {
+                let live = false; try { live = !!leaderboard.isLive(); } catch (e) {}
+                if (!live) { gx.toast(t('cloud_offline')); return; }
+                let ok = true;
+                try { ok = window.confirm(t('creator_restore_confirm')); } catch (e) { ok = true; }
+                if (!ok) return;
+                gx.toast(t('cloud_restoring'));
+                leaderboard.cloudPull(this.CREATOR_ID).then(blob => {
+                    this.importFromCode(blob);
+                }).catch(err => {
+                    if (err === 'NOT_FOUND') gx.toast(t('cloud_not_found'));
+                    else if (err === 'INVALID') gx.toast(t('cloud_bad_code'));
+                    else if (err === 'OFFLINE') gx.toast(t('cloud_offline'));
+                    else gx.toast(t('cloud_error'));
+                });
+            },
             // Upload the FULL portable bundle (save + leaderboard identity) to
             // Supabase, keyed by the player UUID, then show that UUID as the
             // "account code" so it can be entered on another device to restore.
@@ -6602,6 +6668,28 @@
                     else if (err === 'INVALID') gx.toast(t('cloud_bad_code'));
                     else if (err === 'OFFLINE') gx.toast(t('cloud_offline'));
                     else gx.toast(t('cloud_error'));
+                });
+            },
+            // Unlock the hidden creator-sync row (7 taps on the version label in ~3s).
+            initCreatorSyncUnlock() {
+                const row = document.getElementById('home-creator-sync');
+                const el = document.getElementById('home-version');
+                if (!row || !el || el.dataset.creatorSync) return;
+                el.dataset.creatorSync = '1';
+                const show = () => { row.style.display = ''; };
+                try { if (localStorage.getItem('soup_creator_sync_v1') === '1') show(); } catch (e) {}
+                let taps = [];
+                el.style.cursor = 'pointer';
+                el.addEventListener('click', () => {
+                    const now = Date.now();
+                    taps.push(now);
+                    taps = taps.filter(ts => now - ts <= 3000);
+                    if (taps.length >= 7) {
+                        taps = [];
+                        try { localStorage.setItem('soup_creator_sync_v1', '1'); } catch (e) {}
+                        show();
+                        gx.toast(t('creator_sync_unlocked'));
+                    }
                 });
             }
         };
@@ -9134,6 +9222,7 @@
             applyStaticI18n();
             const f = document.getElementById('lang-fab'); if (f) f.textContent = '🌐 ' + LANG.toUpperCase();
             home.init();
+            try { backup.initCreatorSyncUnlock(); } catch (e) {}
             try { fullscreen.init(); } catch (e) {}
             try { collection.refreshFab(); } catch (e) {}
             try { collection.preload(); } catch (e) {}

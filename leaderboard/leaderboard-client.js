@@ -257,6 +257,10 @@
       if (!_id) loadIdentity();
       return { uuid: _id.uuid, name: _id.name };
     },
+    reloadIdentity: function () {
+      _id = null;
+      return loadIdentity();
+    },
 
     /**
      * Set/update the player's display name (validated). Persists locally and,
