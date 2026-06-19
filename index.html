@@ -1721,7 +1721,7 @@
         // build differs, reload ONCE with a cache-busting ?v= query. sessionStorage guards
         // against reload loops. Fully defensive: any error is silent and never blocks the
         // game. Parent bumps BOTH version.json and BUILD_V on every future deploy.
-        const BUILD_V = "build-14";
+        const BUILD_V = "build-15";
         (function checkForUpdate() {
             try {
                 fetch('version.json?ts=' + Date.now(), { cache: 'no-store' })
@@ -4957,10 +4957,10 @@
                 ach.check();
                 this.rebuild();
                 const feed = this.isFeedMilestone(c.lv);
-                if (this._mPortrait()) {
-                    // Portrait: don't throw while the shop covers the scene. Snapshot the buy
-                    // button position, then close the shop FIRST and fire the helper's
-                    // ingredient throw once it has slid away (see _mDeferSummonClose).
+                if (this._mSheet()) {
+                    // Phone sheet (portrait OR landscape): don't throw while the shop covers the
+                    // scene. Snapshot the buy button position, then close the shop FIRST and fire
+                    // the helper's ingredient throw once it has slid away (see _mDeferSummonClose).
                     let rect = null;
                     try { if (ev && ev.currentTarget) rect = ev.currentTarget.getBoundingClientRect(); } catch (e) {}
                     const originStub = rect ? { getBoundingClientRect: () => rect } : ev.currentTarget;
@@ -4975,13 +4975,19 @@
             _mPortrait() {
                 try { return window.matchMedia('(orientation: portrait) and (max-width: 768px)').matches; } catch (e) { return false; }
             },
-            /* Portrait mobile only: after a successful purchase, slide the shop sheet away
-               so the player can watch the summon / eat animation without closing it manually.
-               DEBOUNCED: each purchase resets a short timer, so the player can buy several
-               times in a row (2, 3, 4, 5...) and the shop only closes once they pause.
-               No-op on desktop/landscape (permanent sidebar). */
+            /* True when the shop is the collapsible slide-in SHEET (phone, portrait OR
+               landscape) rather than a permanent desktop sidebar. Gates the buy-then-auto-close
+               flow so it also works in landscape phones, not just portrait. */
+            _mSheet() {
+                try { return typeof mobileUI !== 'undefined' && mobileUI.isPhone(); } catch (e) { return this._mPortrait(); }
+            },
+            /* Phone (portrait OR landscape): after a successful purchase, slide the shop sheet
+               away so the player can watch the summon / eat animation without closing it
+               manually. DEBOUNCED: each purchase resets a short timer, so the player can buy
+               several times in a row (2, 3, 4, 5...) and the shop only closes once they pause.
+               No-op on desktop (permanent sidebar). */
             _mAutoCloseShop() {
-                if (this._mPortrait() && typeof mobileUI !== 'undefined') this._mScheduleShopClose();
+                if (this._mSheet()) this._mScheduleShopClose();
             },
             /* Portrait companions: queue the visible ingredient-throw to fire AFTER the shop
                slides closed, so the helpers start throwing into the now-visible cauldron —
