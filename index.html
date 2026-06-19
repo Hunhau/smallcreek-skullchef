@@ -1203,6 +1203,8 @@
                 <div class="home-row" id="home-backup">
                     <span class="home-row-label" data-i18n="backup_label">Backup</span>
                     <div class="home-ctrl">
+                        <button class="home-btn" type="button" onclick="backup.cloudUpload()" data-i18n="cloud_upload">☁️ Subir a la nube</button>
+                        <button class="home-btn" type="button" onclick="backup.cloudRestore()" data-i18n="cloud_restore">☁️ Restaurar con código</button>
                         <button class="home-btn" type="button" onclick="backup.download()" data-i18n="backup_export">⬇ Export</button>
                         <button class="home-btn" type="button" onclick="backup.copy()" data-i18n="backup_copy">📋 Copy</button>
                         <button class="home-btn" type="button" onclick="backup.promptImport()" data-i18n="backup_import">📥 Paste</button>
@@ -1882,6 +1884,45 @@
 
         _seed: function () { return SEED.slice(); },
 
+        // ---- CLOUD SAVE (cross-platform progress) -------------------------
+        // Uploads/downloads a portable backup blob keyed by the player UUID, via
+        // the push_save / pull_save RPCs (see leaderboard/cloud_save.sql). The
+        // UUID doubles as the player's "account code". Reject reasons:
+        // 'OFFLINE' | 'INVALID' | 'NOT_FOUND' | 'ERROR'. Never throws sync.
+        _validUuid: function (s) {
+          return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(String(s || '').toLowerCase());
+        },
+        myCode: function () { if (!_id) loadIdentity(); return _id.uuid; },
+        cloudPush: function (blob) {
+          if (!_id) loadIdentity();
+          if (typeof blob !== 'string' || !blob) return Promise.reject('INVALID');
+          if (!isConfigured()) return Promise.reject('OFFLINE');
+          var uuid = _id.uuid;
+          return ensureClient().then(function (client) {
+            if (!client) throw 'OFFLINE';
+            return client.rpc('push_save', { p_id: uuid, p_blob: blob, p_platform: CONFIG.PLATFORM }).then(function (res) {
+              if (res && res.error) { throw 'ERROR'; }
+              return { code: uuid, updatedAt: res ? res.data : null };
+            });
+          }).catch(function (e) { throw (e === 'OFFLINE' || e === 'INVALID') ? e : 'ERROR'; });
+        },
+        cloudPull: function (code) {
+          if (!_id) loadIdentity();
+          var uuid = (typeof code === 'string' && code.trim()) ? code.trim().toLowerCase() : _id.uuid;
+          if (!this._validUuid(uuid)) return Promise.reject('INVALID');
+          if (!isConfigured()) return Promise.reject('OFFLINE');
+          return ensureClient().then(function (client) {
+            if (!client) throw 'OFFLINE';
+            return client.rpc('pull_save', { p_id: uuid }).then(function (res) {
+              if (res && res.error) { throw 'ERROR'; }
+              var data = res && res.data;
+              var row = Array.isArray(data) ? (data[0] || null) : (data || null);
+              if (!row || !row.blob) throw 'NOT_FOUND';
+              return row.blob;
+            });
+          }).catch(function (e) { throw (e === 'OFFLINE' || e === 'INVALID' || e === 'NOT_FOUND') ? e : 'ERROR'; });
+        },
+
         openPanel: function () {
           /* not wired yet — see INTEGRATION NOTES */
         }
@@ -1910,7 +1951,7 @@
         // while still retrying if a reload didn't actually land the new build. Fully
         // defensive: any error is silent and never blocks the game. Parent bumps BOTH
         // version.json and BUILD_V on every future deploy.
-        const BUILD_V = "build-32";
+        const BUILD_V = "build-33";
         (function () {
             function hardReloadTo(v) {
                 try {
@@ -1959,6 +2000,7 @@
                 tree_title:"Angel Awakening Tree", tree_shards_avail:"Available Angel Shards:", audio_mute_title:"Mute / Unmute sound", audio_vol_title:"Volume",
                 home_title:"Smallcreek Skullchef", home_subtitle:"The Wooden Soup", home_tagline:"A cozy ASMR soup to stir, sip and unwind.", home_play:"Play", home_language:"Language", home_audio:"Audio", home_credits:"Crafted with warmth in the SmallCreek kitchen.",
                 backup_label:"Backup", backup_export:"⬇ Export", backup_copy:"📋 Copy", backup_import:"📥 Paste", backup_file:"📂 File",
+                cloud_upload:"☁️ Cloud Save", cloud_restore:"☁️ Restore by Code", cloud_uploading:"Uploading to the cloud…", cloud_uploaded:"Progress saved to the cloud.", cloud_uploaded_copied:"Saved to the cloud — your code is copied!", cloud_your_code:"Your account code (copy it to move your progress to another device):", cloud_restore_prompt:"Paste your account code to restore your progress:", cloud_restoring:"Restoring from the cloud…", cloud_not_found:"No cloud save found for that code.", cloud_bad_code:"That account code is not valid.", cloud_offline:"The cloud is offline right now (leaderboard not connected).", cloud_error:"Cloud save failed. Please try again.",
                 backup_exported:"Backup file downloaded ⬇", backup_copied:"Backup code copied 📋", backup_imported:"Save imported! Reloading…", backup_invalid:"Invalid backup code ✗", backup_error:"Backup failed, try again ✗",
                 backup_import_prompt:"Paste your backup code here:", backup_copy_manual:"Copy this backup code:",
                 backup_import_title:"📥 Import Backup", backup_import_sub:"Paste your backup code below to restore your progress and leaderboard identity.", backup_import_ph:"Paste backup JSON here…", backup_import_do:"📥 Import", backup_confirm_overwrite:"This will overwrite your current progress and leaderboard identity on this device. Continue?",
@@ -2071,6 +2113,7 @@
                 tree_title:"Árbol del Despertar del Ángel", tree_shards_avail:"Fragmentos de Ángel disponibles:", audio_mute_title:"Silenciar / Activar sonido", audio_vol_title:"Volumen",
                 home_title:"Smallcreek Skullchef", home_subtitle:"La Sopa de Madera", home_tagline:"Una sopa ASMR para remover, saborear y relajarte.", home_play:"Jugar", home_language:"Idioma", home_audio:"Audio", home_credits:"Hecho con cariño en la cocina de SmallCreek.",
                 backup_label:"Copia", backup_export:"⬇ Exportar", backup_copy:"📋 Copiar", backup_import:"📥 Pegar", backup_file:"📂 Archivo",
+                cloud_upload:"☁️ Subir a la nube", cloud_restore:"☁️ Restaurar con código", cloud_uploading:"Subiendo a la nube…", cloud_uploaded:"Progreso guardado en la nube.", cloud_uploaded_copied:"Guardado en la nube: ¡tu código está copiado!", cloud_your_code:"Tu código de cuenta (cópialo para llevar tu progreso a otro dispositivo):", cloud_restore_prompt:"Pega tu código de cuenta para restaurar tu progreso:", cloud_restoring:"Restaurando desde la nube…", cloud_not_found:"No hay copia en la nube para ese código.", cloud_bad_code:"Ese código de cuenta no es válido.", cloud_offline:"La nube está desconectada ahora mismo (ranking no conectado).", cloud_error:"Falló el guardado en la nube. Inténtalo de nuevo.",
                 backup_exported:"Archivo de copia descargado ⬇", backup_copied:"Código de copia copiado 📋", backup_imported:"¡Partida importada! Recargando…", backup_invalid:"Código de copia inválido ✗", backup_error:"Fallo en la copia, inténtalo de nuevo ✗",
                 backup_import_prompt:"Pega aquí tu código de copia:", backup_copy_manual:"Copia este código de copia:",
                 backup_import_title:"📥 Importar copia", backup_import_sub:"Pega tu código de copia abajo para restaurar tu progreso y tu identidad de clasificación.", backup_import_ph:"Pega aquí el JSON de la copia…", backup_import_do:"📥 Importar", backup_confirm_overwrite:"Esto sobrescribirá tu progreso actual y tu identidad de clasificación en este dispositivo. ¿Continuar?",
@@ -6509,6 +6552,57 @@
                 reader.onload = () => { this.importFromCode(String(reader.result || '')); try { input.value = ''; } catch (e) {} };
                 reader.onerror = () => { gx.toast(t('backup_error')); try { input.value = ''; } catch (e) {} };
                 try { reader.readAsText(file); } catch (e) { gx.toast(t('backup_error')); }
+            },
+            // === CLOUD SAVE (cross-platform) ===================================
+            // Upload the FULL portable bundle (save + leaderboard identity) to
+            // Supabase, keyed by the player UUID, then show that UUID as the
+            // "account code" so it can be entered on another device to restore.
+            // Gated behind the same privacy consent as any other network write.
+            async cloudUpload() {
+                let code = '';
+                try { code = this.encode(); } catch (e) { gx.toast(t('backup_error')); return; }
+                let live = false; try { live = !!leaderboard.isLive(); } catch (e) {}
+                if (!live) { gx.toast(t('cloud_offline')); return; }
+                const doUpload = () => {
+                    gx.toast(t('cloud_uploading'));
+                    leaderboard.cloudPush(code).then(res => {
+                        const myCode = (res && res.code) || (function () { try { return leaderboard.myCode(); } catch (e) { return ''; } })();
+                        this.showAccountCode(myCode);
+                    }).catch(err => {
+                        gx.toast(err === 'OFFLINE' ? t('cloud_offline') : t('cloud_error'));
+                    });
+                };
+                try { privacyConsent.gate(doUpload, () => {}); } catch (e) { doUpload(); }
+            },
+            // Show the account/transfer code and copy it to the clipboard so the
+            // player can paste it on their other device's "Restore" prompt.
+            async showAccountCode(myCode) {
+                if (!myCode) { gx.toast(t('cloud_uploaded')); return; }
+                let copied = false;
+                try { if (navigator.clipboard && navigator.clipboard.writeText) { await navigator.clipboard.writeText(myCode); copied = true; } } catch (e) {}
+                gx.toast(copied ? t('cloud_uploaded_copied') : t('cloud_uploaded'));
+                try { window.prompt(t('cloud_your_code'), myCode); } catch (e) {}
+            },
+            // Restore progress from the cloud using an account code (UUID). If left
+            // blank, restores THIS device's own cloud save.
+            cloudRestore() {
+                let live = false; try { live = !!leaderboard.isLive(); } catch (e) {}
+                if (!live) { gx.toast(t('cloud_offline')); return; }
+                let own = ''; try { own = leaderboard.myCode() || ''; } catch (e) {}
+                let code = null;
+                try { code = window.prompt(t('cloud_restore_prompt'), own); } catch (e) { code = null; }
+                if (code == null) return; // cancelled: never touch the save
+                code = String(code).trim();
+                if (!code) { gx.toast(t('cloud_bad_code')); return; }
+                gx.toast(t('cloud_restoring'));
+                leaderboard.cloudPull(code).then(blob => {
+                    this.importFromCode(blob); // validates, persists, restores identity, reloads
+                }).catch(err => {
+                    if (err === 'NOT_FOUND') gx.toast(t('cloud_not_found'));
+                    else if (err === 'INVALID') gx.toast(t('cloud_bad_code'));
+                    else if (err === 'OFFLINE') gx.toast(t('cloud_offline'));
+                    else gx.toast(t('cloud_error'));
+                });
             }
         };
         const offline = {

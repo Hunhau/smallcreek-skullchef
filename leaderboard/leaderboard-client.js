@@ -478,6 +478,48 @@
     /** Raw seed data (for a public page's offline fallback). */
     _seed: function () { return SEED.slice(); },
 
+    // ---- CLOUD SAVE (cross-platform progress transfer) --------------------
+    // Uploads/downloads a portable backup blob keyed by the player UUID, via the
+    // push_save / pull_save RPCs (see leaderboard/cloud_save.sql). The UUID is
+    // the player's "account code". Reject reasons: 'OFFLINE'|'INVALID'|
+    // 'NOT_FOUND'|'ERROR'. Safe no-ops/rejects in mock mode.
+    _validUuid: function (s) {
+      return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(String(s || '').toLowerCase());
+    },
+    /** The player's account/transfer code (their UUID). */
+    myCode: function () { if (!_id) loadIdentity(); return _id.uuid; },
+    /** Upload (overwrite) my cloud save. blob = a portable backup string. */
+    cloudPush: function (blob) {
+      if (!_id) loadIdentity();
+      if (typeof blob !== 'string' || !blob) return Promise.reject('INVALID');
+      if (!isConfigured()) return Promise.reject('OFFLINE');
+      var uuid = _id.uuid;
+      return ensureClient().then(function (client) {
+        if (!client) throw 'OFFLINE';
+        return client.rpc('push_save', { p_id: uuid, p_blob: blob, p_platform: CONFIG.PLATFORM }).then(function (res) {
+          if (res && res.error) { throw 'ERROR'; }
+          return { code: uuid, updatedAt: res ? res.data : null };
+        });
+      }).catch(function (e) { throw (e === 'OFFLINE' || e === 'INVALID') ? e : 'ERROR'; });
+    },
+    /** Download a save by account code (UUID). Defaults to my own UUID. */
+    cloudPull: function (code) {
+      if (!_id) loadIdentity();
+      var uuid = (typeof code === 'string' && code.trim()) ? code.trim().toLowerCase() : _id.uuid;
+      if (!this._validUuid(uuid)) return Promise.reject('INVALID');
+      if (!isConfigured()) return Promise.reject('OFFLINE');
+      return ensureClient().then(function (client) {
+        if (!client) throw 'OFFLINE';
+        return client.rpc('pull_save', { p_id: uuid }).then(function (res) {
+          if (res && res.error) { throw 'ERROR'; }
+          var data = res && res.data;
+          var row = Array.isArray(data) ? (data[0] || null) : (data || null);
+          if (!row || !row.blob) throw 'NOT_FOUND';
+          return row.blob;
+        });
+      }).catch(function (e) { throw (e === 'OFFLINE' || e === 'INVALID' || e === 'NOT_FOUND') ? e : 'ERROR'; });
+    },
+
     /**
      * Stub the parent overrides when wiring the in-game UI. Kept here so a
      * `onclick="leaderboard.openPanel()"` FAB doesn't error before wiring.
