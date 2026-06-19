@@ -2738,14 +2738,17 @@
             },
             activeId() {
                 if (this.target === 'hat') {
-                    const coll = collection.equippedIn('hat');
-                    if (coll) return coll;
                     try {
                         const sh = game.getEquippedShopHat();
                         return (sh && sh.owned && sh.skinId) ? sh.skinId : null;
                     } catch (e) { return null; }
                 }
-                if (this.target === 'spoon') return collection.equippedIn('spoon');
+                if (this.target === 'spoon') {
+                    try {
+                        const ss = game.getEquippedSpoon();
+                        return (ss && ss.owned && ss.skinId) ? ss.skinId : null;
+                    } catch (e) { return null; }
+                }
                 if (this.target === 'decor_hat') return (game.decor && game.decor.slots) ? game.decor.slots.chefHat : null;
                 if (this.target === 'decor_face') return (game.decor && game.decor.slots) ? game.decor.slots.chefFace : null;
                 return null;
@@ -3281,6 +3284,14 @@
             shopSpoonSkinIds() { return this.spoons.map(s => s.skinId).filter(Boolean); },
             shopHatSkinIds() { return this.hats.map(h => h.skinId).filter(Boolean); },
             shopExclusiveSkinIds() { return this.shopSpoonSkinIds().concat(this.shopHatSkinIds()); },
+            isShopOwned(skinId) {
+                if (!skinId) return false;
+                const sp = this.spoons.find(s => s && s.skinId === skinId);
+                if (sp) return !!sp.owned;
+                const ht = this.hats.find(h => h && h.skinId === skinId);
+                if (ht) return !!ht.owned;
+                return false;
+            },
             spoonCatalog(s) { return (s && s.skinId) ? collection.skinById(s.skinId) : null; },
             hatCatalog(h) { return (h && h.skinId) ? collection.skinById(h.skinId) : null; },
             spoonCardImg(s) { const sk = this.spoonCatalog(s); return sk ? collection.srcThumb(sk) : (s.cardImg || ''); },
@@ -7188,14 +7199,13 @@
                 return null;
             },
             slotOfId(id) { return this.slotOf(this.skinById(id)); },
-            // Spoon/hat skins equippable from Amuletos: EB shop album only (helpers always equippable).
-            isShopEquippable(id) {
+            // Helpers: equippable from Amuletos when owned. Spoon/hat: gallery-only in Amuletos —
+            // equip only via the EB shop album (game.spoons / game.hats buy+equip flow).
+            canEquipSkin(id) {
                 const sk = this.skinById(id);
                 if (!sk) return false;
-                if (sk.family !== 'spoon' && sk.family !== 'chefhat') return true;
-                let shop = [];
-                try { shop = game.shopExclusiveSkinIds(); } catch (e) {}
-                return shop.indexOf(id) !== -1;
+                if (sk.family === 'spoon' || sk.family === 'chefhat') return false;
+                return true;
             },
             // Currently-equipped skin id for a slot key (or null).
             equippedIn(slotKey) { const c = game.coll; return (c && c.equips && c.equips[slotKey]) ? c.equips[slotKey] : null; },
@@ -7433,18 +7443,19 @@
                 const equips = {};
                 for (const slot of this.SLOTS) {
                     const id = prevEquips[slot];
-                    equips[slot] = (typeof id === 'string' && c.items[id] && this.slotOfId(id) === slot) ? id : null;
+                    const ok = typeof id === 'string' && c.items[id] && this.slotOfId(id) === slot;
+                    equips[slot] = (ok && this.canEquipSkin(id)) ? id : null;
                 }
                 // MIGRATION: old single-equip value (c.equipped) -> place it in its slot if
                 // that slot is still empty. Then retire the legacy field.
                 if (typeof c.equipped === 'string' && c.items[c.equipped]) {
                     const mslot = this.slotOfId(c.equipped);
-                    if (mslot && !equips[mslot]) equips[mslot] = c.equipped;
+                    if (mslot && !equips[mslot] && this.canEquipSkin(c.equipped)) equips[mslot] = c.equipped;
                 }
                 delete c.equipped;
-                // Non-shop spoon/hat skins are collectibles only — clear stale equips.
-                if (equips.spoon && !this.isShopEquippable(equips.spoon)) equips.spoon = null;
-                if (equips.hat && !this.isShopEquippable(equips.hat)) equips.hat = null;
+                // Spoon/hat never use coll.equips — shop album owns equip state.
+                equips.spoon = null;
+                equips.hat = null;
                 c.equips = equips;
                 this.syncShopSpoons(c);
                 this.syncShopHats(c);
@@ -7606,7 +7617,8 @@
                 if (!c.items[key]) return;
                 const slot = this.slotOfId(key);
                 if (!slot) return;
-                if (!this.isShopEquippable(key)) return;
+                if (slot === 'spoon' || slot === 'hat') return;
+                if (!this.canEquipSkin(key)) return;
                 // Toggle within THIS slot only. Equipping to a slot that already holds a
                 // different skin swaps it; equipping the same skin again unequips it.
                 // Other slots are never touched, so each helper/spoon/hat is independent.
@@ -7628,41 +7640,16 @@
             //   hat    -> overlay best-effort del gorro sobre la cabeza del chef
             // Cada slot es independiente; un slot vacío restaura su visual por defecto.
             applyEquippedVisual() {
-                const c = this.normalize();
-                const eq = c.equips || {};
-                // --- CUCHARA (slot 'spoon') ---
-                try {
-                    const el = document.getElementById('asset-spoon');
-                    const rig = document.getElementById('spoon-rig');
-                    if (el) {
-                        const sp = eq.spoon ? this.skinById(eq.spoon) : null;
-                        if (sp && sp.img) {
-                            // Charm spoon: reuse the rig + .charm-spoon CSS base, then apply this
-                            // skin's OWN placement (translate/scale/rot). game._spoonPlace is also
-                            // read by game.loop() so the idle stir keeps this position.
-                            this._setFullImg(el, sp);
-                            if (rig) rig.classList.add('charm-spoon');
-                            game._spoonPlace = this.placementFor(eq.spoon);
-                            game._applySpoonRig();
-                        } else {
-                            // Default / sacred (album) spoon -> restore the standard rig.
-                            if (rig) rig.classList.remove('charm-spoon');
-                            game.applySpoonVisual();
-                        }
-                    }
-                } catch (e) {}
+                this.normalize();
+                // --- CUCHARA: shop album only (never coll.equips.spoon) ---
+                try { game.applySpoonVisual(); } catch (e) {}
                 // --- AYUDANTES (slots coco/bunny/pio/ivan/bongo) ---
                 try { this.applyHelperVisual(); } catch (e) {}
-                // --- GORRO DE CHEF (slot 'hat', best-effort) ---
+                // --- GORRO: shop album only (never coll.equips.hat) ---
                 try {
-                    const collHat = eq.hat ? this.skinById(eq.hat) : null;
-                    if (collHat && collHat.img) {
-                        this.applyHatVisual(collHat);
-                    } else {
-                        const sh = game.getEquippedShopHat();
-                        const shopHat = (sh && sh.owned && !game.equippedHatHidden()) ? game.hatCatalog(sh) : null;
-                        this.applyHatVisual(shopHat && shopHat.img ? shopHat : null);
-                    }
+                    const sh = game.getEquippedShopHat();
+                    const shopHat = (sh && sh.owned && !game.equippedHatHidden()) ? game.hatCatalog(sh) : null;
+                    this.applyHatVisual(shopHat && shopHat.img ? shopHat : null);
                 } catch (e) {}
             },
             // Aplica la skin equipada de CADA slot de ayudante a su sprite (o el sprite por
@@ -8017,7 +8004,7 @@
                             : `<img class="charm-img r-${it.rarity}" data-src="${thumbSrc}" data-fallback="${fb}" alt="" loading="lazy" decoding="async" onerror="collection.imgFail(this)">`)
                         : `<div class="charm-img charm-ph r-${it.rarity}">?</div>`;
                     const insp = `<button class="charm-inspect" type="button" title="${t('coll_inspect')}" aria-label="${t('coll_inspect_aria')}" onclick="event.stopPropagation();collection.preview('${kk}')">🔍</button>`;
-                    const canEquip = this.isShopEquippable(k);
+                    const canEquip = this.canEquipSkin(k);
                     const tileCls = `charm-tile r-${it.rarity}${eqd && canEquip ? ' equipped' : ''}${!canEquip ? ' collectible' : ''}`;
                     const actionLbl = canEquip ? (eqd ? t('coll_equipped') : t('coll_equip')) : t('coll_collectible');
                     const actionClr = canEquip ? (eqd ? '#fbbf24' : '#94a3b8') : '#64748b';
