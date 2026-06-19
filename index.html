@@ -1772,7 +1772,7 @@
         // while still retrying if a reload didn't actually land the new build. Fully
         // defensive: any error is silent and never blocks the game. Parent bumps BOTH
         // version.json and BUILD_V on every future deploy.
-        const BUILD_V = "build-19";
+        const BUILD_V = "build-20";
         (function () {
             function hardReloadTo(v) {
                 try {
@@ -1803,7 +1803,17 @@
                 window.addEventListener('pageshow', function (e) { if (e && e.persisted) checkForUpdate(); });
             } catch (e) {}
             try {
-                document.addEventListener('DOMContentLoaded', function () { var b = document.getElementById('build-tag'); if (b) b.textContent = BUILD_V; });
+                var updTag = function () {
+                    var b = document.getElementById('build-tag'); if (!b) return;
+                    var mm = function (q) { try { return window.matchMedia(q).matches ? 1 : 0; } catch (e) { return '?'; } };
+                    b.textContent = BUILD_V + ' ' + window.innerWidth + 'x' + window.innerHeight
+                        + ' c' + mm('(pointer: coarse)')
+                        + ' P' + mm('(orientation: portrait) and (max-width: 768px)')
+                        + ' L' + mm('(pointer: coarse) and (orientation: landscape) and (max-height: 600px)');
+                };
+                document.addEventListener('DOMContentLoaded', updTag);
+                window.addEventListener('resize', updTag);
+                window.addEventListener('orientationchange', updTag);
             } catch (e) {}
         })();
         let LANG = 'en';
