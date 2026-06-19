@@ -69,8 +69,7 @@
             object-fit: fill; object-position: 0 0; display: none; z-index: 1;
         }
         #chef-rig.chef-eating,
-        #asset-chef-hand.chef-eating,
-        #spoon-rig.chef-eating { animation: chefEatBounce 0.58s ease-out; }
+        #asset-chef-hand.chef-eating { animation: chefEatBounce 0.58s ease-out; }
         #asset-chef-hand { position: absolute; z-index: 4; transform: translate(-50%, -50%); left: 0px; top: -40px; width: 720px; pointer-events: none; }
         /* BEST-EFFORT chef-hat overlay: positioned over the chef's head. Tuned by eye
            against the 720px chef sprite; collectible-only fallback if it ever looks off. */
@@ -1902,7 +1901,7 @@
         // while still retrying if a reload didn't actually land the new build. Fully
         // defensive: any error is silent and never blocks the game. Parent bumps BOTH
         // version.json and BUILD_V on every future deploy.
-        const BUILD_V = "build-27";
+        const BUILD_V = "build-29";
         (function () {
             function hardReloadTo(v) {
                 try {
@@ -2279,9 +2278,12 @@
                         if (document.hidden) { try { this._stirStopNow(); } catch (e) {} }
                         else { this._needReprime = true; wake(); }
                     }, { passive: true });
-                    window.addEventListener('focus', () => { this._needReprime = true; wake(); }, { passive: true });
-                    window.addEventListener('pageshow', () => { this._needReprime = true; wake(); }, { passive: true });
-                    const gestureWake = () => { if (this._needReprime) { this._needReprime = false; wake(); } else { try { this.resumeAudio(); } catch (e) {} } };
+                    window.addEventListener('focus', () => { if (this._unlocked) { this._needReprime = true; wake(); } }, { passive: true });
+                    window.addEventListener('pageshow', () => { if (this._unlocked) { this._needReprime = true; wake(); } }, { passive: true });
+                    // The visibility/focus/pageshow handlers above already recover on return.
+                    // The gesture must NOT re-run recovery (it bubbles AFTER tap-driven SFX and
+                    // would re-mute/pause the pooled voices); just resume the AudioContext.
+                    const gestureWake = () => { this._needReprime = false; try { this.resumeAudio(); } catch (e) {} };
                     ['pointerdown', 'touchstart', 'click'].forEach(ev => document.addEventListener(ev, gestureWake, { passive: true }));
                 } catch (e) {}
             },
@@ -2300,16 +2302,17 @@
             recoverFromBackground() {
                 if (!this._inited || this.muted || this.volume <= 0) return;
                 this.resumeAudio();
+                // SYNC prime (mirrors unlock()): never leave a voice muted via an async
+                // callback, and never pause/reset a voice that is actively playing — that was
+                // silencing real SFX on mobile (the async mute window + done() clobber).
                 const prime = (a) => {
                     if (!a) return;
                     try {
-                        const wasMuted = a.muted;
+                        if (!a.paused && !a.ended) return; // don't touch a voice mid-play
                         a.muted = true;
-                        const p = a.play();
-                        const done = () => { try { a.pause(); a.currentTime = 0; a.muted = wasMuted; } catch (e) {} };
-                        if (p && p.then) p.then(done).catch(() => { try { a.load(); a.muted = wasMuted; } catch (e) {} });
-                        else done();
-                    } catch (e) { try { a.load(); } catch (e2) {} }
+                        const p = a.play(); if (p && p.catch) p.catch(() => {});
+                        a.pause(); a.currentTime = 0; a.muted = false;
+                    } catch (e) { try { a.load(); a.muted = false; } catch (e2) {} }
                 };
                 try {
                     for (const k in this.flat) {
@@ -2358,6 +2361,7 @@
                     for (let i = 0; i < flatB.length; i++) { const v = flatB[i]; if (!v.paused && !v.ended) return; }
                     const a = flatB[0];
                     try {
+                        a.muted = false;
                         a.volume = Math.min(1, Math.max(0, (this.vols[name] != null ? this.vols[name] : 0.5) * this.volume));
                         a.playbackRate = 1;
                         a.currentTime = 0;
@@ -2393,6 +2397,7 @@
                     if (!a) a = flat[0];
                 }
                 try {
+                    a.muted = false;
                     a.volume = Math.min(1, Math.max(0, (this.vols[name] != null ? this.vols[name] : 0.5) * this.volume));
                     // (3) Variación sutil de tono para que las repeticiones no se
                     //     enfasen/comb-filtreen. Sin variación => rate exacto 1.
@@ -2401,8 +2406,10 @@
                     a.currentTime = 0;
                     a._startedAt = now;
                     const p = a.play();
-                    if (p && p.catch) p.catch(() => { this._needReprime = true; try { this.recoverFromBackground(); } catch (e) {} });
-                } catch (e) { this._needReprime = true; try { this.recoverFromBackground(); } catch (e2) {} }
+                    // Don't re-prime the whole pool on a failed play (that re-mutes every voice
+                    // and silences mobile SFX). Just flag for the next foreground recovery.
+                    if (p && p.catch) p.catch(() => { this._needReprime = true; });
+                } catch (e) { this._needReprime = true; }
             },
             // Crunch SFX: pooled eat.mp3 (unlocked on gesture); synth fallback if play fails.
             _eatCtx: null,
@@ -3976,11 +3983,11 @@
             _chefHandEl() { return document.getElementById('asset-chef-hand'); },
             _setChefEating(on, restart) {
                 const hand = this._chefHandEl();
-                const spoonRig = document.getElementById('spoon-rig');
-                const hideSpoonFeed = this.equippedSpoonHidden();
-                for (const el of [this._chefRigEl(), hand, spoonRig]) {
+                // The spoon rig is intentionally excluded: bouncing it stomps the charm
+                // spoon's placement transform (and the default spoon's position), so the
+                // spoon stays put in the chef's hand during the feed/eat window.
+                for (const el of [this._chefRigEl(), hand]) {
                     if (!el) continue;
-                    if (el === spoonRig && hideSpoonFeed) continue;
                     if (on) {
                         if (restart) { el.classList.remove('chef-eating'); void el.offsetWidth; }
                         el.classList.add('chef-eating');
@@ -3990,29 +3997,22 @@
             applySpoonVisual() {
                 const el = document.getElementById('asset-spoon'); if (!el) return;
                 const rig = document.getElementById('spoon-rig');
-                const feeding = this._chefFeedInProgress();
                 const s = this.getEquippedSpoon();
+                // NOTE: the chef feed/eat window must NOT hide or displace the spoon. The
+                // default/hidden spoon stays visible in its normal position, and the charm
+                // spoon keeps its custom placement (re-applied below). The eat bounce no
+                // longer animates #spoon-rig, so the placement transform survives the feed.
                 if (this.equippedSpoonHidden()) {
                     el.src = this.defaultSpoonImg;
                     if (rig) {
-                        if (feeding) {
-                            rig.style.display = 'none';
-                            rig.classList.remove('chef-eating');
-                        } else {
-                            rig.style.display = '';
-                            rig.classList.remove('charm-spoon', 'chef-eating');
-                            rig.style.transform = '';
-                        }
+                        rig.style.display = '';
+                        rig.classList.remove('charm-spoon', 'chef-eating');
+                        rig.style.transform = '';
                     }
-                    if (!feeding) this._spoonPlace = null;
+                    this._spoonPlace = null;
                     return;
                 }
-                if (feeding && rig) {
-                    rig.style.display = '';
-                    rig.style.transform = '';
-                    return;
-                }
-                if (rig) { rig.classList.remove('charm-spoon'); rig.style.transform = ''; }
+                if (rig) { rig.classList.remove('charm-spoon', 'chef-eating'); rig.style.transform = ''; }
                 this._spoonPlace = null;
                 if (rig) rig.style.display = '';
                 if (s && s.owned) { if (!this._applyShopSpoonVisual(el, rig, s)) el.src = this.spoonSceneImg(s); }
@@ -4365,10 +4365,7 @@
                 if (_now - this._clickGate < 33) return;
                 this._clickGate = _now;
                 try { if (ev && ev.pointerType === 'mouse' && ev.button !== 0) return; } catch (e) {}
-                try {
-                    if (sound._needReprime) { sound.unlock(); sound.recoverFromBackground(); sound._needReprime = false; }
-                    else sound.unlock();
-                } catch (e) {}
+                try { sound.unlock(); sound.resumeAudio(); } catch (e) {}
                 const m = Number.isFinite(this.m) ? Math.min(Math.max(this.m, 1), 6) : 1;
                 const exp = Math.min(this.cp[1].lv * this.champMult(this.cp[1].ch) * 0.5, 24);
                 let gain = m * Math.pow(1.33, exp) * (1 + this.s * 0.5);
@@ -5192,10 +5189,24 @@
             summon(c, btn, feedMode, testLevel) {
                 const r = btn.getBoundingClientRect();
                 const h = document.createElement('img');
-                h.src = this.summonImgForHelper(c);
+                // Resolve a guaranteed-loadable sprite: equipped-skin img may be falsy, a
+                // missing PNG (skin only ships WebP), or a late/broken decode — any of which
+                // would leave the clone 0-height (CSS sets width but not height) so only the
+                // particles show. Always fall back to the helper's known-good default image.
+                let fallbackSrc = '';
+                try { fallbackSrc = collection.HELPER_DEFAULT_IMG[c.id] || c.im || ''; } catch (e) { fallbackSrc = c.im || ''; }
+                let primarySrc = '';
+                try { primarySrc = this.summonImgForHelper(c) || fallbackSrc; } catch (e) { primarySrc = fallbackSrc; }
+                if (!primarySrc) primarySrc = fallbackSrc || c.im || '';
+                h.onerror = () => {
+                    if (h.dataset.fellBack) return;
+                    const fb = fallbackSrc || c.im || '';
+                    if (fb && h.src !== fb) { h.dataset.fellBack = '1'; h.src = fb; }
+                };
                 h.className = 'summon-clone';
                 h.decoding = 'async';
                 h.loading = 'eager';
+                h.src = primarySrc;
                 h.style.left = (r.left + r.width / 2) + 'px'; h.style.top = (r.top + r.height / 2) + 'px';
                 h.style.transform = 'translate(-50%,-50%) scale(0.2)';
                 document.body.appendChild(h);
