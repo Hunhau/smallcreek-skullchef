@@ -1962,7 +1962,7 @@
         // while still retrying if a reload didn't actually land the new build. Fully
         // defensive: any error is silent and never blocks the game. Parent bumps BOTH
         // version.json and BUILD_V on every future deploy.
-        const BUILD_V = "build-34";
+        const BUILD_V = "build-35";
         (function () {
             function hardReloadTo(v) {
                 try {
@@ -7661,7 +7661,7 @@
             },
             init() {
                 const lb = document.getElementById('home-lang'); if (lb) lb.textContent = '🌐 ' + LANG.toUpperCase();
-                const ver = document.getElementById('home-version'); if (ver) ver.textContent = VERSION;
+                const ver = document.getElementById('home-version'); if (ver) ver.textContent = VERSION + ' · ' + BUILD_V;
                 this.syncAudio();
             },
             play() {

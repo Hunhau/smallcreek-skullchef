@@ -67,7 +67,7 @@
     <!-- ============================ ENGLISH ============================ -->
     <div data-lang-block="en">
         <div class="card">
-            <p class="updated">Last updated: 2026-06-18</p>
+            <p class="updated">Last updated: 2026-06-20</p>
             <p>This Privacy Policy explains what data <strong>Smallcreek Skullchef</strong> ("the game", operated by
                 Smallcreek) collects, why, and how you can control it. The canonical
                 version of this policy lives at <a href="https://hunhau.github.io/smallcreek-skullchef/privacy.html">hunhau.github.io/smallcreek-skullchef/privacy.html</a>.</p>
@@ -77,6 +77,7 @@
                 <li><strong>A random player ID</strong> — a randomly generated identifier (UUID) created on your device. It is not linked to your real identity.</li>
                 <li><strong>The display name you choose</strong> — only if you decide to join the global leaderboard.</li>
                 <li><strong>Gameplay stats</strong> — your score, prestige level, and Grand Prix wins, used to rank you on the leaderboard.</li>
+                <li><strong>Optional cloud backup</strong> — only if you tap “Cloud Save” in Settings. We store an encrypted-style game backup blob (progress + optional leaderboard identity) keyed to your player UUID so you can restore on another device. Nothing is uploaded unless you choose this.</li>
             </ul>
 
             <h2>What we do NOT collect</h2>
@@ -87,8 +88,10 @@
             </ul>
 
             <h2>Why we collect it</h2>
-            <p>Solely to operate the <strong>global leaderboard</strong> so players can compare scores. Your progress
-                itself is saved locally on your device.</p>
+            <p>Solely to operate the <strong>global leaderboard</strong> so players can compare scores, and — if you opt in — to let you <strong>transfer your save</strong> between devices via cloud backup. Your progress is otherwise saved locally on your device.</p>
+
+            <h2>Cloud backup (optional)</h2>
+            <p>Cloud Save is <strong>manual and opt-in</strong>. When you upload, your game progress and leaderboard identity are stored on Supabase under your account code (UUID). Anyone who knows that code could restore that save on their device, so treat it like a password. We never upload cloud backups automatically.</p>
 
             <h2>Where it is stored</h2>
             <p>Leaderboard data is stored using <strong>Supabase</strong>, a third-party hosting/database provider, on our behalf.</p>
@@ -122,7 +125,7 @@
     <!-- ============================ ESPAÑOL ============================ -->
     <div data-lang-block="es">
         <div class="card">
-            <p class="updated">Última actualización: 2026-06-18</p>
+            <p class="updated">Última actualización: 2026-06-20</p>
             <p>Esta Política de Privacidad explica qué datos recopila <strong>Smallcreek Skullchef</strong> ("el juego", operado por
                 Smallcreek), por qué y cómo puedes controlarlos. La versión oficial de esta
                 política está en <a href="https://hunhau.github.io/smallcreek-skullchef/privacy.html">hunhau.github.io/smallcreek-skullchef/privacy.html</a>.</p>
@@ -132,6 +135,7 @@
                 <li><strong>Un ID de jugador aleatorio</strong> — un identificador generado al azar (UUID) creado en tu dispositivo. No está vinculado a tu identidad real.</li>
                 <li><strong>El nombre visible que eliges</strong> — solo si decides unirte a la clasificación global.</li>
                 <li><strong>Estadísticas de juego</strong> — tu puntuación, nivel de prestigio y victorias del Grand Prix, usadas para clasificarte.</li>
+                <li><strong>Copia en la nube (opcional)</strong> — solo si pulsas “Subir a la nube” en Ajustes. Guardamos una copia de tu partida (progreso + identidad de clasificación opcional) vinculada a tu UUID para que puedas restaurarla en otro dispositivo. No se sube nada sin que tú lo elijas.</li>
             </ul>
 
             <h2>Qué NO recopilamos</h2>
@@ -142,8 +146,10 @@
             </ul>
 
             <h2>Por qué lo recopilamos</h2>
-            <p>Únicamente para operar la <strong>clasificación global</strong> y que los jugadores comparen puntuaciones. Tu
-                progreso se guarda localmente en tu dispositivo.</p>
+            <p>Únicamente para operar la <strong>clasificación global</strong> y que los jugadores comparen puntuaciones, y — si lo activas — para <strong>transferir tu partida</strong> entre dispositivos con la copia en la nube. Tu progreso se guarda localmente en tu dispositivo salvo que subas una copia.</p>
+
+            <h2>Copia en la nube (opcional)</h2>
+            <p>Subir a la nube es <strong>manual y voluntario</strong>. Al subir, tu progreso e identidad de clasificación se guardan en Supabase bajo tu código de cuenta (UUID). Quien conozca ese código podría restaurar esa partida en su dispositivo; trátalo como una contraseña. Nunca subimos copias automáticamente.</p>
 
             <h2>Dónde se almacena</h2>
             <p>Los datos de la clasificación se almacenan mediante <strong>Supabase</strong>, un proveedor externo de base de datos/alojamiento, en nuestro nombre.</p>
