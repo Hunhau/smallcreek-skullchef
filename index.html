@@ -339,7 +339,7 @@
         @keyframes breathe { from { transform: scale(1); filter: drop-shadow(0 0 20px var(--go)); } to { transform: scale(1.05); filter: drop-shadow(0 0 40px var(--go)); } }
         .shake { animation: s 0.3s; } @keyframes s { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
         canvas { position: absolute; top: 0; left: 0; pointer-events: none; z-index: 1000; }
-        .click-float { position: fixed; color: #a5f3fc; font-weight: bold; font-size: 1.25rem; text-shadow: 0 0 8px #22d3ee, 0 0 16px rgba(34, 211, 238, 0.35); user-select: none; pointer-events: none; z-index: 3000; white-space: nowrap; animation: floatUp 800ms ease-out forwards; }
+        .click-float { position: fixed; color: #a5f3fc; font-weight: bold; font-size: 1.25rem; text-shadow: 0 0 8px #22d3ee, 0 0 16px rgba(34, 211, 238, 0.35); user-select: none; pointer-events: none; z-index: 3000; white-space: nowrap; will-change: transform, opacity; animation: floatUp 800ms ease-out forwards; }
         @keyframes floatUp { from { opacity: 1; transform: translate(-50%, -50%); } to { opacity: 0; transform: translate(-50%, calc(-50% - 50px)); } }
         #audio-ctrl { position: fixed; bottom: max(18px, env(safe-area-inset-bottom)); right: max(18px, env(safe-area-inset-right)); z-index: 90000; display: flex; align-items: center; gap: 10px; background: var(--glass-strong); backdrop-filter: var(--glass-blur-sm); -webkit-backdrop-filter: var(--glass-blur-sm); padding: 8px 14px; border-radius: 30px; border: 1px solid var(--glass-bd-go); transition: border-color 0.2s; }
         #audio-mute { background: transparent; border: none; color: var(--gold-soft); font-size: 1.3rem; cursor: pointer; line-height: 1; padding: 0; filter: drop-shadow(0 0 6px var(--go)); transition: filter 0.2s, color 0.2s; }
@@ -1721,7 +1721,7 @@
         // build differs, reload ONCE with a cache-busting ?v= query. sessionStorage guards
         // against reload loops. Fully defensive: any error is silent and never blocks the
         // game. Parent bumps BOTH version.json and BUILD_V on every future deploy.
-        const BUILD_V = "build-13";
+        const BUILD_V = "build-14";
         (function checkForUpdate() {
             try {
                 fetch('version.json?ts=' + Date.now(), { cache: 'no-store' })
@@ -3763,7 +3763,7 @@
             _applySpoonRig(stirF) { const rig = document.getElementById('spoon-rig'); if (!rig) return; const p = this._spoonPlace; if (!p) return; try { rig.style.transform = collection.placementCss(p, (typeof stirF === 'number' ? Math.sin(stirF) * 5 : 0)); } catch (e) {} },
             _applySpoonStirNow() {
                 if (this._chefFeedInProgress()) return;
-                const rig = document.getElementById('spoon-rig');
+                const rig = this._spoonRigEl || (this._spoonRigEl = document.getElementById('spoon-rig'));
                 if (!rig) return;
                 if (this._spoonPlace) this._applySpoonRig(this.f);
                 else rig.style.transform = `translate(-50%,-50%) rotate(${-27 + Math.sin(this.f) * 5}deg)`;
@@ -5104,7 +5104,7 @@
             },
             loop() {
                 if (this.p && bubble.node) bubble.despawn();
-                const sp = document.getElementById('spoon-rig');
+                const sp = this._spoonRigEl || (this._spoonRigEl = document.getElementById('spoon-rig'));
                 this._frame = (this._frame || 0) + 1;
                 // El rect de #asset-soup se cachea y solo se relee cada 30 frames (o cuando se
                 // invalida en resize/visibilitychange). Evita forzar layout cada frame.
@@ -5301,7 +5301,8 @@
             },
             part(x, y, t) {
                 if (t === 'steam') {
-                    if (this.particles.filter(p => p.t === 'steam').length >= quality.params.steamMax) return;
+                    let steamCount = 0; for (let i = 0; i < this.particles.length; i++) if (this.particles[i].t === 'steam') steamCount++;
+                    if (steamCount >= quality.params.steamMax) return;
                     this.particles.push({ x, y, t, vx: (Math.random() - 0.5) * 0.8, vy: -(Math.random() * 0.9 + 0.35), life: 0.7 + Math.random() * 0.28, size: Math.random() * 10 + 7, color: Math.random() > 0.45 ? 'rgba(255,255,255,0.46)' : 'rgba(165,243,252,0.36)' });
                     return;
                 }
@@ -5315,10 +5316,19 @@
                 for (let i = 0; i < n; i++) this.particles.push({ x, y, t, vx: (Math.random() - 0.5) * 10, vy: (Math.random() - 0.5) * 10 - (t === 'energy' ? 5 : 0), life: 1, size: Math.random() * 8 + 4, color: t === 'magic' ? (Math.random() > 0.5 ? '#fff' : '#fbbf24') : '#a5f3fc' });
             },
             draw() {
-                this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
+                const ctx = this.ctx;
+                ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
                 if (!this.p) this.drawSoupBalls();
                 const scoreTarget = this.scorePartTarget();
-                this.particles.forEach((p, i) => {
+                // Compactación in-place: recorremos una sola vez y vamos guardando las
+                // partículas vivas al frente del array. Evita el splice(i,1) dentro de un
+                // forEach (que es O(n²) por el desplazamiento y, además, se salta elementos
+                // al mutar el array mientras se itera). Cada clic inyecta partículas 'energy',
+                // así que este bucle por frame era el coste real al hacer clicks rápidos.
+                const parts = this.particles;
+                let w = 0;
+                for (let i = 0; i < parts.length; i++) {
+                    const p = parts[i];
                     if (p.t === 'energy') {
                         if (p.boost === undefined) p.boost = 9;
                         if (p.boost > 0) { p.boost--; p.vy += 0.18; }
@@ -5334,14 +5344,15 @@
                     } else if (p.t === 'steam') { p.vx *= 0.985; p.vy -= 0.015; }
                     p.x += p.vx; p.y += p.vy;
                     p.life -= p.t === 'steam' ? 0.011 : 0.015;
-                    this.ctx.fillStyle = p.color;
-                    this.ctx.globalAlpha = p.t === 'steam' ? p.life * 1.05 : p.life;
-                    this.ctx.beginPath();
-                    this.ctx.arc(p.x, p.y, p.size * (p.t === 'steam' ? 0.6 + p.life * 0.5 : 1), 0, Math.PI * 2);
-                    this.ctx.fill();
-                    if (p.life <= 0) this.particles.splice(i, 1);
-                });
-                this.ctx.globalAlpha = 1;
+                    ctx.fillStyle = p.color;
+                    ctx.globalAlpha = p.t === 'steam' ? p.life * 1.05 : p.life;
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, p.size * (p.t === 'steam' ? 0.6 + p.life * 0.5 : 1), 0, Math.PI * 2);
+                    ctx.fill();
+                    if (p.life > 0) parts[w++] = p;
+                }
+                if (w !== parts.length) parts.length = w;
+                ctx.globalAlpha = 1;
             }
         };
         const prix = {
