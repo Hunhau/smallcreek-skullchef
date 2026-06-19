@@ -56,12 +56,17 @@
         #pres-stat { font-size: 0.8rem; font-weight: bold; background: var(--glass); padding: 5px 12px; border-radius: 20px; margin-top: 10px; border: 1px solid var(--glass-bd); text-shadow: 0 0 8px #fff; }
         #main-stage { flex-grow: 1; position: relative; cursor: pointer; overflow: hidden; touch-action: none; -webkit-user-drag: none; }
         #sticky-center { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: 10px; height: 10px; }
-        /* Chef feed mouth: single sprite; JS swaps #asset-chef src closed ↔ open. */
+        /* Chef feed mouth: #asset-chef always shows chef.png; #asset-chef-mouth overlay toggles for chew. */
         #chef-rig { position: absolute; z-index: 1; transform: translate(-50%, -50%); left: 0px; top: -40px; width: 720px; aspect-ratio: 1024 / 1656; pointer-events: none; line-height: 0; }
         #chef-rig #asset-chef {
             position: absolute; inset: 0; width: 100%; height: 100%;
             pointer-events: none; border: none; outline: none; box-shadow: none;
             object-fit: fill; object-position: 0 0; display: block;
+        }
+        #chef-rig #asset-chef-mouth {
+            position: absolute; inset: 0; width: 100%; height: 100%;
+            pointer-events: none; border: none; outline: none; box-shadow: none;
+            object-fit: fill; object-position: 0 0; display: none; z-index: 1;
         }
         #chef-rig.chef-eating { animation: chefEatBounce 0.58s ease-out; }
         #asset-chef-hand { position: absolute; z-index: 4; transform: translate(-50%, -50%); left: 0px; top: -40px; width: 720px; pointer-events: none; }
@@ -980,7 +985,7 @@
         <button id="helpers-toggle" type="button" onclick="helpersBox.toggle()" aria-expanded="true" data-i18n-title="helpers_toggle_title" title="Helpers">👥 <span class="helpers-chevron">▾</span></button>
         <div id="companion-column"></div>
         <div id="altar-panel"><div id="btn-prestige" onclick="game.pres()"><div class="prestige-label" id="pres-txt" data-i18n="locked">LOCKED</div></div><div id="pres-stat">Lv. 0 (+0%)</div></div>
-        <section id="main-stage" onpointerdown="game.click(event)"><canvas id="particle-canvas"></canvas><div id="sticky-center"><div id="chef-rig"><img id="asset-chef" src="assets/img/chef.png" decoding="async"></div><img id="asset-chef-hand" src="assets/img/chef-hand.png" decoding="async"><img id="cauldron-legs" src="assets/img/cauldron-legs.png" alt="" decoding="async"><img id="asset-soup" src="assets/img/soup.png" decoding="async"><div id="soup-liquid"><img id="asset-soup-liquid" src="assets/img/soup.png" decoding="async"><div id="soup-fx-burst" aria-hidden="true"></div></div><div id="soup-steam"><div class="steam-wisp"></div><div class="steam-wisp"></div><div class="steam-wisp"></div><div class="steam-wisp"></div><div class="steam-wisp"></div><div class="steam-wisp"></div></div><div id="spoon-rig"><img id="asset-spoon" src="assets/img/spoon.png" decoding="async"></div></div><div id="soup-ripples"></div></section>
+        <section id="main-stage" onpointerdown="game.click(event)"><canvas id="particle-canvas"></canvas><div id="sticky-center"><div id="chef-rig"><img id="asset-chef" src="assets/img/chef.png" decoding="async"><img id="asset-chef-mouth" src="assets/img/chef-mouth-delta.png" alt="" decoding="async"></div><img id="asset-chef-hand" src="assets/img/chef-hand.png" decoding="async"><img id="cauldron-legs" src="assets/img/cauldron-legs.png" alt="" decoding="async"><img id="asset-soup" src="assets/img/soup.png" decoding="async"><div id="soup-liquid"><img id="asset-soup-liquid" src="assets/img/soup.png" decoding="async"><div id="soup-fx-burst" aria-hidden="true"></div></div><div id="soup-steam"><div class="steam-wisp"></div><div class="steam-wisp"></div><div class="steam-wisp"></div><div class="steam-wisp"></div><div class="steam-wisp"></div><div class="steam-wisp"></div></div><div id="spoon-rig"><img id="asset-spoon" src="assets/img/spoon.png" decoding="async"></div></div><div id="soup-ripples"></div></section>
         <aside id="side-shop"><h1 data-i18n="shop" style="text-align:center; font-size:1.3rem;">SHOP</h1><div id="shop-companions-panel"><div id="buy-mode-toggle" onclick="game.cycleBuyMode()" data-i18n="buy_x1">Buy x1</div><div id="prix-btn" style="padding:12px; background:linear-gradient(135deg,#7e22ce,#3b82f6); border-radius:10px; text-align:center; font-weight:bold; border:2px solid #fff; margin-bottom:15px; display:none; cursor:pointer;" onclick="prix.open()" data-i18n="enter_prix">Enter Grand Prix</div><div id="companion-list"></div><div id="spoons-album-section"><div id="spoons-album-title" data-i18n="spoons_album_title">SACRED SPOONS ALBUM</div><div id="spoons-album"></div></div></div></aside>
     </div>
     <div id="audio-ctrl"><button id="audio-mute" type="button" onclick="sound.toggleMute()" data-i18n-title="audio_mute_title" title="Mute / Unmute sound">🔊</button><input id="audio-vol" type="range" min="0" max="100" value="100" oninput="sound.setVolume(this.value/100)" data-i18n-title="audio_vol_title" title="Volume"></div>
@@ -1704,14 +1709,14 @@
                 extra_ing_rain_fun_2:"Golden corn cascade!", extra_ing_rain_fun_3:"Berry burst bonanza!", extra_ing_rain_fun_4:"Banana blizzard!",
                 buff_extra_ing:"Extra Ingredient Boost +10%",
                 comp_coco:"Coco Octopus", comp_bunny:"Baby Bunny Guide", comp_pio:"Pio Pio Healing", comp_ivan:"Ivan Guardian Bear", comp_bongo:"Bongo Mighty Helper", bongo_bonus:"+{pct}% Stir Power per level", stir_word:"Stir",
-                spoon0_card:"Storm Chronicle", spoon0_name:"Thunder Spoon", spoon0_bonus:"Adds +50% flat Click Stir Power",
-                spoon1_card:"Inferno Chronicle", spoon1_name:"Inferno Spoon", spoon1_bonus:"+5% chance for 10x Cauldron Burst",
-                spoon2_card:"Cosmos Chronicle", spoon2_name:"Cosmos Spoon", spoon2_bonus:"2x Total Idle CPS Production & -50% Prix CD",
+                spoon0_card:"Pizza Chronicle", spoon0_name:"Pizza Spoon", spoon0_bonus:"Adds +50% flat Click Stir Power",
+                spoon1_card:"Sushi Chronicle", spoon1_name:"Sushi Roll Spoon", spoon1_bonus:"+5% chance for 10x Cauldron Burst",
+                spoon2_card:"Milkshake Chronicle", spoon2_name:"Milkshake Spoon", spoon2_bonus:"2x Total Idle CPS Production & -50% Prix CD",
                 hats_album_title:"SACRED HATS ALBUM",
                 hat_equipped:"[ EQUIPPED ]", hat_equip_btn:"EQUIP HAT", hat_buy_btn:"BUY CARD", hat_hide:"Hide hat", hat_show:"Show hat",
-                hat0_card:"Flame Chronicle", hat0_name:"Flame Chef Hat", hat0_bonus:"+40% chance for bonus farm harvest",
-                hat1_card:"Crown Chronicle", hat1_name:"Crown Chef Hat", hat1_bonus:"+20% Helper Idle CPS",
-                hat2_card:"Prism Chronicle", hat2_name:"Prism Chef Hat", hat2_bonus:"-10% Helper Upgrade Costs & +15% Charm Drop Luck",
+                hat0_card:"Chicken Chronicle", hat0_name:"Chicken Chef Hat", hat0_bonus:"+40% chance for bonus farm harvest",
+                hat1_card:"Sushi Chronicle", hat1_name:"Sushi Roll Chef Hat", hat1_bonus:"+20% Helper Idle CPS",
+                hat2_card:"Milkshake Chronicle", hat2_name:"Milkshake Chef Hat", hat2_bonus:"-10% Helper Upgrade Costs & +15% Charm Drop Luck",
                 pres_lore:"Success. Small Angel's energy is woven into Earth.",
                 lore1:"Skullchef arrived from Esquelotia to heal Earth.", lore2:"The dark entity stole love from Esquelotia.", lore3:"Small Angel gave his life to heal his planet.",
                 lore4:"Skullchef journeyed with Angel's soul in soup.", lore5:"The soup is ready. Awaken the Soul to ascend.", lore6:"Success. Small Angel's energy is woven into Earth.",
@@ -1816,14 +1821,14 @@
                 extra_ing_rain_fun_2:"¡Cascada de maíz dorado!", extra_ing_rain_fun_3:"¡Explosión de bayas!", extra_ing_rain_fun_4:"¡Tormenta de plátanos!",
                 buff_extra_ing:"Impulso de Ingredientes +10%",
                 comp_coco:"Coco Octopus", comp_bunny:"Baby Bunny Guide", comp_pio:"Pio Pio Healing", comp_ivan:"Ivan Guardian Bear", comp_bongo:"Bongo el Monito", bongo_bonus:"+{pct}% poder de remojo por nivel", stir_word:"Remojo",
-                spoon0_card:"Crónica de la Tormenta", spoon0_name:"Cuchara del Trueno", spoon0_bonus:"Añade +50% de Poder de Remover fijo",
-                spoon1_card:"Crónica Infernal", spoon1_name:"Cuchara Infernal", spoon1_bonus:"+5% de probabilidad de Estallido del Caldero x10",
-                spoon2_card:"Crónica Cósmica", spoon2_name:"Cuchara Cósmica", spoon2_bonus:"2x Producción Total de CPS Pasivo y -50% CD del Prix",
+                spoon0_card:"Crónica Pizza", spoon0_name:"Cuchara Pizza", spoon0_bonus:"Añade +50% de Poder de Remover fijo",
+                spoon1_card:"Crónica Sushi", spoon1_name:"Cuchara Rollo de Sushi", spoon1_bonus:"+5% de probabilidad de Estallido del Caldero x10",
+                spoon2_card:"Crónica Batido", spoon2_name:"Cuchara Batido", spoon2_bonus:"2x Producción Total de CPS Pasivo y -50% CD del Prix",
                 hats_album_title:"ÁLBUM DE GORROS SAGRADOS",
                 hat_equipped:"[ EQUIPADO ]", hat_equip_btn:"EQUIPAR GORRO", hat_buy_btn:"COMPRAR CARTA", hat_hide:"Ocultar gorro", hat_show:"Mostrar gorro",
-                hat0_card:"Crónica Llama", hat0_name:"Gorro Llama", hat0_bonus:"+40% probabilidad de cosecha extra en cultivos",
-                hat1_card:"Crónica Corona", hat1_name:"Gorro Corona", hat1_bonus:"+20% CPS pasivo de ayudantes",
-                hat2_card:"Crónica Prisma", hat2_name:"Gorro Prisma", hat2_bonus:"-10% coste de mejoras de ayudantes y +15% suerte de amuletos",
+                hat0_card:"Crónica Pollo", hat0_name:"Gorro Pollo", hat0_bonus:"+40% probabilidad de cosecha extra en cultivos",
+                hat1_card:"Crónica Sushi", hat1_name:"Gorro Rollo de Sushi", hat1_bonus:"+20% CPS pasivo de ayudantes",
+                hat2_card:"Crónica Batido", hat2_name:"Gorro Batido", hat2_bonus:"-10% coste de mejoras de ayudantes y +15% suerte de amuletos",
                 pres_lore:"Logrado. La energía del Pequeño Ángel se teje en la Tierra.",
                 lore1:"Skullchef llegó de Esquelotia para sanar la Tierra.", lore2:"La entidad oscura robó el amor de Esquelotia.", lore3:"El Pequeño Ángel dio su vida para sanar su planeta.",
                 lore4:"Skullchef viajó con el alma del Ángel en la sopa.", lore5:"La sopa está lista. Despierta el Alma para ascender.", lore6:"Logrado. La energía del Pequeño Ángel se teje en la Tierra.",
@@ -2935,7 +2940,7 @@
         // === Versionado del esquema de guardado ===
         // Sube este número cada vez que cambie la forma del save. Cada incremento debe
         // tener su paso de migración en SAVE_MIGRATIONS (clave = versión de ORIGEN).
-        const SCHEMA_VERSION = 30;
+        const SCHEMA_VERSION = 31;
         const SAVE_MIGRATIONS = {
             // v16 -> v17: el campo `as` (Angel Shards acumulados) pasó a guardarse aparte de `s`.
             16: (s) => {
@@ -3064,9 +3069,14 @@
             29: (s) => {
                 s.v = 30;
                 return s;
+            },
+            // v30 -> v31: final shop skin swap (sp[]/hp[] slot indices unchanged).
+            30: (s) => {
+                s.v = 31;
+                return s;
             }
-            // FUTURO: para añadir v30 -> v31 solo añade aquí:
-            //   30: (s) => { /* transforma s */ s.v = 31; return s; },
+            // FUTURO: para añadir v31 -> v32 solo añade aquí:
+            //   31: (s) => { /* transforma s */ s.v = 32; return s; },
             // y sube SCHEMA_VERSION. No borres pasos antiguos.
         };
         // Transforma un save antiguo al esquema actual de forma incremental. Nunca lanza:
@@ -3185,7 +3195,7 @@
             CHEW_SLICE_MS: 500,
             CHEW_MAX_TOGGLES: 3,
             CHEF_SRC_CLOSED: 'assets/img/chef.png',
-            CHEF_SRC_OPEN: 'assets/img/chef-mouth-open.png',
+            CHEF_MOUTH_OVERLAY: 'assets/img/chef-mouth-delta.png',
             SOUP_FX_BUBBLE_MAX: 58,
             SOUP_FX_BUBBLES: {
                 ink:     { colors: ['#6b21a8', '#7c3aed', '#a78bfa', '#581c87', '#c4b5fd', '#8b5cf6'], motion: 'swirl',   count: 44, size: [10, 42] },
@@ -3254,14 +3264,14 @@
             },
             // Launch shop: 3 EB-purchasable catalog spoons only. All other spoon skins drop via collection.
             spoons: [
-                { id: 0, skinId: 'spoon_rare_thunder', cardKey:'spoon0_card', nameKey:'spoon0_name', bonusKey:'spoon0_bonus', rarity: "rare", cost: 25000, owned: false, equipped: false },
-                { id: 1, skinId: 'spoon_epic_inferno', cardKey:'spoon1_card', nameKey:'spoon1_name', bonusKey:'spoon1_bonus', rarity: "epic", cost: 225000, owned: false, equipped: false },
-                { id: 2, skinId: 'spoon_superleg_cosmos', cardKey:'spoon2_card', nameKey:'spoon2_name', bonusKey:'spoon2_bonus', rarity: "superleg", cost: 850000, owned: false, equipped: false }
+                { id: 0, skinId: 'spoon_epic_pizza', cardKey:'spoon0_card', nameKey:'spoon0_name', bonusKey:'spoon0_bonus', rarity: "epic", cost: 25000, owned: false, equipped: false },
+                { id: 1, skinId: 'spoon_legendary_sushi', cardKey:'spoon1_card', nameKey:'spoon1_name', bonusKey:'spoon1_bonus', rarity: "legendary", cost: 225000, owned: false, equipped: false },
+                { id: 2, skinId: 'spoon_superleg_milkshake', cardKey:'spoon2_card', nameKey:'spoon2_name', bonusKey:'spoon2_bonus', rarity: "superleg", cost: 850000, owned: false, equipped: false }
             ],
             hats: [
-                { id: 0, skinId: 'chefhat_epic_flame', cardKey:'hat0_card', nameKey:'hat0_name', bonusKey:'hat0_bonus', rarity: "epic", cost: 25000, owned: false, equipped: false },
-                { id: 1, skinId: 'chefhat_legendary_crown', cardKey:'hat1_card', nameKey:'hat1_name', bonusKey:'hat1_bonus', rarity: "legendary", cost: 225000, owned: false, equipped: false },
-                { id: 2, skinId: 'chefhat_superleg_prism', cardKey:'hat2_card', nameKey:'hat2_name', bonusKey:'hat2_bonus', rarity: "superleg", cost: 850000, owned: false, equipped: false }
+                { id: 0, skinId: 'chefhat_epic_chicken', cardKey:'hat0_card', nameKey:'hat0_name', bonusKey:'hat0_bonus', rarity: "epic", cost: 25000, owned: false, equipped: false },
+                { id: 1, skinId: 'chefhat_legendary_sushi', cardKey:'hat1_card', nameKey:'hat1_name', bonusKey:'hat1_bonus', rarity: "legendary", cost: 225000, owned: false, equipped: false },
+                { id: 2, skinId: 'chefhat_superleg_milkshake', cardKey:'hat2_card', nameKey:'hat2_name', bonusKey:'hat2_bonus', rarity: "superleg", cost: 850000, owned: false, equipped: false }
             ],
             shopSpoonSkinIds() { return this.spoons.map(s => s.skinId).filter(Boolean); },
             shopHatSkinIds() { return this.hats.map(h => h.skinId).filter(Boolean); },
@@ -3353,17 +3363,21 @@
             },
             resize() { this.ctx.canvas.width = window.innerWidth; this.ctx.canvas.height = window.innerHeight; this._soupRect = null; this._stageRect = null; this._scoreTarget = null; },
             _chefEl() { return document.getElementById('asset-chef'); },
+            _chefMouthEl() { return document.getElementById('asset-chef-mouth'); },
             _chefMouthShowClosed() {
                 const chef = this._chefEl();
-                if (!chef) return;
+                const mouth = this._chefMouthEl();
+                if (chef && !chef.src.includes('chef.png')) chef.src = this.CHEF_SRC_CLOSED;
+                if (mouth) mouth.style.display = 'none';
                 this._chefMouthVisual = 'closed';
-                chef.src = this.CHEF_SRC_CLOSED;
             },
             _chefMouthShowOpen() {
-                const chef = this._chefEl();
-                if (!chef) return;
+                const mouth = this._chefMouthEl();
+                if (mouth) {
+                    if (mouth.src && !mouth.src.includes('chef-mouth-delta')) mouth.src = this.CHEF_MOUTH_OVERLAY;
+                    mouth.style.display = 'block';
+                }
                 this._chefMouthVisual = 'open';
-                chef.src = this.CHEF_SRC_OPEN;
             },
             _chefMouthStopChewLoop() {
                 this._chefMouthChewActive = false;
@@ -4282,9 +4296,7 @@
                     this._chefMouthCloseTimer = null;
                 }
                 this._chefMouthStopChewLoop();
-                const chef = this._chefEl();
-                if (chef) chef.src = this.CHEF_SRC_CLOSED;
-                this._chefMouthVisual = 'closed';
+                this._chefMouthShowClosed();
                 const rig = this._chefRigEl();
                 if (rig) rig.classList.remove('chef-eating');
                 try { sound.stopEat(); } catch (e) {}
@@ -4299,11 +4311,9 @@
                     this._chefMouthCloseTimer = null;
                 }
                 this._chefMouthStopChewLoop();
-                const closed = this.CHEF_SRC_CLOSED;
-                const open = this.CHEF_SRC_OPEN;
-                const chef = this._chefEl();
-                if (!chef) return;
+                if (!this._chefEl()) return;
                 const seq = this._chefFeedSeq || 0;
+                this._chefFeedFinished = null;
                 this._chefMouthChewActive = true;
                 const rig = this._chefRigEl();
                 if (rig) { rig.classList.remove('chef-eating'); void rig.offsetWidth; rig.classList.add('chef-eating'); }
@@ -4312,29 +4322,19 @@
                     sound.unlock();
                     sound.stopEat();
                     if (!sound.muted && sound.volume > 0) {
-                        const eat = new Audio('audio/eat.mp3');
-                        eat.volume = Math.max(0.1, Math.min(1, (sound.vols.eat != null ? sound.vols.eat : 0.48) * (sound.volume || 1)));
-                        sound._eatAudio = eat;
-                        const p = eat.play();
-                        if (p && p.catch) p.catch(e => console.warn('eat play', e));
-                        if (Number.isFinite(eat.duration) && eat.duration > 0) chewMs = Math.max(1500, eat.duration * 1000);
-                        else eat.addEventListener('loadedmetadata', () => {
-                            if (Number.isFinite(eat.duration) && eat.duration > 0) chewMs = Math.max(1500, eat.duration * 1000);
-                        }, { once: true });
+                        const dur = sound.playEat();
+                        if (dur) chewMs = Math.max(chewMs, dur);
                     }
                 } catch (e) {}
-                let isOpen = true;
-                let togglesLeft = this.CHEW_MAX_TOGGLES != null ? this.CHEW_MAX_TOGGLES : 3;
-                chef.src = open;
-                this._chefMouthVisual = 'open';
+                chewMs = Math.max(this.CHEF_FALLBACK_EAT_MS || 2000, chewMs);
+                this._chefMouthOpenState = true;
+                this._chefMouthShowOpen();
                 const sliceMs = this.CHEW_SLICE_MS || 500;
                 this._chewIv = setInterval(() => {
-                    if (!this._chefMouthChewActive || togglesLeft <= 0) return;
-                    togglesLeft--;
-                    isOpen = !isOpen;
-                    chef.src = isOpen ? open : closed;
-                    this._chefMouthVisual = isOpen ? 'open' : 'closed';
-                    if (togglesLeft <= 0) this._chefMouthStopChewLoop();
+                    if (!this._chefMouthChewActive) return;
+                    this._chefMouthOpenState = !this._chefMouthOpenState;
+                    if (this._chefMouthOpenState) this._chefMouthShowOpen();
+                    else this._chefMouthShowClosed();
                 }, sliceMs);
                 this._chefMouthCloseTimer = setTimeout(() => this._endChefFeedChew(seq), chewMs + 80);
                 try { gx.toast(t('chef_taste_ingredient')); } catch (e) {}
@@ -7155,6 +7155,9 @@
                 spoon_rare_thunder:      { x: 111, y: 46, scale: 1,    rot: -14 },
                 spoon_epic_frost:        { x: 116, y: 59, scale: 1,    rot: -17 },
                 spoon_superleg_cosmos:   { x: 133, y: 47, scale: 1.34, rot: 32 },
+                spoon_epic_pizza:        { x: 116, y: 59, scale: 1,    rot: -17 },
+                spoon_legendary_sushi:   { x: 103, y: 65, scale: 1.02, rot: -19 },
+                spoon_superleg_milkshake:  { x: 133, y: 47, scale: 1.34, rot: 32 },
                 // Hats: calibrated in-game with the creator placement tool (sit on the bald skull).
                 chefhat_common_white:    { x: -225, y: -249, scale: 1.54, rot: -39 },
                 chefhat_uncommon_band:   { x: -214, y: -232, scale: 1.56, rot: -39 },
@@ -7175,6 +7178,9 @@
                 chefhat_rare_cactus:     { x: -196, y: -219, scale: 1.36, rot: -39 },
                 chefhat_epic_flame:      { x: -209, y: -234, scale: 1.5,  rot: -39 },
                 chefhat_superleg_prism:  { x: -229, y: -247, scale: 1.78, rot: -39 },
+                chefhat_epic_chicken:    { x: -209, y: -234, scale: 1.5,  rot: -39 },
+                chefhat_legendary_sushi: { x: -203, y: -223, scale: 1.56, rot: -39 },
+                chefhat_superleg_milkshake: { x: -229, y: -247, scale: 1.78, rot: -39 },
                 // Summer decor (chef hat / face overlays — same placement model as charms).
                 summer_straw_hat: { x: -178, y: -193, scale: 1.26, rot: -25 },
                 summer_shades:    { x: -80, y: -177, scale: 1.26, rot: -35 }
