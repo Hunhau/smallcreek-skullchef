@@ -636,9 +636,10 @@
            the shop and menu as the SAME collapsible slide-in sheets used in landscape,
            plus the collapsible owned-helpers column. Gated behind touch + portrait +
            max-width 768px so desktop and tablets are byte-for-byte unchanged. */
-        @media (pointer: coarse) and (orientation: portrait) and (max-width: 768px) {
+        @media (orientation: portrait) and (max-width: 768px) {
             body { overflow: hidden; }
-            #main-stage { flex-grow: 1; width: 100%; }
+            #game-wrapper { flex-direction: column; width: 100%; height: 100dvh; min-height: 100dvh; }
+            #main-stage { flex: 1 1 0; min-height: 0; width: 100% !important; }
             /* Chef/cauldron: fitScene centers the group; slight DROP_Y grounds the cauldron. */
             /* Clearly-labeled energy counter, RIGHT-anchored: each stat is a small uppercase
                label (with a recognizable icon — 🍲 energy balls / ⬨ angel shards) stacked
@@ -6839,7 +6840,11 @@
                     // On a phone in PORTRAIT, hold the tutorial until the player rotates to
                     // landscape (the rotate hint is already showing); fires once. Desktop /
                     // already-landscape starts the tutorial immediately, exactly as before.
-                    setTimeout(() => { ov.style.display = 'none'; try { landscapeGate.run(() => { try { tutorial.maybeStart(); } catch (e) {} }); } catch (e) { try { tutorial.maybeStart(); } catch (er) {} } }, 600);
+                    setTimeout(() => {
+                        ov.style.display = 'none';
+                        try { if (typeof mobileUI !== 'undefined') { mobileUI.fitScene(); setTimeout(() => mobileUI.fitScene(), 200); } } catch (e) {}
+                        try { landscapeGate.run(() => { try { tutorial.maybeStart(); } catch (e) {} }); } catch (e) { try { tutorial.maybeStart(); } catch (er) {} }
+                    }, 600);
                 };
                 try { nameGate.ensure(enter); } catch (e) { enter(); }
             }
@@ -8161,8 +8166,8 @@
         const mobileUI = {
             isPhone() {
                 try {
-                    if (!window.matchMedia('(pointer: coarse)').matches) return false;
                     if (window.matchMedia('(orientation: portrait) and (max-width: 768px)').matches) return true;
+                    if (!window.matchMedia('(pointer: coarse)').matches) return false;
                     if (window.matchMedia('(orientation: landscape) and (max-height: 600px)').matches) return true;
                     return false;
                 } catch (e) { return false; }
@@ -8222,31 +8227,29 @@
                 try {
                     const sc = document.getElementById('sticky-center');
                     if (!sc) return;
-                    const resetScenePos = () => { sc.style.top = ''; sc.style.bottom = ''; sc.style.transformOrigin = ''; };
-                    if (!this.isPhone()) { sc.style.transform = ''; resetScenePos(); return; }
+                    const resetScenePos = () => { sc.style.left = ''; sc.style.top = ''; sc.style.bottom = ''; sc.style.transformOrigin = ''; sc.style.transform = ''; };
+                    if (!this.isPhone()) { resetScenePos(); return; }
                     const stage = document.getElementById('main-stage');
                     if (!stage) return;
                     const r = stage.getBoundingClientRect();
-                    if (!r.width || !r.height) return;
-                    // DH is padded taller than the art so a TALL equipped hat skin keeps
-                    // headroom above the chef's head; FIT_W/FIT_H shrink it a touch more;
-                    // DROP_Y nudges the whole group down so the hat never clips the top.
+                    if (!r.width || !r.height) {
+                        setTimeout(() => this.fitScene(), 120);
+                        return;
+                    }
                     const DW = 1350, DH = 1240, FIT_W = 0.90, FIT_H = 0.90, DROP_Y = 0.05;
                     let s = Math.min((r.width * FIT_W) / DW, (r.height * FIT_H) / DH);
                     if (!isFinite(s) || s <= 0) return;
-                    s = Math.max(0.18, Math.min(s, 1));
+                    s = Math.max(0.22, Math.min(s, 1));
                     const portrait = window.matchMedia('(orientation: portrait) and (max-width: 768px)').matches;
+                    sc.style.left = '50%';
+                    sc.style.bottom = 'auto';
                     if (portrait) {
-                        sc.style.top = '50%';
-                        sc.style.bottom = 'auto';
-                        sc.style.transformOrigin = '';
-                        const summer = document.body.classList.contains('decor-bg-summer-fallback')
-                            || (typeof game !== 'undefined' && game.decor && game.decor.slots && game.decor.slots.background === 'summer_beach');
-                        const dropPct = summer ? 0.09 : 0.06;
-                        const dy = Math.round(r.height * dropPct);
-                        sc.style.transform = 'translate(-50%, calc(-50% + ' + dy + 'px)) scale(' + s + ')';
+                        sc.style.top = '46%';
+                        sc.style.transformOrigin = 'center center';
+                        sc.style.transform = 'translate(-50%, -50%) scale(' + s + ')';
                     } else {
-                        resetScenePos();
+                        sc.style.top = '';
+                        sc.style.transformOrigin = '';
                         const dy = Math.round(r.height * DROP_Y);
                         sc.style.transform = 'translate(-50%, calc(-50% + ' + dy + 'px)) scale(' + s + ')';
                     }
