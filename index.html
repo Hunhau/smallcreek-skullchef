@@ -1010,6 +1010,67 @@
         #farm-modal .farm-close:hover { transform: translateY(-50%) rotate(90deg); }
         #farm-modal .farm-body { flex: 1; min-height: 0; overflow-x: hidden; overflow-y: auto; -webkit-overflow-scrolling: touch; padding-bottom: 4px; }
         #farm-modal .farm-foot { flex-shrink: 0; padding-top: 8px; }
+        /* Landscape phone FARM — placed AFTER base #farm-modal rules so these win in the
+           cascade. Fits all 4 rows (2× stock + 2× plots) without scroll on ~390px-tall
+           viewports (e.g. 844×390). Overrides .gx-box padding/overflow that caused scroll. */
+        @media (pointer: coarse) and (orientation: landscape) and (max-height: 600px) {
+            #farm-modal.gx-modal .farm-box {
+                width: min(560px, calc(100vw - 10px)) !important;
+                max-width: none !important;
+                max-height: calc(100dvh - 6px - env(safe-area-inset-top) - env(safe-area-inset-bottom)) !important;
+                padding: 0 !important;
+                overflow: hidden !important;
+                border-radius: 10px;
+            }
+            #farm-modal .farm-head { padding: 4px 34px 3px !important; margin: 0 !important; }
+            #farm-modal .farm-head h2 { font-size: 0.82rem !important; }
+            #farm-modal .farm-body {
+                overflow-y: visible !important;
+                overflow-x: hidden !important;
+                padding: 0 5px 3px !important;
+                flex: 0 1 auto !important;
+            }
+            #farm-modal .farm-body > p { display: none !important; }
+            #farm-modal .farm-body > label {
+                font-size: 0.52rem !important;
+                margin: 1px 0 !important;
+                gap: 4px !important;
+                line-height: 1.1 !important;
+            }
+            #farm-modal .farm-foot { display: none !important; }
+            #farm-modal .farm-stock-grid { gap: 2px !important; margin: 2px 0 !important; }
+            #farm-modal .farm-stock-chip {
+                font-size: 0.48rem !important;
+                padding: 1px 1px !important;
+                line-height: 1.05 !important;
+                border-radius: 5px !important;
+            }
+            #farm-modal .farm-plots { gap: 2px !important; margin-top: 2px !important; }
+            #farm-modal .farm-plot {
+                min-height: 0 !important;
+                height: 34px !important;
+                padding: 1px !important;
+                gap: 0 !important;
+                border-radius: 5px !important;
+            }
+            #farm-modal .farm-glyph { font-size: 0.78rem !important; line-height: 1 !important; }
+            #farm-modal .farm-timer { font-size: 0.4rem !important; line-height: 1 !important; }
+            #farm-modal .farm-plot-btn,
+            #farm-modal .farm-plot-label {
+                font-size: 0.38rem !important;
+                padding: 0 2px !important;
+                min-height: 12px !important;
+                border-radius: 3px !important;
+                line-height: 1 !important;
+            }
+            #farm-modal .farm-water-btn {
+                min-height: 18px !important;
+                min-width: 18px !important;
+                font-size: 0.65rem !important;
+                padding: 0 3px !important;
+            }
+            #farm-modal .farm-watered-mark { font-size: 0.55rem !important; }
+        }
         /* ===== DECORATIONS (summer pilot: bg swap + chef accessories) ===== */
         body.decor-bg-summer-fallback {
             background: linear-gradient(180deg, #7dd3fc 0%, #38bdf8 16%, #bae6fd 28%, #fde68a 54%, #fbbf24 80%, #ea580c 100%) center/cover no-repeat !important;
@@ -1772,7 +1833,7 @@
         // while still retrying if a reload didn't actually land the new build. Fully
         // defensive: any error is silent and never blocks the game. Parent bumps BOTH
         // version.json and BUILD_V on every future deploy.
-        const BUILD_V = "build-21";
+        const BUILD_V = "build-22";
         (function () {
             function hardReloadTo(v) {
                 try {
@@ -4234,12 +4295,25 @@
                 // DOM writes only (no forced layout reads now that the stage rect is cached).
                 const px = (ev && (ev.clientX || ev.pageX)) || (window.innerWidth * 0.5);
                 const py = (ev && (ev.clientY || ev.pageY)) || (window.innerHeight * 0.5);
-                this.floatNum(px, py, gain);
-                const o = this.soupPartOrigin();
-                this.part(o.x + (Math.random() - 0.5) * 40, o.y + (Math.random() - 0.5) * 20, 'energy');
-                // On low/mobile, spawn a click ripple every other tap (still ~one per ~stir beat).
-                if (quality.effMode() === 'low') { this._clickRippleN++; if (this._clickRippleN % 2 === 1) this.spawnRipple(px, py); }
-                else this.spawnRipple(px, py);
+                const lowQ = quality.effMode() === 'low';
+                if (lowQ) {
+                    // Mobile low: keep score + sound every tap; throttle ALL visual FX to
+                    // ~5/s so rapid tapping never floods the main thread with DOM/canvas work.
+                    this._clickAcc = (this._clickAcc || 0) + gain;
+                    const _fxNow = performance.now();
+                    if (_fxNow - (this._clickFxAt || 0) >= 180) {
+                        this._clickFxAt = _fxNow;
+                        const showGain = this._clickAcc; this._clickAcc = 0;
+                        this.floatNum(px, py, showGain);
+                        const o = this.soupPartOrigin();
+                        this.part(o.x, o.y, 'energy');
+                    }
+                } else {
+                    this.floatNum(px, py, gain);
+                    const o = this.soupPartOrigin();
+                    this.part(o.x + (Math.random() - 0.5) * 40, o.y + (Math.random() - 0.5) * 20, 'energy');
+                    this.spawnRipple(px, py);
+                }
                 try { if (typeof tutorial !== 'undefined' && tutorial.active) tutorial.notify('stir'); } catch (e) {}
             },
             /** Summon pose: midpoint of the gap between chef (#asset-chef) and shop purchase column (#side-shop). */
@@ -5054,6 +5128,21 @@
                     // stays clearly smaller than the chef and sits beside him.
                     const peakScale = window.matchMedia('(pointer: coarse) and (orientation: landscape) and (max-height: 600px)').matches ? 0.8 : 2.1;
                     h.style.transform = 'translate(-50%,-50%) scale(' + peakScale + ') rotate(360deg)';
+                    // Safeguard: if geometry pushed the clone off-screen or made it invisible,
+                    // nudge it beside the chef so the throw animation is always visible.
+                    requestAnimationFrame(() => {
+                        if (!h.parentNode) return;
+                        const r = h.getBoundingClientRect();
+                        if (r.width < 12 || r.height < 12 || r.right < 8 || r.left > window.innerWidth - 8 || r.bottom < 8) {
+                            const chef = document.getElementById('asset-chef');
+                            const cr = chef ? chef.getBoundingClientRect() : null;
+                            if (cr && cr.width > 8) {
+                                h.style.left = Math.min(cr.right + 80, window.innerWidth - 100) + 'px';
+                                h.style.top = (cr.top + cr.height * 0.25) + 'px';
+                                h.style.transform = 'translate(-50%,-50%) scale(1) rotate(360deg)';
+                            }
+                        }
+                    });
                     this.part(pose.x, pose.y, 'magic');
                     const skipCost = testLevel != null && creator.isDev();
                     if (skipCost || farm.consumeThrow(c.id, lv, feed)) {
@@ -5272,6 +5361,7 @@
                 }
                 const sr = this._soupRect;
                 const clickStir = performance.now() - this._lastClick < 1500;
+                const lowQ = quality.effMode() === 'low';
                 if (!this.p) { this._wave += 0.018; const tgt = clickStir ? 1.9 : 1; this._ballSpeed += (tgt - this._ballSpeed) * 0.04; this._ballWave += 0.012 * this._ballSpeed; }
                 const feedActive = this._chefFeedInProgress();
                 const stirActive = !this.p && !feedActive && (this.c > 0 || clickStir);
@@ -5282,7 +5372,7 @@
                         else sp.style.transform = `translate(-50%,-50%) rotate(${-27 + Math.sin(this.f) * 5}deg)`;
                     }
                 }
-                if (!this.p && this.c > 0 && this._autoPartAcc > 0) {
+                if (!this.p && this.c > 0 && this._autoPartAcc > 0 && !lowQ) {
                     // CAP por frame: como mucho N emisiones/frame (según calidad) aunque el CPS sea altísimo.
                     const burst = Math.min(this._autoPartAcc, quality.params.partCap);
                     const o = this.soupPartOrigin();
@@ -5291,7 +5381,7 @@
                     // Evita que el acumulador crezca sin límite con CPS muy alto.
                     if (this._autoPartAcc > 40) this._autoPartAcc = 40;
                 }
-                if (!this.p && (this._frame % 2 === 0)) {
+                if (!this.p && (this._frame % 2 === 0) && !lowQ) {
                     const sl = this._soupLiquidEl || (this._soupLiquidEl = document.getElementById('asset-soup-liquid'));
                     if (sl) {
                         const w = this._wave;
@@ -5303,7 +5393,7 @@
                         sl.style.transform = `translateX(${tx.toFixed(3)}%) scale(${sx.toFixed(4)},${sy.toFixed(4)}) skewX(${sk.toFixed(3)}deg)`;
                     }
                 }
-                if (!this.p && sr) {
+                if (!this.p && sr && !lowQ) {
                     this._steamIdleTick++;
                     if (this._steamIdleTick >= 8) {
                         this._steamIdleTick = 0;
@@ -5543,11 +5633,12 @@
             },
             draw() {
                 const ctx = this.ctx;
+                const lowQ = quality.effMode() === 'low';
+                if (lowQ && this.particles.length === 0) return;
                 ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
                 // On low/mobile, skip the per-frame soup-ball fills (10 radial gradients) and the
                 // homing physics; energy particles just fade upward (see below). Saves main-thread
                 // + GPU work during rapid tapping.
-                const lowQ = quality.effMode() === 'low';
                 if (!this.p && !lowQ) this.drawSoupBalls();
                 const scoreTarget = lowQ ? null : this.scorePartTarget();
                 // Compactación in-place: recorremos una sola vez y vamos guardando las
@@ -7383,7 +7474,7 @@
             mode: 'auto',
             presets: {
                 high: { maxParts: 80, partCap: 4, steamMax: 38, waveMul: 1, clickParts: 8 },
-                low:  { maxParts: 30, partCap: 2, steamMax: 14, waveMul: 0.5, clickParts: 3 }
+                low:  { maxParts: 18, partCap: 1, steamMax: 0, waveMul: 0, clickParts: 1 }
             },
             params: { maxParts: 80, partCap: 4, steamMax: 38, waveMul: 1, clickParts: 8 },
             // "Auto": heurístico simple por núcleos lógicos (sin sampleo costoso de FPS).
