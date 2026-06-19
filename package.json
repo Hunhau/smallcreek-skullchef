@@ -1,7 +1,7 @@
 {
   "name": "smallcreek-skullchef",
   "version": "1.0.0",
-  "description": "Smallcreek Skullchef — cozy ASMR idle soup clicker",
+  "description": "Skullchef — cozy idle clicker (The Wooden Soup) by SmallCreek",
   "private": true,
   "scripts": {
     "serve": "npx --yes serve . -l 5173",

@@ -1,7 +1,7 @@
 {
-  "name": "Smallcreek Skullchef",
+  "name": "Skullchef",
   "short_name": "Skullchef",
-  "description": "Cook souls and brew your way to glory in Smallcreek Skullchef, a spooky idle clicker. Cocina almas y asciende en este clicker idle.",
+  "description": "Skullchef: The Wooden Soup — a cozy idle clicker. Stir the cauldron, summon helpers and ascend. La Sopa de Madera — un clicker idle acogedor.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",

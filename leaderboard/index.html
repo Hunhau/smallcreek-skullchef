@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Smallcreek Skullchef — Leaderboard</title>
-<meta name="description" content="Global player leaderboard for Smallcreek Skullchef — Total Score, Prestige and Grand Prix wins.">
+<title>Skullchef — Leaderboard</title>
+<meta name="description" content="Global player leaderboard for Skullchef — Total Score, Prestige and Grand Prix wins.">
 <style>
   /* ===== Tokens matched to the game (index.html :root) ===== */
   :root{
@@ -136,7 +136,7 @@
     <button class="lang-toggle" id="langBtn" onclick="LB.toggleLang()">🌐 EN</button>
     <div class="crown">🏆</div>
     <h1 id="t-title">Leaderboard</h1>
-    <p class="subtitle" id="t-subtitle">Smallcreek Skullchef · Global Ranks</p>
+    <p class="subtitle" id="t-subtitle">Skullchef · Global Ranks</p>
   </header>
 
   <div class="tabs" id="tabs">
@@ -157,7 +157,7 @@
     <span><span class="dot" id="statusDot"></span> <span id="statusText"></span></span>
   </div>
 
-  <footer id="t-footer">Smallcreek Skullchef</footer>
+  <footer id="t-footer">Skullchef · by SmallCreek</footer>
 </div>
 
 <!-- supabase-js via CDN (only used if CONFIG below is filled in) -->
@@ -178,23 +178,23 @@ const CONFIG = {
 /* ===== Bilingual strings (EN + ES) — project rule: every user-facing string ===== */
 const I18N = {
   en: {
-    title:'Leaderboard', subtitle:'Smallcreek Skullchef · Global Ranks',
+    title:'Leaderboard', subtitle:'Skullchef · Global Ranks',
     score:'Total Score', prestige:'Prestige', prix:'Grand Prix Wins',
     metric_score:'Energy Balls', metric_prestige:'Angel Awakening Lv.', metric_prix:'Champions crowned',
     loading:'Loading…', empty:'No chefs yet — be the first!',
     live:'Live · updates as players climb', demo:'Demo data · connect Supabase to go live',
     creator:'Creator', creator_title:'Game creator · official developer account',
-    footer:'Smallcreek Skullchef — a cozy ASMR soup to stir, sip & unwind.',
+    footer:'Skullchef: The Wooden Soup — a cozy idle clicker · by SmallCreek',
     lang:'🌐 EN'
   },
   es: {
-    title:'Clasificación', subtitle:'Smallcreek Skullchef · Rankings Globales',
+    title:'Clasificación', subtitle:'Skullchef · Rankings Globales',
     score:'Puntuación Total', prestige:'Prestigio', prix:'Victorias Grand Prix',
     metric_score:'Bolas de Energía', metric_prestige:'Nv. Despertar del Ángel', metric_prix:'Campeones coronados',
     loading:'Cargando…', empty:'Aún no hay chefs — ¡sé el primero!',
     live:'En vivo · se actualiza al subir', demo:'Datos de demostración · conecta Supabase para activarlo',
     creator:'Creador', creator_title:'Creador del juego · cuenta oficial del desarrollador',
-    footer:'Smallcreek Skullchef — una sopa ASMR acogedora para remover, sorber y relajarte.',
+    footer:'Skullchef: La Sopa de Madera — un clicker idle acogedor · por SmallCreek',
     lang:'🌐 ES'
   }
 };

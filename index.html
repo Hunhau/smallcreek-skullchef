@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Smallcreek Skullchef</title>
+    <title>Skullchef</title>
     <!-- === PWA / "Add to Home Screen" (fullscreen standalone on iOS & Android) ===
          iOS Safari has no in-browser Fullscreen API, so the only true fullscreen is
          launching from a Home Screen icon as a standalone web app. -->
@@ -1176,7 +1176,7 @@
         </div>
         <div id="home-vignette" aria-hidden="true"></div>
         <div id="home-card">
-            <h1 id="home-title" data-i18n="home_title">Smallcreek Skullchef</h1>
+            <h1 id="home-title" data-i18n="home_title">Skullchef</h1>
             <p id="home-subtitle" data-i18n="home_subtitle">The Wooden Soup</p>
             <p id="home-tagline" data-i18n="home_tagline">A cozy ASMR soup to stir, sip and unwind.</p>
             <button id="home-play" type="button" onclick="home.play()" data-i18n="home_play">PLAY</button>
@@ -1221,7 +1221,7 @@
                 </div>
             </div>
             <div id="home-footer">
-                <p id="home-credits" data-i18n="home_credits">Crafted with warmth by the SmallCreek kitchen.</p>
+                <p id="home-credits" data-i18n="home_credits">by SmallCreek</p>
                 <p id="home-footer-links"><a id="home-privacy" href="privacy.html" target="_blank" rel="noopener" data-i18n="privacy_link">Privacy</a></p>
                 <p id="home-version">v1.0.0</p>
             </div>
@@ -1962,7 +1962,7 @@
         // while still retrying if a reload didn't actually land the new build. Fully
         // defensive: any error is silent and never blocks the game. Parent bumps BOTH
         // version.json and BUILD_V on every future deploy.
-        const BUILD_V = "build-35";
+        const BUILD_V = "build-36";
         (function () {
             function hardReloadTo(v) {
                 try {
@@ -2009,7 +2009,7 @@
                 energy_balls:"Energy Balls:", angel_shards:"Angel Shards:", chronicle:"CHRONICLE", era:"Era", locked:"LOCKED", shop:"SHOP", spoons_album_title:"SACRED SPOONS ALBUM", hats_album_title:"SACRED HATS ALBUM",
                 quests_btn:"📜 Chef's Orders", tree_btn:"🌳 Angel Tree", offline_title:"Your soup kept cooking", claim:"Claim", quests_title:"Chef's Orders", close:"Close",
                 tree_title:"Angel Awakening Tree", tree_shards_avail:"Available Angel Shards:", audio_mute_title:"Mute / Unmute sound", audio_vol_title:"Volume",
-                home_title:"Smallcreek Skullchef", home_subtitle:"The Wooden Soup", home_tagline:"A cozy ASMR soup to stir, sip and unwind.", home_play:"Play", home_language:"Language", home_audio:"Audio", home_credits:"Crafted with warmth in the SmallCreek kitchen.",
+                home_title:"Skullchef", home_subtitle:"The Wooden Soup", home_tagline:"A cozy idle clicker — stir, sip and unwind.", home_play:"Play", home_language:"Language", home_audio:"Audio", home_credits:"by SmallCreek",
                 backup_label:"Backup", backup_export:"⬇ Export", backup_copy:"📋 Copy", backup_import:"📥 Paste", backup_file:"📂 File",
                 cloud_upload:"☁️ Cloud Save", cloud_restore:"☁️ Restore by Code", cloud_uploading:"Uploading to the cloud…", cloud_uploaded:"Progress saved to the cloud.", cloud_uploaded_copied:"Saved to the cloud — your code is copied!", cloud_your_code:"Your account code (copy it to move your progress to another device):", cloud_restore_prompt:"Paste your account code to restore your progress:", cloud_restoring:"Restoring from the cloud…", cloud_not_found:"No cloud save found for that code.", cloud_bad_code:"That account code is not valid.", cloud_offline:"The cloud is offline right now (leaderboard not connected).", cloud_error:"Cloud save failed. Please try again.",
                 creator_sync_label:"👑 Creator", creator_sync_upload:"👑 Upload (PC→cloud)", creator_sync_restore:"👑 Restore (cloud→here)", creator_sync_unlocked:"Creator sync unlocked.", creator_restore_confirm:"This will replace your progress on THIS device with your creator cloud save. Continue?",
@@ -2059,7 +2059,7 @@
                 reward_watch:"Watch",
                 reward_cooldown:"in {time}", reward_daily_left:"{n}/{max} today", reward_granted:"Reward granted: {r} 🎁", ad_failed:"Ad not completed — no reward", offline_double:"x2 (Watch ad)",
                 reward_fab:"Watch ad", reward_brew2:"Double Brew", reward_brew2_d:"x2 production for 5 min", reward_instapot:"Instant Pot", reward_instapot_d:"Instant batch · ~5 min of earnings", reward_lucky:"Lucky Drop", reward_lucky_d:"A free charm drop", reward_daily_done:"Done for today", reward_later:"Come back later", reward_modal_title:"Watch an ad", reward_modal_sub:"Watch a short ad for a reward", ad_sim_label:"Advertisement", ad_sim_hint:"Your reward is on the way…", ad_unavailable:"Ads aren't available here",
-                rotate_title:"Rotate your device", rotate_msg:"Smallcreek Skullchef plays best in landscape. Turn your device sideways to keep cooking.", rotate_continue:"Continue anyway",
+                rotate_title:"Rotate your device", rotate_msg:"Skullchef plays best in landscape. Turn your device sideways to keep cooking.", rotate_continue:"Continue anyway",
                 settings_title:"Settings", settings_quality:"Quality", quality_auto:"Auto", quality_high:"High", quality_low:"Low",
                 settings_fullscreen:"Fullscreen", fs_enter:"⛶ Enter", fs_exit:"⛶ Exit",
                 pwa_ios_hint:"📲 Add to Home Screen for fullscreen (Share → Add to Home Screen)",
@@ -2123,7 +2123,7 @@
                 energy_balls:"Bolas de Energía:", angel_shards:"Fragmentos de Ángel:", chronicle:"CRÓNICA", era:"Era", locked:"BLOQUEADO", shop:"TIENDA", spoons_album_title:"ÁLBUM DE CUCHARAS SAGRADAS", hats_album_title:"ÁLBUM DE GORROS SAGRADOS",
                 quests_btn:"📜 Pedidos del Chef", tree_btn:"🌳 Árbol del Ángel", offline_title:"Tu sopa siguió cociéndose", claim:"Reclamar", quests_title:"Pedidos del Chef", close:"Cerrar",
                 tree_title:"Árbol del Despertar del Ángel", tree_shards_avail:"Fragmentos de Ángel disponibles:", audio_mute_title:"Silenciar / Activar sonido", audio_vol_title:"Volumen",
-                home_title:"Smallcreek Skullchef", home_subtitle:"La Sopa de Madera", home_tagline:"Una sopa ASMR para remover, saborear y relajarte.", home_play:"Jugar", home_language:"Idioma", home_audio:"Audio", home_credits:"Hecho con cariño en la cocina de SmallCreek.",
+                home_title:"Skullchef", home_subtitle:"La Sopa de Madera", home_tagline:"Un clicker idle acogedor — remueve, saborea y relájate.", home_play:"Jugar", home_language:"Idioma", home_audio:"Audio", home_credits:"por SmallCreek",
                 backup_label:"Copia", backup_export:"⬇ Exportar", backup_copy:"📋 Copiar", backup_import:"📥 Pegar", backup_file:"📂 Archivo",
                 cloud_upload:"☁️ Subir a la nube", cloud_restore:"☁️ Restaurar con código", cloud_uploading:"Subiendo a la nube…", cloud_uploaded:"Progreso guardado en la nube.", cloud_uploaded_copied:"Guardado en la nube: ¡tu código está copiado!", cloud_your_code:"Tu código de cuenta (cópialo para llevar tu progreso a otro dispositivo):", cloud_restore_prompt:"Pega tu código de cuenta para restaurar tu progreso:", cloud_restoring:"Restaurando desde la nube…", cloud_not_found:"No hay copia en la nube para ese código.", cloud_bad_code:"Ese código de cuenta no es válido.", cloud_offline:"La nube está desconectada ahora mismo (ranking no conectado).", cloud_error:"Falló el guardado en la nube. Inténtalo de nuevo.",
                 creator_sync_label:"👑 Creador", creator_sync_upload:"👑 Subir partida (PC→nube)", creator_sync_restore:"👑 Restaurar (nube→aquí)", creator_sync_unlocked:"Sincronización de creador desbloqueada.", creator_restore_confirm:"Esto sustituirá tu progreso EN ESTE dispositivo por tu partida de creador en la nube. ¿Continuar?",
@@ -2173,7 +2173,7 @@
                 reward_watch:"Ver",
                 reward_cooldown:"en {time}", reward_daily_left:"{n}/{max} hoy", reward_granted:"Recompensa concedida: {r} 🎁", ad_failed:"Anuncio no completado — sin recompensa", offline_double:"x2 (Ver anuncio)",
                 reward_fab:"Ver anuncio", reward_brew2:"Caldo Doble", reward_brew2_d:"x2 producción durante 5 min", reward_instapot:"Olla Instantánea", reward_instapot_d:"Lote instantáneo · ~5 min de ganancias", reward_lucky:"Golpe de Suerte", reward_lucky_d:"Un amuleto gratis", reward_daily_done:"Listo por hoy", reward_later:"Vuelve más tarde", reward_modal_title:"Mira un anuncio", reward_modal_sub:"Mira un anuncio corto por una recompensa", ad_sim_label:"Anuncio", ad_sim_hint:"Tu recompensa está en camino…", ad_unavailable:"Los anuncios no están disponibles aquí",
-                rotate_title:"Gira tu dispositivo", rotate_msg:"Smallcreek Skullchef se juega mejor en horizontal. Gira tu dispositivo para seguir cocinando.", rotate_continue:"Continuar igual",
+                rotate_title:"Gira tu dispositivo", rotate_msg:"Skullchef se juega mejor en horizontal. Gira tu dispositivo para seguir cocinando.", rotate_continue:"Continuar igual",
                 settings_title:"Ajustes", settings_quality:"Calidad", quality_auto:"Auto", quality_high:"Alta", quality_low:"Baja",
                 settings_fullscreen:"Pantalla completa", fs_enter:"⛶ Activar", fs_exit:"⛶ Salir",
                 pwa_ios_hint:"📲 Añade a pantalla de inicio para pantalla completa (Compartir → Añadir a pantalla de inicio)",
