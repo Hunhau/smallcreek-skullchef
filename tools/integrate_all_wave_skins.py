@@ -81,6 +81,7 @@ def helper_from_id(skin_id: str) -> str:
 
 
 def find_source(stem: str) -> Path | None:
+    """Return the best PNG source for *stem* (Wave3_transparente first)."""
     for root in SOURCE_ROOTS:
         if not root.exists():
             continue
@@ -91,17 +92,59 @@ def find_source(stem: str) -> Path | None:
     return None
 
 
-def ensure_rgba_768x512(src: Path, dst: Path) -> None:
+def has_opaque_white_bg(img: Image.Image) -> bool:
+    """True when the image border is mostly opaque white (bad integration source)."""
+    w, h = img.size
+    px = img.load()
+    border: list[tuple[int, int, int, int]] = []
+    for x in range(w):
+        border.append(px[x, 0])
+        border.append(px[x, h - 1])
+    for y in range(1, h - 1):
+        border.append(px[0, y])
+        border.append(px[w - 1, y])
+    if not border:
+        return False
+    white = sum(1 for p in border if p[3] > 200 and p[0] > 235 and p[1] > 235 and p[2] > 235)
+    transparent = sum(1 for p in border if p[3] < 16)
+    white_pct = white / len(border) * 100
+    trans_pct = transparent / len(border) * 100
+    return white_pct > 50 or (trans_pct < 20 and white_pct > 20)
+
+
+def rembg_image(img: Image.Image) -> Image.Image:
+    from rembg import remove
+
+    return remove(img.convert("RGBA"))
+
+
+def fit_rgba_canvas(img: Image.Image) -> Image.Image:
+    if img.size == TARGET:
+        return img
+    img = img.copy()
+    img.thumbnail(TARGET, Image.Resampling.LANCZOS)
+    canvas = Image.new("RGBA", TARGET, (0, 0, 0, 0))
+    x = (TARGET[0] - img.width) // 2
+    y = (TARGET[1] - img.height) // 2
+    canvas.paste(img, (x, y), img)
+    return canvas
+
+
+def prepare_skin_png(src: Path, dst: Path, *, force_rembg: bool = False) -> bool:
+    """Copy *src* to *dst* at 768×512, preferring real alpha (rembg when needed)."""
     img = Image.open(src).convert("RGBA")
-    if img.size != TARGET:
-        img.thumbnail(TARGET, Image.Resampling.LANCZOS)
-        canvas = Image.new("RGBA", TARGET, (0, 0, 0, 0))
-        x = (TARGET[0] - img.width) // 2
-        y = (TARGET[1] - img.height) // 2
-        canvas.paste(img, (x, y), img)
-        img = canvas
+    used_rembg = False
+    if force_rembg or has_opaque_white_bg(img):
+        img = rembg_image(img)
+        used_rembg = True
+    img = fit_rgba_canvas(img)
     dst.parent.mkdir(parents=True, exist_ok=True)
     img.save(dst, "PNG", optimize=True)
+    return used_rembg
+
+
+def ensure_rgba_768x512(src: Path, dst: Path) -> None:
+    prepare_skin_png(src, dst)
 
 
 def title_slug(slug: str) -> str:
@@ -176,9 +219,24 @@ def wave_tag(stem: str, src: Path) -> str:
     return "Wave staging"
 
 
-def integrate(dry_run: bool = False) -> dict:
+def fill_catalog_gaps(meta: dict[str, dict], catalog_ids: set[str]) -> list[tuple[str, str]]:
+    """Add catalog entries for skin PNGs on disk but missing from catalog.js."""
+    new_entries: list[tuple[str, str]] = []
+    for stem in sorted(f.stem for f in SKINS_DIR.glob("*.png") if is_skin_stem(f.stem)):
+        if stem in catalog_ids:
+            continue
+        rarity, name_en, name_es = names_for(stem, meta)
+        family = family_for(stem)
+        line = catalog_line(stem, rarity, family, name_en, name_es)
+        new_entries.append(("On disk · catalog gap", line))
+        catalog_ids.add(stem)
+        meta[stem] = {"rarity": rarity, "family": family, "name_en": name_en, "name_es": name_es}
+    return new_entries
+
+
+def integrate(dry_run: bool = False, repair: bool = True) -> dict:
     catalog_ids, meta = parse_catalog()
-    existing_pngs = {f.stem for f in SKINS_DIR.glob("*.png")}
+    existing_pngs = {f.stem for f in SKINS_DIR.glob("*.png") if is_skin_stem(f.stem)}
 
     # All stems present in any source root.
     all_stems: set[str] = set()
@@ -193,6 +251,7 @@ def integrate(dry_run: bool = False) -> dict:
 
     missing = sorted(all_stems - existing_pngs)
     copied: list[tuple[str, Path]] = []
+    repaired: list[tuple[str, Path]] = []
     new_entries: list[tuple[str, str]] = []  # (wave_tag, line)
 
     for stem in missing:
@@ -201,7 +260,7 @@ def integrate(dry_run: bool = False) -> dict:
             continue
         dst = SKINS_DIR / f"{stem}.png"
         if not dry_run:
-            ensure_rgba_768x512(src, dst)
+            prepare_skin_png(src, dst)
         copied.append((stem, src))
 
         if stem not in catalog_ids:
@@ -212,6 +271,31 @@ def integrate(dry_run: bool = False) -> dict:
             new_entries.append((tag, line))
             catalog_ids.add(stem)
             meta[stem] = {"rarity": rarity, "family": family, "name_en": name_en, "name_es": name_es}
+
+    if repair:
+        for stem in sorted(existing_pngs):
+            dst = SKINS_DIR / f"{stem}.png"
+            if not dst.exists():
+                continue
+            try:
+                current = Image.open(dst).convert("RGBA")
+            except OSError:
+                continue
+            if not has_opaque_white_bg(current):
+                continue
+            src = find_source(stem)
+            if not src:
+                continue
+            if not dry_run:
+                prepare_skin_png(src, dst)
+            repaired.append((stem, src))
+
+    if not dry_run:
+        new_entries.extend(fill_catalog_gaps(meta, catalog_ids))
+
+    catalog_gaps = sorted(
+        f.stem for f in SKINS_DIR.glob("*.png") if is_skin_stem(f.stem) and f.stem not in catalog_ids
+    )
 
     if not dry_run and new_entries:
         text = CATALOG_PATH.read_text(encoding="utf-8")
@@ -230,21 +314,49 @@ def integrate(dry_run: bool = False) -> dict:
         text = text.replace(marker, combined, 1)
         CATALOG_PATH.write_text(text, encoding="utf-8")
 
+    opaque_remaining = []
+    for stem in sorted(existing_pngs | set(all_stems)):
+        dst = SKINS_DIR / f"{stem}.png"
+        if not dst.exists():
+            continue
+        try:
+            if has_opaque_white_bg(Image.open(dst).convert("RGBA")):
+                opaque_remaining.append(stem)
+        except OSError:
+            pass
+
     return {
         "wave_stems_total": len(all_stems),
         "already_in_assets": len(all_stems & existing_pngs),
         "copied": len(copied),
+        "repaired": len(repaired),
         "catalog_added": len(new_entries),
+        "catalog_gaps_on_disk": len(catalog_gaps),
+        "opaque_remaining": len(opaque_remaining),
         "missing_no_source": [s for s in missing if not find_source(s)],
+        "repaired_stems": [s for s, _ in repaired],
+        "opaque_stems": opaque_remaining,
     }
 
 
 def main() -> int:
     mode = sys.argv[1] if len(sys.argv) > 1 else "integrate"
+    if mode == "audit":
+        _, _ = parse_catalog()
+        existing = {f.stem for f in SKINS_DIR.glob("*.png") if is_skin_stem(f.stem)}
+        opaque = [
+            s for s in sorted(existing)
+            if has_opaque_white_bg(Image.open(SKINS_DIR / f"{s}.png").convert("RGBA"))
+        ]
+        import json
+        print(json.dumps({"total": len(existing), "opaque_white_bg": len(opaque), "stems": opaque}, indent=2))
+        return 0
     if mode == "dry-run":
         r = integrate(dry_run=True)
+    elif mode == "repair":
+        r = integrate(dry_run=False, repair=True)
     else:
-        r = integrate(dry_run=False)
+        r = integrate(dry_run=False, repair=True)
     import json
     print(json.dumps(r, indent=2))
     return 0
