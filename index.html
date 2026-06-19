@@ -782,6 +782,15 @@
         .q-low .steam-wisp:nth-child(n+4) { display: none; }
         .q-low .steam-wisp { filter: blur(6px) !important; }
         .coll-stats { font-size: 0.82rem; color: #cbd5e1; margin: 2px 0 10px; line-height: 1.4; }
+        #collection-modal .coll-box { display: flex; flex-direction: column; max-height: 84vh; overflow: hidden; padding-top: 0; }
+        #collection-modal .coll-head { position: relative; flex-shrink: 0; padding: 18px 44px 10px; margin: 0 -24px 4px; border-bottom: 1px solid var(--glass-bd); background: var(--glass-strong); }
+        #collection-modal .coll-head h2 { margin: 0; }
+        #collection-modal .coll-close { position: absolute; top: 50%; right: 12px; transform: translateY(-50%); }
+        #collection-modal .coll-close:hover { transform: translateY(-50%) rotate(90deg); }
+        #collection-modal .coll-body { flex: 1; min-height: 0; overflow-y: auto; text-align: center; }
+        .coll-sections { text-align: left; }
+        .coll-section { margin-bottom: 14px; }
+        .coll-section-hd { font-size: 0.78rem; font-weight: bold; color: var(--go); text-transform: uppercase; letter-spacing: 0.5px; margin: 0 0 8px; padding-bottom: 4px; border-bottom: 1px solid var(--glass-bd); }
         .coll-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 10px; }
         .charm-tile { position: relative; background: var(--glass); border: 2px solid var(--glass-bd); border-radius: 12px; padding: 6px; cursor: pointer; transition: 0.18s; display: flex; flex-direction: column; align-items: center; gap: 4px; }
         .charm-tile:hover { filter: brightness(1.1); transform: translateY(-2px); }
@@ -1069,11 +1078,16 @@
             <button class="gx-btn" type="button" onclick="pauseMenu.showMain()" data-i18n="pause_back">← Back</button>
         </div>
     </div></div>
-    <div id="collection-modal" class="gx-modal"><div class="gx-box">
-        <h2 data-i18n="collection_title">Charm Collection</h2>
-        <div id="collection-stats" class="coll-stats"></div>
-        <div id="collection-grid" class="coll-grid"></div>
-        <button class="gx-btn" style="margin-top:14px" onclick="collection.close()" data-i18n="close">Close</button>
+    <div id="collection-modal" class="gx-modal"><div class="gx-box coll-box">
+        <div class="coll-head">
+            <h2 data-i18n="collection_title">Charm Collection</h2>
+            <button class="coll-close cp-close" type="button" onclick="collection.close()" aria-label="Close">✕</button>
+        </div>
+        <div class="coll-body">
+            <div id="collection-stats" class="coll-stats"></div>
+            <div id="collection-grid" class="coll-sections"></div>
+            <button class="gx-btn" style="margin-top:14px" onclick="collection.close()" data-i18n="close">Close</button>
+        </div>
     </div></div>
     <div id="charm-preview" onclick="if(event.target===this)collection.closePreview()">
         <div class="cp-box">
@@ -7185,6 +7199,7 @@
             // Independent equip slots. Each helper family is its own slot, plus one spoon
             // and one chef-hat slot. The equipped state lives in c.equips[slotKey] = skinId|null.
             SLOTS: ['coco', 'bunny', 'pio', 'ivan', 'bongo', 'spoon', 'hat'],
+            FAMILY_GROUPS: ['ivan', 'pio', 'coco', 'bunny', 'bongo', 'spoon', 'chefhat'],
             // Derive the slot key for a skin from its family. Helper skins map to their
             // helper token (the id prefix: coco/bunny/pio/ivan/bongo); spoon -> 'spoon';
             // chefhat -> 'hat'. Returns null if the skin doesn't map to any slot.
@@ -7855,6 +7870,20 @@
                 if (fam === 'helper') return t('coll_fam_helper');
                 return '';
             },
+            familyGroupOf(skin) {
+                if (!skin) return 'other';
+                if (skin.family === 'spoon') return 'spoon';
+                if (skin.family === 'chefhat') return 'chefhat';
+                if (skin.family === 'helper') {
+                    const token = String(skin.id || '').split('_')[0];
+                    if (this.FAMILY_GROUPS.indexOf(token) >= 0) return token;
+                }
+                return 'other';
+            },
+            familyGroupLabel(group) {
+                const map = { ivan: 'comp_ivan', pio: 'comp_pio', coco: 'comp_coco', bunny: 'comp_bunny', bongo: 'comp_bongo', spoon: 'coll_fam_spoon', chefhat: 'coll_fam_chefhat' };
+                return map[group] ? t(map[group]) : group;
+            },
             nextDropText() {
                 const c = this.ensureDay();
                 if (c.today >= this.DAILY_CAP) return t('coll_daily_done');
@@ -7972,10 +8001,17 @@
                     return;
                 }
                 const keys = cat.map(s => s.id).filter(Boolean);
+                const famRank = {};
+                for (let fi = 0; fi < this.FAMILY_GROUPS.length; fi++) famRank[this.FAMILY_GROUPS[fi]] = fi;
                 keys.sort((a, b) => {
-                    const ra = this.rarRank[(this.skinById(a) || {}).rarity] || 0;
-                    const rb = this.rarRank[(this.skinById(b) || {}).rarity] || 0;
-                    return (rb - ra) || (a < b ? -1 : a > b ? 1 : 0);
+                    const sa = this.skinById(a), sb = this.skinById(b);
+                    const fa = famRank[this.familyGroupOf(sa)] != null ? famRank[this.familyGroupOf(sa)] : 999;
+                    const fb = famRank[this.familyGroupOf(sb)] != null ? famRank[this.familyGroupOf(sb)] : 999;
+                    if (fa !== fb) return fa - fb;
+                    const ra = this.rarRank[(sa || {}).rarity] || 0;
+                    const rb = this.rarRank[(sb || {}).rarity] || 0;
+                    if (ra !== rb) return ra - rb;
+                    return a < b ? -1 : a > b ? 1 : 0;
                 });
                 const sig = this._gridSig(c, keys);
                 if (!force && sig === this._lastGridSig && grid.querySelector('.charm-tile')) return;
@@ -7983,8 +8019,9 @@
                 if (keys.length > 80) { try { SkinAssetManager.bumpThumbLimit(Math.min(400, keys.length + 40)); } catch (e) {} }
                 if (!this._loadedThumbs) this._loadedThumbs = new Set();
                 const loaded = this._loadedThumbs;
-                grid.innerHTML = keys.map(k => {
-                    const skin = this.skinById(k);
+                const self = this;
+                function tileHtml(k) {
+                    const skin = self.skinById(k);
                     const rarity = skin ? skin.rarity : 'common';
                     const it = c.items[k];
                     const owned = !!it;
@@ -7993,10 +8030,10 @@
                         const fam = skin ? (skin.family === 'spoon' ? t('coll_fam_spoon') : skin.family === 'chefhat' ? t('coll_fam_chefhat') : skin.family === 'helper' ? t('coll_fam_helper') : '') : '';
                         return `<div class="charm-tile locked r-${rarity}" onclick="collection.lockedTap()"><span class="charm-lock" aria-hidden="true">🔒</span><div class="charm-img charm-ph r-${rarity}">?</div><span class="charm-name">${t('coll_locked')}</span><span class="charm-rar r-${rarity}">${fam ? fam + ' · ' : ''}${t('r_' + rarity)}</span><span style="font-size:0.58rem;color:#64748b">${t('coll_locked')}</span></div>`;
                     }
-                    const eqd = this.isEquipped(k);
+                    const eqd = self.isEquipped(k);
                     const dup = it.count > 1 ? `<span class="charm-dup">x${it.count}</span>` : '';
-                    const fam = this.familyName(it);
-                    const thumbSrc = skin ? this.srcThumb(skin) : null;
+                    const fam = self.familyName(it);
+                    const thumbSrc = skin ? self.srcThumb(skin) : null;
                     const fb = skin ? (skin.img || '') : '';
                     const art = thumbSrc
                         ? (loaded.has(thumbSrc)
@@ -8004,13 +8041,27 @@
                             : `<img class="charm-img r-${it.rarity}" data-src="${thumbSrc}" data-fallback="${fb}" alt="" loading="lazy" decoding="async" onerror="collection.imgFail(this)">`)
                         : `<div class="charm-img charm-ph r-${it.rarity}">?</div>`;
                     const insp = `<button class="charm-inspect" type="button" title="${t('coll_inspect')}" aria-label="${t('coll_inspect_aria')}" onclick="event.stopPropagation();collection.preview('${kk}')">🔍</button>`;
-                    const canEquip = this.canEquipSkin(k);
+                    const canEquip = self.canEquipSkin(k);
                     const tileCls = `charm-tile r-${it.rarity}${eqd && canEquip ? ' equipped' : ''}${!canEquip ? ' collectible' : ''}`;
                     const actionLbl = canEquip ? (eqd ? t('coll_equipped') : t('coll_equip')) : t('coll_collectible');
                     const actionClr = canEquip ? (eqd ? '#fbbf24' : '#94a3b8') : '#64748b';
                     const tileClick = canEquip ? ` onclick="collection.equip('${kk}')"` : '';
-                    return `<div class="${tileCls}"${tileClick}>${insp}${dup}${art}<span class="charm-name">${this.nameFor(it)}</span><span class="charm-rar r-${it.rarity}">${fam ? fam + ' · ' : ''}${t('r_' + it.rarity)}</span><span style="font-size:0.58rem;color:${actionClr}">${actionLbl}</span></div>`;
-                }).join('');
+                    return `<div class="${tileCls}"${tileClick}>${insp}${dup}${art}<span class="charm-name">${self.nameFor(it)}</span><span class="charm-rar r-${it.rarity}">${fam ? fam + ' · ' : ''}${t('r_' + it.rarity)}</span><span style="font-size:0.58rem;color:${actionClr}">${actionLbl}</span></div>`;
+                }
+                let html = '';
+                let curGroup = null;
+                for (let i = 0; i < keys.length; i++) {
+                    const k = keys[i];
+                    const group = this.familyGroupOf(this.skinById(k));
+                    if (group !== curGroup) {
+                        if (curGroup) html += '</div></div>';
+                        curGroup = group;
+                        html += `<div class="coll-section"><h3 class="coll-section-hd">${this.familyGroupLabel(group)}</h3><div class="coll-grid">`;
+                    }
+                    html += tileHtml(k);
+                }
+                if (curGroup) html += '</div></div>';
+                grid.innerHTML = html;
                 this._bindGridLazyThumbs(grid);
             },
             lockedTap() { try { gx.toast(t('coll_locked_toast')); } catch (e) {} }
