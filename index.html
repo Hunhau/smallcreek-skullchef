@@ -864,11 +864,12 @@
         .farm-plot { border-radius: 12px; padding: 8px 6px; text-align: center; background: rgba(34,197,94,0.08); border: 1px solid rgba(74,222,128,0.35); min-height: 78px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; }
         .farm-plot.growing { border-color: rgba(251,191,36,0.5); background: rgba(251,191,36,0.08); }
         .farm-plot.ready { border-color: #4ade80; background: rgba(74,222,128,0.16); animation: farmPulse 1.2s ease-in-out infinite alternate; cursor: pointer; touch-action: manipulation; }
-        .farm-plot.empty { border-color: rgba(148,163,184,0.35); background: rgba(255,255,255,0.04); }
+        .farm-plot.empty { border-color: rgba(148,163,184,0.35); background: rgba(255,255,255,0.04); cursor: pointer; touch-action: manipulation; }
         @keyframes farmPulse { from { box-shadow: 0 0 0 rgba(74,222,128,0); } to { box-shadow: 0 0 14px rgba(74,222,128,0.45); } }
-        .farm-glyph { font-size: 1.45rem; line-height: 1; }
-        .farm-timer { font-size: 0.65rem; color: #fde68a; font-weight: bold; }
-        .farm-plot-btn { font-size: 0.62rem; padding: 4px 8px; border-radius: 8px; border: 1px solid var(--glass-bd-go); background: linear-gradient(135deg,#14532d,#22c55e); color: #fff; cursor: pointer; min-height: 28px; touch-action: manipulation; }
+        .farm-glyph { font-size: 1.45rem; line-height: 1; pointer-events: none; user-select: none; }
+        .farm-timer { font-size: 0.65rem; color: #fde68a; font-weight: bold; pointer-events: none; user-select: none; }
+        .farm-plot-btn, .farm-plot-label { font-size: 0.62rem; padding: 4px 8px; border-radius: 8px; border: 1px solid var(--glass-bd-go); background: linear-gradient(135deg,#14532d,#22c55e); color: #fff; min-height: 28px; display: inline-flex; align-items: center; justify-content: center; pointer-events: none; user-select: none; touch-action: manipulation; }
+        .farm-plot-label { border-color: #86efac; background: linear-gradient(135deg,#166534,#4ade80); font-weight: bold; }
         /* ===== DECORATIONS ===== */
         #decor-layer { position: absolute; inset: 0; z-index: 5; pointer-events: none; overflow: hidden; }
         body.decor-edit-mode #decor-layer { pointer-events: auto; }
@@ -5843,6 +5844,26 @@
         const FARM_GROW_SEC = { ink:35, shrimp:35, carrot:40, lettuce:40, corn:50, yolk:50, honey:70, berries:70, banana:90, coconut:90 };
         const farm = {
             _bgSuppressed: false,
+            _plotClickBound: false,
+            _plotRenderSig: null,
+            _bindPlotClicks() {
+                const plotsEl = document.getElementById('farm-plots');
+                if (!plotsEl || this._plotClickBound) return;
+                this._plotClickBound = true;
+                plotsEl.addEventListener('pointerdown', (e) => {
+                    if (e.pointerType === 'mouse' && e.button !== 0) return;
+                    const plotEl = e.target.closest('.farm-plot');
+                    if (!plotEl || !plotsEl.contains(plotEl)) return;
+                    const idx = parseInt(plotEl.dataset.idx, 10);
+                    if (!Number.isFinite(idx)) return;
+                    this.ensure();
+                    const plot = game.farm.plots[idx];
+                    if (!plot) return;
+                    const st = this.plotState(plot);
+                    if (st === 'ready') { e.preventDefault(); this.harvest(idx); }
+                    else if (st === 'empty') { e.preventDefault(); this.plant(idx); }
+                });
+            },
             _setBgSuppressed(on) {
                 this._bgSuppressed = !!on;
                 try { if (typeof ambient !== 'undefined' && ambient._inited) ambient.syncPlayback(); } catch (e) {}
@@ -5942,7 +5963,10 @@
                     }
                     if (plot._farmSt !== st) plot._farmSt = st;
                 });
-                if (changed) this.updateBadge();
+                if (changed) {
+                    this.updateBadge();
+                    try { const fm = document.getElementById('farm-modal'); if (fm && fm.classList.contains('open')) this.render(); } catch (e) {}
+                }
             },
             setAutoReplant(v) { this.ensure(); game.farm.autoReplant = !!v; game.save(); },
             formatTime(sec) {
@@ -5981,16 +6005,28 @@
                     }).join('');
                 }
                 if (plotsEl) {
+                    this._bindPlotClicks();
                     const now = Date.now();
-                    plotsEl.innerHTML = game.farm.plots.map((plot, i) => {
-                        const st = this.plotState(plot);
-                        const glyph = FARM_GLYPHS[plot.type] || '🌱';
-                        let body;
-                        if (st === 'empty') body = `<button class="farm-plot-btn" type="button" onclick="farm.plant(${i})">${t('farm_plant')}</button>`;
-                        else if (st === 'growing') body = `<div class="farm-timer">${this.formatTime((plot.readyAt - now) / 1000)}</div>`;
-                        else body = `<button class="farm-plot-btn" type="button" onclick="farm.harvest(${i})">${t('farm_harvest')}</button>`;
-                        return `<div class="farm-plot ${st}"${st === 'ready' ? ` onclick="farm.harvest(${i})"` : ''}><div class="farm-glyph">${glyph}</div>${body}</div>`;
-                    }).join('');
+                    const sig = game.farm.plots.map(p => this.plotState(p));
+                    const full = !this._plotRenderSig || sig.length !== this._plotRenderSig.length || sig.some((s, i) => s !== this._plotRenderSig[i]);
+                    if (full) {
+                        this._plotRenderSig = sig.slice();
+                        plotsEl.innerHTML = game.farm.plots.map((plot, i) => {
+                            const st = sig[i];
+                            const glyph = FARM_GLYPHS[plot.type] || '🌱';
+                            let body;
+                            if (st === 'empty') body = `<span class="farm-plot-btn">${t('farm_plant')}</span>`;
+                            else if (st === 'growing') body = `<div class="farm-timer">${this.formatTime((plot.readyAt - now) / 1000)}</div>`;
+                            else body = `<span class="farm-plot-label">${t('farm_harvest')}</span>`;
+                            return `<div class="farm-plot ${st}" data-idx="${i}"><div class="farm-glyph">${glyph}</div>${body}</div>`;
+                        }).join('');
+                    } else {
+                        game.farm.plots.forEach((plot, i) => {
+                            if (sig[i] !== 'growing') return;
+                            const el = plotsEl.querySelector(`.farm-plot[data-idx="${i}"] .farm-timer`);
+                            if (el) el.textContent = this.formatTime((plot.readyAt - now) / 1000);
+                        });
+                    }
                 }
             },
             devFillStock() {
