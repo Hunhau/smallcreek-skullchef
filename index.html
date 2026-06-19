@@ -856,6 +856,38 @@
         .ach-body { flex: 1; }
         .ach-name { font-weight: bold; font-size: 0.85rem; }
         .ach-desc { font-size: 0.7rem; color: #94a3b8; }
+        /* ===== CULTIVOS (ingredient farm) ===== */
+        .farm-stock-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; margin: 10px 0; }
+        .farm-stock-chip { font-size: 0.72rem; text-align: center; padding: 6px 4px; border-radius: 10px; background: rgba(255,255,255,0.06); border: 1px solid var(--glass-bd); }
+        .farm-stock-chip.low { border-color: #f87171; color: #fecaca; }
+        .farm-plots { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-top: 8px; }
+        .farm-plot { border-radius: 12px; padding: 8px 6px; text-align: center; background: rgba(34,197,94,0.08); border: 1px solid rgba(74,222,128,0.35); min-height: 78px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; }
+        .farm-plot.growing { border-color: rgba(251,191,36,0.5); background: rgba(251,191,36,0.08); }
+        .farm-plot.ready { border-color: #4ade80; background: rgba(74,222,128,0.16); animation: farmPulse 1.2s ease-in-out infinite alternate; cursor: pointer; touch-action: manipulation; }
+        .farm-plot.empty { border-color: rgba(148,163,184,0.35); background: rgba(255,255,255,0.04); }
+        @keyframes farmPulse { from { box-shadow: 0 0 0 rgba(74,222,128,0); } to { box-shadow: 0 0 14px rgba(74,222,128,0.45); } }
+        .farm-glyph { font-size: 1.45rem; line-height: 1; }
+        .farm-timer { font-size: 0.65rem; color: #fde68a; font-weight: bold; }
+        .farm-plot-btn { font-size: 0.62rem; padding: 4px 8px; border-radius: 8px; border: 1px solid var(--glass-bd-go); background: linear-gradient(135deg,#14532d,#22c55e); color: #fff; cursor: pointer; min-height: 28px; touch-action: manipulation; }
+        /* ===== DECORATIONS ===== */
+        #decor-layer { position: absolute; inset: 0; z-index: 5; pointer-events: none; overflow: hidden; }
+        body.decor-edit-mode #decor-layer { pointer-events: auto; }
+        .decor-piece { position: absolute; pointer-events: none; user-select: none; filter: drop-shadow(0 4px 12px rgba(0,0,0,0.35)); transition: transform 0.15s; line-height: 1; }
+        body.decor-edit-mode .decor-piece.decor-free { pointer-events: auto; cursor: grab; touch-action: none; }
+        body.decor-edit-mode .decor-piece.decor-free.dragging { cursor: grabbing; opacity: 0.85; }
+        .decor-slot-bg { left: 2%; top: 8%; font-size: clamp(28px, 6vw, 64px); opacity: 0.55; }
+        .decor-slot-window { right: 4%; top: 6%; left: auto; font-size: clamp(24px, 5vw, 52px); }
+        .decor-slot-pot { left: 58%; top: 42%; font-size: clamp(20px, 4vw, 40px); transform: translate(-50%,-50%); }
+        .decor-slot-table { left: 50%; bottom: 6%; top: auto; transform: translateX(-50%); font-size: clamp(22px, 4.5vw, 48px); opacity: 0.9; }
+        .decor-slot-hatAcc { left: 46%; top: 18%; transform: translate(-50%,-50%); font-size: clamp(18px, 3.5vw, 36px); z-index: 6; }
+        .decor-slot-apron { left: 48%; top: 32%; transform: translate(-50%,-50%); font-size: clamp(20px, 4vw, 42px); z-index: 6; opacity: 0.92; }
+        .decor-palette { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0; }
+        .decor-pick { width: 52px; height: 52px; border-radius: 12px; border: 2px solid var(--glass-bd); background: rgba(255,255,255,0.06); font-size: 1.5rem; cursor: pointer; display: flex; align-items: center; justify-content: center; touch-action: manipulation; }
+        .decor-pick.sel { border-color: var(--go); box-shadow: 0 0 12px rgba(251,191,36,0.45); }
+        .decor-pick.locked { opacity: 0.35; cursor: not-allowed; filter: grayscale(0.6); }
+        .decor-slots-list { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; }
+        .decor-slot-row { display: flex; align-items: center; gap: 8px; padding: 8px 10px; border-radius: 10px; background: rgba(255,255,255,0.05); border: 1px solid var(--glass-bd); font-size: 0.82rem; }
+        .decor-slot-row button { flex: 0 0 auto; min-height: 36px; padding: 6px 10px; font-size: 0.72rem; }
     </style>
 </head>
 <body>
@@ -932,7 +964,7 @@
         <button id="helpers-toggle" type="button" onclick="helpersBox.toggle()" aria-expanded="true" data-i18n-title="helpers_toggle_title" title="Helpers">👥 <span class="helpers-chevron">▾</span></button>
         <div id="companion-column"></div>
         <div id="altar-panel"><div id="btn-prestige" onclick="game.pres()"><div class="prestige-label" id="pres-txt" data-i18n="locked">LOCKED</div></div><div id="pres-stat">Lv. 0 (+0%)</div></div>
-        <section id="main-stage" onpointerdown="game.click(event)"><canvas id="particle-canvas"></canvas><div id="sticky-center"><div id="chef-rig"><img id="asset-chef" src="assets/img/chef.png" decoding="async"></div><img id="asset-chef-hand" src="assets/img/chef-hand.png" decoding="async"><img id="cauldron-legs" src="assets/img/cauldron-legs.png" alt="" decoding="async"><img id="asset-soup" src="assets/img/soup.png" decoding="async"><div id="soup-liquid"><img id="asset-soup-liquid" src="assets/img/soup.png" decoding="async"><div id="soup-fx-burst" aria-hidden="true"></div></div><div id="soup-steam"><div class="steam-wisp"></div><div class="steam-wisp"></div><div class="steam-wisp"></div><div class="steam-wisp"></div><div class="steam-wisp"></div><div class="steam-wisp"></div></div><div id="spoon-rig"><img id="asset-spoon" src="assets/img/spoon.png" decoding="async"></div></div><div id="soup-ripples"></div></section>
+        <section id="main-stage" onpointerdown="game.click(event)"><div id="decor-layer" aria-hidden="true"></div><canvas id="particle-canvas"></canvas><div id="sticky-center"><div id="chef-rig"><img id="asset-chef" src="assets/img/chef.png" decoding="async"></div><img id="asset-chef-hand" src="assets/img/chef-hand.png" decoding="async"><img id="cauldron-legs" src="assets/img/cauldron-legs.png" alt="" decoding="async"><img id="asset-soup" src="assets/img/soup.png" decoding="async"><div id="soup-liquid"><img id="asset-soup-liquid" src="assets/img/soup.png" decoding="async"><div id="soup-fx-burst" aria-hidden="true"></div></div><div id="soup-steam"><div class="steam-wisp"></div><div class="steam-wisp"></div><div class="steam-wisp"></div><div class="steam-wisp"></div><div class="steam-wisp"></div><div class="steam-wisp"></div></div><div id="spoon-rig"><img id="asset-spoon" src="assets/img/spoon.png" decoding="async"></div></div><div id="soup-ripples"></div></section>
         <aside id="side-shop"><h1 data-i18n="shop" style="text-align:center; font-size:1.3rem;">SHOP</h1><div id="shop-companions-panel"><div id="buy-mode-toggle" onclick="game.cycleBuyMode()" data-i18n="buy_x1">Buy x1</div><div id="prix-btn" style="padding:12px; background:linear-gradient(135deg,#7e22ce,#3b82f6); border-radius:10px; text-align:center; font-weight:bold; border:2px solid #fff; margin-bottom:15px; display:none; cursor:pointer;" onclick="prix.open()" data-i18n="enter_prix">Enter Grand Prix</div><div id="companion-list"></div><div id="spoons-album-section"><div id="spoons-album-title" data-i18n="spoons_album_title">SACRED SPOONS ALBUM</div><div id="spoons-album"></div></div></div></aside>
     </div>
     <div id="audio-ctrl"><button id="audio-mute" type="button" onclick="sound.toggleMute()" data-i18n-title="audio_mute_title" title="Mute / Unmute sound">🔊</button><input id="audio-vol" type="range" min="0" max="100" value="100" oninput="sound.setVolume(this.value/100)" data-i18n-title="audio_vol_title" title="Volume"></div>
@@ -943,6 +975,8 @@
         <div class="side-fab" id="collection-fab" onclick="collection.open()"><span data-i18n="collection_btn">🎴 Charms</span><span id="collection-fab-thumb"></span></div>
         <div class="side-fab" onclick="quests.open()"><span data-i18n="quests_btn">📜 Chef's Orders</span><span id="quest-badge" class="badge2" style="display:none">0</span></div>
         <div class="side-fab" onclick="atree.open()" data-i18n="tree_btn">🌳 Angel Tree</div>
+        <div class="side-fab" id="farm-fab" onclick="farm.open()"><span data-i18n="farm_btn">🌱 Cultivos</span><span id="farm-badge" class="badge2" style="display:none">!</span></div>
+        <div class="side-fab" id="decor-fab" onclick="decor.open()" data-i18n="decor_btn">🏖️ Decorar</div>
         <div class="side-fab" id="reward-fab" style="min-height:44px;display:none" onclick="rewardsUI.open()"><span id="reward-fab-label">🎁</span></div>
         <div class="side-fab" id="ambient-fab" onclick="ambient.open()" data-i18n="ambient_btn">🎧 Ambience</div>
         <div class="side-fab" id="creator-fab" onclick="creator.open()"><span data-i18n="creator_btn">📺 Creator</span><span id="creator-fab-live" class="badge2" style="display:none">●</span></div>
@@ -969,6 +1003,25 @@
     <div id="reward-modal" class="gx-modal"><div class="gx-box"><h2 data-i18n="reward_modal_title">Watch an ad</h2><p style="font-size:0.9rem; opacity:0.85; margin:4px 0 14px" data-i18n="reward_modal_sub">Watch a short ad for a reward</p><div id="reward-list" class="reward-list"></div><button class="gx-btn" style="margin-top:14px; min-height:44px" onclick="rewardsUI.close()" data-i18n="close">Close</button></div></div>
     <div id="quest-modal" class="gx-modal"><div class="gx-box"><h2 data-i18n="quests_title">Chef's Orders</h2><div id="quest-list"></div><div id="ach-list" style="margin-top:14px"></div><button class="gx-btn" style="margin-top:10px" onclick="quests.close()" data-i18n="close">Close</button></div></div>
     <div id="tree-modal" class="gx-modal"><div class="gx-box"><h2 data-i18n="tree_title">Angel Awakening Tree</h2><p style="font-size:0.85rem; color:#cbd5e1"><span data-i18n="tree_shards_avail">Available Angel Shards:</span> <b id="tree-shards" style="color:var(--go)">0</b></p><div id="tree-list"></div><button class="gx-btn" style="margin-top:10px" onclick="atree.close()" data-i18n="close">Close</button></div></div>
+    <div id="farm-modal" class="gx-modal"><div class="gx-box" style="max-width:520px">
+        <h2 data-i18n="farm_title">🌱 Ingredient Farm</h2>
+        <p style="font-size:0.82rem; opacity:0.85; margin:4px 0 8px" data-i18n="farm_sub">Grow ingredients for helper throws. Soup stirring always works!</p>
+        <div id="farm-stock" class="farm-stock-grid"></div>
+        <label style="display:flex;align-items:center;gap:8px;font-size:0.78rem;margin:6px 0 2px;cursor:pointer"><input type="checkbox" id="farm-auto-replant" onchange="farm.setAutoReplant(this.checked)"> <span data-i18n="farm_auto_replant">Auto-replant after harvest</span></label>
+        <div id="farm-plots" class="farm-plots"></div>
+        <button class="gx-btn" style="margin-top:12px; min-height:44px" onclick="farm.close()" data-i18n="close">Close</button>
+    </div></div>
+    <div id="decor-modal" class="gx-modal"><div class="gx-box" style="max-width:520px">
+        <h2 data-i18n="decor_title">🏖️ Decorate</h2>
+        <p style="font-size:0.82rem; opacity:0.85; margin:4px 0 8px" data-i18n="decor_sub">Place seasonal flair on your kitchen. Gameplay clicks pass through unless editing.</p>
+        <div id="decor-palette" class="decor-palette"></div>
+        <div id="decor-slots" class="decor-slots-list"></div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">
+            <button class="gx-btn sm" type="button" id="decor-edit-btn" onclick="decor.toggleEdit()" data-i18n="decor_edit">✋ Edit on stage</button>
+            <button class="gx-btn sm" type="button" onclick="decor.clearFree()" data-i18n="decor_clear_free">Clear free spots</button>
+        </div>
+        <button class="gx-btn" style="margin-top:12px; min-height:44px" onclick="decor.close()" data-i18n="close">Close</button>
+    </div></div>
     <div id="pause-modal" class="gx-modal"><div class="gx-box" id="pause-box">
         <h2 id="pause-heading" data-i18n="pause_title">Paused</h2>
         <div id="pause-main">
@@ -1693,6 +1746,9 @@
                 /* ===== CREATOR FX TEST i18n — KEEP (creator-only) ===== */
                 dev_test_section:"Summon FX test (dev)", dev_test_helper:"Helper slot",
                 dev_test_feed:"Test feed (mouth · lv4)", dev_test_rain:"Test extra rain (lv10)", dev_test_both:"Test both (lv20)",
+                farm_btn:"🌱 Cultivos", farm_title:"🌱 Ingredient Farm", farm_sub:"Grow ingredients for helper throws. Soup stirring always works!", farm_auto_replant:"Auto-replant after harvest", farm_plant:"Plant", farm_harvest:"Tap!", farm_empty_throw:"Out of {glyph}! Helpers need ingredients — open 🌱 Cultivos!", farm_prestige_reset:"Your pantry restarts fresh for the new kitchen! 🌱", farm_dev_fill:"Ingredient stock filled (dev)",
+                decor_btn:"🏖️ Decorar", decor_title:"🏖️ Decorate", decor_sub:"Place seasonal flair on your kitchen. Gameplay clicks pass through unless editing.", decor_edit:"✋ Edit on stage", decor_edit_on:"✋ Editing… (close modal to play)", decor_clear_free:"Clear free spots", decor_slot_bg:"Background", decor_slot_window:"Window", decor_slot_pot:"Pot rim", decor_slot_table:"Table", decor_slot_hatAcc:"Chef hat", decor_slot_apron:"Apron", decor_place:"Place here", decor_none:"None", decor_locked:"Seasonal pack locked", decor_dev_unlock:"Unlock all decorations (dev)",
+                decor_summer_palm:"Palm tree", decor_summer_sun:"Sunshine", decor_summer_shell:"Shell", decor_summer_towel:"Beach towel", decor_summer_shades:"Sunglasses", decor_summer_apron:"Beach apron", decor_summer_star:"Starfish", decor_summer_wave:"Wave",
                 creator_grant_all:"Unlock all charms", creator_grant_all_ok:"All catalog charms unlocked ({n})",
                 creator_reset_spoons:"Reset album spoons", creator_reset_spoons_ok:"Album spoons reset"
                 /* ===== END ===== */
@@ -1798,6 +1854,9 @@
                 /* ===== CREATOR FX TEST i18n — KEEP (creator-only) ===== */
                 dev_test_section:"Prueba FX invocación (dev)", dev_test_helper:"Ranura ayudante",
                 dev_test_feed:"Probar comida (boca · nv4)", dev_test_rain:"Probar lluvia extra (nv10)", dev_test_both:"Probar ambos (nv20)",
+                farm_btn:"🌱 Cultivos", farm_title:"🌱 Cultivos de Ingredientes", farm_sub:"Cultiva ingredientes para los lanzamientos de ayudantes. ¡Remover la sopa siempre funciona!", farm_auto_replant:"Replantar automáticamente al cosechar", farm_plant:"Plantar", farm_harvest:"¡Toca!", farm_empty_throw:"¡Sin {glyph}! Los ayudantes necesitan ingredientes — abre 🌱 Cultivos", farm_prestige_reset:"¡Tu despensa empieza de cero en la nueva cocina! 🌱", farm_dev_fill:"Stock de ingredientes lleno (dev)",
+                decor_btn:"🏖️ Decorar", decor_title:"🏖️ Decorar", decor_sub:"Coloca adornos de temporada en tu cocina. Los clics pasan a través salvo en modo edición.", decor_edit:"✋ Editar en escena", decor_edit_on:"✋ Editando… (cierra para jugar)", decor_clear_free:"Limpiar libres", decor_slot_bg:"Fondo", decor_slot_window:"Ventana", decor_slot_pot:"Borde olla", decor_slot_table:"Mesa", decor_slot_hatAcc:"Gorro chef", decor_slot_apron:"Delantal", decor_place:"Colocar aquí", decor_none:"Ninguno", decor_locked:"Pack estacional bloqueado", decor_dev_unlock:"Desbloquear adornos (dev)",
+                decor_summer_palm:"Palmera", decor_summer_sun:"Sol", decor_summer_shell:"Concha", decor_summer_towel:"Toalla playa", decor_summer_shades:"Gafas de sol", decor_summer_apron:"Delantal playa", decor_summer_star:"Estrella de mar", decor_summer_wave:"Ola",
                 creator_grant_all:"Desbloquear todos los amuletos", creator_grant_all_ok:"Todos los amuletos del catálogo ({n})",
                 creator_reset_spoons:"Reiniciar cucharas del álbum", creator_reset_spoons_ok:"Cucharas del álbum reiniciadas"
                 /* ===== END ===== */
@@ -1827,6 +1886,8 @@
             try { const abm = document.getElementById('ambient-modal'); if (abm && abm.classList.contains('open')) { ambient._render(); if (typeof music !== 'undefined') music._render(); } } catch (e) {}
             try { const crm = document.getElementById('creator-modal'); if (crm && crm.classList.contains('open')) creator.render(); creator.syncLive(); } catch (e) {}
             try { const lbm = document.getElementById('lb-modal'); if (lbm && lbm.classList.contains('open')) lbUI.render(); } catch (e) {}
+            try { const fmm = document.getElementById('farm-modal'); if (fmm && fmm.classList.contains('open')) farm.render(); } catch (e) {}
+            try { const dcm = document.getElementById('decor-modal'); if (dcm && dcm.classList.contains('open')) decor.render(); } catch (e) {}
             try { if (typeof tutorial !== 'undefined' && tutorial.active) tutorial.render(); } catch (e) {}
         }
         const sound = {
@@ -2481,6 +2542,8 @@
                     btns.push(`<p class="amb-hint" style="margin:10px 0 6px;text-align:center">${t('creator_grant_all')}</p>`);
                     btns.push(`<button class="gx-btn creator-link" type="button" style="background:linear-gradient(135deg,#14532d,#22c55e);border-color:#bbf7d0" onclick="creator.grantAllCharms()">${t('creator_grant_all')}</button>`);
                     btns.push(`<button class="gx-btn creator-link" type="button" style="background:linear-gradient(135deg,#44403c,#78716c);border-color:#d6d3d1" onclick="creator.resetSpoons()">${t('creator_reset_spoons')}</button>`);
+                    btns.push(`<button class="gx-btn creator-link" type="button" style="background:linear-gradient(135deg,#166534,#4ade80);border-color:#bbf7d0" onclick="farm.devFillStock()">${t('farm_dev_fill')}</button>`);
+                    btns.push(`<button class="gx-btn creator-link" type="button" style="background:linear-gradient(135deg,#0c4a6e,#38bdf8);border-color:#bae6fd" onclick="decor.devUnlockAll()">${t('decor_dev_unlock')}</button>`);
                     /* ===== END CREATOR DEV TOOLS ===== */
                 }
                 /* ===== END CREATOR PLACEMENT TOOL buttons ===== */
@@ -2740,7 +2803,7 @@
         // === Versionado del esquema de guardado ===
         // Sube este número cada vez que cambie la forma del save. Cada incremento debe
         // tener su paso de migración en SAVE_MIGRATIONS (clave = versión de ORIGEN).
-        const SCHEMA_VERSION = 25;
+        const SCHEMA_VERSION = 26;
         const SAVE_MIGRATIONS = {
             // v16 -> v17: el campo `as` (Angel Shards acumulados) pasó a guardarse aparte de `s`.
             16: (s) => {
@@ -2818,9 +2881,31 @@
                 }
                 s.v = 25;
                 return s;
+            },
+            // v25 -> v26: ingredient farm (stock + plots) and seasonal decorations save.
+            25: (s) => {
+                const starter = 30;
+                const types = ['ink','shrimp','carrot','lettuce','corn','yolk','honey','berries','banana','coconut'];
+                const stock = {};
+                types.forEach(id => { stock[id] = starter; });
+                if (!s.farm || typeof s.farm !== 'object') s.farm = { stock, plots: types.map(id => ({ type: id, readyAt: 0 })), autoReplant: true };
+                else {
+                    if (!s.farm.stock || typeof s.farm.stock !== 'object') s.farm.stock = stock;
+                    types.forEach(id => { if (!Number.isFinite(s.farm.stock[id])) s.farm.stock[id] = starter; });
+                    if (!Array.isArray(s.farm.plots)) s.farm.plots = types.map(id => ({ type: id, readyAt: 0 }));
+                    if (s.farm.autoReplant == null) s.farm.autoReplant = true;
+                }
+                if (!s.decor || typeof s.decor !== 'object') s.decor = { slots: {}, free: [], owned: [] };
+                else {
+                    if (!s.decor.slots || typeof s.decor.slots !== 'object') s.decor.slots = {};
+                    if (!Array.isArray(s.decor.free)) s.decor.free = [];
+                    if (!Array.isArray(s.decor.owned)) s.decor.owned = [];
+                }
+                s.v = 26;
+                return s;
             }
-            // FUTURO: para añadir v25 -> v26 solo añade aquí:
-            //   25: (s) => { /* transforma s */ s.v = 26; return s; },
+            // FUTURO: para añadir v26 -> v27 solo añade aquí:
+            //   26: (s) => { /* transforma s */ s.v = 27; return s; },
             // y sube SCHEMA_VERSION. No borres pasos antiguos.
         };
         // Transforma un save antiguo al esquema actual de forma incremental. Nunca lanza:
@@ -2882,7 +2967,7 @@
         };
         const game = {
             e:0, te:0, l:0, s:0, c:0, p:false, f:0, cl:false, m:1, cd:0, buyMode:1, defaultSpoonImg:'assets/img/spoon.png', _inited:false, logicTick:null, uiTick:null, saveTick:null, _floatNodes:[], _spoonAnimating:false, _spoonUiKey:'', _steamIdleTick:0, _dispScore:0, _autoPartAcc:0, _wave:0, _ballWave:0, _ballSpeed:1, _lastClick:0, soupBalls:[], _rippleNodes:[], _ambientRippleTick:0, _soupRect:null, _surf:null, _stageRect:null, _spoonEl:null,
-            as:0, lastSeen:0, _buffs:[], tree:{caldo:0, manos:0, eco:0, cuchara:0, tiempo:0, aura:0, fortuna:0, eterno:0}, daily:null, ach:{}, rewards:{}, coll:null, _tampered:false,
+            as:0, lastSeen:0, _buffs:[], tree:{caldo:0, manos:0, eco:0, cuchara:0, tiempo:0, aura:0, fortuna:0, eterno:0}, daily:null, ach:{}, rewards:{}, coll:null, farm:null, decor:null, _tampered:false,
             treeDefs: [
                 {k:'caldo', mx:20, cb:1},
                 {k:'manos', mx:20, cb:1},
@@ -2914,6 +2999,8 @@
             ],
             SOUP_ING_FX_MS: 2600,
             FEED_MILESTONE_EVERY: 4,
+            FEED_INGREDIENT_EXTRA: 4,
+            FARM_STARTER_STOCK: 30,
             EXTRA_INGREDIENT_RAIN_EVERY: 10,
             // TUNABLE — mouth target on #asset-chef sprite (0–1 fractions of getBoundingClientRect).
             CHEF_MOUTH_ANCHOR: { x: 0.505, y: 0.365, w: 0.12, h: 0.085 },
@@ -3094,7 +3181,7 @@
             },
             getSaveData() {
                 this.lastSeen = Date.now();
-                return {v:SCHEMA_VERSION, e:this.e, te:this.te, l:this.l, s:this.s, as:this.as, c:this.cp.map(x=>({lv:x.lv, ch:x.ch})), cd:this.cd, bm:this.buyMode, sp:this.spoons.map(s=>({o:s.owned, eq:s.equipped})), lastSeen:this.lastSeen, tree:this.tree, daily:this.daily, ach:this.ach, rewards:this.rewards, coll:this.coll};
+                return {v:SCHEMA_VERSION, e:this.e, te:this.te, l:this.l, s:this.s, as:this.as, c:this.cp.map(x=>({lv:x.lv, ch:x.ch})), cd:this.cd, bm:this.buyMode, sp:this.spoons.map(s=>({o:s.owned, eq:s.equipped})), lastSeen:this.lastSeen, tree:this.tree, daily:this.daily, ach:this.ach, rewards:this.rewards, coll:this.coll, farm:this.farm, decor:this.decor};
             },
             save() {
                 const data = this.getSaveData();
@@ -3118,6 +3205,10 @@
                 d.cd = Math.floor(num(d.cd, 0, 36000, 0));
                 if (Array.isArray(d.c)) d.c.forEach(x => { if (x && typeof x === 'object') { x.lv = Math.floor(num(x.lv, 0, 100000, 0)); x.ch = Math.max(0, Math.floor(Number(x.ch) || 0)); } });
                 if (Number.isFinite(d.lastSeen)) d.lastSeen = num(d.lastSeen, 0, Date.now() + 86400000, 0); else d.lastSeen = 0;
+                if (d.farm && typeof d.farm === 'object' && d.farm.stock && typeof d.farm.stock === 'object') {
+                    const cap = 1e6;
+                    for (const k in d.farm.stock) { if (Object.prototype.hasOwnProperty.call(d.farm.stock, k)) d.farm.stock[k] = Math.floor(num(d.farm.stock[k], 0, cap, 0)); }
+                }
                 return d;
             },
             load() {
@@ -3157,7 +3248,11 @@
                     if (d.ach && typeof d.ach === 'object') this.ach = d.ach;
                     if (d.rewards && typeof d.rewards === 'object') this.rewards = d.rewards;
                     if (d.coll && typeof d.coll === 'object') this.coll = d.coll;
+                    if (d.farm && typeof d.farm === 'object') this.farm = d.farm;
+                    if (d.decor && typeof d.decor === 'object') this.decor = d.decor;
                 }
+                try { farm.ensure(); farm.updateBadge(); } catch (e) {}
+                try { decor.ensure(); decor.applyVisual(); } catch (e) {}
                 try { collection.normalize(); } catch (e) {}
                 // Grant the baseline common white chef hat to every player (new + existing
                 // saves) silently, before visuals apply. Not equipped; no reveal/sound.
@@ -3403,6 +3498,7 @@
                 bubble.tick();
                 quests.ensureDaily();
                 try { collection.tick(1); } catch (e) {}
+                try { farm.updateBadge(); } catch (e) {}
             },
             updateLore() {
                 // this.m (the click multiplier tier) must be recomputed every call; the DOM
@@ -3488,6 +3584,7 @@
                 quests.updateBadge();
                 if (typeof rewardSystem !== 'undefined') rewardSystem.renderButton();
                 try { if (typeof mobileUI !== 'undefined') mobileUI.updateLauncherBadges(); } catch (e) {}
+                try { const fm = document.getElementById('farm-modal'); if (fm && fm.classList.contains('open')) farm.render(); } catch (e) {}
             },
             click(ev) {
                 if(this.p || this.cl || ev.target.closest('#side-shop') || ev.target.closest('#altar-panel')) return;
@@ -4306,7 +4403,13 @@
                     h.style.left = pose.x + 'px'; h.style.top = pose.y + 'px';
                     h.style.transform = 'translate(-50%,-50%) scale(2.1) rotate(360deg)';
                     this.part(pose.x, pose.y, 'magic');
-                    this.summonIngredientThrow(c.id, pose.x, pose.y, lv, landClone, feed);
+                    const skipCost = testLevel != null && creator.isDev();
+                    if (skipCost || farm.consumeThrow(c.id, lv, feed)) {
+                        this.summonIngredientThrow(c.id, pose.x, pose.y, lv, landClone, feed);
+                    } else {
+                        farm.toastEmpty(c.id, lv);
+                        landClone();
+                    }
                 }, 50);
             },
             devTestSummonFx(helperId, kind) {
@@ -4365,6 +4468,7 @@
                         ach.grant('firstPres');
                         const eco = this.tree.eco;
                         this.e = 0; this.l = 0; this.cp.forEach(c => { const base = this.cpBaseCost[c.id] || this.cpBaseCost[this.cpBaseCost.length - 1]; c.lv = eco; c.ch = 0; c.cs = base; for (let j = 0; j < eco; j++) c.cs = Math.floor(c.cs * 1.15); });
+                        try { farm.resetForPrestige(); } catch (e) {}
                         this.rebuild(); this.render(); this.save(); o.style.opacity = '0'; setTimeout(()=>{o.style.display='none'; this.p=false;}, 500);
                     }, 3000);
                 }, 2000);
@@ -5684,6 +5788,317 @@
                 if (game.cp.some(c => c.lv >= 100)) this.grant('centurion');
                 if (game.s >= 5) this.grant('awakened5');
                 try { if (collection.distinctCount() >= 8) this.grant('collector'); } catch (e) {}
+            }
+        };
+        const FARM_TYPE_IDS = ['ink','shrimp','carrot','lettuce','corn','yolk','honey','berries','banana','coconut'];
+        const FARM_GLYPHS = { ink:'🦑', shrimp:'🦐', carrot:'🥕', lettuce:'🥬', corn:'🌽', yolk:'💛', honey:'🍯', berries:'🫐', banana:'🍌', coconut:'🥥' };
+        const FARM_GROW_SEC = { ink:35, shrimp:35, carrot:40, lettuce:40, corn:50, yolk:50, honey:70, berries:70, banana:90, coconut:90 };
+        const farm = {
+            starterAmount() { return game.FARM_STARTER_STOCK || 30; },
+            freshSave() {
+                const n = this.starterAmount();
+                const stock = {};
+                FARM_TYPE_IDS.forEach(id => { stock[id] = n; });
+                return { stock, plots: FARM_TYPE_IDS.map(id => ({ type: id, readyAt: 0 })), autoReplant: true };
+            },
+            ensure() {
+                if (!game.farm || typeof game.farm !== 'object') game.farm = this.freshSave();
+                if (!game.farm.stock || typeof game.farm.stock !== 'object') game.farm.stock = {};
+                FARM_TYPE_IDS.forEach(id => {
+                    if (!Number.isFinite(game.farm.stock[id])) game.farm.stock[id] = this.starterAmount();
+                    game.farm.stock[id] = Math.max(0, Math.floor(game.farm.stock[id]));
+                });
+                if (!Array.isArray(game.farm.plots) || game.farm.plots.length !== FARM_TYPE_IDS.length) {
+                    game.farm.plots = FARM_TYPE_IDS.map((id, i) => {
+                        const old = game.farm.plots && game.farm.plots[i];
+                        return old && old.type === id ? old : { type: id, readyAt: 0 };
+                    });
+                }
+                if (game.farm.autoReplant == null) game.farm.autoReplant = true;
+            },
+            resetForPrestige() {
+                game.farm = this.freshSave();
+                try { gx.toast(t('farm_prestige_reset')); } catch (e) {}
+                this.updateBadge();
+                try { const fm = document.getElementById('farm-modal'); if (fm && fm.classList.contains('open')) this.render(); } catch (e2) {}
+            },
+            ingredientKey(helperId, level) {
+                const cfg = game.pickSummonIngredient(helperId, level);
+                return cfg && cfg.fx ? cfg.fx : null;
+            },
+            throwCost(helperId, level, feedMode) {
+                return 1 + (feedMode ? (game.FEED_INGREDIENT_EXTRA || 4) : 0);
+            },
+            consumeThrow(helperId, level, feedMode) {
+                this.ensure();
+                const key = this.ingredientKey(helperId, level);
+                if (!key) return true;
+                const need = this.throwCost(helperId, level, feedMode);
+                if ((game.farm.stock[key] || 0) < need) return false;
+                game.farm.stock[key] -= need;
+                this.updateBadge();
+                return true;
+            },
+            toastEmpty(helperId, level) {
+                const key = this.ingredientKey(helperId, level);
+                const glyph = FARM_GLYPHS[key] || '🌱';
+                try { gx.toast(t('farm_empty_throw', { glyph })); } catch (e) {}
+            },
+            growMs(type) { return (FARM_GROW_SEC[type] || 45) * 1000; },
+            plotState(plot) {
+                if (!plot || !plot.readyAt || plot.readyAt <= 0) return 'empty';
+                return Date.now() >= plot.readyAt ? 'ready' : 'growing';
+            },
+            plant(idx) {
+                this.ensure();
+                const plot = game.farm.plots[idx];
+                if (!plot || this.plotState(plot) !== 'empty') return;
+                plot.readyAt = Date.now() + this.growMs(plot.type);
+                try { sound.play('bubble'); } catch (e) {}
+                game.save(); this.render();
+            },
+            harvest(idx) {
+                this.ensure();
+                const plot = game.farm.plots[idx];
+                if (!plot || this.plotState(plot) !== 'ready') return;
+                const type = plot.type;
+                game.farm.stock[type] = (game.farm.stock[type] || 0) + 1;
+                if (game.farm.autoReplant) plot.readyAt = Date.now() + this.growMs(type);
+                else plot.readyAt = 0;
+                try { sound.play('bubble'); } catch (e) {}
+                game.save(); this.render(); this.updateBadge();
+            },
+            setAutoReplant(v) { this.ensure(); game.farm.autoReplant = !!v; game.save(); },
+            formatTime(sec) {
+                sec = Math.max(0, Math.ceil(sec));
+                const m = Math.floor(sec / 60), s = sec % 60;
+                return m > 0 ? (m + ':' + String(s).padStart(2, '0')) : (sec + 's');
+            },
+            updateBadge() {
+                const b = document.getElementById('farm-badge'); if (!b) return;
+                this.ensure();
+                const low = FARM_TYPE_IDS.some(id => (game.farm.stock[id] || 0) <= 3);
+                b.style.display = low ? 'inline-block' : 'none';
+            },
+            open() { this.render(); const md = document.getElementById('farm-modal'); if (md) md.classList.add('open'); },
+            close() { const md = document.getElementById('farm-modal'); if (md) md.classList.remove('open'); },
+            render() {
+                this.ensure();
+                const stockEl = document.getElementById('farm-stock');
+                const plotsEl = document.getElementById('farm-plots');
+                const autoEl = document.getElementById('farm-auto-replant');
+                if (autoEl) autoEl.checked = !!game.farm.autoReplant;
+                if (stockEl) {
+                    stockEl.innerHTML = FARM_TYPE_IDS.map(id => {
+                        const n = game.farm.stock[id] || 0;
+                        return `<div class="farm-stock-chip${n <= 3 ? ' low' : ''}">${FARM_GLYPHS[id] || '?'}<br>${n}</div>`;
+                    }).join('');
+                }
+                if (plotsEl) {
+                    const now = Date.now();
+                    plotsEl.innerHTML = game.farm.plots.map((plot, i) => {
+                        const st = this.plotState(plot);
+                        const glyph = FARM_GLYPHS[plot.type] || '🌱';
+                        let body;
+                        if (st === 'empty') body = `<button class="farm-plot-btn" type="button" onclick="farm.plant(${i})">${t('farm_plant')}</button>`;
+                        else if (st === 'growing') body = `<div class="farm-timer">${this.formatTime((plot.readyAt - now) / 1000)}</div>`;
+                        else body = `<button class="farm-plot-btn" type="button" onclick="farm.harvest(${i})">${t('farm_harvest')}</button>`;
+                        return `<div class="farm-plot ${st}"${st === 'ready' ? ` onclick="farm.harvest(${i})"` : ''}><div class="farm-glyph">${glyph}</div>${body}</div>`;
+                    }).join('');
+                }
+            },
+            devFillStock() {
+                if (!creator.isDev()) return;
+                this.ensure();
+                FARM_TYPE_IDS.forEach(id => { game.farm.stock[id] = 999; });
+                game.save(); this.render(); this.updateBadge();
+                try { gx.toast(t('farm_dev_fill')); } catch (e) {}
+            }
+        };
+        const DECOR_ITEMS = [
+            { id: 'summer_palm', pack: 'summer', slot: 'bg', glyph: '🌴', nameKey: 'decor_summer_palm', slotClass: 'decor-slot-bg' },
+            { id: 'summer_sun', pack: 'summer', slot: 'window', glyph: '☀️', nameKey: 'decor_summer_sun', slotClass: 'decor-slot-window' },
+            { id: 'summer_shell', pack: 'summer', slot: 'pot', glyph: '🐚', nameKey: 'decor_summer_shell', slotClass: 'decor-slot-pot' },
+            { id: 'summer_towel', pack: 'summer', slot: 'table', glyph: '🏖️', nameKey: 'decor_summer_towel', slotClass: 'decor-slot-table' },
+            { id: 'summer_shades', pack: 'summer', slot: 'hatAcc', glyph: '😎', nameKey: 'decor_summer_shades', slotClass: 'decor-slot-hatAcc' },
+            { id: 'summer_apron', pack: 'summer', slot: 'apron', glyph: '🩳', nameKey: 'decor_summer_apron', slotClass: 'decor-slot-apron' },
+            { id: 'summer_star', pack: 'summer', slot: 'free', glyph: '⭐', nameKey: 'decor_summer_star' },
+            { id: 'summer_wave', pack: 'summer', slot: 'free', glyph: '🌊', nameKey: 'decor_summer_wave' }
+        ];
+        const DECOR_SLOT_IDS = ['bg','window','pot','table','hatAcc','apron'];
+        const DECOR_SLOT_LABELS = { bg:'decor_slot_bg', window:'decor_slot_window', pot:'decor_slot_pot', table:'decor_slot_table', hatAcc:'decor_slot_hatAcc', apron:'decor_slot_apron' };
+        const decor = {
+            editMode: false,
+            selectedId: null,
+            _drag: null,
+            itemById(id) { return DECOR_ITEMS.find(x => x.id === id) || null; },
+            isSummerLive() {
+                try { return typeof events !== 'undefined' && events.getActive().some(ev => ev.id === 'summer'); } catch (e) { return false; }
+            },
+            ensure() {
+                if (!game.decor || typeof game.decor !== 'object') game.decor = { slots: {}, free: [], owned: [] };
+                if (!game.decor.slots || typeof game.decor.slots !== 'object') game.decor.slots = {};
+                if (!Array.isArray(game.decor.free)) game.decor.free = [];
+                if (!Array.isArray(game.decor.owned)) game.decor.owned = [];
+                if (this.isSummerLive() || creator.isDev()) {
+                    DECOR_ITEMS.forEach(it => {
+                        if (it.pack === 'summer' && game.decor.owned.indexOf(it.id) < 0) game.decor.owned.push(it.id);
+                    });
+                }
+            },
+            isUnlocked(id) {
+                this.ensure();
+                if (creator.isDev()) return true;
+                const it = this.itemById(id);
+                if (!it) return false;
+                if (it.pack === 'summer' && this.isSummerLive()) return true;
+                return game.decor.owned.indexOf(id) >= 0;
+            },
+            open() { this.render(); const md = document.getElementById('decor-modal'); if (md) md.classList.add('open'); },
+            close() { this.setEditMode(false); const md = document.getElementById('decor-modal'); if (md) md.classList.remove('open'); },
+            setEditMode(on) {
+                this.editMode = !!on;
+                document.body.classList.toggle('decor-edit-mode', this.editMode);
+                const btn = document.getElementById('decor-edit-btn');
+                if (btn) btn.textContent = t(this.editMode ? 'decor_edit_on' : 'decor_edit');
+            },
+            toggleEdit() { this.setEditMode(!this.editMode); },
+            selectItem(id) {
+                if (!this.isUnlocked(id)) { try { gx.toast(t('decor_locked')); } catch (e) {} return; }
+                this.selectedId = (this.selectedId === id) ? null : id;
+                this.render();
+            },
+            placeSlot(slotId) {
+                if (!this.selectedId) return;
+                if (!this.isUnlocked(this.selectedId)) return;
+                this.ensure();
+                game.decor.slots[slotId] = this.selectedId;
+                game.save(); this.applyVisual(); this.render();
+            },
+            clearSlot(slotId) {
+                this.ensure();
+                delete game.decor.slots[slotId];
+                game.save(); this.applyVisual(); this.render();
+            },
+            clearFree() {
+                this.ensure();
+                game.decor.free = [];
+                game.save(); this.applyVisual(); this.render();
+            },
+            addFreeDecor(id, x, y) {
+                this.ensure();
+                if (game.decor.free.length >= 3) game.decor.free.shift();
+                game.decor.free.push({ id, x, y });
+                game.save(); this.applyVisual();
+            },
+            applyVisual() {
+                this.ensure();
+                const layer = document.getElementById('decor-layer');
+                if (!layer) return;
+                layer.innerHTML = '';
+                const self = this;
+                DECOR_SLOT_IDS.forEach(slotId => {
+                    const decId = game.decor.slots[slotId];
+                    if (!decId) return;
+                    const it = self.itemById(decId);
+                    if (!it) return;
+                    const el = document.createElement('div');
+                    el.className = 'decor-piece ' + (it.slotClass || '');
+                    el.textContent = it.glyph;
+                    el.dataset.decorId = decId;
+                    layer.appendChild(el);
+                });
+                game.decor.free.forEach((f, idx) => {
+                    const it = self.itemById(f.id);
+                    if (!it) return;
+                    const el = document.createElement('div');
+                    el.className = 'decor-piece decor-free';
+                    el.textContent = it.glyph;
+                    el.style.left = (f.x * 100) + '%';
+                    el.style.top = (f.y * 100) + '%';
+                    el.style.fontSize = 'clamp(18px, 4vw, 42px)';
+                    el.dataset.freeIdx = String(idx);
+                    if (self.editMode) {
+                        el.addEventListener('pointerdown', (ev) => {
+                            ev.preventDefault(); ev.stopPropagation();
+                            const stage = document.getElementById('main-stage');
+                            if (!stage) return;
+                            const rect = stage.getBoundingClientRect();
+                            self._drag = { idx, el, rect, pid: ev.pointerId };
+                            el.classList.add('dragging');
+                            try { el.setPointerCapture(ev.pointerId); } catch (e) {}
+                        });
+                        el.addEventListener('pointermove', (ev) => {
+                            if (!self._drag || self._drag.idx !== idx) return;
+                            ev.preventDefault(); ev.stopPropagation();
+                            const d = self._drag;
+                            const x = Math.min(0.95, Math.max(0.05, (ev.clientX - d.rect.left) / d.rect.width));
+                            const y = Math.min(0.95, Math.max(0.05, (ev.clientY - d.rect.top) / d.rect.height));
+                            d.el.style.left = (x * 100) + '%';
+                            d.el.style.top = (y * 100) + '%';
+                            game.decor.free[idx].x = x;
+                            game.decor.free[idx].y = y;
+                        });
+                        el.addEventListener('pointerup', (ev) => {
+                            if (!self._drag || self._drag.idx !== idx) return;
+                            ev.preventDefault(); ev.stopPropagation();
+                            el.classList.remove('dragging');
+                            self._drag = null;
+                            game.save();
+                        });
+                    }
+                    layer.appendChild(el);
+                });
+                if (this.editMode && this.selectedId) {
+                    const stage = document.getElementById('main-stage');
+                    if (stage && !stage.dataset.decorTap) {
+                        stage.dataset.decorTap = '1';
+                        stage.addEventListener('pointerdown', (ev) => {
+                            if (!self.editMode || !self.selectedId) return;
+                            if (ev.target.closest('#decor-layer .decor-free')) return;
+                            const rect = stage.getBoundingClientRect();
+                            const x = Math.min(0.95, Math.max(0.05, (ev.clientX - rect.left) / rect.width));
+                            const y = Math.min(0.95, Math.max(0.05, (ev.clientY - rect.top) / rect.height));
+                            const it = self.itemById(self.selectedId);
+                            if (it && it.slot === 'free') {
+                                self.addFreeDecor(self.selectedId, x, y);
+                                self.render();
+                            }
+                        }, true);
+                    }
+                }
+            },
+            render() {
+                this.ensure();
+                const pal = document.getElementById('decor-palette');
+                const slots = document.getElementById('decor-slots');
+                if (pal) {
+                    pal.innerHTML = DECOR_ITEMS.map(it => {
+                        const ok = this.isUnlocked(it.id);
+                        const sel = this.selectedId === it.id ? ' sel' : '';
+                        const lock = ok ? '' : ' locked';
+                        return `<button type="button" class="decor-pick${sel}${lock}" title="${t(it.nameKey)}" onclick="decor.selectItem('${it.id}')">${it.glyph}</button>`;
+                    }).join('');
+                }
+                if (slots) {
+                    slots.innerHTML = DECOR_SLOT_IDS.map(slotId => {
+                        const cur = game.decor.slots[slotId];
+                        const curIt = cur ? this.itemById(cur) : null;
+                        const label = t(DECOR_SLOT_LABELS[slotId] || slotId);
+                        const shown = curIt ? (curIt.glyph + ' ' + t(curIt.nameKey)) : t('decor_none');
+                        return `<div class="decor-slot-row"><span style="flex:1">${label}: <b>${shown}</b></span>`
+                            + `<button class="gx-btn sm" type="button" ${this.selectedId ? '' : 'disabled'} onclick="decor.placeSlot('${slotId}')">${t('decor_place')}</button>`
+                            + `<button class="gx-btn sm" type="button" onclick="decor.clearSlot('${slotId}')">✕</button></div>`;
+                    }).join('');
+                }
+                this.applyVisual();
+            },
+            devUnlockAll() {
+                if (!creator.isDev()) return;
+                this.ensure();
+                DECOR_ITEMS.forEach(it => { if (game.decor.owned.indexOf(it.id) < 0) game.decor.owned.push(it.id); });
+                game.save(); this.render();
+                try { gx.toast(t('decor_dev_unlock')); } catch (e) {}
             }
         };
         const quests = {

@@ -5,10 +5,7 @@
 
   /** @type {Array<{id:string, start:string, end:string, theme?:string, label?:string}>} */
   const EVENTS = [
-    // Example (inactive until dates are set for a real season):
-    // { id: 'halloween', start: '2026-10-25', end: '2026-11-02', theme: 'spooky', label: 'Halloween' },
-    // { id: 'christmas', start: '2026-12-20', end: '2027-01-03', theme: 'winter', label: 'Winter Feast' },
-    // { id: 'summer',    start: '2026-07-01', end: '2026-08-15', theme: 'beach',  label: 'Summer Splash' },
+    { id: 'summer', start: '2026-06-01', end: '2026-08-31', theme: 'beach', label: 'Summer Splash' },
   ];
 
   function parseDay(iso) {
