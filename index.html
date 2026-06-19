@@ -159,14 +159,17 @@
         .spoon-card.rare { border-color: #a5f3fc; }
         .spoon-card.epic { border-color: #d8b4fe; }
         .spoon-card.legendary { border-color: var(--go); animation: spoonLegendPulse 2s infinite alternate; }
+        .spoon-card.superleg { border-color: #fb7185; animation: spoonSuperlegPulse 2s infinite alternate; }
         .spoon-card.equipped { box-shadow: 0 0 18px rgba(224, 160, 8, 0.45); }
         .spoon-card-img { width: 100%; max-width: 150px; border-radius: 8px; object-fit: contain; background: rgba(0,0,0,0.3); }
         @keyframes spoonLegendPulse { from { box-shadow: 0 0 8px rgba(224, 160, 8, 0.3); border-color: var(--go); } to { box-shadow: 0 0 22px rgba(224, 160, 8, 0.65); border-color: var(--gold-soft); } }
+        @keyframes spoonSuperlegPulse { from { box-shadow: 0 0 8px rgba(251, 113, 133, 0.35); border-color: #fb7185; } to { box-shadow: 0 0 22px rgba(251, 113, 133, 0.7); border-color: #fda4af; } }
         .spoon-equipped-badge { display: inline-block; font-size: 0.7rem; font-weight: bold; color: var(--go); padding: 4px 10px; border-radius: 6px; border: 1px solid var(--go); background: rgba(224, 160, 8, 0.15); animation: breathe 2s infinite alternate; letter-spacing: 0.5px; margin-top: 4px; }
         .spoon-rarity { display: inline-block; font-size: 0.55rem; font-weight: bold; padding: 2px 6px; border-radius: 4px; margin-bottom: 3px; letter-spacing: 0.5px; }
         .spoon-rarity.rare { background: #0e7490; color: #a5f3fc; }
         .spoon-rarity.epic { background: #6b21a8; color: #e9d5ff; }
         .spoon-rarity.legendary { background: #854d0e; color: var(--go); }
+        .spoon-rarity.superleg { background: #9f1239; color: #fda4af; }
         .spoon-benefit { font-size: 0.65rem; color: #94a3b8; line-height: 1.3; margin: 2px 0 4px; }
         .spoon-cost { font-size: 0.7rem; font-weight: bold; color: var(--go); }
         .spoon-btn { margin-top: 5px; padding: 4px 10px; border-radius: 6px; font-size: 0.65rem; font-weight: bold; border: 1px solid #fff3; cursor: pointer; text-transform: uppercase; letter-spacing: 0.4px; }
@@ -1669,7 +1672,7 @@
                 cps_per_sec:"{n} EB PER SECOND", awaken_soul:"[ AWAKEN SOUL ]", requires_eb:"Requires {eb} EB", angel_lv:"Angel Awakening Lv. {s} (+{pct}%)",
                 prix_cd:"Grand Prix (CD: {mm}:{ss})", enter_prix:"Enter Grand Prix", finish_line:"FINISH", buy_x1:"Buy x1", buy_x10:"Buy x10", buy_max:"Buy Max", max_label:"Max:", lv:"Lv.", prod:"Prod",
                 angel_power:"(+{pct}% Angel Power!)", milestone_word:"Milestone", milestone_next:"next", milestone_max:"MAX", champion_banner:"👑 CHAMPION (x{mult}!)",
-                spoon_equipped:"[ EQUIPPED ]", spoon_equip_btn:"EQUIP SPOON", spoon_buy_btn:"BUY CARD", rarity_rare:"RARE", rarity_epic:"EPIC", rarity_legendary:"LEGENDARY",
+                spoon_equipped:"[ EQUIPPED ]", spoon_equip_btn:"EQUIP SPOON", spoon_buy_btn:"BUY CARD", rarity_rare:"RARE", rarity_epic:"EPIC", rarity_legendary:"LEGENDARY", rarity_superleg:"SUPER LEGENDARY",
                 first_place:"1ST PLACE!", victory_crown:"VICTORY! Return to crown {name}!", defeat:"DEFEAT!", awarded_eb:"Awarded +{eb} EB!",
                 offline_body:'You were away {time}. Your soup kept cooking and produced:<br><b style="color:var(--go); font-size:1.4rem">+{eb} EB</b>',
                 buff_frenzy:"Frenzy x7", buff_frenzy_toast:"Frenzy! Click x7 for 15s", buff_boil:"Boiling Broth x3", buff_boil_toast:"Boiling Broth! CPS x3 for 30s", buff_rain_toast:"EB Rain! +{eb}",
@@ -1695,9 +1698,9 @@
                 extra_ing_rain_fun_2:"Golden corn cascade!", extra_ing_rain_fun_3:"Berry burst bonanza!", extra_ing_rain_fun_4:"Banana blizzard!",
                 buff_extra_ing:"Extra Ingredient Boost +10%",
                 comp_coco:"Coco Octopus", comp_bunny:"Baby Bunny Guide", comp_pio:"Pio Pio Healing", comp_ivan:"Ivan Guardian Bear", comp_bongo:"Bongo Mighty Helper", bongo_bonus:"+{pct}% Stir Power per level", stir_word:"Stir",
-                spoon0_card:"Esquelotian Chronicle", spoon0_name:"Esquelotian Bone Spoon", spoon0_bonus:"Adds +50% flat Click Stir Power",
-                spoon1_card:"Astral Cauldron Rift", spoon1_name:"Mystic Tentacle Spoon", spoon1_bonus:"+5% chance for 10x Cauldron Burst",
-                spoon2_card:"Small Angel's Legacy", spoon2_name:"Small Angel's Golden Spoon", spoon2_bonus:"2x Total Idle CPS Production & -50% Prix CD",
+                spoon0_card:"Storm Chronicle", spoon0_name:"Thunder Spoon", spoon0_bonus:"Adds +50% flat Click Stir Power",
+                spoon1_card:"Inferno Chronicle", spoon1_name:"Inferno Spoon", spoon1_bonus:"+5% chance for 10x Cauldron Burst",
+                spoon2_card:"Cosmos Chronicle", spoon2_name:"Cosmos Spoon", spoon2_bonus:"2x Total Idle CPS Production & -50% Prix CD",
                 pres_lore:"Success. Small Angel's energy is woven into Earth.",
                 lore1:"Skullchef arrived from Esquelotia to heal Earth.", lore2:"The dark entity stole love from Esquelotia.", lore3:"Small Angel gave his life to heal his planet.",
                 lore4:"Skullchef journeyed with Angel's soul in soup.", lore5:"The soup is ready. Awaken the Soul to ascend.", lore6:"Success. Small Angel's energy is woven into Earth.",
@@ -1776,7 +1779,7 @@
                 cps_per_sec:"{n} EB POR SEGUNDO", awaken_soul:"[ DESPERTAR ALMA ]", requires_eb:"Requiere {eb} EB", angel_lv:"Despertar del Ángel Nv. {s} (+{pct}%)",
                 prix_cd:"Gran Premio (CD: {mm}:{ss})", enter_prix:"Entrar al Gran Premio", finish_line:"META", buy_x1:"Comprar x1", buy_x10:"Comprar x10", buy_max:"Comprar Máx", max_label:"Máx:", lv:"Nv.", prod:"Prod",
                 angel_power:"(+{pct}% ¡Poder del Ángel!)", milestone_word:"Hito", milestone_next:"próx.", milestone_max:"MÁX", champion_banner:"👑 CAMPEÓN (¡x{mult}!)",
-                spoon_equipped:"[ EQUIPADA ]", spoon_equip_btn:"EQUIPAR CUCHARA", spoon_buy_btn:"COMPRAR CARTA", rarity_rare:"RARA", rarity_epic:"ÉPICA", rarity_legendary:"LEGENDARIA",
+                spoon_equipped:"[ EQUIPADA ]", spoon_equip_btn:"EQUIPAR CUCHARA", spoon_buy_btn:"COMPRAR CARTA", rarity_rare:"RARA", rarity_epic:"ÉPICA", rarity_legendary:"LEGENDARIA", rarity_superleg:"SÚPER LEGENDARIA",
                 first_place:"¡1ER PUESTO!", victory_crown:"¡VICTORIA! ¡Vuelve para coronar a {name}!", defeat:"¡DERROTA!", awarded_eb:"¡Recompensa +{eb} EB!",
                 offline_body:'Estuviste fuera {time}. Tu sopa siguió cociéndose y generó:<br><b style="color:var(--go); font-size:1.4rem">+{eb} EB</b>',
                 buff_frenzy:"Frenesí x7", buff_frenzy_toast:"¡Frenesí! Click x7 durante 15s", buff_boil:"Caldo Hirviente x3", buff_boil_toast:"¡Caldo Hirviente! CPS x3 durante 30s", buff_rain_toast:"¡Lluvia de EB! +{eb}",
@@ -1802,9 +1805,9 @@
                 extra_ing_rain_fun_2:"¡Cascada de maíz dorado!", extra_ing_rain_fun_3:"¡Explosión de bayas!", extra_ing_rain_fun_4:"¡Tormenta de plátanos!",
                 buff_extra_ing:"Impulso de Ingredientes +10%",
                 comp_coco:"Coco Octopus", comp_bunny:"Baby Bunny Guide", comp_pio:"Pio Pio Healing", comp_ivan:"Ivan Guardian Bear", comp_bongo:"Bongo el Monito", bongo_bonus:"+{pct}% poder de remojo por nivel", stir_word:"Remojo",
-                spoon0_card:"Crónica Esquelotiana", spoon0_name:"Cuchara de Hueso Esquelotiana", spoon0_bonus:"Añade +50% de Poder de Remover fijo",
-                spoon1_card:"Fisura del Caldero Astral", spoon1_name:"Cuchara de Tentáculo Místico", spoon1_bonus:"+5% de probabilidad de Estallido del Caldero x10",
-                spoon2_card:"Legado del Pequeño Ángel", spoon2_name:"Cuchara Dorada del Pequeño Ángel", spoon2_bonus:"2x Producción Total de CPS Pasivo y -50% CD del Prix",
+                spoon0_card:"Crónica de la Tormenta", spoon0_name:"Cuchara del Trueno", spoon0_bonus:"Añade +50% de Poder de Remover fijo",
+                spoon1_card:"Crónica Infernal", spoon1_name:"Cuchara Infernal", spoon1_bonus:"+5% de probabilidad de Estallido del Caldero x10",
+                spoon2_card:"Crónica Cósmica", spoon2_name:"Cuchara Cósmica", spoon2_bonus:"2x Producción Total de CPS Pasivo y -50% CD del Prix",
                 pres_lore:"Logrado. La energía del Pequeño Ángel se teje en la Tierra.",
                 lore1:"Skullchef llegó de Esquelotia para sanar la Tierra.", lore2:"La entidad oscura robó el amor de Esquelotia.", lore3:"El Pequeño Ángel dio su vida para sanar su planeta.",
                 lore4:"Skullchef viajó con el alma del Ángel en la sopa.", lore5:"La sopa está lista. Despierta el Alma para ascender.", lore6:"Logrado. La energía del Pequeño Ángel se teje en la Tierra.",
@@ -2909,7 +2912,7 @@
         // === Versionado del esquema de guardado ===
         // Sube este número cada vez que cambie la forma del save. Cada incremento debe
         // tener su paso de migración en SAVE_MIGRATIONS (clave = versión de ORIGEN).
-        const SCHEMA_VERSION = 28;
+        const SCHEMA_VERSION = 29;
         const SAVE_MIGRATIONS = {
             // v16 -> v17: el campo `as` (Angel Shards acumulados) pasó a guardarse aparte de `s`.
             16: (s) => {
@@ -3029,9 +3032,14 @@
                 if (!s.decor.chefTransforms || typeof s.decor.chefTransforms !== 'object') s.decor.chefTransforms = {};
                 s.v = 28;
                 return s;
+            },
+            // v28 -> v29: shop spoons now use catalog skin IDs (sp[] indices unchanged).
+            28: (s) => {
+                s.v = 29;
+                return s;
             }
-            // FUTURO: para añadir v28 -> v29 solo añade aquí:
-            //   28: (s) => { /* transforma s */ s.v = 29; return s; },
+            // FUTURO: para añadir v29 -> v30 solo añade aquí:
+            //   29: (s) => { /* transforma s */ s.v = 30; return s; },
             // y sube SCHEMA_VERSION. No borres pasos antiguos.
         };
         // Transforma un save antiguo al esquema actual de forma incremental. Nunca lanza:
@@ -3217,11 +3225,25 @@
                         rippleTint: { border: 'rgba(254,243,199,0.88)', glow: 'rgba(231,229,228,0.45)' } }
                 ]}
             },
+            // Launch shop: 3 EB-purchasable catalog spoons only. All other spoon skins drop via collection.
             spoons: [
-                { id: 0, cardKey:'spoon0_card', nameKey:'spoon0_name', bonusKey:'spoon0_bonus', rarity: "rare", cost: 25000, cardImg: "assets/img/card-rare.png", spoonImg: "assets/img/spoon-rare.png", owned: false, equipped: false },
-                { id: 1, cardKey:'spoon1_card', nameKey:'spoon1_name', bonusKey:'spoon1_bonus', rarity: "epic", cost: 225000, cardImg: "assets/img/card-epic.png", spoonImg: "assets/img/spoon-epic.png", owned: false, equipped: false },
-                { id: 2, cardKey:'spoon2_card', nameKey:'spoon2_name', bonusKey:'spoon2_bonus', rarity: "legendary", cost: 850000, cardImg: "assets/img/card-legendary.png", spoonImg: "assets/img/spoon-legendary.png", owned: false, equipped: false }
+                { id: 0, skinId: 'spoon_rare_thunder', cardKey:'spoon0_card', nameKey:'spoon0_name', bonusKey:'spoon0_bonus', rarity: "rare", cost: 25000, owned: false, equipped: false },
+                { id: 1, skinId: 'spoon_epic_inferno', cardKey:'spoon1_card', nameKey:'spoon1_name', bonusKey:'spoon1_bonus', rarity: "epic", cost: 225000, owned: false, equipped: false },
+                { id: 2, skinId: 'spoon_superleg_cosmos', cardKey:'spoon2_card', nameKey:'spoon2_name', bonusKey:'spoon2_bonus', rarity: "superleg", cost: 850000, owned: false, equipped: false }
             ],
+            shopSpoonSkinIds() { return this.spoons.map(s => s.skinId).filter(Boolean); },
+            spoonCatalog(s) { return (s && s.skinId) ? collection.skinById(s.skinId) : null; },
+            spoonCardImg(s) { const sk = this.spoonCatalog(s); return sk ? collection.srcThumb(sk) : (s.cardImg || ''); },
+            spoonSceneImg(s) { const sk = this.spoonCatalog(s); return sk ? collection.srcFull(sk) : (s.spoonImg || this.defaultSpoonImg); },
+            _applyShopSpoonVisual(el, rig, s) {
+                const sk = this.spoonCatalog(s);
+                if (!sk || !sk.img) return false;
+                collection._setFullImg(el, sk);
+                if (rig) rig.classList.add('charm-spoon');
+                this._spoonPlace = collection.placementFor(s.skinId);
+                this._applySpoonRig();
+                return true;
+            },
 
             init() {
                 if (this._inited) return;
@@ -3464,7 +3486,7 @@
             },
             track(type, amt) { if (this.daily && this.daily.counters && this.daily.counters[type] != null) this.daily.counters[type] += amt; quests.bump(type, amt); },
             getPrixCd() { const eq = this.getEquippedSpoon(); return (eq && eq.id === 2) ? 300 : 600; },
-            applySpoonVisual() { const el = document.getElementById('asset-spoon'); if (!el) return; const rig = document.getElementById('spoon-rig'); if (rig) { rig.classList.remove('charm-spoon'); rig.style.transform = ''; } this._spoonPlace = null; const s = this.getEquippedSpoon(); el.src = (s && s.owned) ? s.spoonImg : this.defaultSpoonImg; },
+            applySpoonVisual() { const el = document.getElementById('asset-spoon'); if (!el) return; const rig = document.getElementById('spoon-rig'); if (rig) { rig.classList.remove('charm-spoon'); rig.style.transform = ''; } this._spoonPlace = null; const s = this.getEquippedSpoon(); if (s && s.owned) { if (!this._applyShopSpoonVisual(el, rig, s)) el.src = this.spoonSceneImg(s); } else el.src = this.defaultSpoonImg; },
             // Applies the equipped charm spoon's per-skin placement to #spoon-rig. When `stirF`
             // is a number, oscillates the rotation for the idle-stir animation (called by loop()).
             _applySpoonRig(stirF) { const rig = document.getElementById('spoon-rig'); if (!rig) return; const p = this._spoonPlace; if (!p) return; try { rig.style.transform = collection.placementCss(p, (typeof stirF === 'number' ? Math.sin(stirF) * 5 : 0)); } catch (e) {} },
@@ -3498,7 +3520,7 @@
                     const slot = document.getElementById('asset-spoon');
                     const rig = document.getElementById('spoon-rig');
                     if (rig) rig.classList.remove('charm-spoon');
-                    if (slot) slot.src = spoon.spoonImg;
+                    if (slot) slot.src = this.spoonSceneImg(spoon);
                     if (clone) {
                         clone.style.transition = 'opacity 200ms ease';
                         clone.style.opacity = '0';
@@ -3517,7 +3539,7 @@
                     const slotRect = slot.getBoundingClientRect();
                     const cloneW = 120;
                     clone = document.createElement('img');
-                    clone.src = spoon.spoonImg;
+                    clone.src = this.spoonSceneImg(spoon);
                     clone.style.setProperty('--start-x', rect.left + rect.width / 2 + 'px');
                     clone.style.setProperty('--start-y', rect.top + rect.height / 2 + 'px');
                     clone.style.setProperty('--end-x', slotRect.left + slotRect.width / 2 + 'px');
@@ -3581,7 +3603,7 @@
                     else if (s.owned) actionHtml = `<button class="spoon-btn equip" type="button">${t('spoon_equip_btn')}</button>`;
                     else if (this.e >= sc) actionHtml = `<button class="spoon-btn buy" type="button">${t('spoon_buy_btn')}</button><div class="spoon-cost">${sc.toLocaleString()} EB</div>`;
                     else actionHtml = `<button class="spoon-btn locked" type="button" disabled>${t('spoon_buy_btn')}</button><div class="spoon-cost">${sc.toLocaleString()} EB</div>`;
-                    card.innerHTML = `<img src="${s.cardImg}" class="spoon-card-img" alt="${t(s.cardKey)}"><span class="spoon-rarity ${s.rarity}">${t('rarity_' + s.rarity)}</span><div style="font-size:0.82rem;font-weight:bold;line-height:1.2">${t(s.cardKey)}</div><div style="font-size:0.68rem;color:#cbd5e1">${t(s.nameKey)}</div><div class="spoon-benefit">${t(s.bonusKey)}</div>${actionHtml}`;
+                    card.innerHTML = `<img src="${this.spoonCardImg(s)}" class="spoon-card-img" alt="${t(s.cardKey)}"><span class="spoon-rarity ${s.rarity}">${t('rarity_' + s.rarity)}</span><div style="font-size:0.82rem;font-weight:bold;line-height:1.2">${t(s.cardKey)}</div><div style="font-size:0.68rem;color:#cbd5e1">${t(s.nameKey)}</div><div class="spoon-benefit">${t(s.bonusKey)}</div>${actionHtml}`;
                     const btn = card.querySelector('.spoon-btn');
                     if (btn && !btn.disabled) {
                         if (s.owned && !s.equipped) btn.onclick = (e) => { e.stopPropagation(); this.equipSpoon(s.id, e.currentTarget); };
@@ -6886,6 +6908,13 @@
             catalog() { const c = (window.SKIN_CATALOG || []); return Array.isArray(c) ? c : []; },
             skinById(id) { const cat = this.catalog(); for (let i = 0; i < cat.length; i++) { if (cat[i] && cat[i].id === id) return cat[i]; } return null; },
             skinsOfRarity(rar) { return this.catalog().filter(s => s && s.id && s.rarity === rar); },
+            // Drop pool excludes EB shop spoons (those are album-only purchases).
+            dropPool(rarity) {
+                let block = [];
+                try { block = game.shopSpoonSkinIds(); } catch (e) {}
+                const shop = new Set(block);
+                return this.skinsOfRarity(rarity).filter(s => !shop.has(s.id));
+            },
             // === PER-SLOT EQUIP MODEL ===
             // Independent equip slots. Each helper family is its own slot, plus one spoon
             // and one chef-hat slot. The equipped state lives in c.equips[slotKey] = skinId|null.
@@ -7210,10 +7239,10 @@
                 const c = this.ensureDay();
                 if (c.today >= this.DAILY_CAP && !forcedRarity) return null;
                 let rarity = forcedRarity || this.rollRarity();
-                let pool = this.skinsOfRarity(rarity);
+                let pool = this.dropPool(rarity);
                 while (!pool.length && (this.rarRank[rarity] || 0) > 0) {
                     rarity = this.RARITIES[(this.rarRank[rarity] || 0) - 1].k;
-                    pool = this.skinsOfRarity(rarity);
+                    pool = this.dropPool(rarity);
                 }
                 if (!pool.length) return null;
                 const skin = pool[Math.floor(Math.random() * pool.length)];
