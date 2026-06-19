@@ -1772,7 +1772,7 @@
         // while still retrying if a reload didn't actually land the new build. Fully
         // defensive: any error is silent and never blocks the game. Parent bumps BOTH
         // version.json and BUILD_V on every future deploy.
-        const BUILD_V = "build-20";
+        const BUILD_V = "build-21";
         (function () {
             function hardReloadTo(v) {
                 try {
@@ -4297,9 +4297,12 @@
                 // the right) and bias it slightly up, beside the chef rather than on top of him.
                 if (window.matchMedia('(pointer: coarse) and (orientation: landscape) and (max-height: 600px)').matches) {
                     const cyMid = (chefR.top + chefR.bottom) * 0.5;
-                    const sideX = chefR.right + Math.max(40, chefR.width * 0.14);
+                    // Sit clearly to the RIGHT of the chef (toward the shop side) so the helper
+                    // never lands on top of him. Push past the chef's right edge by ~half his
+                    // width, then keep it on-screen.
+                    const sideX = chefR.right + Math.max(95, chefR.width * 0.45);
                     return {
-                        x: Math.min(Math.max(sideX, stageR.left + 40), stageR.right - 40),
+                        x: Math.min(Math.max(sideX, stageR.left + 40), stageR.right - 95),
                         y: Math.min(Math.max(cyMid - chefR.height * 0.18, stageR.top + 70), stageR.bottom - 60)
                     };
                 }
@@ -5045,7 +5048,12 @@
                     if (!h.parentNode) { landClone(); return; }
                     const pose = this.summonPoseOrigin();
                     h.style.left = pose.x + 'px'; h.style.top = pose.y + 'px';
-                    h.style.transform = 'translate(-50%,-50%) scale(2.1) rotate(360deg)';
+                    // Peak "appear" scale. Landscape phones are short + wide, so the default
+                    // 2.1 blows the (already CSS-shrunk) clone up to ~2x the chef's width and
+                    // plants it on top of him — use a much smaller peak there so the helper
+                    // stays clearly smaller than the chef and sits beside him.
+                    const peakScale = window.matchMedia('(pointer: coarse) and (orientation: landscape) and (max-height: 600px)').matches ? 0.8 : 2.1;
+                    h.style.transform = 'translate(-50%,-50%) scale(' + peakScale + ') rotate(360deg)';
                     this.part(pose.x, pose.y, 'magic');
                     const skipCost = testLevel != null && creator.isDev();
                     if (skipCost || farm.consumeThrow(c.id, lv, feed)) {
