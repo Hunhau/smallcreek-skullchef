@@ -21,7 +21,10 @@
     <!-- Precarga SOLO del asset crítico para el PRIMER FRAME (logo de la home). El resto
          de imágenes/audio se cargan de forma diferida para no bloquear el render inicial. -->
     <link rel="preload" as="image" href="assets/img/angel.png" fetchpriority="high">
+    <!-- YouTube Playables SDK — MUST load before game code (no-op outside Playables). -->
+    <script src="https://www.youtube.com/game_api/v1"></script>
     <style>
+        html[data-build="playables"] #audio-mute { display: none; }
         :root { --en: #a5f3fc; --ac: #d8b4fe; --ui: rgba(15, 23, 42, 0.96); --sc: rgba(30, 27, 75, 0.85);
             /* === Unified premium gold accent (matches start-screen button, not pale neon) === */
             --gold: #e0a008; --gold-deep: #a86a06; --gold-soft: #f9dd9b; --cream: #fdf4e6;
@@ -1491,6 +1494,13 @@
         } catch (e) { resolved = 'web'; }
 
         global.BUILD_TARGET = resolved;
+        global.isPlayablesEnv = function () {
+            try {
+                if (global.BUILD_TARGET === 'playables') return true;
+                return typeof global.ytgame !== 'undefined' && global.ytgame.IN_PLAYABLES_ENV;
+            } catch (e) { return false; }
+        };
+        try { document.documentElement.dataset.build = resolved; } catch (e) {}
         global.PRODUCTION_BUILD = !!PRODUCTION_BUILD;
     })(typeof window !== 'undefined' ? window : this);
     </script>
@@ -1962,7 +1972,7 @@
         // while still retrying if a reload didn't actually land the new build. Fully
         // defensive: any error is silent and never blocks the game. Parent bumps BOTH
         // version.json and BUILD_V on every future deploy.
-        const BUILD_V = "build-36";
+        const BUILD_V = "build-37";
         (function () {
             function hardReloadTo(v) {
                 try {
@@ -3843,8 +3853,9 @@
                 try { localStorage.setItem('soup_p_v17', str); } catch (e) {}
                 // HOOK NUBE: punto único de guardado en la nube (stub local por ahora).
                 try { cloudSave.save(str); } catch (e) {}
+                try { if (typeof isPlayablesEnv === 'function' && isPlayablesEnv()) ytPlayables.sendScore(this.te); } catch (e) {}
                 // Leaderboard: cheap, debounced + monotonic inside the module; safe offline.
-                try { leaderboard.submit({ score: this.te, prestige: this.s }); } catch (e) {}
+                try { if (typeof isPlayablesEnv === 'function' && !isPlayablesEnv()) leaderboard.submit({ score: this.te, prestige: this.s }); } catch (e) {}
             },
             // Clamp defensivo de TODOS los numéricos del save (anti NaN/Infinity/negativos
             // y topes razonables). No rompe progreso legítimo (los topes son muy holgados).
@@ -5478,7 +5489,7 @@
                         const shardsGained = this.presShards();
                         this.s++; this.as += shardsGained; this._buffs = [];
                         try { gx.toast(t('pres_shards_toast', {n: shardsGained})); } catch (e) {}
-                        try { leaderboard.submit({ prestige: this.s, score: this.te }); } catch (e) {}
+                        try { if (typeof isPlayablesEnv !== 'function' || !isPlayablesEnv()) leaderboard.submit({ prestige: this.s, score: this.te }); } catch (e) {}
                         ach.grant('firstPres');
                         const eco = this.tree.eco;
                         this.e = 0; this.l = 0; this.cp.forEach(c => { const base = this.cpBaseCost[c.id] || this.cpBaseCost[this.cpBaseCost.length - 1]; c.lv = eco; c.ch = 0; c.cs = base; for (let j = 0; j < eco; j++) c.cs = Math.floor(c.cs * 1.15); });
@@ -5565,6 +5576,7 @@
                 }, 3700);
             },
             loop() {
+                if (typeof ytPlayables !== 'undefined' && ytPlayables._hostPaused) { this._loopPaused = true; return; }
                 if (this.p && bubble.node) bubble.despawn();
                 const sp = this._spoonRigEl || (this._spoonRigEl = document.getElementById('spoon-rig'));
                 this._frame = (this._frame || 0) + 1;
@@ -5943,7 +5955,7 @@
             stopFx() { const tr = document.getElementById('race-track'); if(tr) { tr.classList.remove('racing'); tr.style.animationDuration = ''; } this.rs.forEach(r => { const el = document.getElementById(`r-${r.lane}`); if(el) el.classList.remove('run'); }); },
             check() { const w = this.rs.find(r => r.pos >= 100); if(w) { this.a = false; clearInterval(this.tk); this.stopFx(); this.w = w.isP; this.end(); } },
             end() { document.getElementById('p-run').style.display='none'; document.getElementById('p-end').style.display='block';
-                const r = document.getElementById('p-rank'), m = document.getElementById('p-reward'); if(this.w) { r.innerText=t('first_place'); m.innerText=t('victory_crown', {name: t(this.ch.nk)}); this.ch.ch = (this.ch.ch || 0) + 1; game.track('crowns', 1); try { leaderboard.bumpPrixWin(); leaderboard.submit({ prix: leaderboard.getPrixWins() }); } catch (e) {} ach.grant('firstChamp'); try { game.save(); } catch (e) {} }
+                const r = document.getElementById('p-rank'), m = document.getElementById('p-reward'); if(this.w) { r.innerText=t('first_place'); m.innerText=t('victory_crown', {name: t(this.ch.nk)}); this.ch.ch = (this.ch.ch || 0) + 1; game.track('crowns', 1); try { leaderboard.bumpPrixWin(); if (typeof isPlayablesEnv !== 'function' || !isPlayablesEnv()) leaderboard.submit({ prix: leaderboard.getPrixWins() }); } catch (e) {} ach.grant('firstChamp'); try { game.save(); } catch (e) {} }
                 else { let p = Math.floor(1e6 * Math.pow(5, game.s) * 0.01); r.innerText=t('defeat'); m.innerText=t('awarded_eb', {eb: p.toLocaleString()}); game.e += p; game.te += p; }
                 // Refresh BOTH surfaces so the new champion multiplier shows immediately: the
                 // scene column crown (rebuild) and the shop card x-badge (render).
@@ -6292,84 +6304,138 @@
             _sdk: null,
             _firstFrameSent: false, _firstFramePending: false,
             _gameReadySent: false, _gameReadyPending: false,
-            // ¿Entorno "standalone" donde NO debemos tocar la red del SDK?
-            // (file:// para Steam/empaquetados, localhost para dev/pruebas, *.local móvil)
+            _loadDone: false, _loadPromise: null,
+            _hostPaused: false,
             _isStandalone() {
                 try {
+                    if (typeof isPlayablesEnv === 'function' && isPlayablesEnv()) return false;
                     if (location.protocol === 'file:') return true;
                     const h = (location.hostname || '').toLowerCase();
                     if (!h || h === 'localhost' || h === '127.0.0.1' || h === '0.0.0.0' || h.endsWith('.local')) return true;
                 } catch (e) { return true; }
                 return false;
             },
-            // Feature-detection del SDK global ya inyectado por el host de Playables.
             _detect() {
                 try { if (typeof window !== 'undefined' && window.ytgame) { this._sdk = window.ytgame; return true; } } catch (e) {}
                 return false;
             },
             get available() { return !!this._sdk; },
-            // Carga del SDK SOLO de forma segura:
-            //  - Si el host ya inyectó window.ytgame -> se usa directamente.
-            //  - Si es un build standalone (local/Steam/móvil) -> NO se inyecta nada
-            //    (cero peticiones, cero 404, cero ruido en consola): no-op total.
-            //  - En cualquier otro caso se intenta cargar el script oficial con manejo
-            //    de error silencioso (onerror no rompe: simplemente seguimos sin SDK).
             init() {
-                if (this._detect()) { this._onReady(); return; }
-                if (this._isStandalone()) return; // fuera de Playables: no-op silencioso
-                // TODO(confirmar en docs Playables 2026): URL oficial del loader del SDK.
-                // Referencia histórica del endpoint: https://www.youtube.com/game_api/v1
+                if (this._detect()) { this._wireSystem(); this._onReady(); return; }
+                if (this._isStandalone()) return;
                 try {
                     const s = document.createElement('script');
                     s.src = 'https://www.youtube.com/game_api/v1';
                     s.async = true;
-                    s.onload = () => { if (this._detect()) this._onReady(); };
-                    s.onerror = () => { /* sin SDK: no-op silencioso, el juego sigue igual */ };
+                    s.onload = () => { if (this._detect()) { this._wireSystem(); this._onReady(); } };
+                    s.onerror = () => {};
                     (document.head || document.documentElement).appendChild(s);
-                } catch (e) { /* nada: seguimos sin SDK */ }
+                } catch (e) {}
             },
-            // El SDK quedó disponible: reenvía cualquier señal que estuviera pendiente.
+            _wireSystem() {
+                if (!this._sdk || !this._sdk.system || this._systemWired) return;
+                this._systemWired = true;
+                const sys = this._sdk.system;
+                try {
+                    if (typeof sys.isAudioEnabled === 'function') {
+                        const en = sys.isAudioEnabled();
+                        if (!en && typeof sound !== 'undefined') { sound.muted = true; try { sound.updateUi(); } catch (e) {} }
+                    }
+                } catch (e) {}
+                try {
+                    if (typeof sys.onAudioEnabledChange === 'function') {
+                        sys.onAudioEnabledChange((en) => {
+                            try {
+                                if (typeof sound === 'undefined') return;
+                                sound.muted = !en;
+                                sound.updateUi();
+                                if (en) sound.recoverFromBackground();
+                                else sound._stirStopNow();
+                            } catch (e) {}
+                        });
+                    }
+                } catch (e) {}
+                try {
+                    if (typeof sys.onPause === 'function') {
+                        sys.onPause(() => {
+                            this._hostPaused = true;
+                            try { if (typeof game !== 'undefined') game.save(); } catch (e) {}
+                            try { if (typeof sound !== 'undefined') sound._stirStopNow(); } catch (e) {}
+                            try { if (typeof music !== 'undefined') music.syncPlayback(); } catch (e) {}
+                            try { if (typeof ambient !== 'undefined') ambient.syncPlayback(); } catch (e) {}
+                        });
+                    }
+                } catch (e) {}
+                try {
+                    if (typeof sys.onResume === 'function') {
+                        sys.onResume(() => {
+                            this._hostPaused = false;
+                            try { if (typeof sound !== 'undefined') sound.recoverFromBackground(); } catch (e) {}
+                            try { if (typeof music !== 'undefined') music.syncPlayback(); } catch (e) {}
+                            try { if (typeof ambient !== 'undefined') ambient.syncPlayback(); } catch (e) {}
+                        });
+                    }
+                } catch (e) {}
+                try {
+                    if (typeof sys.getLanguage === 'function') {
+                        sys.getLanguage().then((tag) => {
+                            const lang = (tag && String(tag).toLowerCase().indexOf('es') === 0) ? 'es' : 'en';
+                            if (typeof setLang === 'function' && lang !== LANG) setLang(lang);
+                        }).catch(() => {});
+                    }
+                } catch (e) {}
+            },
             _onReady() {
                 if (this._firstFramePending) this.firstFrameReady();
                 if (this._gameReadyPending) this.gameReady();
             },
-            // Señal "primer frame visible" (home pintada). No-op fuera de Playables.
-            // TODO(confirmar nombre exacto en docs): ytgame.game.firstFrameReady()
             firstFrameReady() {
                 if (this._firstFrameSent) return;
                 if (!this._sdk) { this._firstFramePending = true; return; }
                 this._firstFrameSent = true;
                 try { if (this._sdk.game && typeof this._sdk.game.firstFrameReady === 'function') this._sdk.game.firstFrameReady(); } catch (e) {}
             },
-            // Señal "juego listo/jugable". No-op fuera de Playables.
-            // TODO(confirmar nombre exacto en docs): ytgame.game.gameReady()
             gameReady() {
                 if (this._gameReadySent) return;
                 if (!this._sdk) { this._gameReadyPending = true; return; }
                 this._gameReadySent = true;
                 try { if (this._sdk.game && typeof this._sdk.game.gameReady === 'function') this._sdk.game.gameReady(); } catch (e) {}
             },
-            // Guardado en la nube de Playables. Devuelve Promesa; nunca lanza.
-            // TODO(confirmar en docs): ytgame.engagement.setData(str) / getData()
+            async loadData() {
+                if (!this._sdk) return null;
+                if (this._loadPromise) return this._loadPromise;
+                const self = this;
+                this._loadPromise = (async function () {
+                    try {
+                        if (self._sdk.game && typeof self._sdk.game.loadData === 'function') {
+                            const v = await self._sdk.game.loadData();
+                            self._loadDone = true;
+                            if (typeof v === 'string') return v;
+                            return (v == null) ? null : String(v);
+                        }
+                    } catch (e) {}
+                    self._loadDone = true;
+                    return null;
+                })();
+                return this._loadPromise;
+            },
             async saveData(str) {
-                if (!this._sdk) return false;
+                if (!this._sdk || typeof str !== 'string') return false;
+                try { await this.loadData(); } catch (e) {}
+                if (!this._loadDone) return false;
                 try {
-                    if (this._sdk.engagement && typeof this._sdk.engagement.setData === 'function') {
-                        await this._sdk.engagement.setData(str);
+                    if (this._sdk.game && typeof this._sdk.game.saveData === 'function') {
+                        await this._sdk.game.saveData(str);
                         return true;
                     }
                 } catch (e) {}
                 return false;
             },
-            async loadData() {
-                if (!this._sdk) return null;
-                try {
-                    if (this._sdk.engagement && typeof this._sdk.engagement.getData === 'function') {
-                        const v = await this._sdk.engagement.getData();
-                        return (typeof v === 'string') ? v : (v == null ? null : String(v));
-                    }
-                } catch (e) {}
-                return null;
+            sendScore(value) {
+                if (!this._sdk || !this._sdk.engagement || typeof this._sdk.engagement.sendScore !== 'function') return;
+                const v = Math.floor(Number(value));
+                if (!isFinite(v) || v < 0) return;
+                try { this._sdk.engagement.sendScore({ value: v }); } catch (e) {}
             }
         };
         // === Capa abstracta de guardado en la nube (desacoplada) ===
@@ -6378,17 +6444,21 @@
         // Fuera de Playables se comporta igual que antes (stub local). Nunca bloquea ni rompe.
         const cloudSave = {
             KEY: 'soup_cloud_v17',
-            get enabled() { return ytPlayables.available; }, // true solo dentro de Playables
+            get enabled() { return ytPlayables.available; },
             async save(dataString) {
-                // 1) Local SIEMPRE (fuente de verdad + respaldo).
+                if (typeof isPlayablesEnv === 'function' && isPlayablesEnv()) {
+                    try { return await ytPlayables.saveData(dataString); } catch (e) { return false; }
+                }
                 let okLocal = false;
                 try { localStorage.setItem(this.KEY, dataString); okLocal = true; } catch (e) {}
-                // 2) Nube de Playables COMPLEMENTARIA (no bloquea ni rompe si falla / no existe).
                 try { await ytPlayables.saveData(dataString); } catch (e) {}
                 return okLocal;
             },
             async load() {
-                // Dentro de Playables intenta primero la nube; si no hay o falla, cae a local.
+                if (typeof isPlayablesEnv === 'function' && isPlayablesEnv()) {
+                    try { return await ytPlayables.loadData(); } catch (e) {}
+                    return null;
+                }
                 try { const cloud = await ytPlayables.loadData(); if (typeof cloud === 'string' && cloud) return cloud; } catch (e) {}
                 try { return localStorage.getItem(this.KEY); } catch (e) { return null; }
             },
@@ -6775,11 +6845,10 @@
             showRewarded(rewardKey, onReward, onFail) {
                 const api = this._api();
                 if (!api || typeof api.requestRewardedAd !== 'function') { onFail(); return; }
+                const rid = (rewardKey != null && String(rewardKey)) ? String(rewardKey) : 'reward-default';
                 try {
-                    // TODO(Playables SDK 2026): confirm the exact call + result shape.
-                    // A truthy "rewarded" resolution is treated as a completed view.
-                    Promise.resolve(api.requestRewardedAd()).then(function (res) {
-                        if (res && (res.rewarded === true || res === true)) onReward(); else onFail();
+                    Promise.resolve(api.requestRewardedAd(rid)).then(function (earned) {
+                        if (earned === true) onReward(); else onFail();
                     }).catch(function () { onFail(); });
                 } catch (e) { onFail(); }
             }
@@ -9222,6 +9291,14 @@
             applyStaticI18n();
             const f = document.getElementById('lang-fab'); if (f) f.textContent = '🌐 ' + LANG.toUpperCase();
             home.init();
+            try {
+                if (typeof isPlayablesEnv === 'function' && isPlayablesEnv()) {
+                    ['home-backup', 'home-creator-sync'].forEach(function (id) {
+                        const el = document.getElementById(id);
+                        if (el) el.style.display = 'none';
+                    });
+                }
+            } catch (e) {}
             try { backup.initCreatorSyncUnlock(); } catch (e) {}
             try { fullscreen.init(); } catch (e) {}
             try { collection.refreshFab(); } catch (e) {}
