@@ -501,6 +501,7 @@
         #m-launch { display: none; }
         #m-scrim { display: none; }
         #helpers-toggle { display: none; }
+        #shop-close-m { display: none; }
         /* Availability dot on CLOSED launcher buttons + owned-helpers count chip. The host
            elements are display:none on desktop, so these never render there. */
         #m-launch button { position: relative; }
@@ -707,7 +708,7 @@
             #side-shop {
                 position: fixed !important; top: 0; right: 0;
                 height: 100vh; height: 100dvh;
-                width: min(330px, 84vw);
+                width: min(300px, 76vw);
                 transform: translateX(102%); transition: transform 0.28s ease;
                 z-index: 9500; border-left: 1px solid var(--glass-bd-go);
                 box-shadow: -14px 0 44px rgba(0, 0, 0, 0.5);
@@ -716,6 +717,18 @@
             }
             #side-shop.m-open { transform: translateX(0); }
             #side-shop h1 { font-size: 1.15rem; }
+            /* Sticky ✕ close pinned top-right of the sheet (stays while the list scrolls). */
+            #shop-close-m {
+                display: flex; align-items: center; justify-content: center;
+                position: sticky; top: 0; z-index: 5;
+                width: 40px; height: 40px; margin: -2px -2px 6px auto;
+                border-radius: 12px; border: 1px solid var(--glass-bd-go);
+                background: var(--glass-strong); backdrop-filter: var(--glass-blur-sm); -webkit-backdrop-filter: var(--glass-blur-sm);
+                color: var(--gold-soft); font-size: 1.2rem; line-height: 1; font-weight: bold;
+                cursor: pointer; -webkit-tap-highlight-color: transparent; touch-action: manipulation;
+                box-shadow: 0 2px 10px rgba(0,0,0,0.35);
+            }
+            #shop-close-m:active { filter: brightness(1.15); }
             #buy-mode-toggle { padding: 8px 12px; margin-bottom: 10px; font-size: 0.82rem; }
             #companion-list .companion-card { padding: 9px; margin-bottom: 9px; border-radius: 10px; min-height: 52px; }
             #companion-list .comp-img { width: 46px; height: 46px; margin-right: 10px; border-radius: 9px; }
@@ -1039,7 +1052,7 @@
         <div id="companion-column"></div>
         <div id="altar-panel"><div id="btn-prestige" onclick="game.pres()"><div class="prestige-label" id="pres-txt" data-i18n="locked">LOCKED</div></div><div id="pres-stat">Lv. 0 (+0%)</div></div>
         <section id="main-stage" onpointerdown="game.click(event)"><canvas id="particle-canvas"></canvas><div id="sticky-center"><div id="chef-rig"><img id="asset-chef" src="assets/img/chef.png" decoding="async"><img id="asset-chef-mouth" src="assets/img/chef-mouth-delta.png" alt="" decoding="async"></div><img id="asset-chef-hand" src="assets/img/chef-hand.png" decoding="async"><img id="cauldron-legs" src="assets/img/cauldron-legs.png" alt="" decoding="async"><img id="asset-soup" src="assets/img/soup.png" decoding="async"><div id="soup-liquid"><img id="asset-soup-liquid" src="assets/img/soup.png" decoding="async"><div id="soup-fx-burst" aria-hidden="true"></div></div><div id="soup-steam"><div class="steam-wisp"></div><div class="steam-wisp"></div><div class="steam-wisp"></div><div class="steam-wisp"></div><div class="steam-wisp"></div><div class="steam-wisp"></div></div><div id="spoon-rig"><img id="asset-spoon" src="assets/img/spoon.png" decoding="async"></div></div><div id="soup-ripples"></div></section>
-        <aside id="side-shop"><h1 data-i18n="shop" style="text-align:center; font-size:1.3rem;">SHOP</h1><div id="shop-companions-panel"><div id="buy-mode-toggle" onclick="game.cycleBuyMode()" data-i18n="buy_x1">Buy x1</div><div id="prix-btn" style="padding:12px; background:linear-gradient(135deg,#7e22ce,#3b82f6); border-radius:10px; text-align:center; font-weight:bold; border:2px solid #fff; margin-bottom:15px; display:none; cursor:pointer;" onclick="prix.open()" data-i18n="enter_prix">Enter Grand Prix</div><div id="companion-list"></div><div id="spoons-album-section"><div id="spoons-album-title" data-i18n="spoons_album_title">SACRED SPOONS ALBUM</div><div id="spoons-album"></div></div><div id="hats-album-section"><div id="hats-album-title" data-i18n="hats_album_title">SACRED HATS ALBUM</div><div id="hats-album"></div></div></div></aside>
+        <aside id="side-shop"><button id="shop-close-m" type="button" onclick="mobileUI.closeAll()" data-i18n-title="close" aria-label="Close" title="Close">✕</button><h1 data-i18n="shop" style="text-align:center; font-size:1.3rem;">SHOP</h1><div id="shop-companions-panel"><div id="buy-mode-toggle" onclick="game.cycleBuyMode()" data-i18n="buy_x1">Buy x1</div><div id="prix-btn" style="padding:12px; background:linear-gradient(135deg,#7e22ce,#3b82f6); border-radius:10px; text-align:center; font-weight:bold; border:2px solid #fff; margin-bottom:15px; display:none; cursor:pointer;" onclick="prix.open()" data-i18n="enter_prix">Enter Grand Prix</div><div id="companion-list"></div><div id="spoons-album-section"><div id="spoons-album-title" data-i18n="spoons_album_title">SACRED SPOONS ALBUM</div><div id="spoons-album"></div></div><div id="hats-album-section"><div id="hats-album-title" data-i18n="hats_album_title">SACRED HATS ALBUM</div><div id="hats-album"></div></div></div></aside>
     </div>
     <div id="audio-ctrl"><button id="audio-mute" type="button" onclick="sound.toggleMute()" data-i18n-title="audio_mute_title" title="Mute / Unmute sound">🔊</button><input id="audio-vol" type="range" min="0" max="100" value="100" oninput="sound.setVolume(this.value/100)" data-i18n-title="audio_vol_title" title="Volume"></div>
     <div id="buff-bar"></div>
@@ -3833,6 +3846,7 @@
                     this._spoonUiKey = '';
                     this.renderSpoons();
                 });
+                this._mAutoCloseShop();
             },
             equipSpoon(id, btn) {
                 const s = this.spoons.find(x => x.id === id);
@@ -3894,6 +3908,7 @@
                 this.save();
                 this._hatUiKey = '';
                 this.renderHats();
+                this._mAutoCloseShop();
             },
             equipHat(id) {
                 const h = this.hats.find(x => x.id === id);
@@ -4939,6 +4954,16 @@
                 this.render();
                 this.save();
                 try { if (typeof tutorial !== 'undefined' && tutorial.active) tutorial.notify('buy'); } catch (e) {}
+                this._mAutoCloseShop();
+            },
+            /* Portrait mobile only: after a successful purchase, slide the shop sheet away
+               so the player can watch the summon / eat animation without closing it manually.
+               No-op on desktop/landscape (shop is a permanent docked sidebar there). */
+            _mAutoCloseShop() {
+                try {
+                    if (typeof mobileUI === 'undefined') return;
+                    if (window.matchMedia('(orientation: portrait) and (max-width: 768px)').matches) mobileUI.closeAll();
+                } catch (e) {}
             },
             pres() {
                 let g = 1e6 * Math.pow(5, this.s); if (this.e < g) { document.getElementById('btn-prestige').classList.add('shake'); setTimeout(()=>document.getElementById('btn-prestige').classList.remove('shake'), 300); return; }
