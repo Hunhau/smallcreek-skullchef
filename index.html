@@ -425,7 +425,8 @@
         .tnode { background: rgba(255,255,255,0.05); border: 1px solid var(--ac); border-radius: 10px; padding: 10px; margin-bottom: 10px; text-align: left; }
         .tnode.maxed { border-color: var(--go); }
         #gx-toast-wrap { position: fixed; top: 150px; left: 50%; transform: translateX(-50%); z-index: 96000; display: flex; flex-direction: column; gap: 8px; align-items: center; pointer-events: none; }
-        .gx-toast { background: linear-gradient(135deg, #7e22ce, #3b82f6); border: 2px solid var(--go); border-radius: 12px; padding: 10px 18px; font-weight: bold; font-size: 0.9rem; box-shadow: 0 0 20px rgba(251,191,36,0.5); animation: toastIn 0.4s ease-out, toastOut 0.5s ease-in 3.5s forwards; white-space: pre-line; text-align: center; line-height: 1.35; }
+        .gx-toast { background: linear-gradient(135deg, #7e22ce, #3b82f6); border: 2px solid var(--go); border-radius: 12px; padding: 10px 18px; font-weight: bold; font-size: 0.9rem; box-shadow: 0 0 20px rgba(251,191,36,0.5); animation: toastIn 0.4s ease-out; white-space: pre-line; text-align: center; line-height: 1.35; }
+        .gx-toast.gx-toast-out { animation: toastOut 0.45s ease-in forwards; }
         @keyframes toastIn { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes toastOut { to { opacity: 0; transform: translateY(-20px); } }
         #home-overlay { position: fixed; inset: 0; z-index: 200000; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: clamp(12px, 2.6vh, 24px); text-align: center; overflow-y: auto; padding: calc(env(safe-area-inset-top) + 24px) calc(env(safe-area-inset-right) + 20px) calc(env(safe-area-inset-bottom) + 24px) calc(env(safe-area-inset-left) + 20px); background: url('assets/img/bg.jpg') center/cover no-repeat; transition: opacity 0.55s ease, transform 0.55s ease; }
@@ -1720,7 +1721,7 @@
         // build differs, reload ONCE with a cache-busting ?v= query. sessionStorage guards
         // against reload loops. Fully defensive: any error is silent and never blocks the
         // game. Parent bumps BOTH version.json and BUILD_V on every future deploy.
-        const BUILD_V = "build-12";
+        const BUILD_V = "build-13";
         (function checkForUpdate() {
             try {
                 fetch('version.json?ts=' + Date.now(), { cache: 'no-store' })
@@ -5380,11 +5381,51 @@
             ret() { if(this.tk) { clearInterval(this.tk); this.tk = null; } if(this.cdIv) { clearInterval(this.cdIv); this.cdIv = null; } this.stopFx(); game.cd = game.getPrixCd(); document.getElementById('race-modal').style.display='none'; if(this.w) game.coron(this.ch); else game.p = false; }
         };
         const gx = {
+            // Toasts ("carteles") are shown ONE AT A TIME in a chain: one appears, holds,
+            // fades out, then the next appears. They never stack one below another covering
+            // the screen. They also wait for any on-screen helper animation (summon clone or
+            // coronation cinema) to clear before showing, so cards never cover the helper.
+            _tq: [],
+            _tBusy: false,
+            _tWaitStart: 0,
             toast(msg) {
-                const w = document.getElementById('gx-toast-wrap'); if (!w) return;
-                const t = document.createElement('div'); t.className = 'gx-toast'; t.textContent = msg;
-                w.appendChild(t);
-                setTimeout(() => { if (t.parentNode) t.remove(); }, 4200);
+                if (msg == null) return;
+                this._tq.push(String(msg));
+                this._tPump();
+            },
+            _helperBusy() {
+                try {
+                    if (document.querySelector('.summon-clone')) return true;
+                    const vc = document.getElementById('victory-cinema');
+                    if (vc) { const d = getComputedStyle(vc).display; if (d && d !== 'none') return true; }
+                } catch (e) {}
+                return false;
+            },
+            _tPump() {
+                if (this._tBusy) return;
+                const w = document.getElementById('gx-toast-wrap');
+                if (!w) { this._tq = []; return; }
+                if (!this._tq.length) { this._tWaitStart = 0; return; }
+                // Hold the queue while a helper animation is on screen (capped so toasts
+                // can never get stuck forever if something keeps an animation alive).
+                if (this._helperBusy()) {
+                    if (!this._tWaitStart) this._tWaitStart = Date.now();
+                    if (Date.now() - this._tWaitStart < 9000) { setTimeout(() => this._tPump(), 350); return; }
+                }
+                this._tWaitStart = 0;
+                this._tBusy = true;
+                const el = document.createElement('div');
+                el.className = 'gx-toast';
+                el.textContent = this._tq.shift();
+                w.appendChild(el);
+                setTimeout(() => {
+                    el.classList.add('gx-toast-out');
+                    setTimeout(() => {
+                        if (el.parentNode) el.remove();
+                        this._tBusy = false;
+                        setTimeout(() => this._tPump(), 160);
+                    }, 470);
+                }, 2200);
             }
         };
         // === In-game Leaderboard (Ranks) UI — renders data from the embedded

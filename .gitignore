@@ -4,3 +4,5 @@ ehthumbs.db
 desktop.ini
 assets/skins_backup_pre_compress/
 assets/skins/canva_masters/
+__pycache__/
+*.pyc
