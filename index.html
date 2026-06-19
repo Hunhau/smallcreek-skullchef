@@ -177,8 +177,8 @@
         .spoon-btn.buy { background: linear-gradient(135deg, #7e22ce, #3b82f6); color: #fff; }
         .spoon-btn.equip { background: rgba(168, 85, 247, 0.35); color: var(--ac); border-color: var(--ac); }
         .spoon-btn.equipped { background: rgba(224, 160, 8, 0.2); color: var(--gold-soft); border-color: var(--go); cursor: default; }
-        #spoons-album-title { font-size: 0.75rem; text-align: center; color: var(--ac); margin: 18px 0 10px; padding-top: 14px; border-top: 1px solid #fff2; text-transform: uppercase; letter-spacing: 1px; opacity: 0.85; }
-        #spoons-album-section { margin-top: 4px; }
+        #spoons-album-title, #hats-album-title { font-size: 0.75rem; text-align: center; color: var(--ac); margin: 18px 0 10px; padding-top: 14px; border-top: 1px solid #fff2; text-transform: uppercase; letter-spacing: 1px; opacity: 0.85; }
+        #spoons-album-section, #hats-album-section { margin-top: 4px; }
         .shop-hide-toggle { margin-top: 6px; padding: 4px 10px; border-radius: 6px; font-size: 0.62rem; font-weight: bold; border: 1px solid #fff3; cursor: pointer; text-transform: uppercase; letter-spacing: 0.4px; background: rgba(51, 65, 85, 0.55); color: #cbd5e1; width: 100%; max-width: 180px; }
         .shop-hide-toggle.on { background: rgba(168, 85, 247, 0.25); color: var(--ac); border-color: var(--ac); }
         #prestige-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 80000; display: none; opacity: 0; background: linear-gradient(180deg, #020617 0%, #1e1b4b 50%, #2e1065 100%); flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.8s; }
@@ -1667,7 +1667,7 @@
         const I18N = {
             en: {
                 soul_awakened:"[ SOUL AWAKENED ]", prix_title:"ESQUELOTIA GRAND PRIX", select_champion:"Select Champion!", return_cauldron:"RETURN TO CAULDRON",
-                energy_balls:"Energy Balls:", angel_shards:"Angel Shards:", chronicle:"CHRONICLE", era:"Era", locked:"LOCKED", shop:"SHOP", spoons_album_title:"SACRED SPOONS ALBUM",
+                energy_balls:"Energy Balls:", angel_shards:"Angel Shards:", chronicle:"CHRONICLE", era:"Era", locked:"LOCKED", shop:"SHOP", spoons_album_title:"SACRED SPOONS ALBUM", hats_album_title:"SACRED HATS ALBUM",
                 quests_btn:"📜 Chef's Orders", tree_btn:"🌳 Angel Tree", offline_title:"Your soup kept cooking", claim:"Claim", quests_title:"Chef's Orders", close:"Close",
                 tree_title:"Angel Awakening Tree", tree_shards_avail:"Available Angel Shards:", audio_mute_title:"Mute / Unmute sound", audio_vol_title:"Volume",
                 home_title:"Smallcreek Skullchef", home_subtitle:"The Wooden Soup", home_tagline:"A cozy ASMR soup to stir, sip and unwind.", home_play:"Play", home_language:"Language", home_audio:"Audio", home_credits:"Crafted with warmth in the SmallCreek kitchen.",
@@ -1707,6 +1707,11 @@
                 spoon0_card:"Storm Chronicle", spoon0_name:"Thunder Spoon", spoon0_bonus:"Adds +50% flat Click Stir Power",
                 spoon1_card:"Inferno Chronicle", spoon1_name:"Inferno Spoon", spoon1_bonus:"+5% chance for 10x Cauldron Burst",
                 spoon2_card:"Cosmos Chronicle", spoon2_name:"Cosmos Spoon", spoon2_bonus:"2x Total Idle CPS Production & -50% Prix CD",
+                hats_album_title:"SACRED HATS ALBUM",
+                hat_equipped:"[ EQUIPPED ]", hat_equip_btn:"EQUIP HAT", hat_buy_btn:"BUY CARD", hat_hide:"Hide hat", hat_show:"Show hat",
+                hat0_card:"Flame Chronicle", hat0_name:"Flame Chef Hat", hat0_bonus:"+40% chance for bonus farm harvest",
+                hat1_card:"Crown Chronicle", hat1_name:"Crown Chef Hat", hat1_bonus:"+20% Helper Idle CPS",
+                hat2_card:"Prism Chronicle", hat2_name:"Prism Chef Hat", hat2_bonus:"-10% Helper Upgrade Costs & +15% Charm Drop Luck",
                 pres_lore:"Success. Small Angel's energy is woven into Earth.",
                 lore1:"Skullchef arrived from Esquelotia to heal Earth.", lore2:"The dark entity stole love from Esquelotia.", lore3:"Small Angel gave his life to heal his planet.",
                 lore4:"Skullchef journeyed with Angel's soul in soup.", lore5:"The soup is ready. Awaken the Soul to ascend.", lore6:"Success. Small Angel's energy is woven into Earth.",
@@ -1774,7 +1779,7 @@
             },
             es: {
                 soul_awakened:"[ ALMA DESPERTADA ]", prix_title:"ESQUELOTIA GRAN PREMIO", select_champion:"¡Elige Campeón!", return_cauldron:"VOLVER AL CALDERO",
-                energy_balls:"Bolas de Energía:", angel_shards:"Fragmentos de Ángel:", chronicle:"CRÓNICA", era:"Era", locked:"BLOQUEADO", shop:"TIENDA", spoons_album_title:"ÁLBUM DE CUCHARAS SAGRADAS",
+                energy_balls:"Bolas de Energía:", angel_shards:"Fragmentos de Ángel:", chronicle:"CRÓNICA", era:"Era", locked:"BLOQUEADO", shop:"TIENDA", spoons_album_title:"ÁLBUM DE CUCHARAS SAGRADAS", hats_album_title:"ÁLBUM DE GORROS SAGRADOS",
                 quests_btn:"📜 Pedidos del Chef", tree_btn:"🌳 Árbol del Ángel", offline_title:"Tu sopa siguió cociéndose", claim:"Reclamar", quests_title:"Pedidos del Chef", close:"Cerrar",
                 tree_title:"Árbol del Despertar del Ángel", tree_shards_avail:"Fragmentos de Ángel disponibles:", audio_mute_title:"Silenciar / Activar sonido", audio_vol_title:"Volumen",
                 home_title:"Smallcreek Skullchef", home_subtitle:"La Sopa de Madera", home_tagline:"Una sopa ASMR para remover, saborear y relajarte.", home_play:"Jugar", home_language:"Idioma", home_audio:"Audio", home_credits:"Hecho con cariño en la cocina de SmallCreek.",
@@ -1814,6 +1819,11 @@
                 spoon0_card:"Crónica de la Tormenta", spoon0_name:"Cuchara del Trueno", spoon0_bonus:"Añade +50% de Poder de Remover fijo",
                 spoon1_card:"Crónica Infernal", spoon1_name:"Cuchara Infernal", spoon1_bonus:"+5% de probabilidad de Estallido del Caldero x10",
                 spoon2_card:"Crónica Cósmica", spoon2_name:"Cuchara Cósmica", spoon2_bonus:"2x Producción Total de CPS Pasivo y -50% CD del Prix",
+                hats_album_title:"ÁLBUM DE GORROS SAGRADOS",
+                hat_equipped:"[ EQUIPADO ]", hat_equip_btn:"EQUIPAR GORRO", hat_buy_btn:"COMPRAR CARTA", hat_hide:"Ocultar gorro", hat_show:"Mostrar gorro",
+                hat0_card:"Crónica Llama", hat0_name:"Gorro Llama", hat0_bonus:"+40% probabilidad de cosecha extra en cultivos",
+                hat1_card:"Crónica Corona", hat1_name:"Gorro Corona", hat1_bonus:"+20% CPS pasivo de ayudantes",
+                hat2_card:"Crónica Prisma", hat2_name:"Gorro Prisma", hat2_bonus:"-10% coste de mejoras de ayudantes y +15% suerte de amuletos",
                 pres_lore:"Logrado. La energía del Pequeño Ángel se teje en la Tierra.",
                 lore1:"Skullchef llegó de Esquelotia para sanar la Tierra.", lore2:"La entidad oscura robó el amor de Esquelotia.", lore3:"El Pequeño Ángel dio su vida para sanar su planeta.",
                 lore4:"Skullchef viajó con el alma del Ángel en la sopa.", lore5:"La sopa está lista. Despierta el Alma para ascender.", lore6:"Logrado. La energía del Pequeño Ángel se teje en la Tierra.",
@@ -2717,7 +2727,14 @@
                 return '';
             },
             activeId() {
-                if (this.target === 'hat') return collection.equippedIn('hat');
+                if (this.target === 'hat') {
+                    const coll = collection.equippedIn('hat');
+                    if (coll) return coll;
+                    try {
+                        const sh = game.getEquippedShopHat();
+                        return (sh && sh.owned && sh.skinId) ? sh.skinId : null;
+                    } catch (e) { return null; }
+                }
                 if (this.target === 'spoon') return collection.equippedIn('spoon');
                 if (this.target === 'decor_hat') return (game.decor && game.decor.slots) ? game.decor.slots.chefHat : null;
                 if (this.target === 'decor_face') return (game.decor && game.decor.slots) ? game.decor.slots.chefFace : null;
@@ -2918,7 +2935,7 @@
         // === Versionado del esquema de guardado ===
         // Sube este número cada vez que cambie la forma del save. Cada incremento debe
         // tener su paso de migración en SAVE_MIGRATIONS (clave = versión de ORIGEN).
-        const SCHEMA_VERSION = 29;
+        const SCHEMA_VERSION = 30;
         const SAVE_MIGRATIONS = {
             // v16 -> v17: el campo `as` (Angel Shards acumulados) pasó a guardarse aparte de `s`.
             16: (s) => {
@@ -3043,9 +3060,13 @@
             28: (s) => {
                 s.v = 29;
                 return s;
+            },
+            29: (s) => {
+                s.v = 30;
+                return s;
             }
-            // FUTURO: para añadir v29 -> v30 solo añade aquí:
-            //   29: (s) => { /* transforma s */ s.v = 30; return s; },
+            // FUTURO: para añadir v30 -> v31 solo añade aquí:
+            //   30: (s) => { /* transforma s */ s.v = 31; return s; },
             // y sube SCHEMA_VERSION. No borres pasos antiguos.
         };
         // Transforma un save antiguo al esquema actual de forma incremental. Nunca lanza:
@@ -3106,7 +3127,7 @@
             }
         };
         const game = {
-            e:0, te:0, l:0, s:0, c:0, p:false, f:0, cl:false, m:1, cd:0, buyMode:1, defaultSpoonImg:'assets/img/spoon.png', _inited:false, logicTick:null, uiTick:null, saveTick:null, _floatNodes:[], _spoonAnimating:false, _spoonUiKey:'', spoonHidden:false, _steamIdleTick:0, _dispScore:0, _autoPartAcc:0, _wave:0, _ballWave:0, _ballSpeed:1, _lastClick:0, soupBalls:[], _rippleNodes:[], _ambientRippleTick:0, _soupRect:null, _surf:null, _stageRect:null, _spoonEl:null,
+            e:0, te:0, l:0, s:0, c:0, p:false, f:0, cl:false, m:1, cd:0, buyMode:1, defaultSpoonImg:'assets/img/spoon.png', _inited:false, logicTick:null, uiTick:null, saveTick:null, _floatNodes:[], _spoonAnimating:false, _spoonUiKey:'', spoonHidden:false, _hatAnimating:false, _hatUiKey:'', hatHidden:false, _steamIdleTick:0, _dispScore:0, _autoPartAcc:0, _wave:0, _ballWave:0, _ballSpeed:1, _lastClick:0, soupBalls:[], _rippleNodes:[], _ambientRippleTick:0, _soupRect:null, _surf:null, _stageRect:null, _spoonEl:null,
             as:0, lastSeen:0, _buffs:[], tree:{caldo:0, manos:0, eco:0, cuchara:0, tiempo:0, aura:0, fortuna:0, eterno:0}, daily:null, ach:{}, rewards:{}, coll:null, farm:null, decor:null, _tampered:false,
             treeDefs: [
                 {k:'caldo', mx:20, cb:1},
@@ -3237,9 +3258,18 @@
                 { id: 1, skinId: 'spoon_epic_inferno', cardKey:'spoon1_card', nameKey:'spoon1_name', bonusKey:'spoon1_bonus', rarity: "epic", cost: 225000, owned: false, equipped: false },
                 { id: 2, skinId: 'spoon_superleg_cosmos', cardKey:'spoon2_card', nameKey:'spoon2_name', bonusKey:'spoon2_bonus', rarity: "superleg", cost: 850000, owned: false, equipped: false }
             ],
+            hats: [
+                { id: 0, skinId: 'chefhat_epic_flame', cardKey:'hat0_card', nameKey:'hat0_name', bonusKey:'hat0_bonus', rarity: "epic", cost: 25000, owned: false, equipped: false },
+                { id: 1, skinId: 'chefhat_legendary_crown', cardKey:'hat1_card', nameKey:'hat1_name', bonusKey:'hat1_bonus', rarity: "legendary", cost: 225000, owned: false, equipped: false },
+                { id: 2, skinId: 'chefhat_superleg_prism', cardKey:'hat2_card', nameKey:'hat2_name', bonusKey:'hat2_bonus', rarity: "superleg", cost: 850000, owned: false, equipped: false }
+            ],
             shopSpoonSkinIds() { return this.spoons.map(s => s.skinId).filter(Boolean); },
+            shopHatSkinIds() { return this.hats.map(h => h.skinId).filter(Boolean); },
+            shopExclusiveSkinIds() { return this.shopSpoonSkinIds().concat(this.shopHatSkinIds()); },
             spoonCatalog(s) { return (s && s.skinId) ? collection.skinById(s.skinId) : null; },
+            hatCatalog(h) { return (h && h.skinId) ? collection.skinById(h.skinId) : null; },
             spoonCardImg(s) { const sk = this.spoonCatalog(s); return sk ? collection.srcThumb(sk) : (s.cardImg || ''); },
+            hatCardImg(h) { const sk = this.hatCatalog(h); return sk ? collection.srcThumb(sk) : (h.cardImg || ''); },
             spoonSceneImg(s) { const sk = this.spoonCatalog(s); return sk ? collection.srcFull(sk) : (s.spoonImg || this.defaultSpoonImg); },
             _applyShopSpoonVisual(el, rig, s) {
                 const sk = this.spoonCatalog(s);
@@ -3279,6 +3309,29 @@
                         if (!s) return;
                         if (s.owned && !s.equipped) this.equipSpoon(id, btn);
                         else if (!s.owned && this.e >= this.effSpoonCost(s)) this.buySpoon(id, btn);
+                    });
+                }
+                const halb = document.getElementById('hats-album');
+                if (halb && !halb._hatDelegated) {
+                    halb._hatDelegated = true;
+                    halb.addEventListener('click', (e) => {
+                        if (e.target.closest('.shop-hide-toggle') && e.target.closest('[data-hat-id]')) {
+                            e.stopPropagation();
+                            const card = e.target.closest('.spoon-card');
+                            const id = card ? parseInt(card.dataset.hatId, 10) : NaN;
+                            if (Number.isFinite(id)) this.toggleHatHidden(id);
+                            return;
+                        }
+                        const btn = e.target.closest('.spoon-btn');
+                        if (!btn || btn.disabled) return;
+                        e.stopPropagation();
+                        const card = btn.closest('.spoon-card');
+                        const id = card ? parseInt(card.dataset.hatId, 10) : NaN;
+                        if (!Number.isFinite(id)) return;
+                        const h = this.hats.find(x => x.id === id);
+                        if (!h) return;
+                        if (h.owned && !h.equipped) this.equipHat(id);
+                        else if (!h.owned && this.e >= this.effHatCost(h)) this.buyHat(id);
                     });
                 }
                 if (this.logicTick) clearInterval(this.logicTick);
@@ -3343,7 +3396,7 @@
             },
             getSaveData() {
                 this.lastSeen = Date.now();
-                return {v:SCHEMA_VERSION, e:this.e, te:this.te, l:this.l, s:this.s, as:this.as, c:this.cp.map(x=>({lv:x.lv, ch:x.ch})), cd:this.cd, bm:this.buyMode, sp:this.spoons.map(s=>({o:s.owned, eq:s.equipped})), shi:!!this.spoonHidden, lastSeen:this.lastSeen, tree:this.tree, daily:this.daily, ach:this.ach, rewards:this.rewards, coll:this.coll, farm:this.farm, decor:this.decor};
+                return {v:SCHEMA_VERSION, e:this.e, te:this.te, l:this.l, s:this.s, as:this.as, c:this.cp.map(x=>({lv:x.lv, ch:x.ch})), cd:this.cd, bm:this.buyMode, sp:this.spoons.map(s=>({o:s.owned, eq:s.equipped})), shi:!!this.spoonHidden, hp:this.hats.map(h=>({o:h.owned, eq:h.equipped})), hh:!!this.hatHidden, lastSeen:this.lastSeen, tree:this.tree, daily:this.daily, ach:this.ach, rewards:this.rewards, coll:this.coll, farm:this.farm, decor:this.decor};
             },
             save() {
                 const data = this.getSaveData();
@@ -3397,6 +3450,12 @@
                         if (typeof item === 'boolean') { this.spoons[i].owned = item; }
                         else { this.spoons[i].owned = !!item.o; this.spoons[i].equipped = !!item.eq; }
                     });
+                    if (d.hp && Array.isArray(d.hp)) d.hp.forEach((item, i) => {
+                        if (!this.hats[i]) return;
+                        if (typeof item === 'boolean') { this.hats[i].owned = item; }
+                        else { this.hats[i].owned = !!item.o; this.hats[i].equipped = !!item.eq; }
+                    });
+                    this.hatHidden = !!d.hh;
                     if (d.eq !== undefined && typeof d.eq === 'string') {
                         const mig = { bone: 0, tentacle: 1, golden: 2 };
                         const idx = mig[d.eq];
@@ -3404,6 +3463,8 @@
                     }
                     const eq = this.spoons.filter(s => s.equipped);
                     if (eq.length > 1) { this.spoons.forEach(s => s.equipped = false); eq[0].equipped = true; }
+                    const eqH = this.hats.filter(h => h.equipped);
+                    if (eqH.length > 1) { this.hats.forEach(h => h.equipped = false); eqH[0].equipped = true; }
                     this.spoonHidden = !!d.shi;
                     this.lastSeen = Number.isFinite(d.lastSeen) ? d.lastSeen : 0;
                     if (d.tree && typeof d.tree === 'object') { this.treeDefs.forEach(def => { const v = d.tree[def.k]; if (Number.isFinite(v)) this.tree[def.k] = Math.min(def.mx, Math.max(0, Math.floor(v))); }); }
@@ -3425,9 +3486,9 @@
                 offline.evaluate();
                 quests.ensureDaily();
             },
-            calcBulkCost(c, n) { let total = 0, cost = c.cs; for (let i = 0; i < n; i++) { total += cost; cost = Math.floor(cost * 1.15); } return total; },
+            calcBulkCost(c, n) { let total = 0, cost = c.cs; const disc = this.hatCompanionDisc(); for (let i = 0; i < n; i++) { total += Math.floor(cost * disc); cost = Math.floor(cost * 1.15); } return total; },
             maxAffordableLevels(c, energy) {
-                if (energy < c.cs) return 0;
+                if (energy < Math.floor(c.cs * this.hatCompanionDisc())) return 0;
                 let lo = 0, hi = 1;
                 while (this.calcBulkCost(c, hi) <= energy) { hi *= 2; if (hi > 1e6) break; }
                 while (lo < hi) { const mid = Math.ceil((lo + hi + 1) / 2); if (this.calcBulkCost(c, mid) <= energy) lo = mid; else hi = mid - 1; }
@@ -3435,9 +3496,11 @@
             },
             cycleBuyMode() { this.buyMode = this.buyMode === 1 ? 10 : (this.buyMode === 10 ? 'max' : 1); this.updateBuyModeBtn(); this.render(); },
             getEquippedSpoon() { return this.spoons.find(s => s.equipped); },
+            getEquippedShopHat() { return this.hats.find(h => h.equipped); },
             getCps() {
                 let b = 0;
                 this.cp.forEach(c => { if (c.id !== 2) b += (c.lv * c.pw * (1 + this.s * 0.5) * this.champMult(c.ch) * this.milestoneMult(c.lv)); });
+                b *= this.hatHelperCpsMult();
                 let cps = b * (1 + (this.cp[2].lv * 0.04 * this.milestoneMult(this.cp[2].lv) * this.champMult(this.cp[2].lv ? this.cp[2].ch : 0)));
                 const eq = this.getEquippedSpoon();
                 if (eq && eq.id === 2) cps *= 2;
@@ -3483,6 +3546,11 @@
                 return base + bonus;
             },
             effSpoonCost(s) { return Math.floor(s.cost * this.treeSpoonDisc()); },
+            effHatCost(h) { return Math.floor(h.cost * this.treeSpoonDisc()); },
+            hatHelperCpsMult() { const eq = this.getEquippedShopHat(); return (eq && eq.id === 1) ? 1.20 : 1; },
+            hatCompanionDisc() { const eq = this.getEquippedShopHat(); return (eq && eq.id === 2) ? 0.90 : 1; },
+            hatDropLuckMult() { const eq = this.getEquippedShopHat(); return (eq && eq.id === 2) ? 1.15 : 1; },
+            hatFarmBonusRoll() { const eq = this.getEquippedShopHat(); return !!(eq && eq.id === 0 && Math.random() < 0.40); },
             addBuff(kind, mult, dur, labelKey) {
                 this._buffs = this._buffs.filter(b => b.kind !== kind);
                 this._buffs.push({ kind, mult, until: Date.now() + dur * 1000, labelKey });
@@ -3658,11 +3726,75 @@
                 });
                 this._spoonUiKey = this.spoonUiKey();
             },
+            hatUiKey() {
+                return this.hats.map(h => (h.owned ? 'o' : 'u') + (h.equipped ? 'e' : '-') + (h.equipped && this.hatHidden ? 'h' : 'v') + (this.e >= this.effHatCost(h) ? 'a' : 'l')).join('|');
+            },
+            buyHat(id) {
+                const h = this.hats.find(x => x.id === id);
+                if (!h || h.owned || this._hatAnimating) return;
+                const cost = this.effHatCost(h);
+                if (this.e < cost) return;
+                this.e -= cost;
+                h.owned = true;
+                try { collection.addOwnedCharm(h.skinId); } catch (e) {}
+                sound.play('prestige');
+                this.hats.forEach(x => x.equipped = false);
+                h.equipped = true;
+                this.hatHidden = false;
+                try { collection.applyEquippedVisual(); } catch (e) {}
+                this.save();
+                this._hatUiKey = '';
+                this.renderHats();
+            },
+            equipHat(id) {
+                const h = this.hats.find(x => x.id === id);
+                if (!h || !h.owned || h.equipped || this._hatAnimating) return;
+                this.hats.forEach(x => x.equipped = false);
+                h.equipped = true;
+                try { collection.applyEquippedVisual(); } catch (e) {}
+                this.save();
+                this._hatUiKey = '';
+                this.renderHats();
+            },
+            toggleHatHidden(id) {
+                const h = this.hats.find(x => x.id === id);
+                if (!h || !h.owned || !h.equipped) return;
+                this.hatHidden = !this.hatHidden;
+                try { collection.applyEquippedVisual(); } catch (e) {}
+                this.save();
+                this._hatUiKey = '';
+                this.renderHats();
+            },
+            renderHats() {
+                const alb = document.getElementById('hats-album'); if (!alb) return;
+                alb.innerHTML = '';
+                this.hats.forEach(h => {
+                    const card = document.createElement('div');
+                    card.className = 'spoon-card ' + h.rarity + (h.equipped ? ' equipped' : '');
+                    card.dataset.hatId = String(h.id);
+                    let actionHtml = '';
+                    const hc = this.effHatCost(h);
+                    if (h.equipped) {
+                        actionHtml = `<span class="spoon-equipped-badge">${t('hat_equipped')}</span>`;
+                        actionHtml += `<button class="shop-hide-toggle${this.hatHidden ? ' on' : ''}" type="button">${t(this.hatHidden ? 'hat_show' : 'hat_hide')}</button>`;
+                    } else if (h.owned) actionHtml = `<button class="spoon-btn equip" type="button">${t('hat_equip_btn')}</button>`;
+                    else if (this.e >= hc) actionHtml = `<button class="spoon-btn buy" type="button">${t('hat_buy_btn')}</button><div class="spoon-cost">${hc.toLocaleString()} EB</div>`;
+                    else actionHtml = `<button class="spoon-btn locked" type="button" disabled>${t('hat_buy_btn')}</button><div class="spoon-cost">${hc.toLocaleString()} EB</div>`;
+                    card.innerHTML = `<img src="${this.hatCardImg(h)}" class="spoon-card-img" alt="${t(h.cardKey)}"><span class="spoon-rarity ${h.rarity}">${t('rarity_' + h.rarity)}</span><div style="font-size:0.82rem;font-weight:bold;line-height:1.2">${t(h.cardKey)}</div><div style="font-size:0.68rem;color:#cbd5e1">${t(h.nameKey)}</div><div class="spoon-benefit">${t(h.bonusKey)}</div>${actionHtml}`;
+                    const btn = card.querySelector('.spoon-btn');
+                    if (btn && !btn.disabled) {
+                        if (h.owned && !h.equipped) btn.onclick = (e) => { e.stopPropagation(); this.equipHat(h.id); };
+                        else if (!h.owned && this.e >= this.effHatCost(h)) btn.onclick = (e) => { e.stopPropagation(); this.buyHat(h.id); };
+                    }
+                    alb.appendChild(card);
+                });
+                this._hatUiKey = this.hatUiKey();
+            },
             updateBuyModeBtn() { const b = this._el ? this._el('buy-mode-toggle') : document.getElementById('buy-mode-toggle'); if (!b) return; const txt = this.buyMode === 1 ? t('buy_x1') : (this.buyMode === 10 ? t('buy_x10') : t('buy_max')); if (b.innerText !== txt) b.innerText = txt; },
             cardPriceDisplay(c) {
                 const maxN = this.maxAffordableLevels(c, this.e);
                 const fmt = (n) => Math.floor(n).toLocaleString() + ' EB';
-                if (this.buyMode === 1) return { text: fmt(c.cs), grayed: maxN < 1, affordable: maxN >= 1 };
+                if (this.buyMode === 1) return { text: fmt(Math.floor(c.cs * this.hatCompanionDisc())), grayed: maxN < 1, affordable: maxN >= 1 };
                 if (this.buyMode === 10) {
                     if (maxN >= 1) return { text: fmt(this.calcBulkCost(c, Math.min(10, maxN))), grayed: false, affordable: true };
                     return { text: fmt(this.calcBulkCost(c, 10)), grayed: true, affordable: false };
@@ -3772,6 +3904,8 @@
                 });
                 const sk = this.spoonUiKey();
                 if (sk !== this._spoonUiKey) this.renderSpoons();
+                const hk = this.hatUiKey();
+                if (hk !== this._hatUiKey) this.renderHats();
                 this.renderBuffs();
                 ach.check();
                 quests.updateBadge();
@@ -4819,6 +4953,7 @@
                     cd.innerHTML = `<img src="${c.im}" class="comp-img" loading="lazy" decoding="async"><div style="flex:1"><b>${t(c.nk)} (${c.lv})</b><div style="font-size:0.7rem;color:#cbd5e1">${d}${angelText}${mileText}</div>${c.ch>0?`<span class="champ-banner">${t('champion_banner', { mult: this.champMult(c.ch) })}</span>`:''}<span class="card-price" style="color:${pd.grayed ? '#64748b' : '#fbbf24'};font-weight:bold;display:block;">${pd.text}</span></div>`; l.appendChild(cd);
                 });
                 this.renderSpoons();
+                this.renderHats();
             },
             floatNum(x, y, gain) {
                 if (this._floatNodes.length >= 8) { const old = this._floatNodes.shift(); if (old && old.parentNode) old.remove(); }
@@ -6343,7 +6478,9 @@
                 const plot = game.farm.plots[idx];
                 if (!plot || this.plotState(plot) !== 'ready') return;
                 const type = plot.type;
-                game.farm.stock[type] = (game.farm.stock[type] || 0) + 1;
+                let amt = 1;
+                try { if (game.hatFarmBonusRoll()) amt++; } catch (e) {}
+                game.farm.stock[type] = (game.farm.stock[type] || 0) + amt;
                 const replant = !!game.farm.autoReplant;
                 if (replant) { plot.readyAt = Date.now() + this.growMs(type); plot.watered = false; }
                 else plot.readyAt = 0;
@@ -6956,7 +7093,7 @@
             // Drop pool excludes EB shop spoons (those are album-only purchases).
             dropPool(rarity) {
                 let block = [];
-                try { block = game.shopSpoonSkinIds(); } catch (e) {}
+                try { block = game.shopExclusiveSkinIds(); } catch (e) {}
                 const shop = new Set(block);
                 return this.skinsOfRarity(rarity).filter(s => !shop.has(s.id));
             },
@@ -7218,6 +7355,7 @@
                 delete c.equipped;
                 c.equips = equips;
                 this.syncShopSpoons(c);
+                this.syncShopHats(c);
                 game.coll = c;
                 return c;
             },
@@ -7303,7 +7441,9 @@
                 if (game.p) return;
                 const c = this.ensureDay();
                 if (c.today >= this.DAILY_CAP) return;
-                c.acc += sec;
+                let accSec = sec;
+                try { accSec *= game.hatDropLuckMult(); } catch (e) {}
+                c.acc += accSec;
                 if (c.acc >= this.DROP_INTERVAL) { c.acc -= this.DROP_INTERVAL; this.grant(); }
             },
             grant(forcedRarity) {
@@ -7387,7 +7527,16 @@
                 // --- AYUDANTES (slots coco/bunny/pio/ivan/bongo) ---
                 try { this.applyHelperVisual(); } catch (e) {}
                 // --- GORRO DE CHEF (slot 'hat', best-effort) ---
-                try { this.applyHatVisual(eq.hat ? this.skinById(eq.hat) : null); } catch (e) {}
+                try {
+                    const collHat = eq.hat ? this.skinById(eq.hat) : null;
+                    if (collHat && collHat.img) {
+                        this.applyHatVisual(collHat);
+                    } else {
+                        const sh = game.getEquippedShopHat();
+                        const shopHat = (sh && sh.owned && !game.hatHidden) ? game.hatCatalog(sh) : null;
+                        this.applyHatVisual(shopHat && shopHat.img ? shopHat : null);
+                    }
+                } catch (e) {}
             },
             // Aplica la skin equipada de CADA slot de ayudante a su sprite (o el sprite por
             // defecto si el slot está vacío) y re-renderiza escena + tienda al instante.
@@ -7831,6 +7980,7 @@
                         if (typeof game !== 'undefined') {
                             shopReady = (game.cp || []).some(c => { try { return game.cardPriceDisplay(c).affordable; } catch (e) { return false; } });
                             if (!shopReady && game.spoons) shopReady = game.spoons.some(s => { try { return !s.owned && game.e >= game.effSpoonCost(s); } catch (e) { return false; } });
+                            if (!shopReady && game.hats) shopReady = game.hats.some(h => { try { return !h.owned && game.e >= game.effHatCost(h); } catch (e) { return false; } });
                         }
                     } catch (e) {}
                     try {
