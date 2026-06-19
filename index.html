@@ -2321,9 +2321,10 @@
             syncPlayback() {
                 const muted = (typeof sound !== 'undefined' && sound.muted);
                 const hidden = (typeof document !== 'undefined' && document.hidden);
+                const farmBg = (typeof farm !== 'undefined' && farm._bgSuppressed);
                 for (const id in this.tracks) {
                     const tr = this.tracks[id];
-                    if (tr.on && tr.avail && !muted && !hidden) {
+                    if (tr.on && tr.avail && !muted && !hidden && !farmBg) {
                         const a = this.ensureAudio(tr);
                         try { a.volume = this._effVol(tr); } catch (e) {}
                         try { const p = a.play(); if (p && p.catch) p.catch(() => {}); } catch (e) {}
@@ -2472,7 +2473,8 @@
             syncPlayback() {
                 const muted = (typeof sound !== 'undefined' && sound.muted);
                 const hidden = (typeof document !== 'undefined' && document.hidden);
-                if (this.on && this.avail && !muted && !hidden) {
+                const farmBg = (typeof farm !== 'undefined' && farm._bgSuppressed);
+                if (this.on && this.avail && !muted && !hidden && !farmBg) {
                     const a = this.ensureAudio();
                     try { a.volume = this._c(this.vol); } catch (e) {}
                     try { const p = a.play(); if (p && p.catch) p.catch(() => {}); } catch (e) {}
@@ -5840,6 +5842,12 @@
         const FARM_GLYPHS = { ink:'🦑', shrimp:'🦐', carrot:'🥕', lettuce:'🥬', corn:'🌽', yolk:'💛', honey:'🍯', berries:'🫐', banana:'🍌', coconut:'🥥' };
         const FARM_GROW_SEC = { ink:35, shrimp:35, carrot:40, lettuce:40, corn:50, yolk:50, honey:70, berries:70, banana:90, coconut:90 };
         const farm = {
+            _bgSuppressed: false,
+            _setBgSuppressed(on) {
+                this._bgSuppressed = !!on;
+                try { if (typeof ambient !== 'undefined' && ambient._inited) ambient.syncPlayback(); } catch (e) {}
+                try { if (typeof music !== 'undefined' && music._inited) music.syncPlayback(); } catch (e) {}
+            },
             starterAmount() { return game.FARM_STARTER_STOCK || 30; },
             freshSave() {
                 const n = this.starterAmount();
@@ -5953,12 +5961,12 @@
                 this.render();
                 const md = document.getElementById('farm-modal');
                 if (md) md.classList.add('open');
-                try { sound.playFarm('farmAbrir', 'bubble'); sound.farmAmbStart(); } catch (e) {}
+                try { this._setBgSuppressed(true); sound.playFarm('farmAbrir', 'bubble'); sound.farmAmbStart(); } catch (e) {}
             },
             close() {
                 const md = document.getElementById('farm-modal');
                 if (md) md.classList.remove('open');
-                try { sound.farmAmbStop(); } catch (e) {}
+                try { sound.farmAmbStop(); this._setBgSuppressed(false); } catch (e) {}
             },
             render() {
                 this.ensure();
