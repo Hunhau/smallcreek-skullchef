@@ -878,36 +878,24 @@
         .farm-stock-chip.bump { animation: farmStockBump 0.45s ease-out; }
         @keyframes farmStockBump { 0% { transform: scale(1); } 45% { transform: scale(1.14); border-color: #4ade80; color: #bbf7d0; } 100% { transform: scale(1); } }
         .farm-harvest-float { position: fixed; transform: translateX(-50%); color: #86efac; font-weight: bold; font-size: 0.9rem; text-shadow: 0 0 8px rgba(74,222,128,0.55); pointer-events: none; z-index: 6000; white-space: nowrap; animation: floatUp 900ms ease-out forwards; }
-        /* ===== DECORATIONS ===== */
-        #decor-layer { position: absolute; inset: 0; z-index: 5; pointer-events: none; overflow: hidden; }
-        body.decor-edit-mode #decor-layer { pointer-events: auto; }
-        body.decor-edit-mode #decor-edit-btn { border-color: var(--go) !important; box-shadow: 0 0 14px rgba(224,160,8,0.45); }
-        .decor-piece { position: absolute; pointer-events: none; user-select: none; filter: drop-shadow(0 6px 16px rgba(0,0,0,0.42)); transition: transform 0.15s, filter 0.15s; line-height: 1; transform-origin: center center; }
-        body.decor-edit-mode .decor-piece.decor-free { pointer-events: auto; cursor: grab; touch-action: none; min-width: 52px; min-height: 52px; display: flex; align-items: center; justify-content: center; outline: 2px dashed rgba(224,160,8,0.45); outline-offset: 6px; border-radius: 14px; }
-        body.decor-edit-mode .decor-piece.decor-free.dragging { cursor: grabbing; opacity: 0.88; outline-color: var(--go); filter: drop-shadow(0 8px 20px rgba(224,160,8,0.35)); }
-        /* Slot anchors tuned to #main-stage chef / cauldron layout (not random corners) */
-        .decor-slot-bg { left: 3%; top: 4%; font-size: clamp(64px, 13vw, 148px); opacity: 0.78; }
-        .decor-slot-window { right: 2%; top: 3%; left: auto; font-size: clamp(52px, 11vw, 128px); filter: drop-shadow(0 0 20px rgba(251,191,36,0.35)) drop-shadow(0 6px 16px rgba(0,0,0,0.42)); }
-        .decor-slot-pot { left: 54%; top: 66%; font-size: clamp(40px, 8.5vw, 96px); transform: translate(-50%,-50%); }
-        .decor-slot-table { left: 38%; bottom: 9%; top: auto; font-size: clamp(48px, 10vw, 112px); transform: translateX(-50%); opacity: 0.95; }
-        .decor-slot-hatAcc { left: 50.5%; top: 24%; transform: translate(-50%,-50%) rotate(-6deg); font-size: clamp(34px, 7vw, 76px); z-index: 7; }
-        .decor-slot-apron { left: 49%; top: 42%; transform: translate(-50%,-50%); font-size: clamp(38px, 7.5vw, 84px); z-index: 7; opacity: 0.96; }
-        .decor-item-palm { left: 1%; top: 2%; font-size: clamp(72px, 14vw, 160px); opacity: 0.82; }
-        .decor-item-sun { right: 1%; top: 1%; left: auto; font-size: clamp(56px, 12vw, 136px); }
-        .decor-item-shell { left: 56%; top: 64%; font-size: clamp(44px, 9vw, 100px); }
-        .decor-item-towel { left: 34%; bottom: 7%; font-size: clamp(52px, 10.5vw, 118px); }
-        .decor-item-shades { left: 50.5%; top: 23%; transform: translate(-50%,-50%) rotate(-10deg); font-size: clamp(36px, 7.2vw, 78px); }
-        .decor-item-apron { left: 49%; top: 41%; font-size: clamp(40px, 8vw, 88px); }
-        .decor-free-piece { font-size: clamp(40px, 8.5vw, 96px); transform: translate(-50%,-50%); }
-        .decor-free-star { font-size: clamp(44px, 9vw, 104px); }
-        .decor-free-wave { font-size: clamp(48px, 10vw, 112px); opacity: 0.92; }
-        .decor-palette { display: flex; flex-wrap: wrap; gap: 10px; margin: 10px 0; }
-        .decor-pick { width: 64px; height: 64px; border-radius: 14px; border: 2px solid var(--glass-bd); background: rgba(255,255,255,0.06); font-size: 1.85rem; cursor: pointer; display: flex; align-items: center; justify-content: center; touch-action: manipulation; transition: transform 0.12s, box-shadow 0.12s, border-color 0.12s; }
-        .decor-pick.sel { border-color: var(--go); border-width: 3px; transform: scale(1.05); box-shadow: 0 0 18px rgba(224,160,8,0.55); background: rgba(224,160,8,0.12); }
-        .decor-pick.locked { opacity: 0.35; cursor: not-allowed; filter: grayscale(0.6); }
-        .decor-slots-list { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; }
-        .decor-slot-row { display: flex; align-items: center; gap: 8px; padding: 8px 10px; border-radius: 10px; background: rgba(255,255,255,0.05); border: 1px solid var(--glass-bd); font-size: 0.82rem; }
-        .decor-slot-row button { flex: 0 0 auto; min-height: 44px; min-width: 44px; padding: 8px 12px; font-size: 0.72rem; }
+        /* ===== DECORATIONS (summer pilot: bg swap + chef accessories) ===== */
+        body.decor-bg-summer-fallback {
+            background: linear-gradient(180deg, #7dd3fc 0%, #38bdf8 16%, #bae6fd 28%, #fde68a 54%, #fbbf24 80%, #ea580c 100%) center/cover no-repeat !important;
+        }
+        #chef-decor-layer { position: absolute; inset: 0; pointer-events: none; z-index: 3; overflow: visible; }
+        .chef-decor-piece { position: absolute; pointer-events: none; user-select: none; line-height: 1; display: flex; align-items: center; justify-content: center; filter: drop-shadow(0 4px 12px rgba(0,0,0,0.45)); transform-origin: center center; }
+        .chef-decor-piece img { width: 100%; height: auto; display: block; pointer-events: none; }
+        .chef-decor-hat { left: 50%; top: 0.5%; width: 34%; transform: translateX(-50%) rotate(-7deg); font-size: clamp(48px, 31%, 128px); z-index: 2; }
+        .chef-decor-face { left: 50%; top: 16%; width: 24%; transform: translateX(-50%) rotate(-5deg); font-size: clamp(44px, 22%, 92px); z-index: 4; }
+        .decor-section-title { font-size: 0.76rem; text-transform: uppercase; letter-spacing: 0.07em; color: var(--go); margin: 12px 0 6px; font-weight: bold; }
+        .decor-hint { font-size: 0.72rem; opacity: 0.72; margin: 0 0 8px; line-height: 1.35; }
+        .decor-toggle-list { display: flex; flex-direction: column; gap: 8px; }
+        .decor-toggle-row { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 12px; background: rgba(255,255,255,0.05); border: 1px solid var(--glass-bd); font-size: 0.84rem; transition: border-color 0.15s, background 0.15s; }
+        .decor-toggle-row.equipped { border-color: var(--go); background: rgba(224,160,8,0.1); box-shadow: 0 0 12px rgba(224,160,8,0.22); }
+        .decor-toggle-row .decor-glyph { font-size: 1.75rem; flex: 0 0 auto; width: 2.2rem; text-align: center; }
+        .decor-toggle-row .decor-label { flex: 1; min-width: 0; }
+        .decor-toggle-row button { flex: 0 0 auto; min-height: 44px; padding: 8px 14px; font-size: 0.72rem; }
+        .decor-toggle-row.locked { opacity: 0.45; }
     </style>
 </head>
 <body>
@@ -984,7 +972,7 @@
         <button id="helpers-toggle" type="button" onclick="helpersBox.toggle()" aria-expanded="true" data-i18n-title="helpers_toggle_title" title="Helpers">👥 <span class="helpers-chevron">▾</span></button>
         <div id="companion-column"></div>
         <div id="altar-panel"><div id="btn-prestige" onclick="game.pres()"><div class="prestige-label" id="pres-txt" data-i18n="locked">LOCKED</div></div><div id="pres-stat">Lv. 0 (+0%)</div></div>
-        <section id="main-stage" onpointerdown="game.click(event)"><div id="decor-layer" aria-hidden="true"></div><canvas id="particle-canvas"></canvas><div id="sticky-center"><div id="chef-rig"><img id="asset-chef" src="assets/img/chef.png" decoding="async"></div><img id="asset-chef-hand" src="assets/img/chef-hand.png" decoding="async"><img id="cauldron-legs" src="assets/img/cauldron-legs.png" alt="" decoding="async"><img id="asset-soup" src="assets/img/soup.png" decoding="async"><div id="soup-liquid"><img id="asset-soup-liquid" src="assets/img/soup.png" decoding="async"><div id="soup-fx-burst" aria-hidden="true"></div></div><div id="soup-steam"><div class="steam-wisp"></div><div class="steam-wisp"></div><div class="steam-wisp"></div><div class="steam-wisp"></div><div class="steam-wisp"></div><div class="steam-wisp"></div></div><div id="spoon-rig"><img id="asset-spoon" src="assets/img/spoon.png" decoding="async"></div></div><div id="soup-ripples"></div></section>
+        <section id="main-stage" onpointerdown="game.click(event)"><canvas id="particle-canvas"></canvas><div id="sticky-center"><div id="chef-rig"><div id="chef-decor-layer" aria-hidden="true"></div><img id="asset-chef" src="assets/img/chef.png" decoding="async"></div><img id="asset-chef-hand" src="assets/img/chef-hand.png" decoding="async"><img id="cauldron-legs" src="assets/img/cauldron-legs.png" alt="" decoding="async"><img id="asset-soup" src="assets/img/soup.png" decoding="async"><div id="soup-liquid"><img id="asset-soup-liquid" src="assets/img/soup.png" decoding="async"><div id="soup-fx-burst" aria-hidden="true"></div></div><div id="soup-steam"><div class="steam-wisp"></div><div class="steam-wisp"></div><div class="steam-wisp"></div><div class="steam-wisp"></div><div class="steam-wisp"></div><div class="steam-wisp"></div></div><div id="spoon-rig"><img id="asset-spoon" src="assets/img/spoon.png" decoding="async"></div></div><div id="soup-ripples"></div></section>
         <aside id="side-shop"><h1 data-i18n="shop" style="text-align:center; font-size:1.3rem;">SHOP</h1><div id="shop-companions-panel"><div id="buy-mode-toggle" onclick="game.cycleBuyMode()" data-i18n="buy_x1">Buy x1</div><div id="prix-btn" style="padding:12px; background:linear-gradient(135deg,#7e22ce,#3b82f6); border-radius:10px; text-align:center; font-weight:bold; border:2px solid #fff; margin-bottom:15px; display:none; cursor:pointer;" onclick="prix.open()" data-i18n="enter_prix">Enter Grand Prix</div><div id="companion-list"></div><div id="spoons-album-section"><div id="spoons-album-title" data-i18n="spoons_album_title">SACRED SPOONS ALBUM</div><div id="spoons-album"></div></div></div></aside>
     </div>
     <div id="audio-ctrl"><button id="audio-mute" type="button" onclick="sound.toggleMute()" data-i18n-title="audio_mute_title" title="Mute / Unmute sound">🔊</button><input id="audio-vol" type="range" min="0" max="100" value="100" oninput="sound.setVolume(this.value/100)" data-i18n-title="audio_vol_title" title="Volume"></div>
@@ -1033,14 +1021,13 @@
     </div></div>
     <div id="decor-modal" class="gx-modal"><div class="gx-box" style="max-width:520px">
         <h2 data-i18n="decor_title">🏖️ Decorate</h2>
-        <p style="font-size:0.82rem; opacity:0.85; margin:4px 0 8px" data-i18n="decor_sub">Place seasonal flair on your kitchen. Gameplay clicks pass through unless editing.</p>
-        <div id="decor-palette" class="decor-palette"></div>
-        <div id="decor-slots" class="decor-slots-list"></div>
-        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">
-            <button class="gx-btn sm" type="button" id="decor-edit-btn" onclick="decor.toggleEdit()" data-i18n="decor_edit">✋ Edit on stage</button>
-            <button class="gx-btn sm" type="button" onclick="decor.clearFree()" data-i18n="decor_clear_free">Clear free spots</button>
-        </div>
-        <button class="gx-btn" style="margin-top:12px; min-height:44px" onclick="decor.close()" data-i18n="close">Close</button>
+        <p style="font-size:0.82rem; opacity:0.85; margin:4px 0 6px" data-i18n="decor_sub">Swap the kitchen backdrop and dress up the chef for summer.</p>
+        <p class="decor-hint" data-i18n="decor_bg_hint">Beach artwork: drop your image at assets/img/bg_summer_beach.jpg (gradient shows until then).</p>
+        <div class="decor-section-title" data-i18n="decor_section_bg">Background</div>
+        <div id="decor-bg-options" class="decor-toggle-list"></div>
+        <div class="decor-section-title" data-i18n="decor_section_chef">Chef</div>
+        <div id="decor-chef-options" class="decor-toggle-list"></div>
+        <button class="gx-btn" style="margin-top:14px; min-height:44px" onclick="decor.close()" data-i18n="close">Close</button>
     </div></div>
     <div id="pause-modal" class="gx-modal"><div class="gx-box" id="pause-box">
         <h2 id="pause-heading" data-i18n="pause_title">Paused</h2>
@@ -1767,8 +1754,7 @@
                 dev_test_section:"Summon FX test (dev)", dev_test_helper:"Helper slot",
                 dev_test_feed:"Test feed (mouth · lv4)", dev_test_rain:"Test extra rain (lv10)", dev_test_both:"Test both (lv20)",
                 farm_btn:"🌱 Cultivos", farm_title:"🌱 Ingredient Farm", farm_sub:"Grow ingredients for helper throws. Soup stirring always works!", farm_auto_replant:"Auto-replant after harvest", farm_plant:"Plant", farm_harvest:"Tap!", farm_water:"Water", farm_watered:"Watered", farm_empty_throw:"Out of {glyph}! Helpers need ingredients — open 🌱 Cultivos!", farm_prestige_reset:"Your pantry restarts fresh for the new kitchen! 🌱", farm_dev_fill:"Ingredient stock filled (dev)",
-                decor_btn:"🏖️ Decorar", decor_title:"🏖️ Decorate", decor_sub:"Place seasonal flair on your kitchen. Gameplay clicks pass through unless editing.", decor_edit:"✋ Edit on stage", decor_edit_on:"✋ Editing… (close modal to play)", decor_clear_free:"Clear free spots", decor_slot_bg:"Background", decor_slot_window:"Window", decor_slot_pot:"Pot rim", decor_slot_table:"Table", decor_slot_hatAcc:"Chef hat", decor_slot_apron:"Apron", decor_place:"Place here", decor_none:"None", decor_locked:"Seasonal pack locked", decor_dev_unlock:"Unlock all decorations (dev)",
-                decor_summer_palm:"Palm tree", decor_summer_sun:"Sunshine", decor_summer_shell:"Shell", decor_summer_towel:"Beach towel", decor_summer_shades:"Sunglasses", decor_summer_apron:"Beach apron", decor_summer_star:"Starfish", decor_summer_wave:"Wave",
+                decor_btn:"🏖️ Decorar", decor_title:"🏖️ Decorate", decor_sub:"Swap the kitchen backdrop and dress up the chef for summer.", decor_bg_hint:"Beach artwork: drop your image at assets/img/bg_summer_beach.jpg (gradient shows until then).", decor_section_bg:"Background", decor_section_chef:"Chef", decor_bg_default:"Kitchen (default)", decor_summer_beach:"Beach (background)", decor_summer_straw_hat:"Straw hat", decor_summer_shades:"Sunglasses", decor_equip:"Equip", decor_unequip:"Remove", decor_equipped:"Equipped", decor_locked:"Seasonal pack locked", decor_dev_unlock:"Unlock all decorations (dev)",
                 creator_grant_all:"Unlock all charms", creator_grant_all_ok:"All catalog charms unlocked ({n})",
                 creator_reset_spoons:"Reset album spoons", creator_reset_spoons_ok:"Album spoons reset"
                 /* ===== END ===== */
@@ -1875,8 +1861,7 @@
                 dev_test_section:"Prueba FX invocación (dev)", dev_test_helper:"Ranura ayudante",
                 dev_test_feed:"Probar comida (boca · nv4)", dev_test_rain:"Probar lluvia extra (nv10)", dev_test_both:"Probar ambos (nv20)",
                 farm_btn:"🌱 Cultivos", farm_title:"🌱 Cultivos de Ingredientes", farm_sub:"Cultiva ingredientes para los lanzamientos de ayudantes. ¡Remover la sopa siempre funciona!", farm_auto_replant:"Replantar automáticamente al cosechar", farm_plant:"Plantar", farm_harvest:"¡Toca!", farm_water:"Regar", farm_watered:"Regado", farm_empty_throw:"¡Sin {glyph}! Los ayudantes necesitan ingredientes — abre 🌱 Cultivos", farm_prestige_reset:"¡Tu despensa empieza de cero en la nueva cocina! 🌱", farm_dev_fill:"Stock de ingredientes lleno (dev)",
-                decor_btn:"🏖️ Decorar", decor_title:"🏖️ Decorar", decor_sub:"Coloca adornos de temporada en tu cocina. Los clics pasan a través salvo en modo edición.", decor_edit:"✋ Editar en escena", decor_edit_on:"✋ Editando… (cierra para jugar)", decor_clear_free:"Limpiar libres", decor_slot_bg:"Fondo", decor_slot_window:"Ventana", decor_slot_pot:"Borde olla", decor_slot_table:"Mesa", decor_slot_hatAcc:"Gorro chef", decor_slot_apron:"Delantal", decor_place:"Colocar aquí", decor_none:"Ninguno", decor_locked:"Pack estacional bloqueado", decor_dev_unlock:"Desbloquear adornos (dev)",
-                decor_summer_palm:"Palmera", decor_summer_sun:"Sol", decor_summer_shell:"Concha", decor_summer_towel:"Toalla playa", decor_summer_shades:"Gafas de sol", decor_summer_apron:"Delantal playa", decor_summer_star:"Estrella de mar", decor_summer_wave:"Ola",
+                decor_btn:"🏖️ Decorar", decor_title:"🏖️ Decorar", decor_sub:"Cambia el fondo de la cocina y viste al chef para el verano.", decor_bg_hint:"Arte de playa: coloca tu imagen en assets/img/bg_summer_beach.jpg (gradiente hasta entonces).", decor_section_bg:"Fondo", decor_section_chef:"Chef", decor_bg_default:"Cocina (normal)", decor_summer_beach:"Playa (fondo)", decor_summer_straw_hat:"Sombrero de paja", decor_summer_shades:"Gafas de sol", decor_equip:"Equipar", decor_unequip:"Quitar", decor_equipped:"Equipado", decor_locked:"Pack estacional bloqueado", decor_dev_unlock:"Desbloquear adornos (dev)",
                 creator_grant_all:"Desbloquear todos los amuletos", creator_grant_all_ok:"Todos los amuletos del catálogo ({n})",
                 creator_reset_spoons:"Reiniciar cucharas del álbum", creator_reset_spoons_ok:"Cucharas del álbum reiniciadas"
                 /* ===== END ===== */
@@ -2871,7 +2856,7 @@
         // === Versionado del esquema de guardado ===
         // Sube este número cada vez que cambie la forma del save. Cada incremento debe
         // tener su paso de migración en SAVE_MIGRATIONS (clave = versión de ORIGEN).
-        const SCHEMA_VERSION = 26;
+        const SCHEMA_VERSION = 27;
         const SAVE_MIGRATIONS = {
             // v16 -> v17: el campo `as` (Angel Shards acumulados) pasó a guardarse aparte de `s`.
             16: (s) => {
@@ -2963,17 +2948,30 @@
                     if (!Array.isArray(s.farm.plots)) s.farm.plots = types.map(id => ({ type: id, readyAt: 0 }));
                     if (s.farm.autoReplant == null) s.farm.autoReplant = true;
                 }
-                if (!s.decor || typeof s.decor !== 'object') s.decor = { slots: {}, free: [], owned: [] };
+                if (!s.decor || typeof s.decor !== 'object') s.decor = { slots: {}, owned: [] };
                 else {
                     if (!s.decor.slots || typeof s.decor.slots !== 'object') s.decor.slots = {};
-                    if (!Array.isArray(s.decor.free)) s.decor.free = [];
                     if (!Array.isArray(s.decor.owned)) s.decor.owned = [];
                 }
                 s.v = 26;
                 return s;
+            },
+            // v26 -> v27: summer decor pilot — bg swap + chef hat/face (drop tiny stage emojis).
+            26: (s) => {
+                if (!s.decor || typeof s.decor !== 'object') s.decor = { slots: {}, owned: [] };
+                const old = s.decor.slots && typeof s.decor.slots === 'object' ? s.decor.slots : {};
+                const slots = { background: null, chefHat: null, chefFace: null };
+                if (old.hatAcc === 'summer_shades' || old.chefFace === 'summer_shades') slots.chefFace = 'summer_shades';
+                if (old.background === 'summer_beach' || s.decor.equippedBg === 'summer_beach') slots.background = 'summer_beach';
+                if (!Array.isArray(s.decor.owned)) s.decor.owned = [];
+                delete s.decor.free;
+                delete s.decor.equippedBg;
+                s.decor.slots = slots;
+                s.v = 27;
+                return s;
             }
-            // FUTURO: para añadir v26 -> v27 solo añade aquí:
-            //   26: (s) => { /* transforma s */ s.v = 27; return s; },
+            // FUTURO: para añadir v27 -> v28 solo añade aquí:
+            //   27: (s) => { /* transforma s */ s.v = 28; return s; },
             // y sube SCHEMA_VERSION. No borres pasos antiguos.
         };
         // Transforma un save antiguo al esquema actual de forma incremental. Nunca lanza:
@@ -5862,7 +5860,153 @@
         const FARM_GLYPHS = { ink:'🦑', shrimp:'🦐', carrot:'🥕', lettuce:'🥬', corn:'🌽', yolk:'💛', honey:'🍯', berries:'🫐', banana:'🍌', coconut:'🥥' };
         const FARM_GROW_SEC = { ink:35, shrimp:35, carrot:40, lettuce:40, corn:50, yolk:50, honey:70, berries:70, banana:90, coconut:90 };
         const FARM_WATER_BOOST = 0.2;
-        const DECOR_FREE_BOUNDS = { minX: 0.08, minY: 0.14, maxX: 0.92, maxY: 0.86 };
+        const DECOR_BG_DEFAULT = 'assets/img/bg.jpg';
+        const DECOR_BG_SUMMER = 'assets/img/bg_summer_beach.jpg';
+        const DECOR_CHEF_SLOTS = ['chefHat', 'chefFace'];
+        const DECOR_ITEMS = [
+            { id: 'summer_beach', kind: 'background', pack: 'summer', preview: '🏖️', nameKey: 'decor_summer_beach', bgPath: DECOR_BG_SUMMER },
+            { id: 'summer_straw_hat', kind: 'chefHat', pack: 'summer', glyph: '👒', nameKey: 'decor_summer_straw_hat', chefClass: 'chef-decor-hat' },
+            { id: 'summer_shades', kind: 'chefFace', pack: 'summer', glyph: '🕶️', nameKey: 'decor_summer_shades', chefClass: 'chef-decor-face' }
+        ];
+        const decor = {
+            _bgSummerOk: null,
+            itemById(id) { return DECOR_ITEMS.find(x => x.id === id) || null; },
+            isSummerLive() {
+                try { return typeof events !== 'undefined' && events.getActive().some(ev => ev.id === 'summer'); } catch (e) { return false; }
+            },
+            ensure() {
+                if (!game.decor || typeof game.decor !== 'object') game.decor = { slots: {}, owned: [] };
+                if (!game.decor.slots || typeof game.decor.slots !== 'object') game.decor.slots = {};
+                if (!Array.isArray(game.decor.owned)) game.decor.owned = [];
+                DECOR_CHEF_SLOTS.forEach(k => { if (game.decor.slots[k] == null) game.decor.slots[k] = null; });
+                if (game.decor.slots.background == null && game.decor.equippedBg === 'summer_beach') {
+                    game.decor.slots.background = 'summer_beach';
+                    delete game.decor.equippedBg;
+                }
+                if (this.isSummerLive() || creator.isDev()) {
+                    DECOR_ITEMS.forEach(it => {
+                        if (it.pack === 'summer' && game.decor.owned.indexOf(it.id) < 0) game.decor.owned.push(it.id);
+                    });
+                }
+            },
+            isUnlocked(id) {
+                this.ensure();
+                if (creator.isDev()) return true;
+                const it = this.itemById(id);
+                if (!it) return false;
+                if (it.pack === 'summer' && this.isSummerLive()) return true;
+                return game.decor.owned.indexOf(id) >= 0;
+            },
+            probeSummerBg() {
+                if (this._bgSummerOk != null) return Promise.resolve(this._bgSummerOk);
+                return new Promise(resolve => {
+                    const img = new Image();
+                    img.onload = () => { this._bgSummerOk = true; resolve(true); };
+                    img.onerror = () => { this._bgSummerOk = false; resolve(false); };
+                    img.src = DECOR_BG_SUMMER;
+                });
+            },
+            open() { this.render(); const md = document.getElementById('decor-modal'); if (md) md.classList.add('open'); },
+            close() { const md = document.getElementById('decor-modal'); if (md) md.classList.remove('open'); },
+            setBackground(id) {
+                this.ensure();
+                if (id && !this.isUnlocked(id)) { try { gx.toast(t('decor_locked')); } catch (e) {} return; }
+                game.decor.slots.background = id || null;
+                game.save(); this.applyVisual(); this.render();
+            },
+            toggleChefSlot(slotKey, itemId) {
+                if (!DECOR_CHEF_SLOTS.includes(slotKey)) return;
+                if (!this.isUnlocked(itemId)) { try { gx.toast(t('decor_locked')); } catch (e) {} return; }
+                this.ensure();
+                const cur = game.decor.slots[slotKey];
+                game.decor.slots[slotKey] = (cur === itemId) ? null : itemId;
+                game.save(); this.applyVisual(); this.render();
+            },
+            applyBackground() {
+                this.ensure();
+                const bgId = game.decor.slots.background;
+                const useSummer = bgId === 'summer_beach';
+                document.body.classList.remove('decor-bg-summer-fallback');
+                if (!useSummer) {
+                    document.body.style.setProperty('background', `url('${DECOR_BG_DEFAULT}') center/cover no-repeat`, 'important');
+                    return;
+                }
+                this.probeSummerBg().then(ok => {
+                    if (game.decor.slots.background !== 'summer_beach') return;
+                    if (ok) {
+                        document.body.classList.remove('decor-bg-summer-fallback');
+                        document.body.style.setProperty('background', `url('${DECOR_BG_SUMMER}') center/cover no-repeat`, 'important');
+                    } else {
+                        document.body.style.removeProperty('background');
+                        document.body.classList.add('decor-bg-summer-fallback');
+                    }
+                });
+            },
+            applyChefDecor() {
+                this.ensure();
+                const layer = document.getElementById('chef-decor-layer');
+                if (!layer) return;
+                layer.innerHTML = '';
+                DECOR_CHEF_SLOTS.forEach(slotKey => {
+                    const decId = game.decor.slots[slotKey];
+                    if (!decId) return;
+                    const it = this.itemById(decId);
+                    if (!it || !it.chefClass) return;
+                    const el = document.createElement('div');
+                    el.className = 'chef-decor-piece ' + it.chefClass;
+                    el.dataset.decorId = decId;
+                    if (it.img) {
+                        const img = document.createElement('img');
+                        img.src = it.img;
+                        img.alt = '';
+                        img.decoding = 'async';
+                        el.appendChild(img);
+                    } else {
+                        el.textContent = it.glyph || '';
+                    }
+                    layer.appendChild(el);
+                });
+            },
+            applyVisual() {
+                this.applyBackground();
+                this.applyChefDecor();
+            },
+            renderToggleRow(glyph, label, equipped, locked, btnLabel, onclick) {
+                const lockCls = locked ? ' locked' : '';
+                const eqCls = equipped ? ' equipped' : '';
+                const dis = locked ? ' disabled' : '';
+                return `<div class="decor-toggle-row${eqCls}${lockCls}"><span class="decor-glyph">${glyph}</span><span class="decor-label">${label}</span><button class="gx-btn sm" type="button"${dis} onclick="${onclick}">${btnLabel}</button></div>`;
+            },
+            render() {
+                this.ensure();
+                const bgEl = document.getElementById('decor-bg-options');
+                const chefEl = document.getElementById('decor-chef-options');
+                if (bgEl) {
+                    const curBg = game.decor.slots.background;
+                    const beachEq = curBg === 'summer_beach';
+                    const beachOk = this.isUnlocked('summer_beach');
+                    bgEl.innerHTML = this.renderToggleRow('🏠', t('decor_bg_default'), !curBg, false, !curBg ? t('decor_equipped') : t('decor_equip'), 'decor.setBackground(null)')
+                        + this.renderToggleRow('🏖️', t('decor_summer_beach'), beachEq, !beachOk, beachEq ? t('decor_unequip') : t('decor_equip'), beachEq ? 'decor.setBackground(null)' : "decor.setBackground('summer_beach')");
+                }
+                if (chefEl) {
+                    chefEl.innerHTML = DECOR_ITEMS.filter(it => DECOR_CHEF_SLOTS.includes(it.kind)).map(it => {
+                        const eq = game.decor.slots[it.kind] === it.id;
+                        const ok = this.isUnlocked(it.id);
+                        const btn = eq ? t('decor_unequip') : t('decor_equip');
+                        const action = `decor.toggleChefSlot('${it.kind}','${it.id}')`;
+                        return this.renderToggleRow(it.glyph || '✨', t(it.nameKey), eq, !ok, btn, action);
+                    }).join('');
+                }
+                this.applyVisual();
+            },
+            devUnlockAll() {
+                if (!creator.isDev()) return;
+                this.ensure();
+                DECOR_ITEMS.forEach(it => { if (game.decor.owned.indexOf(it.id) < 0) game.decor.owned.push(it.id); });
+                game.save(); this.render();
+                try { gx.toast(t('decor_dev_unlock')); } catch (e) {}
+            }
+        };
         const farm = {
             _bgSuppressed: false,
             _plotClickBound: false,
@@ -6129,204 +6273,6 @@
                 FARM_TYPE_IDS.forEach(id => { game.farm.stock[id] = 999; });
                 game.save(); this.render(); this.updateBadge();
                 try { gx.toast(t('farm_dev_fill')); } catch (e) {}
-            }
-        };
-        const DECOR_ITEMS = [
-            { id: 'summer_palm', pack: 'summer', slot: 'bg', glyph: '🌴', nameKey: 'decor_summer_palm', slotClass: 'decor-slot-bg decor-item-palm' },
-            { id: 'summer_sun', pack: 'summer', slot: 'window', glyph: '☀️', nameKey: 'decor_summer_sun', slotClass: 'decor-slot-window decor-item-sun' },
-            { id: 'summer_shell', pack: 'summer', slot: 'pot', glyph: '🐚', nameKey: 'decor_summer_shell', slotClass: 'decor-slot-pot decor-item-shell' },
-            { id: 'summer_towel', pack: 'summer', slot: 'table', glyph: '🏖️', nameKey: 'decor_summer_towel', slotClass: 'decor-slot-table decor-item-towel' },
-            { id: 'summer_shades', pack: 'summer', slot: 'hatAcc', glyph: '😎', nameKey: 'decor_summer_shades', slotClass: 'decor-slot-hatAcc decor-item-shades' },
-            { id: 'summer_apron', pack: 'summer', slot: 'apron', glyph: '🩳', nameKey: 'decor_summer_apron', slotClass: 'decor-slot-apron decor-item-apron' },
-            { id: 'summer_star', pack: 'summer', slot: 'free', glyph: '⭐', nameKey: 'decor_summer_star', freeClass: 'decor-free-star' },
-            { id: 'summer_wave', pack: 'summer', slot: 'free', glyph: '🌊', nameKey: 'decor_summer_wave', freeClass: 'decor-free-wave' }
-        ];
-        const DECOR_SLOT_IDS = ['bg','window','pot','table','hatAcc','apron'];
-        const DECOR_SLOT_LABELS = { bg:'decor_slot_bg', window:'decor_slot_window', pot:'decor_slot_pot', table:'decor_slot_table', hatAcc:'decor_slot_hatAcc', apron:'decor_slot_apron' };
-        const decor = {
-            editMode: false,
-            selectedId: null,
-            _drag: null,
-            itemById(id) { return DECOR_ITEMS.find(x => x.id === id) || null; },
-            clampFreePos(x, y) {
-                const b = DECOR_FREE_BOUNDS;
-                return {
-                    x: Math.min(b.maxX, Math.max(b.minX, x)),
-                    y: Math.min(b.maxY, Math.max(b.minY, y))
-                };
-            },
-            isSummerLive() {
-                try { return typeof events !== 'undefined' && events.getActive().some(ev => ev.id === 'summer'); } catch (e) { return false; }
-            },
-            ensure() {
-                if (!game.decor || typeof game.decor !== 'object') game.decor = { slots: {}, free: [], owned: [] };
-                if (!game.decor.slots || typeof game.decor.slots !== 'object') game.decor.slots = {};
-                if (!Array.isArray(game.decor.free)) game.decor.free = [];
-                if (!Array.isArray(game.decor.owned)) game.decor.owned = [];
-                if (this.isSummerLive() || creator.isDev()) {
-                    DECOR_ITEMS.forEach(it => {
-                        if (it.pack === 'summer' && game.decor.owned.indexOf(it.id) < 0) game.decor.owned.push(it.id);
-                    });
-                }
-            },
-            isUnlocked(id) {
-                this.ensure();
-                if (creator.isDev()) return true;
-                const it = this.itemById(id);
-                if (!it) return false;
-                if (it.pack === 'summer' && this.isSummerLive()) return true;
-                return game.decor.owned.indexOf(id) >= 0;
-            },
-            open() { this.render(); const md = document.getElementById('decor-modal'); if (md) md.classList.add('open'); },
-            close() { this.setEditMode(false); const md = document.getElementById('decor-modal'); if (md) md.classList.remove('open'); },
-            setEditMode(on) {
-                this.editMode = !!on;
-                document.body.classList.toggle('decor-edit-mode', this.editMode);
-                const btn = document.getElementById('decor-edit-btn');
-                if (btn) btn.textContent = t(this.editMode ? 'decor_edit_on' : 'decor_edit');
-            },
-            toggleEdit() { this.setEditMode(!this.editMode); },
-            selectItem(id) {
-                if (!this.isUnlocked(id)) { try { gx.toast(t('decor_locked')); } catch (e) {} return; }
-                this.selectedId = (this.selectedId === id) ? null : id;
-                this.render();
-            },
-            placeSlot(slotId) {
-                if (!this.selectedId) return;
-                if (!this.isUnlocked(this.selectedId)) return;
-                this.ensure();
-                game.decor.slots[slotId] = this.selectedId;
-                game.save(); this.applyVisual(); this.render();
-            },
-            clearSlot(slotId) {
-                this.ensure();
-                delete game.decor.slots[slotId];
-                game.save(); this.applyVisual(); this.render();
-            },
-            clearFree() {
-                this.ensure();
-                game.decor.free = [];
-                game.save(); this.applyVisual(); this.render();
-            },
-            addFreeDecor(id, x, y) {
-                this.ensure();
-                if (game.decor.free.length >= 3) game.decor.free.shift();
-                game.decor.free.push({ id, x, y });
-                game.save(); this.applyVisual();
-            },
-            applyVisual() {
-                this.ensure();
-                const layer = document.getElementById('decor-layer');
-                if (!layer) return;
-                layer.innerHTML = '';
-                const self = this;
-                let freeClamped = false;
-                DECOR_SLOT_IDS.forEach(slotId => {
-                    const decId = game.decor.slots[slotId];
-                    if (!decId) return;
-                    const it = self.itemById(decId);
-                    if (!it) return;
-                    const el = document.createElement('div');
-                    el.className = 'decor-piece ' + (it.slotClass || '');
-                    el.textContent = it.glyph;
-                    el.dataset.decorId = decId;
-                    layer.appendChild(el);
-                });
-                game.decor.free.forEach((f, idx) => {
-                    const it = self.itemById(f.id);
-                    if (!it) return;
-                    const pos = self.clampFreePos(f.x, f.y);
-                    if (pos.x !== f.x || pos.y !== f.y) { f.x = pos.x; f.y = pos.y; freeClamped = true; }
-                    const el = document.createElement('div');
-                    el.className = 'decor-piece decor-free decor-free-piece' + (it.freeClass ? (' ' + it.freeClass) : '');
-                    el.textContent = it.glyph;
-                    el.style.left = (f.x * 100) + '%';
-                    el.style.top = (f.y * 100) + '%';
-                    el.dataset.freeIdx = String(idx);
-                    if (self.editMode) {
-                        el.addEventListener('pointerdown', (ev) => {
-                            ev.preventDefault(); ev.stopPropagation();
-                            const stage = document.getElementById('main-stage');
-                            if (!stage) return;
-                            const rect = stage.getBoundingClientRect();
-                            self._drag = { idx, el, rect, pid: ev.pointerId };
-                            el.classList.add('dragging');
-                            try { el.setPointerCapture(ev.pointerId); } catch (e) {}
-                        });
-                        el.addEventListener('pointermove', (ev) => {
-                            if (!self._drag || self._drag.idx !== idx) return;
-                            ev.preventDefault(); ev.stopPropagation();
-                            const d = self._drag;
-                            const rawX = (ev.clientX - d.rect.left) / d.rect.width;
-                            const rawY = (ev.clientY - d.rect.top) / d.rect.height;
-                            const p = self.clampFreePos(rawX, rawY);
-                            d.el.style.left = (p.x * 100) + '%';
-                            d.el.style.top = (p.y * 100) + '%';
-                            game.decor.free[idx].x = p.x;
-                            game.decor.free[idx].y = p.y;
-                        });
-                        el.addEventListener('pointerup', (ev) => {
-                            if (!self._drag || self._drag.idx !== idx) return;
-                            ev.preventDefault(); ev.stopPropagation();
-                            el.classList.remove('dragging');
-                            self._drag = null;
-                            game.save();
-                        });
-                    }
-                    layer.appendChild(el);
-                });
-                if (this.editMode && this.selectedId) {
-                    const stage = document.getElementById('main-stage');
-                    if (stage && !stage.dataset.decorTap) {
-                        stage.dataset.decorTap = '1';
-                        stage.addEventListener('pointerdown', (ev) => {
-                            if (!self.editMode || !self.selectedId) return;
-                            if (ev.target.closest('#decor-layer .decor-free')) return;
-                            const rect = stage.getBoundingClientRect();
-                            const rawX = (ev.clientX - rect.left) / rect.width;
-                            const rawY = (ev.clientY - rect.top) / rect.height;
-                            const p = self.clampFreePos(rawX, rawY);
-                            const it = self.itemById(self.selectedId);
-                            if (it && it.slot === 'free') {
-                                self.addFreeDecor(self.selectedId, p.x, p.y);
-                                self.render();
-                            }
-                        }, true);
-                    }
-                }
-                if (freeClamped) game.save();
-            },
-            render() {
-                this.ensure();
-                const pal = document.getElementById('decor-palette');
-                const slots = document.getElementById('decor-slots');
-                if (pal) {
-                    pal.innerHTML = DECOR_ITEMS.map(it => {
-                        const ok = this.isUnlocked(it.id);
-                        const sel = this.selectedId === it.id ? ' sel' : '';
-                        const lock = ok ? '' : ' locked';
-                        return `<button type="button" class="decor-pick${sel}${lock}" title="${t(it.nameKey)}" onclick="decor.selectItem('${it.id}')">${it.glyph}</button>`;
-                    }).join('');
-                }
-                if (slots) {
-                    slots.innerHTML = DECOR_SLOT_IDS.map(slotId => {
-                        const cur = game.decor.slots[slotId];
-                        const curIt = cur ? this.itemById(cur) : null;
-                        const label = t(DECOR_SLOT_LABELS[slotId] || slotId);
-                        const shown = curIt ? (curIt.glyph + ' ' + t(curIt.nameKey)) : t('decor_none');
-                        return `<div class="decor-slot-row"><span style="flex:1">${label}: <b>${shown}</b></span>`
-                            + `<button class="gx-btn sm" type="button" ${this.selectedId ? '' : 'disabled'} onclick="decor.placeSlot('${slotId}')">${t('decor_place')}</button>`
-                            + `<button class="gx-btn sm" type="button" onclick="decor.clearSlot('${slotId}')">✕</button></div>`;
-                    }).join('');
-                }
-                this.applyVisual();
-            },
-            devUnlockAll() {
-                if (!creator.isDev()) return;
-                this.ensure();
-                DECOR_ITEMS.forEach(it => { if (game.decor.owned.indexOf(it.id) < 0) game.decor.owned.push(it.id); });
-                game.save(); this.render();
-                try { gx.toast(t('decor_dev_unlock')); } catch (e) {}
             }
         };
         const quests = {
