@@ -708,7 +708,7 @@
             #side-shop {
                 position: fixed !important; top: 0; right: 0;
                 height: 100vh; height: 100dvh;
-                width: min(300px, 76vw);
+                width: min(270px, 68vw);
                 transform: translateX(102%); transition: transform 0.28s ease;
                 z-index: 9500; border-left: 1px solid var(--glass-bd-go);
                 box-shadow: -14px 0 44px rgba(0, 0, 0, 0.5);
@@ -717,6 +717,10 @@
             }
             #side-shop.m-open { transform: translateX(0); }
             #side-shop h1 { font-size: 1.15rem; }
+            /* Toasts ("carteles"): pin high + compact so even 3 stacked stay ABOVE the
+               helper (which sits ~y341) instead of covering it. */
+            #gx-toast-wrap { top: calc(env(safe-area-inset-top) + 50px); gap: 5px; max-width: 88vw; }
+            .gx-toast { padding: 6px 12px; font-size: 0.76rem; border-radius: 10px; }
             /* Sticky ✕ close pinned top-right of the sheet (stays while the list scrolls). */
             #shop-close-m {
                 display: flex; align-items: center; justify-content: center;
@@ -1716,7 +1720,7 @@
         // build differs, reload ONCE with a cache-busting ?v= query. sessionStorage guards
         // against reload loops. Fully defensive: any error is silent and never blocks the
         // game. Parent bumps BOTH version.json and BUILD_V on every future deploy.
-        const BUILD_V = "build-11";
+        const BUILD_V = "build-12";
         (function checkForUpdate() {
             try {
                 fetch('version.json?ts=' + Date.now(), { cache: 'no-store' })
@@ -5036,11 +5040,15 @@
                     const eq = eqId ? collection.skinById(eqId) : null;
                     if (eq && eq.img && c.lv > 0) champImg = collection.srcFull(eq);
                 } catch (e) { champImg = c.im; }
+                // Shrink the whole coronation set on portrait phones (helper + crown). The
+                // crown's landing pos/scale are computed from the plushie's rendered rect in
+                // place(), so reducing the plushie scale keeps the crown glued to the head.
+                const champScale = this._mPortrait() ? 1.7 : 2.5;
                 p.src = champImg;
                 p.style.transition = 'none';
                 p.style.left = pose.x + 'px';
                 p.style.top = pose.y + 'px';
-                p.style.transform = 'translate(-50%, -50%) scale(2.5)';
+                p.style.transform = `translate(-50%, -50%) scale(${champScale})`;
                 cr.style.transition = 'none';
                 cr.style.left = pose.x + 'px';
                 cr.style.top = '-150px';
