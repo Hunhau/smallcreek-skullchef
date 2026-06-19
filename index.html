@@ -782,6 +782,10 @@
         .charm-tile.r-epic { border-color: #d8b4fe; }
         .charm-tile.r-legendary { border-color: var(--go); box-shadow: 0 0 10px rgba(224,160,8,0.35); }
         .charm-tile.r-superleg { border-color: #fb7185; box-shadow: 0 0 16px rgba(251,113,133,0.55); animation: charmHolo 2.4s linear infinite; }
+        .charm-tile.locked { opacity: 0.42; cursor: default; filter: grayscale(0.85) brightness(0.72); }
+        .charm-tile.locked:hover { filter: grayscale(0.85) brightness(0.72); transform: none; }
+        .charm-tile.locked .charm-img { opacity: 0.35; }
+        .charm-lock { position: absolute; top: 4px; left: 4px; font-size: 0.72rem; line-height: 1; opacity: 0.9; }
         @keyframes charmHolo { 0%{border-color:#fb7185;box-shadow:0 0 16px rgba(251,113,133,0.55);} 25%{border-color:#fbbf24;box-shadow:0 0 18px rgba(251,191,36,0.6);} 50%{border-color:#34d399;box-shadow:0 0 18px rgba(52,211,153,0.6);} 75%{border-color:#60a5fa;box-shadow:0 0 18px rgba(96,165,250,0.6);} 100%{border-color:#fb7185;box-shadow:0 0 16px rgba(251,113,133,0.55);} }
         .charm-img { width: 100%; max-width: 84px; aspect-ratio: 1/1; image-rendering: auto; border-radius: 8px; background: rgba(0,0,0,0.25); object-fit: contain; }
         .charm-img.r-rare { box-shadow: 0 0 6px rgba(165,243,252,0.5); }
@@ -1713,7 +1717,7 @@
                 pwa_ios_hint:"📲 Add to Home Screen for fullscreen (Share → Add to Home Screen)",
                 pause_btn:"☰ Menu", pause_title:"Paused", pause_resume:"▶ Resume", pause_settings:"⚙ Settings", pause_home:"🏠 Main Menu", pause_exit:"🚪 Exit", pause_back:"← Back",
                 collection_btn:"🎴 Charms", collection_title:"Charm Collection",
-                coll_empty:"No charms yet. Keep cooking — charms drop as you play!", coll_owned:"Collected {n} kinds", coll_total_label:"Total charms: {n}",
+                coll_empty:"No charms yet. Keep cooking — charms drop as you play!", coll_owned:"Collected {n} / {total} kinds", coll_total_label:"Total charms: {n}", coll_locked:"Locked", coll_locked_toast:"Keep playing to unlock this charm!",
                 coll_equip:"Equip", coll_equipped:"Equipped", coll_unequip:"Unequip",
                 coll_next_drop:"Next charm in {time}", coll_daily_left:"{n}/{max} drops today", coll_daily_done:"Daily drops complete · resets tomorrow",
                 coll_drop_toast:"🎴 New charm! {rarity}", coll_dup_toast:"🎴 Duplicate charm ({rarity})", coll_item_name:"Charm #{id}",
@@ -1820,7 +1824,7 @@
                 pwa_ios_hint:"📲 Añade a pantalla de inicio para pantalla completa (Compartir → Añadir a pantalla de inicio)",
                 pause_btn:"☰ Menú", pause_title:"Pausa", pause_resume:"▶ Reanudar", pause_settings:"⚙ Ajustes", pause_home:"🏠 Menú principal", pause_exit:"🚪 Salir", pause_back:"← Volver",
                 collection_btn:"🎴 Amuletos", collection_title:"Colección de Amuletos",
-                coll_empty:"Aún no tienes amuletos. ¡Sigue cocinando — los amuletos caen mientras juegas!", coll_owned:"Coleccionados {n} tipos", coll_total_label:"Amuletos totales: {n}",
+                coll_empty:"Aún no tienes amuletos. ¡Sigue cocinando — los amuletos caen mientras juegas!", coll_owned:"Coleccionados {n} / {total} tipos", coll_total_label:"Amuletos totales: {n}", coll_locked:"Bloqueado", coll_locked_toast:"¡Sigue jugando para desbloquear este amuleto!",
                 coll_equip:"Equipar", coll_equipped:"Equipado", coll_unequip:"Quitar",
                 coll_next_drop:"Próximo amuleto en {time}", coll_daily_left:"{n}/{max} drops hoy", coll_daily_done:"Drops diarios completos · se reinician mañana",
                 coll_drop_toast:"🎴 ¡Nuevo amuleto! {rarity}", coll_dup_toast:"🎴 Amuleto repetido ({rarity})", coll_item_name:"Amuleto #{id}",
@@ -3566,6 +3570,7 @@
                 if (this.e < cost) return;
                 this.e -= cost;
                 s.owned = true;
+                try { collection.addOwnedCharm(s.skinId); } catch (e) {}
                 sound.play('prestige');
                 this._spoonAnimating = true;
                 this.summonSpoon(s, btn || document.getElementById('spoons-album'), () => {
@@ -7172,9 +7177,35 @@
                 }
                 delete c.equipped;
                 c.equips = equips;
+                this.syncShopSpoons(c);
                 game.coll = c;
                 return c;
             },
+            // Sacred-album (EB shop) spoons live in game.spoons; mirror owned ones into coll.items
+            // so they appear in the Amuletos grid like every other catalog skin.
+            syncShopSpoons(c) {
+                if (!c || !c.items) return;
+                let spoons;
+                try { spoons = game.spoons; } catch (e) { return; }
+                if (!Array.isArray(spoons)) return;
+                for (let i = 0; i < spoons.length; i++) {
+                    const s = spoons[i];
+                    if (!s || !s.owned || !s.skinId || c.items[s.skinId]) continue;
+                    const sk = this.skinById(s.skinId);
+                    if (!sk) continue;
+                    c.items[s.skinId] = { id: s.skinId, rarity: sk.rarity, count: 1 };
+                }
+            },
+            addOwnedCharm(id) {
+                const c = this.normalize();
+                const sk = this.skinById(id);
+                if (!sk || c.items[id]) return false;
+                c.items[id] = { id, rarity: sk.rarity, count: 1 };
+                try { game.save(); } catch (e) {}
+                this.refreshFab();
+                return true;
+            },
+            catalogCount() { return this.catalog().length; },
             // Baseline ownership: every player owns the common white chef hat from the
             // very start (new players AND existing saves). Idempotent + silent — no drop
             // reveal overlay, no victory sound, and it is NOT auto-equipped (the chef
@@ -7622,22 +7653,27 @@
                 let s = '';
                 for (let i = 0; i < keys.length; i++) {
                     const k = keys[i], it = c.items[k];
-                    s += k + ':' + it.count + ':' + (this.isEquipped(k) ? 1 : 0) + '|';
+                    s += k + ':' + (it ? it.count : 0) + ':' + (this.isEquipped(k) ? 1 : 0) + '|';
                 }
                 return s;
             },
             render(force) {
                 const c = this.normalize();
+                const cat = this.catalog();
                 const stats = document.getElementById('collection-stats');
-                if (stats) stats.innerHTML = `${t('coll_owned', { n: this.distinctCount() })} · ${t('coll_total_label', { n: this.totalCount() })}<br>${this.nextDropText()} · ${t('coll_daily_left', { n: this.DAILY_CAP - c.today, max: this.DAILY_CAP })}`;
+                if (stats) stats.innerHTML = `${t('coll_owned', { n: this.distinctCount(), total: this.catalogCount() })} · ${t('coll_total_label', { n: this.totalCount() })}<br>${this.nextDropText()} · ${t('coll_daily_left', { n: this.DAILY_CAP - c.today, max: this.DAILY_CAP })}`;
                 const grid = document.getElementById('collection-grid'); if (!grid) return;
-                const keys = Object.keys(c.items);
-                if (!keys.length) {
+                if (!cat.length) {
                     grid.innerHTML = `<div style="grid-column:1/-1; color:#94a3b8; font-size:0.85rem; padding:14px">${t('coll_empty')}</div>`;
                     this._lastGridSig = '';
                     return;
                 }
-                keys.sort((a, b) => (this.rarRank[c.items[b].rarity] - this.rarRank[c.items[a].rarity]) || (a < b ? -1 : a > b ? 1 : 0));
+                const keys = cat.map(s => s.id).filter(Boolean);
+                keys.sort((a, b) => {
+                    const ra = this.rarRank[(this.skinById(a) || {}).rarity] || 0;
+                    const rb = this.rarRank[(this.skinById(b) || {}).rarity] || 0;
+                    return (rb - ra) || (a < b ? -1 : a > b ? 1 : 0);
+                });
                 const sig = this._gridSig(c, keys);
                 if (!force && sig === this._lastGridSig && grid.querySelector('.charm-tile')) return;
                 this._lastGridSig = sig;
@@ -7645,12 +7681,18 @@
                 if (!this._loadedThumbs) this._loadedThumbs = new Set();
                 const loaded = this._loadedThumbs;
                 grid.innerHTML = keys.map(k => {
-                    // A tile is "equipped" iff it's the current skin for ITS OWN slot.
-                    const it = c.items[k], eqd = this.isEquipped(k);
+                    const skin = this.skinById(k);
+                    const rarity = skin ? skin.rarity : 'common';
+                    const it = c.items[k];
+                    const owned = !!it;
+                    const kk = String(k).replace(/'/g, "\\'");
+                    if (!owned) {
+                        const fam = skin ? (skin.family === 'spoon' ? t('coll_fam_spoon') : skin.family === 'chefhat' ? t('coll_fam_chefhat') : skin.family === 'helper' ? t('coll_fam_helper') : '') : '';
+                        return `<div class="charm-tile locked r-${rarity}" onclick="collection.lockedTap()"><span class="charm-lock" aria-hidden="true">🔒</span><div class="charm-img charm-ph r-${rarity}">?</div><span class="charm-name">${t('coll_locked')}</span><span class="charm-rar r-${rarity}">${fam ? fam + ' · ' : ''}${t('r_' + rarity)}</span><span style="font-size:0.58rem;color:#64748b">${t('coll_locked')}</span></div>`;
+                    }
+                    const eqd = this.isEquipped(k);
                     const dup = it.count > 1 ? `<span class="charm-dup">x${it.count}</span>` : '';
                     const fam = this.familyName(it);
-                    const kk = String(k).replace(/'/g, "\\'");
-                    const skin = this.skinById(it.id);
                     const thumbSrc = skin ? this.srcThumb(skin) : null;
                     const fb = skin ? (skin.img || '') : '';
                     const art = thumbSrc
@@ -7662,7 +7704,8 @@
                     return `<div class="charm-tile r-${it.rarity} ${eqd ? 'equipped' : ''}" onclick="collection.equip('${kk}')">${insp}${dup}${art}<span class="charm-name">${this.nameFor(it)}</span><span class="charm-rar r-${it.rarity}">${fam ? fam + ' · ' : ''}${t('r_' + it.rarity)}</span><span style="font-size:0.58rem;color:${eqd ? '#fbbf24' : '#94a3b8'}">${eqd ? t('coll_equipped') : t('coll_equip')}</span></div>`;
                 }).join('');
                 this._bindGridLazyThumbs(grid);
-            }
+            },
+            lockedTap() { try { gx.toast(t('coll_locked_toast')); } catch (e) {} }
         };
         try {
             document.addEventListener('keydown', function (e) {
