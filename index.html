@@ -642,7 +642,7 @@
             /* Absolute fill: flex-only stage collapses to 0h when children are all position:absolute */
             #main-stage { position: absolute; inset: 0; width: 100% !important; height: 100% !important; flex: none !important; min-height: 0; }
             #main-stage #sticky-center {
-                top: 64% !important;
+                top: 68% !important;
                 left: 50% !important;
                 bottom: auto !important;
                 transform: translate(-50%, -50%) scale(clamp(0.22, calc(78vw / 1350), 0.38)) !important;
@@ -8251,7 +8251,7 @@
                     const portrait = window.matchMedia('(orientation: portrait) and (max-width: 768px)').matches;
                     if (portrait) {
                         sc.style.left = '50%';
-                        sc.style.top = '64%';
+                        sc.style.top = '68%';
                         sc.style.bottom = 'auto';
                         sc.style.transformOrigin = 'center center';
                         const ps = Math.max(0.22, Math.min((r.width * 0.78) / DW, 0.38));
