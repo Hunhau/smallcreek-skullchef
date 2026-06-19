@@ -885,17 +885,33 @@
         #chef-decor-layer { position: absolute; inset: 0; pointer-events: none; z-index: 3; overflow: visible; }
         .chef-decor-piece { position: absolute; pointer-events: none; user-select: none; line-height: 1; display: flex; align-items: center; justify-content: center; filter: drop-shadow(0 4px 12px rgba(0,0,0,0.45)); transform-origin: center center; }
         .chef-decor-piece img { width: 100%; height: auto; display: block; pointer-events: none; }
-        .chef-decor-hat { left: 50%; top: 0.5%; width: 34%; transform: translateX(-50%) rotate(-7deg); font-size: clamp(48px, 31%, 128px); z-index: 2; }
-        .chef-decor-face { left: 50%; top: 16%; width: 24%; transform: translateX(-50%) rotate(-5deg); font-size: clamp(44px, 22%, 92px); z-index: 4; }
+        .chef-decor-hat { z-index: 2; }
+        .chef-decor-face { z-index: 4; }
         .decor-section-title { font-size: 0.76rem; text-transform: uppercase; letter-spacing: 0.07em; color: var(--go); margin: 12px 0 6px; font-weight: bold; }
         .decor-hint { font-size: 0.72rem; opacity: 0.72; margin: 0 0 8px; line-height: 1.35; }
         .decor-toggle-list { display: flex; flex-direction: column; gap: 8px; }
         .decor-toggle-row { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 12px; background: rgba(255,255,255,0.05); border: 1px solid var(--glass-bd); font-size: 0.84rem; transition: border-color 0.15s, background 0.15s; }
         .decor-toggle-row.equipped { border-color: var(--go); background: rgba(224,160,8,0.1); box-shadow: 0 0 12px rgba(224,160,8,0.22); }
-        .decor-toggle-row .decor-glyph { font-size: 1.75rem; flex: 0 0 auto; width: 2.2rem; text-align: center; }
+        .decor-toggle-row .decor-glyph { font-size: 1.75rem; flex: 0 0 auto; width: 2.2rem; height: 2.2rem; text-align: center; display: flex; align-items: center; justify-content: center; }
+        .decor-toggle-row .decor-glyph img { width: 100%; height: 100%; object-fit: contain; display: block; }
         .decor-toggle-row .decor-label { flex: 1; min-width: 0; }
         .decor-toggle-row button { flex: 0 0 auto; min-height: 44px; padding: 8px 14px; font-size: 0.72rem; }
         .decor-toggle-row.locked { opacity: 0.45; }
+        #decor-modal.decor-edit-mode { pointer-events: none; }
+        #decor-modal.decor-edit-mode .gx-box { pointer-events: auto; }
+        #chef-decor-layer.decor-editing { pointer-events: auto; z-index: 5; }
+        #chef-decor-layer.decor-editing .chef-decor-piece { pointer-events: auto; cursor: grab; touch-action: none; }
+        #chef-decor-layer.decor-editing .chef-decor-piece.decor-selected { outline: 2px dashed #fbbf24; outline-offset: 4px; box-shadow: 0 0 0 1px rgba(251,191,36,0.35); }
+        #chef-decor-layer.decor-editing .chef-decor-piece:active { cursor: grabbing; }
+        .decor-edit-panel { margin-top: 10px; padding: 10px 12px; border-radius: 12px; background: rgba(255,255,255,0.05); border: 1px solid var(--glass-bd); }
+        .decor-edit-toggle { display: flex; align-items: center; gap: 10px; cursor: pointer; font-size: 0.84rem; min-height: 44px; user-select: none; }
+        .decor-edit-toggle input { width: 18px; height: 18px; accent-color: var(--go); }
+        .decor-edit-row { display: flex; align-items: center; gap: 8px; margin: 8px 0; font-size: 0.78rem; }
+        .decor-edit-row label { flex: 0 0 72px; opacity: 0.85; }
+        .decor-edit-row input[type=range] { flex: 1; min-width: 0; accent-color: var(--go); }
+        .decor-edit-row .decor-edit-val { flex: 0 0 42px; text-align: right; font-variant-numeric: tabular-nums; opacity: 0.8; }
+        .decor-edit-btns { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
+        .decor-edit-btns button { flex: 1; min-width: 44px; min-height: 44px; }
     </style>
 </head>
 <body>
@@ -1027,6 +1043,23 @@
         <div id="decor-bg-options" class="decor-toggle-list"></div>
         <div class="decor-section-title" data-i18n="decor_section_chef">Chef</div>
         <div id="decor-chef-options" class="decor-toggle-list"></div>
+        <div id="decor-edit-section" class="decor-edit-panel" style="display:none">
+            <div class="decor-section-title" style="margin-top:0" data-i18n="decor_section_edit">Adjust position</div>
+            <p class="decor-hint" data-i18n="decor_edit_hint">Turn on Edit mode, then drag the hat or glasses on the chef. Use the sliders to resize and rotate.</p>
+            <label class="decor-edit-toggle"><input type="checkbox" id="decor-edit-mode" onchange="decor.setEditMode(this.checked)"> <span data-i18n="decor_edit_mode">Edit mode</span></label>
+            <div id="decor-edit-controls" style="display:none">
+                <div class="decor-edit-row"><label data-i18n="decor_edit_target">Editing</label><button class="gx-btn sm" type="button" id="decor-edit-target-btn" onclick="decor.nextEditTarget()">⇄</button></div>
+                <div class="decor-edit-row"><label data-i18n="decor_edit_scale">Size</label><input type="range" id="decor-edit-scale" min="50" max="200" value="100" oninput="decor.setScaleFromSlider(this.value)"><span class="decor-edit-val" id="decor-edit-scale-val">100%</span></div>
+                <div class="decor-edit-row"><label data-i18n="decor_edit_rotate">Rotation</label><input type="range" id="decor-edit-rot" min="-180" max="180" value="0" oninput="decor.setRotFromSlider(this.value)"><span class="decor-edit-val" id="decor-edit-rot-val">0°</span></div>
+                <div class="decor-edit-btns">
+                    <button class="gx-btn sm" type="button" onclick="decor.scaleBy(-0.05)" title="-">－</button>
+                    <button class="gx-btn sm" type="button" onclick="decor.scaleBy(0.05)" title="+">＋</button>
+                    <button class="gx-btn sm" type="button" onclick="decor.rotateBy(-5)">⟲</button>
+                    <button class="gx-btn sm" type="button" onclick="decor.rotateBy(5)">⟳</button>
+                    <button class="gx-btn sm" type="button" onclick="decor.resetTransformActive()" data-i18n="decor_edit_reset">Reset position</button>
+                </div>
+            </div>
+        </div>
         <button class="gx-btn" style="margin-top:14px; min-height:44px" onclick="decor.close()" data-i18n="close">Close</button>
     </div></div>
     <div id="pause-modal" class="gx-modal"><div class="gx-box" id="pause-box">
@@ -1754,7 +1787,7 @@
                 dev_test_section:"Summon FX test (dev)", dev_test_helper:"Helper slot",
                 dev_test_feed:"Test feed (mouth · lv4)", dev_test_rain:"Test extra rain (lv10)", dev_test_both:"Test both (lv20)",
                 farm_btn:"🌱 Cultivos", farm_title:"🌱 Ingredient Farm", farm_sub:"Grow ingredients for helper throws. Soup stirring always works!", farm_auto_replant:"Auto-replant after harvest", farm_plant:"Plant", farm_harvest:"Tap!", farm_water:"Water", farm_watered:"Watered", farm_empty_throw:"Out of {glyph}! Helpers need ingredients — open 🌱 Cultivos!", farm_prestige_reset:"Your pantry restarts fresh for the new kitchen! 🌱", farm_dev_fill:"Ingredient stock filled (dev)",
-                decor_btn:"🏖️ Decorar", decor_title:"🏖️ Decorate", decor_sub:"Swap the kitchen backdrop and dress up the chef for summer.", decor_bg_hint:"Sunny beach backdrop—equip Beach below to replace the kitchen.", decor_section_bg:"Background", decor_section_chef:"Chef", decor_bg_default:"Kitchen (default)", decor_summer_beach:"Beach (background)", decor_summer_straw_hat:"Straw hat", decor_summer_shades:"Sunglasses", decor_equip:"Equip", decor_unequip:"Remove", decor_equipped:"Equipped", decor_locked:"Seasonal pack locked", decor_dev_unlock:"Unlock all decorations (dev)",
+                decor_btn:"🏖️ Decorar", decor_title:"🏖️ Decorate", decor_sub:"Swap the kitchen backdrop and dress up the chef for summer.", decor_bg_hint:"Sunny beach backdrop—equip Beach below to replace the kitchen.", decor_section_bg:"Background", decor_section_chef:"Chef", decor_section_edit:"Adjust position", decor_edit_hint:"Turn on Edit mode, then drag the hat or glasses on the chef. Use the sliders to resize and rotate.", decor_edit_mode:"Edit mode", decor_edit_mode_on:"Edit mode ON — drag accessories on the chef", decor_edit_mode_off:"Edit mode OFF", decor_edit_target:"Editing", decor_edit_scale:"Size", decor_edit_rotate:"Rotation", decor_edit_reset:"Reset position", decor_edit_reset_done:"Position reset", decor_edit_none:"Equip a hat or glasses first", decor_edit_hat:"Straw hat", decor_edit_shades:"Sunglasses", decor_bg_default:"Kitchen (default)", decor_summer_beach:"Beach (background)", decor_summer_straw_hat:"Straw hat", decor_summer_shades:"Sunglasses", decor_equip:"Equip", decor_unequip:"Remove", decor_equipped:"Equipped", decor_locked:"Seasonal pack locked", decor_dev_unlock:"Unlock all decorations (dev)",
                 creator_grant_all:"Unlock all charms", creator_grant_all_ok:"All catalog charms unlocked ({n})",
                 creator_reset_spoons:"Reset album spoons", creator_reset_spoons_ok:"Album spoons reset"
                 /* ===== END ===== */
@@ -1861,7 +1894,7 @@
                 dev_test_section:"Prueba FX invocación (dev)", dev_test_helper:"Ranura ayudante",
                 dev_test_feed:"Probar comida (boca · nv4)", dev_test_rain:"Probar lluvia extra (nv10)", dev_test_both:"Probar ambos (nv20)",
                 farm_btn:"🌱 Cultivos", farm_title:"🌱 Cultivos de Ingredientes", farm_sub:"Cultiva ingredientes para los lanzamientos de ayudantes. ¡Remover la sopa siempre funciona!", farm_auto_replant:"Replantar automáticamente al cosechar", farm_plant:"Plantar", farm_harvest:"¡Toca!", farm_water:"Regar", farm_watered:"Regado", farm_empty_throw:"¡Sin {glyph}! Los ayudantes necesitan ingredientes — abre 🌱 Cultivos", farm_prestige_reset:"¡Tu despensa empieza de cero en la nueva cocina! 🌱", farm_dev_fill:"Stock de ingredientes lleno (dev)",
-                decor_btn:"🏖️ Decorar", decor_title:"🏖️ Decorar", decor_sub:"Cambia el fondo de la cocina y viste al chef para el verano.", decor_bg_hint:"Fondo playero veraniego—equipa Playa abajo para cambiar la cocina.", decor_section_bg:"Fondo", decor_section_chef:"Chef", decor_bg_default:"Cocina (normal)", decor_summer_beach:"Playa (fondo)", decor_summer_straw_hat:"Sombrero de paja", decor_summer_shades:"Gafas de sol", decor_equip:"Equipar", decor_unequip:"Quitar", decor_equipped:"Equipado", decor_locked:"Pack estacional bloqueado", decor_dev_unlock:"Desbloquear adornos (dev)",
+                decor_btn:"🏖️ Decorar", decor_title:"🏖️ Decorar", decor_sub:"Cambia el fondo de la cocina y viste al chef para el verano.", decor_bg_hint:"Fondo playero veraniego—equipa Playa abajo para cambiar la cocina.", decor_section_bg:"Fondo", decor_section_chef:"Chef", decor_section_edit:"Ajustar posición", decor_edit_hint:"Activa Modo edición y arrastra el sombrero o las gafas sobre el chef. Usa los controles para tamaño y rotación.", decor_edit_mode:"Modo edición", decor_edit_mode_on:"Modo edición ON — arrastra los accesorios sobre el chef", decor_edit_mode_off:"Modo edición OFF", decor_edit_target:"Editando", decor_edit_scale:"Tamaño", decor_edit_rotate:"Rotación", decor_edit_reset:"Reiniciar posición", decor_edit_reset_done:"Posición reiniciada", decor_edit_none:"Equipa un sombrero o gafas primero", decor_edit_hat:"Sombrero de paja", decor_edit_shades:"Gafas de sol", decor_bg_default:"Cocina (normal)", decor_summer_beach:"Playa (fondo)", decor_summer_straw_hat:"Sombrero de paja", decor_summer_shades:"Gafas de sol", decor_equip:"Equipar", decor_unequip:"Quitar", decor_equipped:"Equipado", decor_locked:"Pack estacional bloqueado", decor_dev_unlock:"Desbloquear adornos (dev)",
                 creator_grant_all:"Desbloquear todos los amuletos", creator_grant_all_ok:"Todos los amuletos del catálogo ({n})",
                 creator_reset_spoons:"Reiniciar cucharas del álbum", creator_reset_spoons_ok:"Cucharas del álbum reiniciadas"
                 /* ===== END ===== */
@@ -2856,7 +2889,7 @@
         // === Versionado del esquema de guardado ===
         // Sube este número cada vez que cambie la forma del save. Cada incremento debe
         // tener su paso de migración en SAVE_MIGRATIONS (clave = versión de ORIGEN).
-        const SCHEMA_VERSION = 27;
+        const SCHEMA_VERSION = 28;
         const SAVE_MIGRATIONS = {
             // v16 -> v17: el campo `as` (Angel Shards acumulados) pasó a guardarse aparte de `s`.
             16: (s) => {
@@ -2969,9 +3002,16 @@
                 s.decor.slots = slots;
                 s.v = 27;
                 return s;
+            },
+            // v27 -> v28: chef accessory transforms (position/scale/rotation per item).
+            27: (s) => {
+                if (!s.decor || typeof s.decor !== 'object') s.decor = { slots: {}, owned: [] };
+                if (!s.decor.chefTransforms || typeof s.decor.chefTransforms !== 'object') s.decor.chefTransforms = {};
+                s.v = 28;
+                return s;
             }
-            // FUTURO: para añadir v27 -> v28 solo añade aquí:
-            //   27: (s) => { /* transforma s */ s.v = 28; return s; },
+            // FUTURO: para añadir v28 -> v29 solo añade aquí:
+            //   28: (s) => { /* transforma s */ s.v = 29; return s; },
             // y sube SCHEMA_VERSION. No borres pasos antiguos.
         };
         // Transforma un save antiguo al esquema actual de forma incremental. Nunca lanza:
@@ -3318,7 +3358,7 @@
                     if (d.decor && typeof d.decor === 'object') this.decor = d.decor;
                 }
                 try { farm.ensure(); farm.syncPlotStates(); farm.updateBadge(); } catch (e) {}
-                try { decor.ensure(); decor.applyVisual(); } catch (e) {}
+                try { decor.ensure(); decor.applyVisual(); decor._bindDecorInteractions(); } catch (e) {}
                 try { collection.normalize(); } catch (e) {}
                 // Grant the baseline common white chef hat to every player (new + existing
                 // saves) silently, before visuals apply. Not equipped; no reveal/sound.
@@ -5863,21 +5903,31 @@
         const DECOR_BG_DEFAULT = 'assets/img/bg.jpg';
         const DECOR_BG_SUMMER = 'assets/img/bg_summer_beach.jpg';
         const DECOR_CHEF_SLOTS = ['chefHat', 'chefFace'];
+        const DECOR_CHEF_DEFAULTS = {
+            summer_straw_hat: { left: 50, top: 0.5, width: 34, baseRot: -7 },
+            summer_shades: { left: 50, top: 16, width: 24, baseRot: -5 }
+        };
         const DECOR_ITEMS = [
             { id: 'summer_beach', kind: 'background', pack: 'summer', preview: '🏖️', nameKey: 'decor_summer_beach', bgPath: DECOR_BG_SUMMER },
-            { id: 'summer_straw_hat', kind: 'chefHat', pack: 'summer', glyph: '👒', nameKey: 'decor_summer_straw_hat', chefClass: 'chef-decor-hat' },
-            { id: 'summer_shades', kind: 'chefFace', pack: 'summer', glyph: '🕶️', nameKey: 'decor_summer_shades', chefClass: 'chef-decor-face' }
+            { id: 'summer_straw_hat', kind: 'chefHat', pack: 'summer', glyph: '👒', img: 'assets/img/decor/chef_straw_hat.png', nameKey: 'decor_summer_straw_hat', chefClass: 'chef-decor-hat' },
+            { id: 'summer_shades', kind: 'chefFace', pack: 'summer', glyph: '🕶️', img: 'assets/img/decor/chef_sunglasses.png', nameKey: 'decor_summer_shades', chefClass: 'chef-decor-face' }
         ];
         const decor = {
             _bgSummerOk: null,
+            editMode: false,
+            editTarget: 'summer_straw_hat',
+            _drag: null,
+            _dragBound: false,
+            _wheelBound: false,
             itemById(id) { return DECOR_ITEMS.find(x => x.id === id) || null; },
             isSummerLive() {
                 try { return typeof events !== 'undefined' && events.getActive().some(ev => ev.id === 'summer'); } catch (e) { return false; }
             },
             ensure() {
-                if (!game.decor || typeof game.decor !== 'object') game.decor = { slots: {}, owned: [] };
+                if (!game.decor || typeof game.decor !== 'object') game.decor = { slots: {}, owned: [], chefTransforms: {} };
                 if (!game.decor.slots || typeof game.decor.slots !== 'object') game.decor.slots = {};
                 if (!Array.isArray(game.decor.owned)) game.decor.owned = [];
+                if (!game.decor.chefTransforms || typeof game.decor.chefTransforms !== 'object') game.decor.chefTransforms = {};
                 DECOR_CHEF_SLOTS.forEach(k => { if (game.decor.slots[k] == null) game.decor.slots[k] = null; });
                 if (game.decor.slots.background == null && game.decor.equippedBg === 'summer_beach') {
                     game.decor.slots.background = 'summer_beach';
@@ -5887,6 +5937,182 @@
                     DECOR_ITEMS.forEach(it => {
                         if (it.pack === 'summer' && game.decor.owned.indexOf(it.id) < 0) game.decor.owned.push(it.id);
                     });
+                }
+            },
+            equippedChefIds() {
+                this.ensure();
+                return DECOR_CHEF_SLOTS.map(k => game.decor.slots[k]).filter(Boolean);
+            },
+            hasEquippedChefDecor() { return this.equippedChefIds().length > 0; },
+            transformFor(decId) {
+                const saved = (game.decor && game.decor.chefTransforms) ? game.decor.chefTransforms[decId] : null;
+                const s = saved && typeof saved === 'object' ? saved : {};
+                return {
+                    x: Number.isFinite(s.x) ? s.x : 0,
+                    y: Number.isFinite(s.y) ? s.y : 0,
+                    scale: Number.isFinite(s.scale) ? s.scale : 1,
+                    rot: Number.isFinite(s.rot) ? s.rot : 0
+                };
+            },
+            setTransform(decId, patch, opts) {
+                this.ensure();
+                const cur = this.transformFor(decId);
+                game.decor.chefTransforms[decId] = Object.assign({}, cur, patch || {});
+                if (!opts || !opts.noSave) game.save();
+                if (opts && opts.live) {
+                    const layer = document.getElementById('chef-decor-layer');
+                    const el = layer && layer.querySelector('[data-decor-id="' + decId + '"]');
+                    if (el) this.applyPieceStyle(el, decId);
+                } else {
+                    this.applyChefDecor();
+                }
+                this.updateEditHud();
+            },
+            resetTransform(decId) {
+                this.ensure();
+                delete game.decor.chefTransforms[decId];
+                game.save();
+                this.applyChefDecor();
+                this.updateEditHud();
+            },
+            resetTransformActive() {
+                const id = this.activeEditTarget();
+                if (!id) { try { gx.toast(t('decor_edit_none')); } catch (e) {} return; }
+                this.resetTransform(id);
+                try { gx.toast(t('decor_edit_reset_done')); } catch (e) {}
+            },
+            activeEditTarget() {
+                const eq = this.equippedChefIds();
+                if (!eq.length) return null;
+                if (eq.indexOf(this.editTarget) >= 0) return this.editTarget;
+                this.editTarget = eq[0];
+                return this.editTarget;
+            },
+            nextEditTarget() {
+                const eq = this.equippedChefIds();
+                if (eq.length < 2) return;
+                const i = eq.indexOf(this.editTarget);
+                this.editTarget = eq[(i + 1) % eq.length];
+                this.applyChefDecor();
+                this.updateEditHud();
+            },
+            scaleBy(delta) {
+                const id = this.activeEditTarget();
+                if (!id) return;
+                const t = this.transformFor(id);
+                this.setTransform(id, { scale: Math.max(0.35, Math.min(2.5, Math.round((t.scale + delta) * 100) / 100)) });
+            },
+            rotateBy(deg) {
+                const id = this.activeEditTarget();
+                if (!id) return;
+                const t = this.transformFor(id);
+                this.setTransform(id, { rot: t.rot + deg });
+            },
+            setScaleFromSlider(val) {
+                const id = this.activeEditTarget();
+                if (!id) return;
+                this.setTransform(id, { scale: Math.max(0.35, Math.min(2.5, (parseFloat(val) || 100) / 100)) });
+            },
+            setRotFromSlider(val) {
+                const id = this.activeEditTarget();
+                if (!id) return;
+                this.setTransform(id, { rot: parseFloat(val) || 0 });
+            },
+            setEditMode(on) {
+                this.editMode = !!on;
+                const md = document.getElementById('decor-modal');
+                if (md) md.classList.toggle('decor-edit-mode', this.editMode);
+                const layer = document.getElementById('chef-decor-layer');
+                if (layer) layer.classList.toggle('decor-editing', this.editMode);
+                const ctrl = document.getElementById('decor-edit-controls');
+                if (ctrl) ctrl.style.display = this.editMode ? '' : 'none';
+                this.applyChefDecor();
+                this.updateEditHud();
+                try { gx.toast(t(this.editMode ? 'decor_edit_mode_on' : 'decor_edit_mode_off')); } catch (e) {}
+            },
+            updateEditHud() {
+                const sec = document.getElementById('decor-edit-section');
+                const eq = this.equippedChefIds();
+                if (sec) sec.style.display = eq.length ? '' : 'none';
+                const chk = document.getElementById('decor-edit-mode');
+                if (chk) chk.checked = this.editMode;
+                const id = this.activeEditTarget();
+                const tgtBtn = document.getElementById('decor-edit-target-btn');
+                if (tgtBtn) {
+                    const label = id === 'summer_shades' ? t('decor_edit_shades') : (id === 'summer_straw_hat' ? t('decor_edit_hat') : t('decor_edit_none'));
+                    tgtBtn.textContent = '⇄ ' + label;
+                    tgtBtn.disabled = eq.length < 2;
+                }
+                const t = id ? this.transformFor(id) : { scale: 1, rot: 0 };
+                const sc = document.getElementById('decor-edit-scale');
+                const scv = document.getElementById('decor-edit-scale-val');
+                if (sc) sc.value = Math.round((t.scale || 1) * 100);
+                if (scv) scv.textContent = Math.round((t.scale || 1) * 100) + '%';
+                const rt = document.getElementById('decor-edit-rot');
+                const rtv = document.getElementById('decor-edit-rot-val');
+                if (rt) rt.value = Math.round(t.rot || 0);
+                if (rtv) rtv.textContent = Math.round(t.rot || 0) + '°';
+            },
+            applyPieceStyle(el, decId) {
+                const def = DECOR_CHEF_DEFAULTS[decId];
+                if (!def) return;
+                const tr = this.transformFor(decId);
+                el.style.left = (def.left + tr.x) + '%';
+                el.style.top = (def.top + tr.y) + '%';
+                el.style.width = (def.width * tr.scale) + '%';
+                el.style.transform = 'translateX(-50%) rotate(' + (def.baseRot + tr.rot) + 'deg)';
+            },
+            _rigRect() {
+                const rig = document.getElementById('chef-rig');
+                return rig ? rig.getBoundingClientRect() : null;
+            },
+            _bindDecorInteractions() {
+                const layer = document.getElementById('chef-decor-layer');
+                if (!layer || this._dragBound) return;
+                this._dragBound = true;
+                layer.addEventListener('pointerdown', (e) => {
+                    if (!this.editMode) return;
+                    const piece = e.target.closest('.chef-decor-piece');
+                    if (!piece || !layer.contains(piece)) return;
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const decId = piece.dataset.decorId;
+                    if (!decId) return;
+                    this.editTarget = decId;
+                    const tr = this.transformFor(decId);
+                    this._drag = { id: decId, px: e.clientX, py: e.clientY, ox: tr.x, oy: tr.y };
+                    try { piece.setPointerCapture(e.pointerId); } catch (err) {}
+                    this.applyChefDecor();
+                }, true);
+                layer.addEventListener('pointermove', (e) => {
+                    if (!this.editMode || !this._drag) return;
+                    const rig = this._rigRect();
+                    if (!rig || rig.width <= 0 || rig.height <= 0) return;
+                    const dx = ((e.clientX - this._drag.px) / rig.width) * 100;
+                    const dy = ((e.clientY - this._drag.py) / rig.height) * 100;
+                    this.setTransform(this._drag.id, { x: this._drag.ox + dx, y: this._drag.oy + dy }, { noSave: true, live: true });
+                }, true);
+                const endDrag = () => {
+                    if (!this._drag) return;
+                    this._drag = null;
+                    try { game.save(); } catch (e) {}
+                };
+                layer.addEventListener('pointerup', endDrag, true);
+                layer.addEventListener('pointercancel', endDrag, true);
+                if (!this._wheelBound) {
+                    this._wheelBound = true;
+                    layer.addEventListener('wheel', (e) => {
+                        if (!this.editMode) return;
+                        const piece = e.target.closest('.chef-decor-piece');
+                        if (!piece) return;
+                        e.preventDefault();
+                        e.stopPropagation();
+                        const decId = piece.dataset.decorId;
+                        if (decId) {
+                            this.editTarget = decId;
+                            this.scaleBy(e.deltaY > 0 ? -0.04 : 0.04);
+                        }
+                    }, { passive: false, capture: true });
                 }
             },
             isUnlocked(id) {
@@ -5906,8 +6132,14 @@
                     img.src = DECOR_BG_SUMMER;
                 });
             },
-            open() { this.render(); const md = document.getElementById('decor-modal'); if (md) md.classList.add('open'); },
-            close() { const md = document.getElementById('decor-modal'); if (md) md.classList.remove('open'); },
+            open() { this.render(); this._bindDecorInteractions(); const md = document.getElementById('decor-modal'); if (md) md.classList.add('open'); },
+            close() {
+                if (this.editMode) this.setEditMode(false);
+                const md = document.getElementById('decor-modal');
+                if (md) { md.classList.remove('open'); md.classList.remove('decor-edit-mode'); }
+                const layer = document.getElementById('chef-decor-layer');
+                if (layer) layer.classList.remove('decor-editing');
+            },
             setBackground(id) {
                 this.ensure();
                 if (id && !this.isUnlocked(id)) { try { gx.toast(t('decor_locked')); } catch (e) {} return; }
@@ -5920,6 +6152,7 @@
                 this.ensure();
                 const cur = game.decor.slots[slotKey];
                 game.decor.slots[slotKey] = (cur === itemId) ? null : itemId;
+                if (game.decor.slots[slotKey] === itemId) this.editTarget = itemId;
                 game.save(); this.applyVisual(); this.render();
             },
             applyBackground() {
@@ -5947,6 +6180,7 @@
                 const layer = document.getElementById('chef-decor-layer');
                 if (!layer) return;
                 layer.innerHTML = '';
+                const activeId = this.editMode ? this.activeEditTarget() : null;
                 DECOR_CHEF_SLOTS.forEach(slotKey => {
                     const decId = game.decor.slots[slotKey];
                     if (!decId) return;
@@ -5954,22 +6188,33 @@
                     if (!it || !it.chefClass) return;
                     const el = document.createElement('div');
                     el.className = 'chef-decor-piece ' + it.chefClass;
+                    if (this.editMode && decId === activeId) el.classList.add('decor-selected');
                     el.dataset.decorId = decId;
+                    this.applyPieceStyle(el, decId);
                     if (it.img) {
                         const img = document.createElement('img');
                         img.src = it.img;
                         img.alt = '';
                         img.decoding = 'async';
+                        img.onerror = function () {
+                            this.remove();
+                            if (!el.textContent) el.textContent = it.glyph || '';
+                        };
                         el.appendChild(img);
                     } else {
                         el.textContent = it.glyph || '';
                     }
                     layer.appendChild(el);
                 });
+                layer.classList.toggle('decor-editing', this.editMode);
             },
             applyVisual() {
                 this.applyBackground();
                 this.applyChefDecor();
+            },
+            previewGlyph(it) {
+                if (it.img) return `<img src="${it.img}" alt="" decoding="async">`;
+                return it.glyph || it.preview || '✨';
             },
             renderToggleRow(glyph, label, equipped, locked, btnLabel, onclick) {
                 const lockCls = locked ? ' locked' : '';
@@ -5994,9 +6239,10 @@
                         const ok = this.isUnlocked(it.id);
                         const btn = eq ? t('decor_unequip') : t('decor_equip');
                         const action = `decor.toggleChefSlot('${it.kind}','${it.id}')`;
-                        return this.renderToggleRow(it.glyph || '✨', t(it.nameKey), eq, !ok, btn, action);
+                        return this.renderToggleRow(this.previewGlyph(it), t(it.nameKey), eq, !ok, btn, action);
                     }).join('');
                 }
+                this.updateEditHud();
                 this.applyVisual();
             },
             devUnlockAll() {
