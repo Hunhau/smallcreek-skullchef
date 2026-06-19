@@ -179,6 +179,8 @@
         .spoon-btn.equipped { background: rgba(224, 160, 8, 0.2); color: var(--gold-soft); border-color: var(--go); cursor: default; }
         #spoons-album-title { font-size: 0.75rem; text-align: center; color: var(--ac); margin: 18px 0 10px; padding-top: 14px; border-top: 1px solid #fff2; text-transform: uppercase; letter-spacing: 1px; opacity: 0.85; }
         #spoons-album-section { margin-top: 4px; }
+        .shop-hide-toggle { margin-top: 6px; padding: 4px 10px; border-radius: 6px; font-size: 0.62rem; font-weight: bold; border: 1px solid #fff3; cursor: pointer; text-transform: uppercase; letter-spacing: 0.4px; background: rgba(51, 65, 85, 0.55); color: #cbd5e1; width: 100%; max-width: 180px; }
+        .shop-hide-toggle.on { background: rgba(168, 85, 247, 0.25); color: var(--ac); border-color: var(--ac); }
         #prestige-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 80000; display: none; opacity: 0; background: linear-gradient(180deg, #020617 0%, #1e1b4b 50%, #2e1065 100%); flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.8s; }
         #victory-cinema { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 65000; display: none; align-items: center; justify-content: center; pointer-events: none; opacity: 1; transition: opacity 0.8s ease, transform 0.8s ease; }
         #cinema-plushie { position: absolute; top: 45%; left: 50%; transform: translate(-50%, -50%) scale(2.5); max-width: 300px; max-height: 25vh; object-fit: contain; filter: drop-shadow(0 0 30px var(--ac)); transition: all 1s; }
@@ -1676,7 +1678,7 @@
                 cps_per_sec:"{n} EB PER SECOND", awaken_soul:"[ AWAKEN SOUL ]", requires_eb:"Requires {eb} EB", angel_lv:"Angel Awakening Lv. {s} (+{pct}%)",
                 prix_cd:"Grand Prix (CD: {mm}:{ss})", enter_prix:"Enter Grand Prix", finish_line:"FINISH", buy_x1:"Buy x1", buy_x10:"Buy x10", buy_max:"Buy Max", max_label:"Max:", lv:"Lv.", prod:"Prod",
                 angel_power:"(+{pct}% Angel Power!)", milestone_word:"Milestone", milestone_next:"next", milestone_max:"MAX", champion_banner:"👑 CHAMPION (x{mult}!)",
-                spoon_equipped:"[ EQUIPPED ]", spoon_equip_btn:"EQUIP SPOON", spoon_buy_btn:"BUY CARD", rarity_rare:"RARE", rarity_epic:"EPIC", rarity_legendary:"LEGENDARY", rarity_superleg:"SUPER LEGENDARY",
+                spoon_equipped:"[ EQUIPPED ]", spoon_equip_btn:"EQUIP SPOON", spoon_buy_btn:"BUY CARD", spoon_hide:"Hide spoon", spoon_show:"Show spoon", rarity_rare:"RARE", rarity_epic:"EPIC", rarity_legendary:"LEGENDARY", rarity_superleg:"SUPER LEGENDARY",
                 first_place:"1ST PLACE!", victory_crown:"VICTORY! Return to crown {name}!", defeat:"DEFEAT!", awarded_eb:"Awarded +{eb} EB!",
                 offline_body:'You were away {time}. Your soup kept cooking and produced:<br><b style="color:var(--go); font-size:1.4rem">+{eb} EB</b>',
                 buff_frenzy:"Frenzy x7", buff_frenzy_toast:"Frenzy! Click x7 for 15s", buff_boil:"Boiling Broth x3", buff_boil_toast:"Boiling Broth! CPS x3 for 30s", buff_rain_toast:"EB Rain! +{eb}",
@@ -1783,7 +1785,7 @@
                 cps_per_sec:"{n} EB POR SEGUNDO", awaken_soul:"[ DESPERTAR ALMA ]", requires_eb:"Requiere {eb} EB", angel_lv:"Despertar del Ángel Nv. {s} (+{pct}%)",
                 prix_cd:"Gran Premio (CD: {mm}:{ss})", enter_prix:"Entrar al Gran Premio", finish_line:"META", buy_x1:"Comprar x1", buy_x10:"Comprar x10", buy_max:"Comprar Máx", max_label:"Máx:", lv:"Nv.", prod:"Prod",
                 angel_power:"(+{pct}% ¡Poder del Ángel!)", milestone_word:"Hito", milestone_next:"próx.", milestone_max:"MÁX", champion_banner:"👑 CAMPEÓN (¡x{mult}!)",
-                spoon_equipped:"[ EQUIPADA ]", spoon_equip_btn:"EQUIPAR CUCHARA", spoon_buy_btn:"COMPRAR CARTA", rarity_rare:"RARA", rarity_epic:"ÉPICA", rarity_legendary:"LEGENDARIA", rarity_superleg:"SÚPER LEGENDARIA",
+                spoon_equipped:"[ EQUIPADA ]", spoon_equip_btn:"EQUIPAR CUCHARA", spoon_buy_btn:"COMPRAR CARTA", spoon_hide:"Ocultar cuchara", spoon_show:"Mostrar cuchara", rarity_rare:"RARA", rarity_epic:"ÉPICA", rarity_legendary:"LEGENDARIA", rarity_superleg:"SÚPER LEGENDARIA",
                 first_place:"¡1ER PUESTO!", victory_crown:"¡VICTORIA! ¡Vuelve para coronar a {name}!", defeat:"¡DERROTA!", awarded_eb:"¡Recompensa +{eb} EB!",
                 offline_body:'Estuviste fuera {time}. Tu sopa siguió cociéndose y generó:<br><b style="color:var(--go); font-size:1.4rem">+{eb} EB</b>',
                 buff_frenzy:"Frenesí x7", buff_frenzy_toast:"¡Frenesí! Click x7 durante 15s", buff_boil:"Caldo Hirviente x3", buff_boil_toast:"¡Caldo Hirviente! CPS x3 durante 30s", buff_rain_toast:"¡Lluvia de EB! +{eb}",
@@ -3104,7 +3106,7 @@
             }
         };
         const game = {
-            e:0, te:0, l:0, s:0, c:0, p:false, f:0, cl:false, m:1, cd:0, buyMode:1, defaultSpoonImg:'assets/img/spoon.png', _inited:false, logicTick:null, uiTick:null, saveTick:null, _floatNodes:[], _spoonAnimating:false, _spoonUiKey:'', _steamIdleTick:0, _dispScore:0, _autoPartAcc:0, _wave:0, _ballWave:0, _ballSpeed:1, _lastClick:0, soupBalls:[], _rippleNodes:[], _ambientRippleTick:0, _soupRect:null, _surf:null, _stageRect:null, _spoonEl:null,
+            e:0, te:0, l:0, s:0, c:0, p:false, f:0, cl:false, m:1, cd:0, buyMode:1, defaultSpoonImg:'assets/img/spoon.png', _inited:false, logicTick:null, uiTick:null, saveTick:null, _floatNodes:[], _spoonAnimating:false, _spoonUiKey:'', spoonHidden:false, _steamIdleTick:0, _dispScore:0, _autoPartAcc:0, _wave:0, _ballWave:0, _ballSpeed:1, _lastClick:0, soupBalls:[], _rippleNodes:[], _ambientRippleTick:0, _soupRect:null, _surf:null, _stageRect:null, _spoonEl:null,
             as:0, lastSeen:0, _buffs:[], tree:{caldo:0, manos:0, eco:0, cuchara:0, tiempo:0, aura:0, fortuna:0, eterno:0}, daily:null, ach:{}, rewards:{}, coll:null, farm:null, decor:null, _tampered:false,
             treeDefs: [
                 {k:'caldo', mx:20, cb:1},
@@ -3259,6 +3261,14 @@
                 if (alb && !alb._spoonDelegated) {
                     alb._spoonDelegated = true;
                     alb.addEventListener('click', (e) => {
+                        const hideBtn = e.target.closest('.shop-hide-toggle');
+                        if (hideBtn) {
+                            e.stopPropagation();
+                            const card = hideBtn.closest('.spoon-card');
+                            const id = card ? parseInt(card.dataset.spoonId, 10) : NaN;
+                            if (Number.isFinite(id)) this.toggleSpoonHidden(id);
+                            return;
+                        }
                         const btn = e.target.closest('.spoon-btn');
                         if (!btn || btn.disabled) return;
                         e.stopPropagation();
@@ -3333,7 +3343,7 @@
             },
             getSaveData() {
                 this.lastSeen = Date.now();
-                return {v:SCHEMA_VERSION, e:this.e, te:this.te, l:this.l, s:this.s, as:this.as, c:this.cp.map(x=>({lv:x.lv, ch:x.ch})), cd:this.cd, bm:this.buyMode, sp:this.spoons.map(s=>({o:s.owned, eq:s.equipped})), lastSeen:this.lastSeen, tree:this.tree, daily:this.daily, ach:this.ach, rewards:this.rewards, coll:this.coll, farm:this.farm, decor:this.decor};
+                return {v:SCHEMA_VERSION, e:this.e, te:this.te, l:this.l, s:this.s, as:this.as, c:this.cp.map(x=>({lv:x.lv, ch:x.ch})), cd:this.cd, bm:this.buyMode, sp:this.spoons.map(s=>({o:s.owned, eq:s.equipped})), shi:!!this.spoonHidden, lastSeen:this.lastSeen, tree:this.tree, daily:this.daily, ach:this.ach, rewards:this.rewards, coll:this.coll, farm:this.farm, decor:this.decor};
             },
             save() {
                 const data = this.getSaveData();
@@ -3394,6 +3404,7 @@
                     }
                     const eq = this.spoons.filter(s => s.equipped);
                     if (eq.length > 1) { this.spoons.forEach(s => s.equipped = false); eq[0].equipped = true; }
+                    this.spoonHidden = !!d.shi;
                     this.lastSeen = Number.isFinite(d.lastSeen) ? d.lastSeen : 0;
                     if (d.tree && typeof d.tree === 'object') { this.treeDefs.forEach(def => { const v = d.tree[def.k]; if (Number.isFinite(v)) this.tree[def.k] = Math.min(def.mx, Math.max(0, Math.floor(v))); }); }
                     if (d.daily && typeof d.daily === 'object' && d.daily.counters && Array.isArray(d.daily.missions)) this.daily = d.daily;
@@ -3490,7 +3501,31 @@
             },
             track(type, amt) { if (this.daily && this.daily.counters && this.daily.counters[type] != null) this.daily.counters[type] += amt; quests.bump(type, amt); },
             getPrixCd() { const eq = this.getEquippedSpoon(); return (eq && eq.id === 2) ? 300 : 600; },
-            applySpoonVisual() { const el = document.getElementById('asset-spoon'); if (!el) return; const rig = document.getElementById('spoon-rig'); if (rig) { rig.classList.remove('charm-spoon'); rig.style.transform = ''; } this._spoonPlace = null; const s = this.getEquippedSpoon(); if (s && s.owned) { if (!this._applyShopSpoonVisual(el, rig, s)) el.src = this.spoonSceneImg(s); } else el.src = this.defaultSpoonImg; },
+            applySpoonVisual() {
+                const el = document.getElementById('asset-spoon'); if (!el) return;
+                const rig = document.getElementById('spoon-rig');
+                if (rig) { rig.classList.remove('charm-spoon'); rig.style.transform = ''; }
+                this._spoonPlace = null;
+                const s = this.getEquippedSpoon();
+                if (this.spoonHidden && s && s.owned) {
+                    el.src = this.defaultSpoonImg;
+                    if (rig) rig.style.display = 'none';
+                    return;
+                }
+                if (rig) rig.style.display = '';
+                if (s && s.owned) { if (!this._applyShopSpoonVisual(el, rig, s)) el.src = this.spoonSceneImg(s); }
+                else el.src = this.defaultSpoonImg;
+            },
+            toggleSpoonHidden(id) {
+                const s = this.spoons.find(x => x.id === id);
+                if (!s || !s.owned || !s.equipped) return;
+                this.spoonHidden = !this.spoonHidden;
+                try { this.applySpoonVisual(); } catch (e) {}
+                try { collection.applyEquippedVisual(); } catch (e) {}
+                this.save();
+                this._spoonUiKey = '';
+                this.renderSpoons();
+            },
             // Applies the equipped charm spoon's per-skin placement to #spoon-rig. When `stirF`
             // is a number, oscillates the rotation for the idle-stir animation (called by loop()).
             _applySpoonRig(stirF) { const rig = document.getElementById('spoon-rig'); if (!rig) return; const p = this._spoonPlace; if (!p) return; try { rig.style.transform = collection.placementCss(p, (typeof stirF === 'number' ? Math.sin(stirF) * 5 : 0)); } catch (e) {} },
@@ -3501,7 +3536,7 @@
                 else rig.style.transform = `translate(-50%,-50%) rotate(${-27 + Math.sin(this.f) * 5}deg)`;
             },
             spoonUiKey() {
-                return this.spoons.map(s => (s.owned ? 'o' : 'u') + (s.equipped ? 'e' : '-') + (this.e >= this.effSpoonCost(s) ? 'a' : 'l')).join('|');
+                return this.spoons.map(s => (s.owned ? 'o' : 'u') + (s.equipped ? 'e' : '-') + (s.equipped && this.spoonHidden ? 'h' : 'v') + (this.e >= this.effSpoonCost(s) ? 'a' : 'l')).join('|');
             },
             summonSpoon(spoon, originEl, onLand) {
                 let clone, done = false, landed = false;
@@ -3576,6 +3611,7 @@
                 this.summonSpoon(s, btn || document.getElementById('spoons-album'), () => {
                     this.spoons.forEach(sp => sp.equipped = false);
                     s.equipped = true;
+                    this.spoonHidden = false;
                     this.applySpoonVisual();
                     this.save();
                     this._spoonUiKey = '';
@@ -3589,6 +3625,7 @@
                 this.summonSpoon(s, btn || document.getElementById('spoons-album'), () => {
                     this.spoons.forEach(sp => sp.equipped = false);
                     s.equipped = true;
+                    this.spoonHidden = false;
                     this.applySpoonVisual();
                     this.save();
                     this._spoonUiKey = '';
@@ -3604,8 +3641,11 @@
                     card.dataset.spoonId = String(s.id);
                     let actionHtml = '';
                     const sc = this.effSpoonCost(s);
-                    if (s.equipped) actionHtml = `<span class="spoon-equipped-badge">${t('spoon_equipped')}</span>`;
-                    else if (s.owned) actionHtml = `<button class="spoon-btn equip" type="button">${t('spoon_equip_btn')}</button>`;
+                    if (s.equipped) {
+                        actionHtml = `<span class="spoon-equipped-badge">${t('spoon_equipped')}</span>`;
+                        const hideLbl = this.spoonHidden ? t('spoon_show') : t('spoon_hide');
+                        actionHtml += `<button class="shop-hide-toggle${this.spoonHidden ? ' on' : ''}" type="button">${hideLbl}</button>`;
+                    } else if (s.owned) actionHtml = `<button class="spoon-btn equip" type="button">${t('spoon_equip_btn')}</button>`;
                     else if (this.e >= sc) actionHtml = `<button class="spoon-btn buy" type="button">${t('spoon_buy_btn')}</button><div class="spoon-cost">${sc.toLocaleString()} EB</div>`;
                     else actionHtml = `<button class="spoon-btn locked" type="button" disabled>${t('spoon_buy_btn')}</button><div class="spoon-cost">${sc.toLocaleString()} EB</div>`;
                     card.innerHTML = `<img src="${this.spoonCardImg(s)}" class="spoon-card-img" alt="${t(s.cardKey)}"><span class="spoon-rarity ${s.rarity}">${t('rarity_' + s.rarity)}</span><div style="font-size:0.82rem;font-weight:bold;line-height:1.2">${t(s.cardKey)}</div><div style="font-size:0.68rem;color:#cbd5e1">${t(s.nameKey)}</div><div class="spoon-benefit">${t(s.bonusKey)}</div>${actionHtml}`;
