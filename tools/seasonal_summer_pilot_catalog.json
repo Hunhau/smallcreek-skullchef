@@ -1,0 +1,39 @@
+{
+  "summer_pilot": [
+    {
+      "id": "pio_common_beach",
+      "rarity": "common",
+      "name_en": "Pío · Beach Day",
+      "name_es": "Pío · Día de Playa",
+      "prompt": "Pío yellow plush duckling sitting with tiny red swim trunks and small striped beach bucket hat, orange beak black oval eyes, front-facing sitting pose, 3D plush toy render, transparent background, no glow no floating"
+    },
+    {
+      "id": "pio_uncommon_popsicle",
+      "rarity": "uncommon",
+      "name_en": "Pío · Popsicle",
+      "name_es": "Pío · Paleta",
+      "prompt": "Pío yellow plush duckling sitting holding giant rainbow popsicle on stick, tiny melted drip on beak, orange beak black oval eyes, front-facing sitting pose, 3D plush toy render, transparent background, no glow"
+    },
+    {
+      "id": "bongo_rare_sunhat",
+      "rarity": "rare",
+      "name_en": "Bongo · Sun Hat",
+      "name_es": "Bongo · Sombrero de Sol",
+      "prompt": "Bongo sitting gorilla with wide straw sun hat and tiny sunscreen stripe on golden tan face, black fuzzy fur, front-facing sitting pose, 3D plush toy render, transparent background, no glow no aura"
+    },
+    {
+      "id": "bongo_epic_surf",
+      "rarity": "epic",
+      "name_en": "Bongo · Surfer",
+      "name_es": "Bongo · Surfista",
+      "prompt": "Bongo sitting gorilla wearing teal Hawaiian surf rash guard and holding small surfboard upright, black fuzzy fur golden tan face, front-facing sitting pose, 3D plush toy render, transparent background, no glow no floating board"
+    },
+    {
+      "id": "pio_legendary_watermelon",
+      "rarity": "legendary",
+      "name_en": "Pío · Watermelon",
+      "name_es": "Pío · Sandía",
+      "prompt": "Pío yellow plush duckling sitting inside carved watermelon rind costume with green striped shell and pink inner collar, black seeds pattern on belly, orange beak visible, front-facing sitting pose, 3D plush toy render, transparent background, no glow"
+    }
+  ]
+}
