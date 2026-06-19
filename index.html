@@ -184,7 +184,8 @@
         .spoon-btn.equipped { background: rgba(224, 160, 8, 0.2); color: var(--gold-soft); border-color: var(--go); cursor: default; }
         #spoons-album-title, #hats-album-title { font-size: 0.75rem; text-align: center; color: var(--ac); margin: 18px 0 10px; padding-top: 14px; border-top: 1px solid #fff2; text-transform: uppercase; letter-spacing: 1px; opacity: 0.85; }
         #spoons-album-section, #hats-album-section { margin-top: 4px; }
-        .shop-hide-toggle { margin-top: 6px; padding: 4px 10px; border-radius: 6px; font-size: 0.62rem; font-weight: bold; border: 1px solid #fff3; cursor: pointer; text-transform: uppercase; letter-spacing: 0.4px; background: rgba(51, 65, 85, 0.55); color: #cbd5e1; width: 100%; max-width: 180px; }
+        .shop-card-actions { display: flex; flex-direction: column; align-items: center; width: 100%; gap: 6px; margin-top: 4px; }
+        .shop-hide-toggle { display: block; flex-shrink: 0; margin-top: 0; padding: 4px 10px; border-radius: 6px; font-size: 0.62rem; font-weight: bold; border: 1px solid #fff3; cursor: pointer; text-transform: uppercase; letter-spacing: 0.4px; background: rgba(51, 65, 85, 0.55); color: #cbd5e1; width: 100%; max-width: 180px; box-sizing: border-box; }
         .shop-hide-toggle.on { background: rgba(168, 85, 247, 0.25); color: var(--ac); border-color: var(--ac); }
         #prestige-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 80000; display: none; opacity: 0; background: linear-gradient(180deg, #020617 0%, #1e1b4b 50%, #2e1065 100%); flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.8s; }
         #victory-cinema { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 65000; display: none; align-items: center; justify-content: center; pointer-events: none; opacity: 1; transition: opacity 0.8s ease, transform 0.8s ease; }
@@ -3325,9 +3326,10 @@
                 if (halb && !halb._hatDelegated) {
                     halb._hatDelegated = true;
                     halb.addEventListener('click', (e) => {
-                        if (e.target.closest('.shop-hide-toggle') && e.target.closest('[data-hat-id]')) {
+                        const hideBtn = e.target.closest('.shop-hide-toggle');
+                        if (hideBtn) {
                             e.stopPropagation();
-                            const card = e.target.closest('.spoon-card');
+                            const card = hideBtn.closest('.spoon-card');
                             const id = card ? parseInt(card.dataset.hatId, 10) : NaN;
                             if (Number.isFinite(id)) this.toggleHatHidden(id);
                             return;
@@ -3622,7 +3624,7 @@
                 else rig.style.transform = `translate(-50%,-50%) rotate(${-27 + Math.sin(this.f) * 5}deg)`;
             },
             spoonUiKey() {
-                return this.spoons.map(s => (s.owned ? 'o' : 'u') + (s.equipped ? 'e' : '-') + (s.equipped && this.spoonHidden ? 'h' : 'v') + (this.e >= this.effSpoonCost(s) ? 'a' : 'l')).join('|');
+                return this.spoons.map(s => (s.owned ? 'o' : 'u') + (s.equipped ? 'e' : '-') + (s.owned && s.equipped && this.spoonHidden ? 'h' : 'v') + (this.e >= this.effSpoonCost(s) ? 'a' : 'l')).join('|');
             },
             summonSpoon(spoon, originEl, onLand) {
                 let clone, done = false, landed = false;
@@ -3727,10 +3729,9 @@
                     card.dataset.spoonId = String(s.id);
                     let actionHtml = '';
                     const sc = this.effSpoonCost(s);
-                    if (s.equipped) {
-                        actionHtml = `<span class="spoon-equipped-badge">${t('spoon_equipped')}</span>`;
+                    if (s.owned && s.equipped) {
                         const hideLbl = this.spoonHidden ? t('spoon_show') : t('spoon_hide');
-                        actionHtml += `<button class="shop-hide-toggle${this.spoonHidden ? ' on' : ''}" type="button">${hideLbl}</button>`;
+                        actionHtml = `<div class="shop-card-actions"><span class="spoon-equipped-badge">${t('spoon_equipped')}</span><button class="shop-hide-toggle${this.spoonHidden ? ' on' : ''}" type="button">${hideLbl}</button></div>`;
                     } else if (s.owned) actionHtml = `<button class="spoon-btn equip" type="button">${t('spoon_equip_btn')}</button>`;
                     else if (this.e >= sc) actionHtml = `<button class="spoon-btn buy" type="button">${t('spoon_buy_btn')}</button><div class="spoon-cost">${sc.toLocaleString()} EB</div>`;
                     else actionHtml = `<button class="spoon-btn locked" type="button" disabled>${t('spoon_buy_btn')}</button><div class="spoon-cost">${sc.toLocaleString()} EB</div>`;
@@ -3745,7 +3746,7 @@
                 this._spoonUiKey = this.spoonUiKey();
             },
             hatUiKey() {
-                return this.hats.map(h => (h.owned ? 'o' : 'u') + (h.equipped ? 'e' : '-') + (h.equipped && this.hatHidden ? 'h' : 'v') + (this.e >= this.effHatCost(h) ? 'a' : 'l')).join('|');
+                return this.hats.map(h => (h.owned ? 'o' : 'u') + (h.equipped ? 'e' : '-') + (h.owned && h.equipped && this.hatHidden ? 'h' : 'v') + (this.e >= this.effHatCost(h) ? 'a' : 'l')).join('|');
             },
             buyHat(id) {
                 const h = this.hats.find(x => x.id === id);
@@ -3793,9 +3794,8 @@
                     card.dataset.hatId = String(h.id);
                     let actionHtml = '';
                     const hc = this.effHatCost(h);
-                    if (h.equipped) {
-                        actionHtml = `<span class="spoon-equipped-badge">${t('hat_equipped')}</span>`;
-                        actionHtml += `<button class="shop-hide-toggle${this.hatHidden ? ' on' : ''}" type="button">${t(this.hatHidden ? 'hat_show' : 'hat_hide')}</button>`;
+                    if (h.owned && h.equipped) {
+                        actionHtml = `<div class="shop-card-actions"><span class="spoon-equipped-badge">${t('hat_equipped')}</span><button class="shop-hide-toggle${this.hatHidden ? ' on' : ''}" type="button">${t(this.hatHidden ? 'hat_show' : 'hat_hide')}</button></div>`;
                     } else if (h.owned) actionHtml = `<button class="spoon-btn equip" type="button">${t('hat_equip_btn')}</button>`;
                     else if (this.e >= hc) actionHtml = `<button class="spoon-btn buy" type="button">${t('hat_buy_btn')}</button><div class="spoon-cost">${hc.toLocaleString()} EB</div>`;
                     else actionHtml = `<button class="spoon-btn locked" type="button" disabled>${t('hat_buy_btn')}</button><div class="spoon-cost">${hc.toLocaleString()} EB</div>`;
