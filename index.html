@@ -1902,7 +1902,7 @@
         // while still retrying if a reload didn't actually land the new build. Fully
         // defensive: any error is silent and never blocks the game. Parent bumps BOTH
         // version.json and BUILD_V on every future deploy.
-        const BUILD_V = "build-25";
+        const BUILD_V = "build-26";
         (function () {
             function hardReloadTo(v) {
                 try {
@@ -2492,7 +2492,7 @@
             // solapes). Cada clic solo lo MANTIENE vivo (_stir.last). Tras ~700ms
             // sin clics hace fade-out (~180ms) y se detiene. Respeta mute, volumen
             // y visibilitychange. Si faltan los archivos, es un no-op silencioso.
-            _stir: { active:false, last:0, timer:null, idx:0, voices:null, cur:null, fade:null, broken:false },
+            _stir: { active:false, last:0, timer:null, idx:0, voices:null, cur:null, fade:null, broken:false, _handoff:null },
             _stirVol() { return Math.min(1, Math.max(0, (this.vols.stir != null ? this.vols.stir : 0.3) * this.volume)); },
             _stirEnsure() {
                 const S = this._stir;
@@ -2509,16 +2509,33 @@
                 if (!S.active) return;
                 const voices = S.voices;
                 if (!voices || !voices.length) { this._stirStopNow(); return; }
+                if (S._handoff) { clearTimeout(S._handoff); S._handoff = null; }
                 const a = voices[S.idx % voices.length];
                 S.idx = (S.idx + 1) % voices.length;
                 S.cur = a;
+                // GAPLESS: HTMLAudio 'ended' chaining always leaves an audible gap between
+                // stir1 and stir2. Instead we pre-schedule the NEXT voice to start a hair
+                // BEFORE the current one ends, so the swish is continuous (no pause in the
+                // middle). 'onended' stays as a safety net if the timer is throttled.
+                let advanced = false;
+                const advance = () => { if (advanced) return; advanced = true; if (this._stir.active) this._stirPlayNext(); };
                 try {
                     a.onended = null;
                     a.volume = this._stirVol();
                     a.playbackRate = Math.min(2, Math.max(0.5, 1 + (Math.random() * 2 - 1) * 0.03));
                     a.currentTime = 0;
-                    a.onended = () => { if (this._stir.active) this._stirPlayNext(); };
+                    a.onended = advance;
                     const p = a.play(); if (p && p.catch) p.catch(() => {});
+                    const arm = () => {
+                        const dur = a.duration;
+                        if (!Number.isFinite(dur) || dur <= 0) return; // onended handles it
+                        const lead = Math.min(0.14, dur * 0.16);
+                        const ms = Math.max(20, ((dur - lead) * 1000) / (a.playbackRate || 1));
+                        if (S._handoff) clearTimeout(S._handoff);
+                        S._handoff = setTimeout(advance, ms);
+                    };
+                    if (Number.isFinite(a.duration) && a.duration > 0) arm();
+                    else a.addEventListener('loadedmetadata', arm, { once: true });
                 } catch (e) { this._stirStopNow(); }
             },
             stirPulse() {
@@ -2565,6 +2582,7 @@
                 S.active = false;
                 if (S.timer) { clearInterval(S.timer); S.timer = null; }
                 if (S.fade) { clearInterval(S.fade); S.fade = null; }
+                if (S._handoff) { clearTimeout(S._handoff); S._handoff = null; }
                 const voices = S.voices;
                 if (voices) voices.forEach(a => { try { a.onended = null; a.pause(); a.currentTime = 0; a.volume = this._stirVol(); } catch (e) {} });
                 S.cur = null; S.idx = 0;
@@ -4367,18 +4385,23 @@
                 if (!game.ach.firstClick) ach.grant('firstClick');
                 this.f += 0.65;
                 const lowQ = quality.effMode() === 'low';
+                const px = (ev && (ev.clientX || ev.pageX)) || (window.innerWidth * 0.5);
+                const py = (ev && (ev.clientY || ev.pageY)) || (window.innerHeight * 0.5);
                 if (lowQ) {
-                    // Mobile low: score + sound only — zero click FX DOM/canvas work. Spoon
-                    // motion is handled by loop() while clickStir is active (every 2nd frame).
+                    // Mobile low: keep the tactile feedback that is CHEAP — the spoon wiggle
+                    // (one CSS class toggle) + a throttled floating number — but skip the
+                    // heavier per-click canvas particles + ripple so rapid tapping stays smooth.
                     const disp = Math.floor(this.e);
                     const scoreEl = this._el('score');
                     if (scoreEl && disp !== this._uiScore) { scoreEl.innerText = disp.toLocaleString(); this._uiScore = disp; }
+                    this._applySpoonStirNow();
+                    const spoon = this._spoonEl || (this._spoonEl = document.getElementById('asset-spoon'));
+                    if (spoon) { spoon.classList.add('manual-stir'); clearTimeout(this._stirT); this._stirT = setTimeout(() => { spoon.classList.remove('manual-stir'); }, 120); }
+                    this.floatNum(px, py, gain); // floatNum self-throttles to ~1/100ms on low
                 } else {
                     this._applySpoonStirNow();
                     const spoon = this._spoonEl || (this._spoonEl = document.getElementById('asset-spoon'));
                     if (spoon) { spoon.classList.add('manual-stir'); clearTimeout(this._stirT); this._stirT = setTimeout(() => { spoon.classList.remove('manual-stir'); }, 120); }
-                    const px = (ev && (ev.clientX || ev.pageX)) || (window.innerWidth * 0.5);
-                    const py = (ev && (ev.clientY || ev.pageY)) || (window.innerHeight * 0.5);
                     this.floatNum(px, py, gain);
                     const o = this.soupPartOrigin();
                     this.part(o.x + (Math.random() - 0.5) * 40, o.y + (Math.random() - 0.5) * 20, 'energy');
@@ -5447,14 +5470,15 @@
                         else sp.style.transform = `translate(-50%,-50%) rotate(${-27 + Math.sin(this.f) * 5}deg)`;
                     }
                 }
+                // Drain the auto-particle accumulator. On low/mobile we DON'T emit ambient
+                // CPS particles, so just keep the counter bounded (it's fed every logic tick).
+                if (this._autoPartAcc > 40) this._autoPartAcc = 40;
                 if (!this.p && this.c > 0 && this._autoPartAcc > 0 && !lowQ) {
                     // CAP por frame: como mucho N emisiones/frame (según calidad) aunque el CPS sea altísimo.
                     const burst = Math.min(this._autoPartAcc, quality.params.partCap);
                     const o = this.soupPartOrigin();
                     for (let i = 0; i < burst; i++) this.part(o.x + (Math.random() - 0.5) * 40, o.y + (Math.random() - 0.5) * 20, 'energy');
                     this._autoPartAcc -= burst;
-                    // Evita que el acumulador crezca sin límite con CPS muy alto.
-                    if (this._autoPartAcc > 40) this._autoPartAcc = 40;
                 }
                 if (!this.p && (this._frame % 2 === 0) && !lowQ) {
                     const sl = this._soupLiquidEl || (this._soupLiquidEl = document.getElementById('asset-soup-liquid'));
