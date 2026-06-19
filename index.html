@@ -4127,6 +4127,20 @@
                     const shopW = Math.min(380, Math.max(180, stageR.width * 0.34));
                     shopR = { left: stageR.right - shopW, top: stageR.top + stageR.height * 0.12, right: stageR.right, bottom: stageR.bottom - 72, width: shopW, height: stageR.height * 0.76 };
                 }
+                // PORTRAIT MOBILE ONLY: the shop is an off-screen slide-in sheet, so the
+                // chef↔shop midpoint collapses on top of the chef/cauldron and hides the
+                // feed/drop animations. Lift the summon focal point clearly ABOVE the chef's
+                // head instead. Landscape/desktop keep the original midpoint logic below.
+                if (window.matchMedia('(orientation: portrait) and (max-width: 768px)').matches) {
+                    const cx = (chefR.left + chefR.right) * 0.5;
+                    // Sit clearly above the chef's head: lift by ~0.7 of the chef height.
+                    const liftY = chefR.top - chefR.height * 0.7;
+                    const minY = stageR.top + 120; // keep clear of the top-center HUD line
+                    return {
+                        x: Math.min(Math.max(cx, stageR.left + 28), stageR.right - 28),
+                        y: Math.min(Math.max(liftY, minY), stageR.bottom - 72)
+                    };
+                }
                 const chefLeft = chefR.left, chefRight = chefR.right, chefTop = chefR.top, chefBottom = chefR.bottom;
                 const shopLeft = shopR.left, shopRight = shopR.right, shopTop = shopR.top, shopBottom = shopR.bottom;
                 let x;
