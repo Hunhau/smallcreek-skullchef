@@ -26,6 +26,10 @@ ARCHIVOS ESPERADOS
 
   victory.mp3    -> Victoria / coronación al ganar el Grand Prix.
 
+  eat.mp3        -> Crunch al comer ingrediente (hito FEED cada 4 niveles).
+                    Coloca aquí un .mp3 royalty-free de mordisco/crujido
+                    (~0.4–0.8 s). Si falta, el juego usa un crunch sintético.
+
 NOTAS
 --------------------------------------------------
 - Todos los sonidos son SUSTITUIBLES: cambia el contenido del archivo

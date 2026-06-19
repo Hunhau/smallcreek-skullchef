@@ -1,0 +1,27 @@
+{
+  "appId": "com.smallcreek.skullchef",
+  "appName": "Skullchef",
+  "webDir": ".",
+  "server": {
+    "androidScheme": "https"
+  },
+  "android": {
+    "backgroundColor": "#1a1030"
+  },
+  "ios": {
+    "backgroundColor": "#1a1030",
+    "contentInset": "automatic"
+  },
+  "plugins": {
+    "SplashScreen": {
+      "launchShowDuration": 2000,
+      "backgroundColor": "#1a1030",
+      "androidSplashResourceName": "splash",
+      "iosSpinnerStyle": "small"
+    },
+    "StatusBar": {
+      "style": "DARK",
+      "backgroundColor": "#1a1030"
+    }
+  }
+}
