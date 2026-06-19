@@ -2728,6 +2728,8 @@
                     this.target = game.decor.slots.chefHat ? 'decor_hat' : 'decor_face';
                 } catch (e) { this.target = 'decor_hat'; }
                 this.enter(true);
+                // Same UX as Creator placement: dismiss the modal so the chef and bottom-right panel are usable.
+                try { decor.close(); } catch (e) {}
             },
             enter(allowNonDev) {
                 if (!allowNonDev && !creator.isDev()) return;
@@ -6022,7 +6024,6 @@
                 try { this.render(); } catch (err) { console.error('decor.render', err); }
             },
             close() {
-                try { if (typeof placeTool !== 'undefined' && placeTool.active && placeTool.decorOnly) placeTool.exit(); } catch (e) {}
                 const md = document.getElementById('decor-modal');
                 if (md) md.classList.remove('open');
             },
