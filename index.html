@@ -639,6 +639,9 @@
         @media (pointer: coarse) and (orientation: portrait) and (max-width: 600px) {
             body { overflow: hidden; }
             #main-stage { flex-grow: 1; width: 100%; }
+            /* Pin cauldron feet to the stage floor (fitScene sets the scaled transform). */
+            #main-stage #sticky-center { top: auto; bottom: 0; transform-origin: 50% 518px; }
+            body.decor-bg-summer-fallback #main-stage #sticky-center { bottom: 12px; }
             /* Clearly-labeled energy counter, RIGHT-anchored: each stat is a small uppercase
                label (with a recognizable icon — 🍲 energy balls / ⬨ angel shards) stacked
                over a big readable number. Labels wrap rather than push the pill off-screen;
@@ -3778,6 +3781,8 @@
                 s.owned = true;
                 try { collection.addOwnedCharm(s.skinId); } catch (e) {}
                 sound.play('prestige');
+                this._spoonUiKey = '';
+                this.renderSpoons();
                 this._spoonAnimating = true;
                 this.summonSpoon(s, btn || document.getElementById('spoons-album'), () => {
                     this.spoons.forEach(sp => sp.equipped = false);
@@ -3810,19 +3815,21 @@
                     card.dataset.spoonId = String(s.id);
                     let actionHtml = '';
                     const sc = this.effSpoonCost(s);
-                    if (s.owned && s.equipped) {
+                    const owned = !!s.owned;
+                    if (owned) {
                         const hideLbl = s.hidden ? t('spoon_show') : t('spoon_hide');
-                        actionHtml = `<div class="shop-card-actions"><span class="spoon-equipped-badge">${t('spoon_equipped')}</span><button class="shop-hide-toggle${s.hidden ? ' on' : ''}" type="button">${hideLbl}</button></div>`;
-                    } else if (s.owned) {
-                        const hideLbl = s.hidden ? t('spoon_show') : t('spoon_hide');
-                        actionHtml = `<div class="shop-card-actions"><button class="spoon-btn equip" type="button">${t('spoon_equip_btn')}</button><button class="shop-hide-toggle${s.hidden ? ' on' : ''}" type="button">${hideLbl}</button></div>`;
+                        if (s.equipped) {
+                            actionHtml = `<div class="shop-card-actions"><span class="spoon-equipped-badge">${t('spoon_equipped')}</span><button class="shop-hide-toggle${s.hidden ? ' on' : ''}" type="button">${hideLbl}</button></div>`;
+                        } else {
+                            actionHtml = `<div class="shop-card-actions"><button class="spoon-btn equip" type="button">${t('spoon_equip_btn')}</button><button class="shop-hide-toggle${s.hidden ? ' on' : ''}" type="button">${hideLbl}</button></div>`;
+                        }
                     } else if (this.e >= sc) actionHtml = `<button class="spoon-btn buy" type="button">${t('spoon_buy_btn')}</button><div class="spoon-cost">${sc.toLocaleString()} EB</div>`;
                     else actionHtml = `<button class="spoon-btn locked" type="button" disabled>${t('spoon_buy_btn')}</button><div class="spoon-cost">${sc.toLocaleString()} EB</div>`;
                     card.innerHTML = `<img src="${this.spoonCardImg(s)}" class="spoon-card-img" alt="${t(s.cardKey)}"><span class="spoon-rarity ${s.rarity}">${t('rarity_' + s.rarity)}</span><div style="font-size:0.82rem;font-weight:bold;line-height:1.2">${t(s.cardKey)}</div><div style="font-size:0.68rem;color:#cbd5e1">${t(s.nameKey)}</div><div class="spoon-benefit">${t(s.bonusKey)}</div>${actionHtml}`;
                     const btn = card.querySelector('.spoon-btn');
                     if (btn && !btn.disabled) {
-                        if (s.owned && !s.equipped) btn.onclick = (e) => { e.stopPropagation(); this.equipSpoon(s.id, e.currentTarget); };
-                        else if (!s.owned && this.e >= this.effSpoonCost(s)) btn.onclick = (e) => { e.stopPropagation(); this.buySpoon(s.id, e.currentTarget); };
+                        if (owned && !s.equipped) btn.onclick = (e) => { e.stopPropagation(); this.equipSpoon(s.id, e.currentTarget); };
+                        else if (!owned && this.e >= this.effSpoonCost(s)) btn.onclick = (e) => { e.stopPropagation(); this.buySpoon(s.id, e.currentTarget); };
                     }
                     alb.appendChild(card);
                 });
@@ -6348,6 +6355,7 @@
                 document.body.classList.remove('decor-bg-summer-fallback');
                 if (!useSummer) {
                     document.body.style.setProperty('background', `url('${DECOR_BG_DEFAULT}') center/cover no-repeat`, 'important');
+                    try { if (typeof mobileUI !== 'undefined') mobileUI.fitScene(); } catch (e) {}
                     return;
                 }
                 this.probeSummerBg().then(ok => {
@@ -6359,6 +6367,7 @@
                         document.body.style.removeProperty('background');
                         document.body.classList.add('decor-bg-summer-fallback');
                     }
+                    try { if (typeof mobileUI !== 'undefined') mobileUI.fitScene(); } catch (e) {}
                 });
             },
             applyChefDecor() {
@@ -8178,7 +8187,8 @@
                 try {
                     const sc = document.getElementById('sticky-center');
                     if (!sc) return;
-                    if (!this.isPhone()) { sc.style.transform = ''; return; }
+                    const resetScenePos = () => { sc.style.top = ''; sc.style.bottom = ''; sc.style.transformOrigin = ''; };
+                    if (!this.isPhone()) { sc.style.transform = ''; resetScenePos(); return; }
                     const stage = document.getElementById('main-stage');
                     if (!stage) return;
                     const r = stage.getBoundingClientRect();
@@ -8190,8 +8200,20 @@
                     let s = Math.min((r.width * FIT_W) / DW, (r.height * FIT_H) / DH);
                     if (!isFinite(s) || s <= 0) return;
                     s = Math.max(0.18, Math.min(s, 1));
-                    const dy = Math.round(r.height * DROP_Y);
-                    sc.style.transform = 'translate(-50%, calc(-50% + ' + dy + 'px)) scale(' + s + ')';
+                    const portrait = window.matchMedia('(orientation: portrait) and (max-width: 600px)').matches;
+                    if (portrait) {
+                        const summer = document.body.classList.contains('decor-bg-summer-fallback')
+                            || (typeof game !== 'undefined' && game.decor && game.decor.slots && game.decor.slots.background === 'summer_beach');
+                        const FEET = 518, pad = summer ? 12 : 4;
+                        sc.style.top = 'auto';
+                        sc.style.bottom = pad + 'px';
+                        sc.style.transformOrigin = '50% ' + FEET + 'px';
+                        sc.style.transform = 'translate(-50%, ' + FEET + 'px) scale(' + s + ') translate(0, -' + FEET + 'px)';
+                    } else {
+                        resetScenePos();
+                        const dy = Math.round(r.height * DROP_Y);
+                        sc.style.transform = 'translate(-50%, calc(-50% + ' + dy + 'px)) scale(' + s + ')';
+                    }
                 } catch (e) {}
             },
             init() {
