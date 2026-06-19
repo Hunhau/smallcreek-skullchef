@@ -2685,7 +2685,7 @@
             resetSpoons() {
                 if (!this.isDev()) return;
                 try {
-                    if (game.spoons) game.spoons.forEach(s => { s.owned = false; s.equipped = false; });
+                    if (game.spoons) game.spoons.forEach(s => { s.owned = false; s.equipped = false; s.hidden = false; });
                     game.applySpoonVisual();
                     game.save();
                     game.render();
@@ -3782,10 +3782,12 @@
                     let actionHtml = '';
                     const sc = this.effSpoonCost(s);
                     if (s.owned && s.equipped) {
-                        const hideLbl = this.spoonHidden ? t('spoon_show') : t('spoon_hide');
-                        actionHtml = `<div class="shop-card-actions"><span class="spoon-equipped-badge">${t('spoon_equipped')}</span><button class="shop-hide-toggle${this.spoonHidden ? ' on' : ''}" type="button">${hideLbl}</button></div>`;
-                    } else if (s.owned) actionHtml = `<button class="spoon-btn equip" type="button">${t('spoon_equip_btn')}</button>`;
-                    else if (this.e >= sc) actionHtml = `<button class="spoon-btn buy" type="button">${t('spoon_buy_btn')}</button><div class="spoon-cost">${sc.toLocaleString()} EB</div>`;
+                        const hideLbl = s.hidden ? t('spoon_show') : t('spoon_hide');
+                        actionHtml = `<div class="shop-card-actions"><span class="spoon-equipped-badge">${t('spoon_equipped')}</span><button class="shop-hide-toggle${s.hidden ? ' on' : ''}" type="button">${hideLbl}</button></div>`;
+                    } else if (s.owned) {
+                        const hideLbl = s.hidden ? t('spoon_show') : t('spoon_hide');
+                        actionHtml = `<div class="shop-card-actions"><button class="spoon-btn equip" type="button">${t('spoon_equip_btn')}</button><button class="shop-hide-toggle${s.hidden ? ' on' : ''}" type="button">${hideLbl}</button></div>`;
+                    } else if (this.e >= sc) actionHtml = `<button class="spoon-btn buy" type="button">${t('spoon_buy_btn')}</button><div class="spoon-cost">${sc.toLocaleString()} EB</div>`;
                     else actionHtml = `<button class="spoon-btn locked" type="button" disabled>${t('spoon_buy_btn')}</button><div class="spoon-cost">${sc.toLocaleString()} EB</div>`;
                     card.innerHTML = `<img src="${this.spoonCardImg(s)}" class="spoon-card-img" alt="${t(s.cardKey)}"><span class="spoon-rarity ${s.rarity}">${t('rarity_' + s.rarity)}</span><div style="font-size:0.82rem;font-weight:bold;line-height:1.2">${t(s.cardKey)}</div><div style="font-size:0.68rem;color:#cbd5e1">${t(s.nameKey)}</div><div class="spoon-benefit">${t(s.bonusKey)}</div>${actionHtml}`;
                     const btn = card.querySelector('.spoon-btn');
@@ -3798,7 +3800,7 @@
                 this._spoonUiKey = this.spoonUiKey();
             },
             hatUiKey() {
-                return this.hats.map(h => (h.owned ? 'o' : 'u') + (h.equipped ? 'e' : '-') + (h.owned && h.equipped && this.hatHidden ? 'h' : 'v') + (this.e >= this.effHatCost(h) ? 'a' : 'l')).join('|');
+                return this.hats.map(h => (h.owned ? 'o' : 'u') + (h.equipped ? 'e' : '-') + (h.owned && h.hidden ? 'h' : 'v') + (this.e >= this.effHatCost(h) ? 'a' : 'l')).join('|');
             },
             buyHat(id) {
                 const h = this.hats.find(x => x.id === id);
@@ -3811,7 +3813,6 @@
                 sound.play('prestige');
                 this.hats.forEach(x => x.equipped = false);
                 h.equipped = true;
-                this.hatHidden = false;
                 try { collection.applyEquippedVisual(); } catch (e) {}
                 this.save();
                 this._hatUiKey = '';
@@ -3822,7 +3823,6 @@
                 if (!h || !h.owned || h.equipped || this._hatAnimating) return;
                 this.hats.forEach(x => x.equipped = false);
                 h.equipped = true;
-                this.hatHidden = false;
                 try { collection.applyEquippedVisual(); } catch (e) {}
                 this.save();
                 this._hatUiKey = '';
@@ -3830,9 +3830,11 @@
             },
             toggleHatHidden(id) {
                 const h = this.hats.find(x => x.id === id);
-                if (!h || !h.owned || !h.equipped) return;
-                this.hatHidden = !this.hatHidden;
-                try { collection.applyEquippedVisual(); } catch (e) {}
+                if (!h || !h.owned) return;
+                h.hidden = !h.hidden;
+                if (h.equipped) {
+                    try { collection.applyEquippedVisual(); } catch (e) {}
+                }
                 this.save();
                 this._hatUiKey = '';
                 this.renderHats();
@@ -3847,9 +3849,10 @@
                     let actionHtml = '';
                     const hc = this.effHatCost(h);
                     if (h.owned && h.equipped) {
-                        actionHtml = `<div class="shop-card-actions"><span class="spoon-equipped-badge">${t('hat_equipped')}</span><button class="shop-hide-toggle${this.hatHidden ? ' on' : ''}" type="button">${t(this.hatHidden ? 'hat_show' : 'hat_hide')}</button></div>`;
-                    } else if (h.owned) actionHtml = `<button class="spoon-btn equip" type="button">${t('hat_equip_btn')}</button>`;
-                    else if (this.e >= hc) actionHtml = `<button class="spoon-btn buy" type="button">${t('hat_buy_btn')}</button><div class="spoon-cost">${hc.toLocaleString()} EB</div>`;
+                        actionHtml = `<div class="shop-card-actions"><span class="spoon-equipped-badge">${t('hat_equipped')}</span><button class="shop-hide-toggle${h.hidden ? ' on' : ''}" type="button">${t(h.hidden ? 'hat_show' : 'hat_hide')}</button></div>`;
+                    } else if (h.owned) {
+                        actionHtml = `<div class="shop-card-actions"><button class="spoon-btn equip" type="button">${t('hat_equip_btn')}</button><button class="shop-hide-toggle${h.hidden ? ' on' : ''}" type="button">${t(h.hidden ? 'hat_show' : 'hat_hide')}</button></div>`;
+                    } else if (this.e >= hc) actionHtml = `<button class="spoon-btn buy" type="button">${t('hat_buy_btn')}</button><div class="spoon-cost">${hc.toLocaleString()} EB</div>`;
                     else actionHtml = `<button class="spoon-btn locked" type="button" disabled>${t('hat_buy_btn')}</button><div class="spoon-cost">${hc.toLocaleString()} EB</div>`;
                     card.innerHTML = `<img src="${this.hatCardImg(h)}" class="spoon-card-img" alt="${t(h.cardKey)}"><span class="spoon-rarity ${h.rarity}">${t('rarity_' + h.rarity)}</span><div style="font-size:0.82rem;font-weight:bold;line-height:1.2">${t(h.cardKey)}</div><div style="font-size:0.68rem;color:#cbd5e1">${t(h.nameKey)}</div><div class="spoon-benefit">${t(h.bonusKey)}</div>${actionHtml}`;
                     const btn = card.querySelector('.spoon-btn');
@@ -4857,6 +4860,7 @@
                         const eco = this.tree.eco;
                         this.e = 0; this.l = 0; this.cp.forEach(c => { const base = this.cpBaseCost[c.id] || this.cpBaseCost[this.cpBaseCost.length - 1]; c.lv = eco; c.ch = 0; c.cs = base; for (let j = 0; j < eco; j++) c.cs = Math.floor(c.cs * 1.15); });
                         try { farm.resetForPrestige(); } catch (e) {}
+                        try { this.resetShopForPrestige(); } catch (e) {}
                         this.rebuild(); this.render(); this.save(); o.style.opacity = '0'; setTimeout(()=>{o.style.display='none'; this.p=false;}, 500);
                     }, 3000);
                 }, 2000);
@@ -7458,6 +7462,25 @@
                     c.items[h.skinId] = { id: h.skinId, rarity: sk.rarity, count: 1 };
                 }
             },
+            clearShopPurchases() {
+                const c = this.normalize();
+                let ids;
+                try { ids = game.shopExclusiveSkinIds(); } catch (e) { return; }
+                let changed = false;
+                for (let i = 0; i < ids.length; i++) {
+                    const id = ids[i];
+                    if (c.items[id]) { delete c.items[id]; changed = true; }
+                    if (c.equips) {
+                        for (const slot of this.SLOTS) {
+                            if (c.equips[slot] === id) { c.equips[slot] = null; changed = true; }
+                        }
+                    }
+                }
+                if (changed) {
+                    game.coll = c;
+                    try { this.refreshFab(); } catch (e) {}
+                }
+            },
             addOwnedCharm(id) {
                 const c = this.normalize();
                 const sk = this.skinById(id);
@@ -7617,7 +7640,7 @@
                         this.applyHatVisual(collHat);
                     } else {
                         const sh = game.getEquippedShopHat();
-                        const shopHat = (sh && sh.owned && !game.hatHidden) ? game.hatCatalog(sh) : null;
+                        const shopHat = (sh && sh.owned && !game.equippedHatHidden()) ? game.hatCatalog(sh) : null;
                         this.applyHatVisual(shopHat && shopHat.img ? shopHat : null);
                     }
                 } catch (e) {}
