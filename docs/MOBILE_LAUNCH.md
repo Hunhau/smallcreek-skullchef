@@ -143,7 +143,7 @@ npx cap open ios       # Xcode → Archive → App Store Connect
 
 ### Optional native plugins (post-MVP)
 
-- `@capacitor-community/admob` — wire `ads` provider in `index.html` (TODO stubs exist).
+- `@capacitor-community/admob` — **wired** for rewarded ads on iOS/Android. See `docs/ADMOB_SETUP.md`.
 - `@capacitor/status-bar` / `@capacitor/splash-screen` — already referenced in config.
 
 ---

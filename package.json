@@ -5,11 +5,28 @@
   "private": true,
   "scripts": {
     "serve": "npx --yes serve . -l 5173",
+    "steam:build": "powershell -NoProfile -ExecutionPolicy Bypass -File tools/build-steam.ps1",
+    "steam:run": "powershell -NoProfile -ExecutionPolicy Bypass -File tools/build-steam.ps1 -Run",
+    "steam:zip": "powershell -NoProfile -ExecutionPolicy Bypass -File tools/build-steam-transfer.ps1",
     "cap:sync": "npx cap sync",
+    "www:sync": "bash tools/sync-www.sh",
+    "cap:ios:prepare": "npm run www:sync && npx cap sync ios",
+    "cap:ios:sync": "npx cap sync ios",
     "cap:android": "npx cap open android",
     "cap:ios": "npx cap open ios"
   },
   "capacitor": {
     "platforms": ["android", "ios"]
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^7.0.0"
+  },
+  "dependencies": {
+    "@capacitor/core": "^7.0.0",
+    "@capacitor/ios": "^7.0.0",
+    "@capacitor/android": "^7.0.0",
+    "@capacitor/splash-screen": "^7.0.0",
+    "@capacitor/status-bar": "^7.0.0",
+    "@capacitor-community/admob": "^7.2.0"
   }
 }

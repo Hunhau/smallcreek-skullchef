@@ -1,7 +1,7 @@
 {
-  "appId": "com.smallcreek.skullchef",
+  "appId": "com.smallcreek.skullchefapp",
   "appName": "Skullchef",
-  "webDir": ".",
+  "webDir": "www",
   "server": {
     "androidScheme": "https"
   },

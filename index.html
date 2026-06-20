@@ -1972,7 +1972,7 @@
         // while still retrying if a reload didn't actually land the new build. Fully
         // defensive: any error is silent and never blocks the game. Parent bumps BOTH
         // version.json and BUILD_V on every future deploy.
-        const BUILD_V = "build-38";
+        const BUILD_V = "build-39";
         (function () {
             function hardReloadTo(v) {
                 try {
@@ -6855,9 +6855,12 @@
         };
 
         // --- Provider adapter: mobile (Capacitor + AdMob) ---
-        // Guarded hook. Real ad unit IDs are injected at NATIVE BUILD TIME (see TODO).
         const adMobProvider = {
             id: 'admob',
+            _ready: false,
+            _booting: false,
+            _adUnitId: '',
+            _config: null,
             _plugin() {
                 try {
                     const cap = window.Capacitor;
@@ -6865,22 +6868,92 @@
                     return (cap.Plugins && cap.Plugins.AdMob) || window.AdMob || null;
                 } catch (e) { return null; }
             },
-            // Kept false until the native flow below is wired, so the system falls back to
-            // the simulator on mobile too. Once integrated, return true only when a
-            // RewardedAd is actually preloaded.
-            isAvailable() { return false; },
+            _platformKey() {
+                if (BUILD === 'ios') return 'ios';
+                if (BUILD === 'android') return 'android';
+                return null;
+            },
+            isAvailable() {
+                return this._ready && !!this._adUnitId && !!this._plugin();
+            },
+            bootstrap() {
+                const self = this;
+                if (self._booting || self._ready) return Promise.resolve(self._ready);
+                const plat = self._platformKey();
+                if (!plat || !self._plugin()) return Promise.resolve(false);
+                self._booting = true;
+                return fetch('admob.config.json', { cache: 'no-store' })
+                    .then(function (r) { return r.ok ? r.json() : null; })
+                    .catch(function () { return null; })
+                    .then(function (cfg) {
+                        if (!cfg || !cfg[plat] || !cfg[plat].rewardedAdUnitId) return false;
+                        self._config = cfg;
+                        self._adUnitId = String(cfg[plat].rewardedAdUnitId).trim();
+                        if (!self._adUnitId) return false;
+                        const AdMob = self._plugin();
+                        const initOpts = {};
+                        if (cfg.isTesting) initOpts.initializeForTesting = true;
+                        if (Array.isArray(cfg.testingDevices) && cfg.testingDevices.length) {
+                            initOpts.testingDevices = cfg.testingDevices;
+                        }
+                        return Promise.resolve(AdMob.initialize(initOpts))
+                            .then(function () { return self._runConsent(AdMob); })
+                            .then(function () { self._ready = true; return true; });
+                    })
+                    .catch(function () { return false; })
+                    .finally(function () { self._booting = false; });
+            },
+            _runConsent(AdMob) {
+                return Promise.resolve()
+                    .then(function () {
+                        if (AdMob.trackingAuthorizationStatus) return AdMob.trackingAuthorizationStatus();
+                    })
+                    .then(function (info) {
+                        if (info && info.status === 'notDetermined' && AdMob.requestTrackingAuthorization) {
+                            return AdMob.requestTrackingAuthorization();
+                        }
+                    })
+                    .then(function () {
+                        if (AdMob.requestConsentInfo) return AdMob.requestConsentInfo();
+                    })
+                    .then(function (consentInfo) {
+                        if (consentInfo && !consentInfo.canRequestAds && consentInfo.isConsentFormAvailable && AdMob.showConsentForm) {
+                            return AdMob.showConsentForm();
+                        }
+                    })
+                    .catch(function () {});
+            },
             showRewarded(rewardKey, onReward, onFail) {
-                // TODO(AdMob native build, @capacitor-community/admob):
-                //   1) Provide the real Rewarded ad unit IDs at native build time.
-                //      DO NOT hardcode IDs here (a fake/empty ID can break the native build):
-                //        const AD_UNIT_ID = '';   // <-- set per-platform at build time
-                //   2) await AdMob.prepareRewardVideoAd({ adId: AD_UNIT_ID });
-                //   3) AdMob.addListener('onRewardedVideoAdReward',       () => onReward());
-                //      AdMob.addListener('onRewardedVideoAdClosed',       () => onFail());  // closed early
-                //      AdMob.addListener('onRewardedVideoAdFailedToLoad', () => onFail());
-                //   4) await AdMob.showRewardVideoAd();
-                //   Then flip isAvailable() to check the preloaded ad. Fail closed for now.
-                onFail();
+                const AdMob = this._plugin();
+                if (!AdMob || !this._adUnitId) { onFail(); return; }
+                let rewarded = false;
+                let settled = false;
+                const handles = [];
+                const finish = function (ok) {
+                    if (settled) return;
+                    settled = true;
+                    handles.forEach(function (h) {
+                        try { if (h && h.remove) h.remove(); } catch (e) {}
+                    });
+                    if (ok) onReward(); else onFail();
+                };
+                const add = function (evt, fn) {
+                    try {
+                        const p = AdMob.addListener(evt, fn);
+                        if (p && typeof p.then === 'function') {
+                            p.then(function (h) { handles.push(h); }).catch(function () {});
+                        }
+                    } catch (e) {}
+                };
+                add('onRewardedVideoAdReward', function () { rewarded = true; finish(true); });
+                add('onRewardedVideoAdFailedToLoad', function () { finish(false); });
+                add('onRewardedVideoAdFailedToShow', function () { finish(false); });
+                add('onRewardedVideoAdDismissed', function () { if (!rewarded) finish(false); });
+                const opts = { adId: this._adUnitId };
+                if (this._config && this._config.isTesting) opts.isTesting = true;
+                Promise.resolve(AdMob.prepareRewardVideoAd(opts))
+                    .then(function () { return AdMob.showRewardVideoAd(); })
+                    .catch(function () { finish(false); });
             }
         };
 
@@ -6890,14 +6963,24 @@
             _provider: null,
             providerReady: false,
             init() {
-                this._provider = this._pick();
-                this.providerReady = !!this._provider;
-                try { rewardSystem.renderButton(); } catch (e) {}
+                const self = this;
+                if (BUILD === 'android' || BUILD === 'ios') {
+                    adMobProvider.bootstrap().then(function () {
+                        self._provider = self._pick();
+                        self.providerReady = !!self._provider;
+                        try { rewardSystem.renderButton(); } catch (e) {}
+                    });
+                } else {
+                    this._provider = this._pick();
+                    this.providerReady = !!this._provider;
+                    try { rewardSystem.renderButton(); } catch (e) {}
+                }
             },
             _pick() {
                 if ((BUILD === 'android' || BUILD === 'ios') && adMobProvider.isAvailable()) return adMobProvider;
                 if (adYtProvider.isAvailable()) return adYtProvider;
-                if (adSimProvider.isAvailable()) return adSimProvider;
+                // Simulated ads only on web / Playables — never fake ads on store builds.
+                if (BUILD !== 'android' && BUILD !== 'ios' && adSimProvider.isAvailable()) return adSimProvider;
                 return null;
             },
             isAvailable() { return !!this._provider && this._provider.isAvailable(); },
