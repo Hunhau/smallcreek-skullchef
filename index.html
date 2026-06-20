@@ -1263,8 +1263,8 @@
         <div class="side-fab" id="collection-fab" onclick="collection.open()"><span data-i18n="collection_btn">🎴 Charms</span><span id="collection-fab-thumb"></span></div>
         <div class="side-fab" onclick="quests.open()"><span data-i18n="quests_btn">📜 Chef's Orders</span><span id="quest-badge" class="badge2" style="display:none">0</span></div>
         <div class="side-fab" onclick="atree.open()" data-i18n="tree_btn">🌳 Angel Tree</div>
-        <div class="side-fab" id="farm-fab" onclick="farm.open()"><span data-i18n="farm_btn">🌱 Cultivos</span><span id="farm-badge" class="badge2" style="display:none">!</span></div>
-        <div class="side-fab" id="decor-fab" onclick="window.decor&&window.decor.open()" data-i18n="decor_btn">🏖️ Decorar</div>
+        <div class="side-fab" id="farm-fab" onclick="farm.open()"><span data-i18n="farm_btn">🌱 Farm</span><span id="farm-badge" class="badge2" style="display:none">!</span></div>
+        <div class="side-fab" id="decor-fab" onclick="window.decor&&window.decor.open()" data-i18n="decor_btn">🏖️ Decorate</div>
         <div class="side-fab" id="reward-fab" style="min-height:44px;display:none" onclick="rewardsUI.open()"><span id="reward-fab-label">🎁</span></div>
         <div class="side-fab" id="ambient-fab" onclick="ambient.open()" data-i18n="ambient_btn">🎧 Ambience</div>
         <div class="side-fab" id="creator-fab" onclick="creator.open()"><span data-i18n="creator_btn">📺 Creator</span><span id="creator-fab-live" class="badge2" style="display:none">●</span></div>
@@ -1972,7 +1972,7 @@
         // while still retrying if a reload didn't actually land the new build. Fully
         // defensive: any error is silent and never blocks the game. Parent bumps BOTH
         // version.json and BUILD_V on every future deploy.
-        const BUILD_V = "build-37";
+        const BUILD_V = "build-38";
         (function () {
             function hardReloadTo(v) {
                 try {
@@ -2122,8 +2122,8 @@
                 /* ===== CREATOR FX TEST i18n — KEEP (creator-only) ===== */
                 dev_test_section:"Summon FX test (dev)", dev_test_helper:"Helper slot",
                 dev_test_feed:"Test feed (mouth · lv4)", dev_test_rain:"Test extra rain (lv10)", dev_test_both:"Test both (lv20)",
-                farm_btn:"🌱 Cultivos", farm_title:"🌱 Ingredient Farm", farm_sub:"Grow ingredients for helper throws. Soup stirring always works!", farm_auto_replant:"Auto-replant after harvest", farm_plant:"Plant", farm_harvest:"Tap!", farm_water:"Water", farm_watered:"Watered", farm_empty_throw:"Out of {glyph}! Helpers need ingredients — open 🌱 Cultivos!", farm_prestige_reset:"Your pantry restarts fresh for the new kitchen! 🌱", farm_dev_fill:"Ingredient stock filled (dev)",
-                decor_btn:"🏖️ Decorar", decor_title:"🏖️ Decorate", decor_sub:"Swap the kitchen backdrop and dress up the chef for summer.", decor_bg_hint:"Sunny beach backdrop—equip Beach below to replace the kitchen.", decor_section_bg:"Background", decor_section_chef:"Chef", decor_section_edit:"Adjust position", decor_edit_hint:"Use the placement panel (bottom-right): arrows move, +/- size, [ ] rotate, Tab switches hat/glasses.", decor_place_btn:"Adjust position", decor_place_on:"Placement ON — use panel bottom-right", decor_place_off:"Placement OFF", decor_edit_none:"Equip a hat or glasses first", decor_edit_hat:"Straw hat", decor_edit_shades:"Sunglasses", decor_bg_default:"Kitchen (default)", decor_summer_beach:"Beach (background)", decor_summer_straw_hat:"Straw hat", decor_summer_shades:"Sunglasses", decor_equip:"Equip", decor_unequip:"Remove", decor_equipped:"Equipped", decor_locked:"Seasonal pack locked", decor_dev_unlock:"Unlock all decorations (dev)",
+                farm_btn:"🌱 Farm", farm_title:"🌱 Ingredient Farm", farm_sub:"Grow ingredients for helper throws. Soup stirring always works!", farm_auto_replant:"Auto-replant after harvest", farm_plant:"Plant", farm_harvest:"Tap!", farm_water:"Water", farm_watered:"Watered", farm_empty_throw:"Out of {glyph}! Helpers need ingredients — open 🌱 Farm!", farm_prestige_reset:"Your pantry restarts fresh for the new kitchen! 🌱", farm_dev_fill:"Ingredient stock filled (dev)",
+                decor_btn:"🏖️ Decorate", decor_title:"🏖️ Decorate", decor_sub:"Swap the kitchen backdrop and dress up the chef for summer.", decor_bg_hint:"Sunny beach backdrop—equip Beach below to replace the kitchen.", decor_section_bg:"Background", decor_section_chef:"Chef", decor_section_edit:"Adjust position", decor_edit_hint:"Use the placement panel (bottom-right): arrows move, +/- size, [ ] rotate, Tab switches hat/glasses.", decor_place_btn:"Adjust position", decor_place_on:"Placement ON — use panel bottom-right", decor_place_off:"Placement OFF", decor_edit_none:"Equip a hat or glasses first", decor_edit_hat:"Straw hat", decor_edit_shades:"Sunglasses", decor_bg_default:"Kitchen (default)", decor_summer_beach:"Beach (background)", decor_summer_straw_hat:"Straw hat", decor_summer_shades:"Sunglasses", decor_equip:"Equip", decor_unequip:"Remove", decor_equipped:"Equipped", decor_locked:"Seasonal pack locked", decor_dev_unlock:"Unlock all decorations (dev)",
                 creator_grant_all:"Unlock all charms", creator_grant_all_ok:"All catalog charms unlocked ({n})",
                 creator_reset_spoons:"Reset album spoons", creator_reset_spoons_ok:"Album spoons reset"
                 /* ===== END ===== */
