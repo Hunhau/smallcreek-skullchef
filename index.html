@@ -1973,7 +1973,7 @@
         // while still retrying if a reload didn't actually land the new build. Fully
         // defensive: any error is silent and never blocks the game. Parent bumps BOTH
         // version.json and BUILD_V on every future deploy.
-        const BUILD_V = "build-49";
+        const BUILD_V = "build-50";
         (function () {
             function hardReloadTo(v) {
                 try {
@@ -2069,7 +2069,7 @@
                 lore4:"Skullchef journeyed with Angel's soul in soup.", lore5:"The soup is ready. Awaken the Soul to ascend.", lore6:"Success. Small Angel's energy is woven into Earth.",
                 reward_watch:"Watch",
                 reward_cooldown:"in {time}", reward_daily_left:"{n}/{max} today", reward_granted:"Reward granted: {r} 🎁", ad_failed:"Ad not completed — no reward", offline_double:"x2 (Watch ad)",
-                reward_fab:"Watch ad", reward_brew2:"Double Brew", reward_brew2_d:"x2 production for 5 min", reward_instapot:"Instant Pot", reward_instapot_d:"Instant batch · ~5 min of earnings", reward_lucky:"Lucky Drop", reward_lucky_d:"A free charm drop", reward_daily_done:"Done for today", reward_later:"Come back later", reward_modal_title:"Watch an ad", reward_modal_sub:"Watch a short ad for a reward", ad_sim_label:"Advertisement", ad_sim_hint:"Your reward is on the way…", ad_unavailable:"Ads aren't available here",
+                reward_fab:"Watch ad", reward_brew2:"Double Brew", reward_brew2_d:"x2 production for 5 min", reward_instapot:"Instant Pot", reward_instapot_d:"Instant batch · ~5 min of earnings", reward_lucky:"Lucky Drop", reward_lucky_d:"A free charm drop", reward_daily_done:"Done for today", reward_later:"Come back later", reward_modal_title:"Watch an ad", reward_modal_sub:"Watch a short ad for a reward", ad_sim_label:"Advertisement", ad_sim_hint:"Your reward is on the way…", ad_loading:"Loading ad…", ad_unavailable:"Ads aren't available here",
                 rotate_title:"Rotate your device", rotate_msg:"Skullchef plays best in landscape. Turn your device sideways to keep cooking.", rotate_continue:"Continue anyway",
                 settings_title:"Settings", settings_quality:"Quality", quality_auto:"Auto", quality_high:"High", quality_low:"Low",
                 settings_fullscreen:"Fullscreen", fs_enter:"⛶ Enter", fs_exit:"⛶ Exit",
@@ -2183,7 +2183,7 @@
                 lore4:"Skullchef viajó con el alma del Ángel en la sopa.", lore5:"La sopa está lista. Despierta el Alma para ascender.", lore6:"Logrado. La energía del Pequeño Ángel se teje en la Tierra.",
                 reward_watch:"Ver",
                 reward_cooldown:"en {time}", reward_daily_left:"{n}/{max} hoy", reward_granted:"Recompensa concedida: {r} 🎁", ad_failed:"Anuncio no completado — sin recompensa", offline_double:"x2 (Ver anuncio)",
-                reward_fab:"Ver anuncio", reward_brew2:"Caldo Doble", reward_brew2_d:"x2 producción durante 5 min", reward_instapot:"Olla Instantánea", reward_instapot_d:"Lote instantáneo · ~5 min de ganancias", reward_lucky:"Golpe de Suerte", reward_lucky_d:"Un amuleto gratis", reward_daily_done:"Listo por hoy", reward_later:"Vuelve más tarde", reward_modal_title:"Mira un anuncio", reward_modal_sub:"Mira un anuncio corto por una recompensa", ad_sim_label:"Anuncio", ad_sim_hint:"Tu recompensa está en camino…", ad_unavailable:"Los anuncios no están disponibles aquí",
+                reward_fab:"Ver anuncio", reward_brew2:"Caldo Doble", reward_brew2_d:"x2 producción durante 5 min", reward_instapot:"Olla Instantánea", reward_instapot_d:"Lote instantáneo · ~5 min de ganancias", reward_lucky:"Golpe de Suerte", reward_lucky_d:"Un amuleto gratis", reward_daily_done:"Listo por hoy", reward_later:"Vuelve más tarde", reward_modal_title:"Mira un anuncio", reward_modal_sub:"Mira un anuncio corto por una recompensa", ad_sim_label:"Anuncio", ad_sim_hint:"Tu recompensa está en camino…", ad_loading:"Cargando anuncio…", ad_unavailable:"Los anuncios no están disponibles aquí",
                 rotate_title:"Gira tu dispositivo", rotate_msg:"Skullchef se juega mejor en horizontal. Gira tu dispositivo para seguir cocinando.", rotate_continue:"Continuar igual",
                 settings_title:"Ajustes", settings_quality:"Calidad", quality_auto:"Auto", quality_high:"Alta", quality_low:"Baja",
                 settings_fullscreen:"Pantalla completa", fs_enter:"⛶ Activar", fs_exit:"⛶ Salir",
@@ -6966,6 +6966,13 @@
                 } catch (e) { return null; }
             },
             _platformKey() {
+                try {
+                    const cap = window.Capacitor;
+                    if (cap && typeof cap.getPlatform === 'function') {
+                        const p = cap.getPlatform();
+                        if (p === 'ios' || p === 'android') return p;
+                    }
+                } catch (e) {}
                 if (BUILD === 'ios') return 'ios';
                 if (BUILD === 'android') return 'android';
                 return null;
@@ -7024,6 +7031,7 @@
                 const self = this;
                 const AdMob = self._plugin();
                 if (!AdMob || !self._adUnitId) { onFail(); return; }
+                try { gx.toast(t('ad_loading')); } catch (e) {}
                 let settled = false;
                 const handles = [];
                 const finish = function (ok) {
@@ -7065,9 +7073,13 @@
         const ads = {
             _provider: null,
             providerReady: false,
+            _inited: false,
             init() {
                 const self = this;
-                if (BUILD === 'android' || BUILD === 'ios') {
+                if (self._inited) return;
+                self._inited = true;
+                const plat = adMobProvider._platformKey();
+                if (plat === 'android' || plat === 'ios') {
                     adMobProvider.bootstrap().then(function () {
                         self._provider = self._pick();
                         self.providerReady = !!self._provider;
@@ -7080,12 +7092,13 @@
                 }
             },
             _pick() {
-                if ((BUILD === 'android' || BUILD === 'ios') && adMobProvider.isAvailable()) return adMobProvider;
+                const plat = adMobProvider._platformKey();
+                if ((plat === 'android' || plat === 'ios') && adMobProvider.isAvailable()) return adMobProvider;
                 try {
                     if (typeof isPlayablesEnv === 'function' && isPlayablesEnv() && adYtProvider.isAvailable()) return adYtProvider;
                 } catch (e) {}
                 // PC / localhost / browser testing — simulated 3-2-1 countdown.
-                if (BUILD !== 'android' && BUILD !== 'ios' && adSimProvider.isAvailable()) return adSimProvider;
+                if (plat !== 'android' && plat !== 'ios' && adSimProvider.isAvailable()) return adSimProvider;
                 return null;
             },
             isAvailable() { return !!this._provider && this._provider.isAvailable(); },
@@ -9511,6 +9524,7 @@
             try { creator.render(); creator.syncLive(); creator.startLivePolling(); } catch (e) {}
             try { mobileUI.init(); } catch (e) {}
             try { helpersBox.init(); } catch (e) {}
+            try { ads.init(); } catch (e) {}
             // Juego inicializado y jugable. Fuera de Playables es no-op silencioso.
             ytPlayables.gameReady();
             // Playables: zero full-res skin decode before gameReady — apply equipped visuals now.
@@ -9518,8 +9532,7 @@
         }
         // Arranca el SDK de Playables cuanto antes (no-op total fuera de Playables).
         ytPlayables.init();
-        // Pick the rewarded-ads provider (real on Playables/mobile, simulated on web; off on Steam/desktop).
-        ads.init();
+        // ads.init() runs inside boot() after Capacitor platform detection.
         // Optimización de arranque: NO esperamos a window.onload (que se bloquea hasta que
         // TODOS los assets pesados estén cargados). Inicializamos en cuanto el DOM está listo
         // para que el primer frame (la home) sea inmediato y nada bloquee el render inicial.
