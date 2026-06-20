@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
 # Skullchef — one-shot iOS / Capacitor setup (run on Mac only).
-# Usage:
-#   cd "/path/to/SmallCreek Game"
-#   chmod +x tools/setup-ios-mac.sh
-#   ./tools/setup-ios-mac.sh
-
 set -eu
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT"
+
+# Scripts may arrive with Windows CRLF from the transfer ZIP — bash rejects those.
+for _sh in "$ROOT"/tools/*.sh; do
+  [ -f "$_sh" ] && sed -i '' 's/\r$//' "$_sh" 2>/dev/null || true
+done
 
 echo "==> Skullchef iOS setup"
 echo "    Project: $ROOT"
@@ -19,26 +19,21 @@ if ! command -v node >/dev/null 2>&1; then
 fi
 
 if ! command -v xcodebuild >/dev/null 2>&1; then
-  echo "ERROR: Xcode not found. Install from Mac App Store, then run: xcode-select --install"
+  echo "ERROR: Xcode not found. Install from Mac App Store and open it once."
   exit 1
 fi
 
 echo "==> Node $(node -v) | npm $(npm -v)"
 
-# Patch BUILD_TARGET for store builds (web GitHub Pages stays 'web' in repo until you sync).
 INDEX="$ROOT/index.html"
 if grep -q "BUILD_TARGET_OVERRIDE = 'web'" "$INDEX"; then
-  if [[ "$(uname)" == "Darwin" ]]; then
-    sed -i '' "s/BUILD_TARGET_OVERRIDE = 'web'/BUILD_TARGET_OVERRIDE = 'auto'/" "$INDEX"
-  else
-    sed -i "s/BUILD_TARGET_OVERRIDE = 'web'/BUILD_TARGET_OVERRIDE = 'auto'/" "$INDEX"
-  fi
-  echo "==> Patched BUILD_TARGET_OVERRIDE -> auto in index.html (Mac store build)"
+  sed -i '' "s/BUILD_TARGET_OVERRIDE = 'web'/BUILD_TARGET_OVERRIDE = 'auto'/" "$INDEX"
+  echo "==> Patched BUILD_TARGET_OVERRIDE -> auto in index.html"
 fi
 
-if [[ ! -f "$ROOT/admob.config.json" && -f "$ROOT/admob.config.example.json" ]]; then
+if [ ! -f "$ROOT/admob.config.json" ] && [ -f "$ROOT/admob.config.example.json" ]; then
   cp "$ROOT/admob.config.example.json" "$ROOT/admob.config.json"
-  echo "==> Created admob.config.json from example (edit with your AdMob IDs before App Store)"
+  echo "==> Created admob.config.json from example"
 fi
 
 echo "==> Installing npm dependencies..."
@@ -46,7 +41,7 @@ npm install @capacitor/core @capacitor/cli @capacitor/ios \
   @capacitor/splash-screen @capacitor/status-bar \
   @capacitor-community/admob
 
-if [[ ! -d "$ROOT/ios" ]]; then
+if [ ! -d "$ROOT/ios" ]; then
   echo "==> Adding iOS platform..."
   npx cap add ios
 else
@@ -59,21 +54,25 @@ bash "$ROOT/tools/sync-www.sh"
 echo "==> Syncing web assets into native project..."
 npx cap sync ios
 
-if [[ -x "$ROOT/tools/patch-ios-admob-plist.sh" ]]; then
+ICON_SRC="$ROOT/ios-app-icon/AppIcon.appiconset"
+ICON_DST="$ROOT/ios/App/App/Assets.xcassets/AppIcon.appiconset"
+if [ -d "$ICON_SRC" ] && [ -f "$ICON_SRC/icon-1024.png" ] && [ -d "$ICON_DST" ]; then
+  cp -f "$ICON_SRC"/* "$ICON_DST"/
+  rm -f "$ICON_DST"/AppIcon-512@2x.png 2>/dev/null || true
+  echo "==> App icon installed (AppIcon.appiconset)"
+fi
+
+if [ -f "$ROOT/tools/patch-ios-admob-plist.sh" ]; then
   bash "$ROOT/tools/patch-ios-admob-plist.sh"
-elif [[ -f "$ROOT/tools/patch-ios-admob-plist.sh" ]]; then
-  chmod +x "$ROOT/tools/patch-ios-admob-plist.sh"
-  bash "$ROOT/tools/patch-ios-admob-plist.sh"
+fi
+
+if [ -f "$ROOT/tools/patch-ios-audio-session.sh" ]; then
+  bash "$ROOT/tools/patch-ios-audio-session.sh"
 fi
 
 echo ""
 echo "Done. Next steps:"
-echo "  1. npx cap open ios"
-echo "  2. Xcode -> Signing & Capabilities -> Team = your Apple Developer account"
-echo "  3. Bundle ID: com.smallcreek.skullchefapp"
-echo "  4. AdMob: edit admob.config.json → real IDs before App Store (see docs/ADMOB_SETUP.md)"
-echo "  5. Connect iPhone -> Run (Play) — test rewarded ad via side menu 🎁"
-echo "  6. Product -> Archive -> Distribute to App Store Connect"
-echo ""
-echo "App Store Connect: https://appstoreconnect.apple.com"
-echo "Privacy URL: https://hunhau.github.io/smallcreek-skullchef/privacy.html"
+echo "  1. Open ios/App/App.xcworkspace in Xcode"
+echo "  2. Signing -> Team = your Apple Developer account"
+echo "  3. Bundle ID: com.smallcreek.skullchef"
+echo "  4. Product -> Archive -> Upload to App Store Connect"

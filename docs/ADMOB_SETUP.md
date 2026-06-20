@@ -5,7 +5,7 @@ Skullchef usa **anuncios recompensados** (ver anuncio → bonus en el juego). Lo
 ## Antes de subir a App Store (obligatorio)
 
 1. Crear cuenta en [AdMob](https://admob.google.com).
-2. Añadir app **iOS** → Bundle ID `com.smallcreek.skullchefapp` (o el que uses en Xcode).
+2. Añadir app **iOS** → Bundle ID `com.smallcreek.skullchef` (debe coincidir con App Store Connect y Xcode).
 3. Crear unidad **Rewarded** → copiar **App ID** y **Ad unit ID**.
 4. Copiar `admob.config.example.json` → `admob.config.json` y pegar tus IDs reales.
 5. Poner `"isTesting": false` antes del envío a revisión.

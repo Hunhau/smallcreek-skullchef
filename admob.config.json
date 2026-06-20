@@ -1,12 +1,12 @@
 {
-  "isTesting": true,
+  "isTesting": false,
   "testingDevices": [],
   "ios": {
-    "appId": "ca-app-pub-3940256099942544~1458002511",
-    "rewardedAdUnitId": "ca-app-pub-3940256099942544/1712485313"
+    "appId": "ca-app-pub-8530208236054868~3086248782",
+    "rewardedAdUnitId": "ca-app-pub-8530208236054868/7804378526"
   },
   "android": {
-    "appId": "ca-app-pub-3940256099942544~3347511713",
-    "rewardedAdUnitId": "ca-app-pub-3940256099942544/5224354917"
+    "appId": "",
+    "rewardedAdUnitId": ""
   }
 }

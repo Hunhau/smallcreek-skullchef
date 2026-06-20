@@ -7,7 +7,7 @@ New-Item -ItemType Directory -Path $www | Out-Null
 
 $items = @(
     'index.html', 'sw.js', 'manifest.webmanifest', 'privacy.html',
-    'version.json', 'live.json', 'events.js', 'assets', 'leaderboard', 'admob.config.json'
+    'version.json', 'live.json', 'events.js', 'assets', 'audio', 'leaderboard', 'admob.config.json'
 )
 foreach ($item in $items) {
     $src = Join-Path $root $item

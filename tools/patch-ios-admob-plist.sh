@@ -28,6 +28,9 @@ fi
 /usr/libexec/PlistBuddy -c "Add :NSUserTrackingUsageDescription string $TRACKING_MSG" "$PLIST" 2>/dev/null \
   || /usr/libexec/PlistBuddy -c "Set :NSUserTrackingUsageDescription $TRACKING_MSG" "$PLIST"
 
+/usr/libexec/PlistBuddy -c "Add :ITSAppUsesNonExemptEncryption bool false" "$PLIST" 2>/dev/null \
+  || /usr/libexec/PlistBuddy -c "Set :ITSAppUsesNonExemptEncryption false" "$PLIST"
+
 # Minimal SKAdNetwork entry (AdMob plugin docs); Google recommends full list for better fill.
 if ! /usr/libexec/PlistBuddy -c "Print :SKAdNetworkItems" "$PLIST" >/dev/null 2>&1; then
   /usr/libexec/PlistBuddy -c "Add :SKAdNetworkItems array" "$PLIST"

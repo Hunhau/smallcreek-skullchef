@@ -20,6 +20,7 @@ copy "$ROOT/version.json"
 copy "$ROOT/live.json"
 copy "$ROOT/events.js"
 copy "$ROOT/assets"
+copy "$ROOT/audio"
 copy "$ROOT/leaderboard"
 copy "$ROOT/admob.config.json"
 

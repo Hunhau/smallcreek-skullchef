@@ -192,9 +192,9 @@
         .shop-hide-toggle { display: block; flex-shrink: 0; margin-top: 0; padding: 4px 10px; border-radius: 6px; font-size: 0.62rem; font-weight: bold; border: 1px solid #fff3; cursor: pointer; text-transform: uppercase; letter-spacing: 0.4px; background: rgba(51, 65, 85, 0.55); color: #cbd5e1; width: 100%; max-width: 180px; box-sizing: border-box; }
         .shop-hide-toggle.on { background: rgba(168, 85, 247, 0.25); color: var(--ac); border-color: var(--ac); }
         #prestige-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 80000; display: none; opacity: 0; background: linear-gradient(180deg, #020617 0%, #1e1b4b 50%, #2e1065 100%); flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.8s; }
-        #victory-cinema { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 65000; display: none; align-items: center; justify-content: center; pointer-events: none; opacity: 1; transition: opacity 0.8s ease, transform 0.8s ease; }
-        #cinema-plushie { position: absolute; top: 45%; left: 50%; transform: translate(-50%, -50%) scale(2.5); max-width: 300px; max-height: 25vh; object-fit: contain; filter: drop-shadow(0 0 30px var(--ac)); transition: all 1s; }
-        #cinema-crown { position: absolute; top: -150px; left: 50%; transform: translateX(-50%) scale(2.2); font-size: 4rem; z-index: 999999 !important; }
+        #victory-cinema { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 105000; display: none; align-items: center; justify-content: center; pointer-events: none; opacity: 1; transition: opacity 0.8s ease, transform 0.8s ease; }
+        #cinema-plushie { position: fixed; top: 45%; left: 50%; transform: translate(-50%, -50%) scale(2.5); width: min(300px, 42vw); max-width: min(320px, 44vw); min-height: 90px; max-height: min(290px, 40vh); object-fit: contain; filter: drop-shadow(0 0 30px var(--ac)); transition: all 1s; z-index: 105001; }
+        #cinema-crown { position: fixed; top: -150px; left: 50%; transform: translate(-50%, -50%) scale(2.2); font-size: 4rem; z-index: 105002 !important; filter: drop-shadow(0 0 12px var(--go)); pointer-events: none; }
         #race-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle, #1e1b4b, #000); z-index: 100000; display: none; flex-direction: column; align-items: center; justify-content: center; }
         #race-track { width: 800px; height: 65vh; border: 4px solid var(--ac); display: flex; position: relative; border-radius: 20px; overflow: hidden;
             background:
@@ -1226,7 +1226,7 @@
             <div id="home-footer">
                 <p id="home-credits" data-i18n="home_credits">by SmallCreek</p>
                 <p id="home-footer-links"><a id="home-privacy" href="privacy.html" target="_blank" rel="noopener" data-i18n="privacy_link">Privacy</a></p>
-                <p id="home-version">v1.0.0</p>
+                <p id="home-version">v1.0.1</p>
             </div>
         </div>
     </div>
@@ -1238,7 +1238,7 @@
     </div>
     <img id="angel-showcase" src="assets/img/angel.png" loading="lazy" decoding="async">
     <div id="prestige-overlay"><h1 data-i18n="soul_awakened" style="color:var(--go); font-size:4rem; text-shadow:0 0 30px var(--go);">[ SOUL AWAKENED ]</h1><p id="pres-lore" style="max-width:600px; text-align:center; font-size:1.4rem; line-height:1.6; margin:20px;"></p></div>
-    <div id="victory-cinema"><div id="cinema-crown">👑</div><img id="cinema-plushie" src="" decoding="async"></div>
+    <div id="victory-cinema"><div id="cinema-crown">👑</div><img id="cinema-plushie" src="" alt="" decoding="async"></div>
     <div id="race-modal">
         <h1 data-i18n="prix_title" style="color:var(--go); letter-spacing:4px;">ESQUELOTIA GRAND PRIX</h1>
         <div id="p-sel" style="text-align:center;"><p data-i18n="select_champion">Select Champion!</p><div id="p-list" style="display:flex; gap:20px; justify-content:center;"></div></div>
@@ -1458,7 +1458,7 @@
         var VALID = ['web', 'playables', 'steam', 'android', 'ios'];
 
         // ↓↓↓ SET THIS PER PLATFORM BUILD. Default 'web' = unchanged web behaviour. ↓↓↓
-        var BUILD_TARGET_OVERRIDE = 'web'; // 'web' | 'playables' | 'steam' | 'android' | 'ios' | 'auto'
+        var BUILD_TARGET_OVERRIDE = 'auto'; // 'web' | 'playables' | 'steam' | 'android' | 'ios' | 'auto'
         // Store / production upload: set true to strip creator-only dev tools from players.
         var PRODUCTION_BUILD = true;
         // ↑↑↑ A packaging script may rewrite the lines above for each store build. ↑↑↑
@@ -1467,7 +1467,8 @@
         // Returns a valid platform string or null (null -> caller falls back to 'web').
         function autoDetect() {
             try {
-                if (global.ytgame || /\bPlayables\b/i.test((global.navigator && navigator.userAgent) || '')) return 'playables';
+                // ytgame exists on localhost too (script in <head>); only Playables when embedded.
+                if (global.ytgame && global.ytgame.IN_PLAYABLES_ENV) return 'playables';
             } catch (e) {}
             try {
                 if (global.Capacitor && typeof global.Capacitor.getPlatform === 'function') {
@@ -1972,7 +1973,7 @@
         // while still retrying if a reload didn't actually land the new build. Fully
         // defensive: any error is silent and never blocks the game. Parent bumps BOTH
         // version.json and BUILD_V on every future deploy.
-        const BUILD_V = "build-39";
+        const BUILD_V = "build-49";
         (function () {
             function hardReloadTo(v) {
                 try {
@@ -2272,7 +2273,29 @@
             try { if (typeof tutorial !== 'undefined' && tutorial.active) tutorial.render(); } catch (e) {}
         }
         const sound = {
-            defs: { stir:['audio/stir1.mp3','audio/stir2.mp3'], bubble:['audio/bubble.mp3'], buy:['audio/buy.mp3'], prestige:['audio/prestige.mp3'], victory:['audio/victory.mp3'], eat:['audio/eat.mp3'], rainStart:['audio/audiorain_start.mp3'], bubblePop:['audio/audiobubble_pop.mp3'], farmAbrir:['audio/farm_abrir.mp3'], farmPlantar:['audio/farm_plantar.mp3'], farmRegar:['audio/farm_regar.mp3'], farmListo:['audio/farm_listo.mp3'], farmCosechar:['audio/farm_cosechar.mp3','audio/farm_cosechar_1.mp3','audio/farm_cosechar_2.mp3','audio/farm_cosechar_3.mp3'], farmSinStock:['audio/farm_sin_stock.mp3'], farmPrestigio:['audio/farm_prestigio.mp3'], farmBonus:['audio/farm_bonus.mp3'] },
+            defs: { stir:['audio/stir1.mp3','audio/stir2.mp3'], bubble:['audio/bubble.mp3'], buy:['audio/buy.mp3'], prestige:['audio/prestige.mp3'], victory:['audio/victory.mp3'], eat:['audio/eat.mp3'], rainStart:['audio/audiorain_start.mp3'], bubblePop:['audio/audiobubble_pop.mp3'], farmAbrir:['audio/farm_abrir.mp3'], farmPlantar:['audio/farm_plantar.mp3'], farmRegar:['audio/farm_regar.mp3'], farmListo:['audio/farm_listo.mp3'], farmCosechar:['audio/farm_cosechar.mp3'], farmSinStock:['audio/farm_sin_stock.mp3'], farmPrestigio:['audio/farm_prestigio.mp3'] },
+            _isNativeCap() {
+                try {
+                    const cap = window.Capacitor;
+                    return !!(cap && typeof cap.isNativePlatform === 'function' && cap.isNativePlatform());
+                } catch (e) { return false; }
+            },
+            _mediaUrl(src) {
+                if (!src) return src;
+                try {
+                    const abs = new URL(src, document.baseURI || location.href).href;
+                    const cap = window.Capacitor;
+                    if (cap && typeof cap.convertFileSrc === 'function') return cap.convertFileSrc(abs);
+                    return abs;
+                } catch (e) { return src; }
+            },
+            _makeAudio(src) {
+                const a = new Audio();
+                try { a.setAttribute('playsinline', ''); a.setAttribute('webkit-playsinline', 'true'); a.playsInline = true; } catch (e) {}
+                try { a.preload = this._isNativeCap() ? 'metadata' : 'auto'; } catch (e) {}
+                if (src) { try { a.src = this._mediaUrl(src); } catch (e) {} }
+                return a;
+            },
             vols: { stir:0.3, bubble:0.25, buy:0.5, prestige:0.7, victory:0.85, eat:0.48, rainStart:0.55, bubblePop:0.30, farmAbrir:0.45, farmPlantar:0.42, farmRegar:0.4, farmListo:0.5, farmCosechar:0.48, farmSinStock:0.45, farmPrestigio:0.65, farmBonus:0.55 },
             // === SFX rapid-fire shaping (ADITIVO) ===========================
             // minGap = intervalo mínimo (ms) entre re-disparos del MISMO sonido
@@ -2311,18 +2334,17 @@
                 // con throws. Lo silenciamos explícitamente para que el juego suene "vacío"
                 // pero jamás rompa. El juego funciona con CERO archivos en audio/.
                 try {
-                    this._eatPreload = new Audio('audio/eat.mp3');
-                    this._eatPreload.preload = 'auto';
+                    this._eatPreload = this._makeAudio('audio/eat.mp3');
                     this._eatPreload.addEventListener('error', () => {}, { passive: true });
                 } catch (e) { this._eatPreload = null; }
-                for (const k in this.defs) { this.pool[k] = this.defs[k].map(src => { const a = new Audio(); a.addEventListener('error', () => {}, { passive: true }); a.src = src; a.preload = 'auto'; return a; }); }
+                for (const k in this.defs) { this.pool[k] = this.defs[k].map(src => { const a = this._makeAudio(src); a.addEventListener('error', () => {}, { passive: true }); return a; }); }
                 // POOL de reproducción: por cada fuente se crean unas pocas instancias
                 // reutilizables (round-robin) en vez de clonar un Audio nuevo en cada play().
                 const VOICES_PER_SRC = 3;
                 for (const k in this.defs) {
                     this.voices[k] = this.defs[k].map(src => {
                         const inst = [];
-                        for (let i = 0; i < VOICES_PER_SRC; i++) { const a = new Audio(); a.addEventListener('error', () => {}, { passive: true }); a.src = src; a.preload = 'auto'; inst.push(a); }
+                        for (let i = 0; i < VOICES_PER_SRC; i++) { const a = this._makeAudio(src); a.addEventListener('error', () => {}, { passive: true }); inst.push(a); }
                         return { inst, idx: 0 };
                     });
                 }
@@ -2387,26 +2409,35 @@
             },
             // Legacy alias kept for any external callers.
             _reprimePool() { this.recoverFromBackground(); },
+            _primeOne(a) {
+                if (!a) return;
+                try { a.muted = true; const p = a.play(); if (p && p.catch) p.catch(() => {}); a.pause(); a.currentTime = 0; a.muted = false; } catch (e) {}
+            },
             unlock() {
                 if (this._unlocked) return; this._unlocked = true;
-                const prime = (a) => {
-                    if (!a) return;
-                    try { a.muted = true; const p = a.play(); if (p && p.catch) p.catch(() => {}); a.pause(); a.currentTime = 0; a.muted = false; } catch (e) {}
-                };
                 try {
-                    for (const k in this.pool) {
-                        const arr = this.pool[k]; if (!arr || !arr.length) continue;
-                        prime(arr[0]);
+                    // iOS WKWebView rejects mass-priming dozens of voices in one gesture.
+                    if (this._isNativeCap()) {
+                        this._primeOne(this._makeAudio('audio/bubble.mp3'));
+                        const sv = this._stirEnsure();
+                        if (sv && sv[0]) this._primeOne(sv[0]);
+                    } else {
+                        for (const k in this.flat) {
+                            const arr = this.flat[k];
+                            if (arr) for (let i = 0; i < arr.length; i++) this._primeOne(arr[i]);
+                        }
+                        this._primeOne(this._eatPreload);
+                        const sv = this._stir.voices;
+                        if (sv) for (let i = 0; i < sv.length; i++) this._primeOne(sv[i]);
                     }
-                    const eatVoices = this.flat.eat || [];
-                    for (let i = 0; i < eatVoices.length; i++) prime(eatVoices[i]);
-                    prime(this._eatPreload);
                     if (this._eatCtx && this._eatCtx.state === 'suspended') { try { this._eatCtx.resume(); } catch (e) {} }
+                    this.resumeAudio();
                 } catch (e) {}
             },
             save() { try { localStorage.setItem('soup_audio', JSON.stringify({ m:this.muted, v:this.volume })); } catch (e) {} },
             play(name) {
                 if (this.muted || this.volume <= 0) return;
+                this.unlock();
                 const grp = this.voices[name]; if (!grp || !grp.length) return;
                 const cfg = this.cfg[name] || this.cfg._default;
                 const now = (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now();
@@ -2561,15 +2592,31 @@
             // solapes). Cada clic solo lo MANTIENE vivo (_stir.last). Tras ~700ms
             // sin clics hace fade-out (~180ms) y se detiene. Respeta mute, volumen
             // y visibilitychange. Si faltan los archivos, es un no-op silencioso.
-            _stir: { active:false, last:0, timer:null, idx:0, voices:null, cur:null, fade:null, broken:false, _handoff:null },
+            _stir: { active:false, last:0, timer:null, idx:0, voices:null, cur:null, fade:null, broken:false, _handoff:null, _fadePrev:null },
             _stirVol() { return Math.min(1, Math.max(0, (this.vols.stir != null ? this.vols.stir : 0.3) * this.volume)); },
+            // Desktop: wider overlap for gapless loop. Native: short handoff (~60ms) with
+            // ducking — avoids the muddy double-stir AND the audible gap from ended-only.
+            _stirNative() {
+                try { if (this._isNativeCap()) return true; } catch (e) {}
+                try {
+                    const b = (typeof window !== 'undefined' && window.BUILD_TARGET) || '';
+                    if (b === 'ios' || b === 'android') return true;
+                } catch (e) {}
+                return false;
+            },
             _stirEnsure() {
                 const S = this._stir;
                 if (S.voices || S.broken) return S.voices;
                 try {
                     const srcs = this.defs.stir || [];
                     if (!srcs.length) { S.broken = true; return null; }
-                    S.voices = srcs.map(src => { const a = new Audio(); a.addEventListener('error', () => { S.broken = true; }, { passive: true }); a.src = src; a.preload = 'auto'; return a; });
+                    S.voices = srcs.map(src => {
+                        const a = this._makeAudio(src);
+                        try { a.preload = 'auto'; a.load(); } catch (e) {}
+                        a.addEventListener('error', () => { S.broken = true; }, { passive: true });
+                        return a;
+                    });
+                    if (this._unlocked) { S.voices.forEach(a => { try { this._primeOne(a); } catch (e) {} }); }
                 } catch (e) { S.broken = true; S.voices = null; }
                 return S.voices;
             },
@@ -2579,36 +2626,48 @@
                 const voices = S.voices;
                 if (!voices || !voices.length) { this._stirStopNow(); return; }
                 if (S._handoff) { clearTimeout(S._handoff); S._handoff = null; }
+                if (S._fadePrev) { clearTimeout(S._fadePrev); S._fadePrev = null; }
+                const native = this._stirNative();
+                const prev = S.cur;
                 const a = voices[S.idx % voices.length];
                 S.idx = (S.idx + 1) % voices.length;
                 S.cur = a;
-                // GAPLESS: HTMLAudio 'ended' chaining always leaves an audible gap between
-                // stir1 and stir2. Instead we pre-schedule the NEXT voice to start a hair
-                // BEFORE the current one ends, so the swish is continuous (no pause in the
-                // middle). 'onended' stays as a safety net if the timer is throttled.
                 let advanced = false;
                 const advance = () => { if (advanced) return; advanced = true; if (this._stir.active) this._stirPlayNext(); };
                 try {
                     a.onended = null;
                     a.volume = this._stirVol();
-                    a.playbackRate = Math.min(2, Math.max(0.5, 1 + (Math.random() * 2 - 1) * 0.03));
+                    a.playbackRate = native ? 1 : Math.min(2, Math.max(0.5, 1 + (Math.random() * 2 - 1) * 0.03));
                     a.currentTime = 0;
                     a.onended = advance;
                     const p = a.play(); if (p && p.catch) p.catch(() => {});
                     const arm = () => {
                         const dur = a.duration;
-                        if (!Number.isFinite(dur) || dur <= 0) return; // onended handles it
-                        const lead = Math.min(0.14, dur * 0.16);
-                        const ms = Math.max(20, ((dur - lead) * 1000) / (a.playbackRate || 1));
+                        if (!Number.isFinite(dur) || dur <= 0) return;
+                        const lead = native ? Math.min(0.065, Math.max(0.03, dur * 0.07)) : Math.min(0.14, dur * 0.16);
+                        const ms = Math.max(16, ((dur - lead) * 1000) / (a.playbackRate || 1));
                         if (S._handoff) clearTimeout(S._handoff);
                         S._handoff = setTimeout(advance, ms);
                     };
                     if (Number.isFinite(a.duration) && a.duration > 0) arm();
                     else a.addEventListener('loadedmetadata', arm, { once: true });
+                    if (prev && prev !== a && !prev.paused) {
+                        try {
+                            const vol = this._stirVol();
+                            prev.volume = vol * (native ? 0.12 : 0.35);
+                            S._fadePrev = setTimeout(() => {
+                                try {
+                                    if (prev !== S.cur) { prev.onended = null; prev.pause(); prev.currentTime = 0; prev.volume = vol; }
+                                } catch (e) {}
+                                S._fadePrev = null;
+                            }, native ? 85 : 120);
+                        } catch (e) {}
+                    }
                 } catch (e) { this._stirStopNow(); }
             },
             stirPulse() {
                 if (this.muted || this.volume <= 0) return;
+                this.unlock();
                 const S = this._stir;
                 if (S.broken) return;
                 const voices = this._stirEnsure();
@@ -2652,6 +2711,7 @@
                 if (S.timer) { clearInterval(S.timer); S.timer = null; }
                 if (S.fade) { clearInterval(S.fade); S.fade = null; }
                 if (S._handoff) { clearTimeout(S._handoff); S._handoff = null; }
+                if (S._fadePrev) { clearTimeout(S._fadePrev); S._fadePrev = null; }
                 const voices = S.voices;
                 if (voices) voices.forEach(a => { try { a.onended = null; a.pause(); a.currentTime = 0; a.volume = this._stirVol(); } catch (e) {} });
                 S.cur = null; S.idx = 0;
@@ -2662,8 +2722,6 @@
                 if (this._farmBroken[name]) { if (fallback) this.play(fallback); return; }
                 const flat = this.flat[name];
                 if (!flat || !flat.length) { if (fallback) this.play(fallback); return; }
-                const probe = flat[0];
-                if (probe.error) { this._farmBroken[name] = true; if (fallback) this.play(fallback); return; }
                 this.play(name);
             },
             _farmAmbVol() { return Math.min(1, Math.max(0, 0.22 * this.volume)); },
@@ -2675,7 +2733,7 @@
                 if (F.broken) return;
                 try {
                     if (!F.audio) {
-                        F.audio = new Audio('audio/farm_ambiente.mp3');
+                        F.audio = this._makeAudio('audio/farm_ambiente.mp3');
                         F.audio.loop = true;
                         F.audio.preload = 'auto';
                         F.audio.addEventListener('error', () => { F.broken = true; this.farmAmbStop(); }, { passive: true });
@@ -2761,14 +2819,14 @@
             },
             ensureAudio(tr) {
                 if (tr.audio) return tr.audio;
-                const a = new Audio();
-                a.loop = true; a.preload = 'none';
+                const a = (typeof sound !== 'undefined' && sound._makeAudio) ? sound._makeAudio(tr.def.src) : new Audio(tr.def.src);
+                a.loop = true;
+                try { a.preload = 'none'; } catch (e) {}
                 a.addEventListener('error', () => {
                     tr.avail = false; tr.on = false;
                     try { a.pause(); } catch (e) {}
                     this._render(); this.save();
                 }, { passive: true });
-                a.src = tr.def.src;
                 tr.audio = a;
                 return a;
             },
@@ -2884,8 +2942,8 @@
             },
             ensureAudio() {
                 if (this.audio) return this.audio;
-                const a = new Audio();
-                a.preload = 'none';
+                const a = (typeof sound !== 'undefined' && sound._makeAudio) ? sound._makeAudio() : new Audio();
+                try { a.preload = 'none'; } catch (e) {}
                 a.addEventListener('ended', () => { this.next(); }, { passive: true });
                 a.addEventListener('error', () => {
                     this._missing[this.idx] = true;
@@ -2899,7 +2957,9 @@
                 if (!this.audio) return;
                 const tr = this.playlist[this.idx];
                 if (!tr || !tr.file) return;
-                if (this.audio.getAttribute('src') !== tr.file) { try { this.audio.src = tr.file; } catch (e) {} }
+                if (this.audio.getAttribute('src') !== tr.file) {
+                    try { this.audio.src = (typeof sound !== 'undefined' && sound._mediaUrl) ? sound._mediaUrl(tr.file) : tr.file; } catch (e) {}
+                }
             },
             _allMissing() {
                 if (!this.playlist.length) return true;
@@ -4722,6 +4782,7 @@
                             el.style.left = endX + 'px';
                             el.style.top = endY + 'px';
                             el.style.transform = 'translate(-50%,-50%) scale(' + (scale * 0.82) + ') rotate(' + rotEnd + 'deg)';
+                            el.style.webkitTransform = el.style.transform;
                             el.style.opacity = '0';
                         });
                         const pathLen = endY - startY;
@@ -5316,7 +5377,9 @@
                     landed = true;
                     clearTimeout(landFailSafe);
                     this.summonLandClone(h, c, () => {
-                        if (this.isExtraIngredientRainMilestone(lv)) this.extraIngredientRain(c.id, lv);
+                        const rainLv = this._rainOnLand || (this.isExtraIngredientRainMilestone(lv) ? lv : 0);
+                        this._rainOnLand = 0;
+                        if (rainLv) this.extraIngredientRain(c.id, rainLv);
                     });
                 };
                 const landFailSafe = setTimeout(landClone, 12000);
@@ -5415,6 +5478,11 @@
                 const prevLv = c.lv;
                 this.e -= total;
                 c.lv += n;
+                let rainOnLand = 0;
+                for (let lv = prevLv + 1; lv <= c.lv; lv++) {
+                    if (this.isExtraIngredientRainMilestone(lv)) { rainOnLand = lv; break; }
+                }
+                this._rainOnLand = rainOnLand;
                 let cost = c.cs;
                 for (let j = 0; j < n; j++) cost = Math.floor(cost * 1.15);
                 c.cs = cost;
@@ -5504,20 +5572,23 @@
                 const v = document.getElementById('victory-cinema'), p = document.getElementById('cinema-plushie'), cr = document.getElementById('cinema-crown'), wo = document.getElementById('white-out');
                 const off = (game.CROWN_HEAD[c.id] || { x: 0.5, y: 0.18, w: 0.22 });
                 const pose = this.summonPoseOrigin();
-                // Crown the champion using the skin equipped in ITS OWN helper slot, but only
-                // when the helper is owned (lv>0); otherwise fall back to the default sprite.
-                // Uses the SAME image-source logic as the scene (collection.equips[slot]).
-                let champImg = collection.HELPER_DEFAULT_IMG[c.id] || c.im;
-                try {
-                    const fam = collection.HELPER_FAM_BY_IDX[c.id];
-                    const eqId = fam ? collection.equippedIn(fam) : null;
-                    const eq = eqId ? collection.skinById(eqId) : null;
-                    if (eq && eq.img && c.lv > 0) champImg = collection.srcFull(eq);
-                } catch (e) { champImg = c.im; }
-                // Shrink the whole coronation set on portrait phones (helper + crown). The
-                // crown's landing pos/scale are computed from the plushie's rendered rect in
-                // place(), so reducing the plushie scale keeps the crown glued to the head.
+                // Same load path as summon/race (PNG skin.img + default fallback). srcFull()
+                // alone can 404 when only PNG exists, leaving the plushie at 0×0 so place()
+                // never runs and neither the helper nor the crown appear.
+                let fallbackSrc = '';
+                try { fallbackSrc = collection.HELPER_DEFAULT_IMG[c.id] || c.im || ''; } catch (e) { fallbackSrc = c.im || ''; }
+                let champImg = fallbackSrc;
+                try { champImg = this.summonImgForHelper(c) || fallbackSrc; } catch (e) { champImg = fallbackSrc; }
+                if (!champImg) champImg = fallbackSrc || c.im || '';
                 const champScale = this._mPortrait() ? 1.7 : 2.5;
+                p.onerror = () => {
+                    if (p.dataset.fellBack) return;
+                    const fb = fallbackSrc || c.im || '';
+                    if (fb && p.src !== fb) { p.dataset.fellBack = '1'; p.src = fb; }
+                };
+                p.loading = 'eager';
+                p.decoding = 'async';
+                delete p.dataset.fellBack;
                 p.src = champImg;
                 p.style.transition = 'none';
                 p.style.left = pose.x + 'px';
@@ -5534,10 +5605,22 @@
                 wo.style.opacity = '0';
                 void cr.offsetHeight;
                 v.style.transition = '';
-                let landY = '45%';
-                const place = () => {
-                    const r = p.getBoundingClientRect();
-                    if (r.width < 10) { requestAnimationFrame(place); return; }
+                let landY = pose.y + 'px';
+                let placed = false;
+                const estRect = () => {
+                    const baseW = Math.min(300, window.innerWidth * 0.42);
+                    const w = (p.naturalWidth > 0 && p.naturalHeight > 0)
+                        ? Math.min(baseW, baseW * (p.naturalWidth / p.naturalHeight))
+                        : baseW;
+                    const h = (p.naturalWidth > 0 && p.naturalHeight > 0)
+                        ? w * (p.naturalHeight / p.naturalWidth)
+                        : Math.max(90, w * 0.85);
+                    const rw = w * champScale, rh = h * champScale;
+                    return { left: pose.x - rw * 0.5, top: pose.y - rh * 0.5, width: rw, height: rh };
+                };
+                const placeCrown = (r) => {
+                    if (placed) return;
+                    placed = true;
                     const headX = r.left + r.width * off.x;
                     landY = (r.top + r.height * off.y) + 'px';
                     const scale = Math.max(0.6, (r.width * off.w) / 64);
@@ -5547,7 +5630,19 @@
                     cr.style.transition = 'top 1.2s cubic-bezier(0.25, 1, 0.5, 1)';
                     cr.style.setProperty('top', landY, 'important');
                 };
-                setTimeout(place, 100);
+                let placeTries = 0;
+                const place = () => {
+                    const r = p.getBoundingClientRect();
+                    if (r.width >= 10 && r.height >= 10) { placeCrown(r); return; }
+                    if (++placeTries < 90) { requestAnimationFrame(place); return; }
+                    placeCrown(estRect());
+                };
+                const startPlace = () => setTimeout(place, 80);
+                if (p.complete && p.naturalWidth > 0) startPlace();
+                else {
+                    p.onload = () => { p.onload = null; startPlace(); };
+                    startPlace();
+                }
                 // Salida suave: tras aterrizar la corona (~1.3s) mantenemos el momento
                 // "coronado" un instante y luego hacemos un cross-fade del overlay de
                 // vuelta al juego (sin flash blanco). La corona sigue pegada al plushie
@@ -5565,6 +5660,7 @@
                     p.style.top = '';
                     p.style.transform = '';
                     p.style.transition = '';
+                    p.onload = null;
                     cr.style.transition = '';
                     cr.style.top = '-150px';
                     cr.style.left = '50%';
@@ -5582,8 +5678,9 @@
                 this._frame = (this._frame || 0) + 1;
                 const lowQ = quality.effMode() === 'low';
                 const clickStir = performance.now() - this._lastClick < 1500;
-                // On mobile/low, halve idle rAF work (skip every other frame when not stirring).
-                if (lowQ && !this.p && !clickStir && this.particles.length === 0 && (this._frame % 2 === 1)) {
+                const nativeCap = (() => { try { const c = window.Capacitor; return !!(c && c.isNativePlatform && c.isNativePlatform()); } catch (e) { return false; } })();
+                // On low/native, halve idle rAF work; also while stirring if no particles (saves CPU/heat).
+                if (lowQ && !this.p && this.particles.length === 0 && (this._frame % 2 === 1) && (!clickStir || nativeCap)) {
                     if (!document.hidden) requestAnimationFrame(() => this.loop());
                     return;
                 }
@@ -5937,7 +6034,7 @@
             start(c) {
                 if (this.tk) { clearInterval(this.tk); this.tk = null; }
                 if (this.cdIv) { clearInterval(this.cdIv); this.cdIv = null; }
-                this.a = false; this.ch = c; this.stopFx(); document.getElementById('p-sel').style.display='none'; document.getElementById('p-run').style.display='flex';
+                this.a = false; this.w = false; this.ch = c; this.stopFx(); document.getElementById('p-sel').style.display='none'; document.getElementById('p-run').style.display='flex';
                 for(let i=0; i<5; i++) document.getElementById(`l-${i}`).innerHTML = '';
                 const raceIm = (id) => { try { return collection.sceneImgForHelper(id); } catch (e) { return game.cp[id] ? game.cp[id].im : ''; } };
                 this.rs = [{id:c.id, pos:0, im:raceIm(c.id), isP:true, lane:0}, ...game.cp.filter(co=>co.id!==c.id).map((co,i)=>({id:co.id, pos:0, im:raceIm(co.id), isP:false, lane:i+1}))];
@@ -5962,7 +6059,7 @@
                 try { game.rebuild(); } catch (e) {}
                 game.render();
             },
-            ret() { if(this.tk) { clearInterval(this.tk); this.tk = null; } if(this.cdIv) { clearInterval(this.cdIv); this.cdIv = null; } this.stopFx(); game.cd = game.getPrixCd(); document.getElementById('race-modal').style.display='none'; if(this.w) game.coron(this.ch); else game.p = false; }
+            ret() { if(this.tk) { clearInterval(this.tk); this.tk = null; } if(this.cdIv) { clearInterval(this.cdIv); this.cdIv = null; } this.stopFx(); game.cd = game.getPrixCd(); document.getElementById('race-modal').style.display='none'; const won = this.w; this.w = false; if(won) game.coron(this.ch); else game.p = false; }
         };
         const gx = {
             // Toasts ("carteles") are shown ONE AT A TIME in a chain: one appears, holds,
@@ -6924,9 +7021,9 @@
                     .catch(function () {});
             },
             showRewarded(rewardKey, onReward, onFail) {
-                const AdMob = this._plugin();
-                if (!AdMob || !this._adUnitId) { onFail(); return; }
-                let rewarded = false;
+                const self = this;
+                const AdMob = self._plugin();
+                if (!AdMob || !self._adUnitId) { onFail(); return; }
                 let settled = false;
                 const handles = [];
                 const finish = function (ok) {
@@ -6937,23 +7034,29 @@
                     });
                     if (ok) onReward(); else onFail();
                 };
-                const add = function (evt, fn) {
-                    try {
-                        const p = AdMob.addListener(evt, fn);
-                        if (p && typeof p.then === 'function') {
-                            p.then(function (h) { handles.push(h); }).catch(function () {});
-                        }
-                    } catch (e) {}
+                const reg = function (evt, fn) {
+                    return Promise.resolve(AdMob.addListener(evt, fn)).then(function (h) {
+                        if (h) handles.push(h);
+                    }).catch(function () {});
                 };
-                add('onRewardedVideoAdReward', function () { rewarded = true; finish(true); });
-                add('onRewardedVideoAdFailedToLoad', function () { finish(false); });
-                add('onRewardedVideoAdFailedToShow', function () { finish(false); });
-                add('onRewardedVideoAdDismissed', function () { if (!rewarded) finish(false); });
-                const opts = { adId: this._adUnitId };
-                if (this._config && this._config.isTesting) opts.isTesting = true;
-                Promise.resolve(AdMob.prepareRewardVideoAd(opts))
-                    .then(function () { return AdMob.showRewardVideoAd(); })
-                    .catch(function () { finish(false); });
+                // Listeners must be registered BEFORE prepare/show. Do NOT fail on
+                // Dismissed — it always fires after a full view too, often before the
+                // Reward event on iOS; the showRewardVideoAd() promise is authoritative.
+                Promise.all([
+                    reg('onRewardedVideoAdFailedToLoad', function () { finish(false); }),
+                    reg('onRewardedVideoAdFailedToShow', function () { finish(false); }),
+                    reg('onRewardedVideoAdReward', function () { finish(true); })
+                ]).then(function () {
+                    const opts = { adId: self._adUnitId };
+                    if (self._config && self._config.isTesting) opts.isTesting = true;
+                    return AdMob.prepareRewardVideoAd(opts);
+                }).then(function () {
+                    return AdMob.showRewardVideoAd();
+                }).then(function (rewardItem) {
+                    if (rewardItem) finish(true);
+                }).catch(function () {
+                    finish(false);
+                });
             }
         };
 
@@ -6978,8 +7081,10 @@
             },
             _pick() {
                 if ((BUILD === 'android' || BUILD === 'ios') && adMobProvider.isAvailable()) return adMobProvider;
-                if (adYtProvider.isAvailable()) return adYtProvider;
-                // Simulated ads only on web / Playables — never fake ads on store builds.
+                try {
+                    if (typeof isPlayablesEnv === 'function' && isPlayablesEnv() && adYtProvider.isAvailable()) return adYtProvider;
+                } catch (e) {}
+                // PC / localhost / browser testing — simulated 3-2-1 countdown.
                 if (BUILD !== 'android' && BUILD !== 'ios' && adSimProvider.isAvailable()) return adSimProvider;
                 return null;
             },
@@ -7000,7 +7105,7 @@
         const adOverlay = {
             _node: null, _timer: null,
             play(seconds, onReward, onFail) {
-                if (this._node) { if (typeof onFail === 'function') onFail(); return; }
+                if (this._node) this._close();
                 let left = Math.max(1, Math.floor(seconds) || 3);
                 const ov = document.createElement('div');
                 ov.className = 'ad-sim-overlay';
@@ -7109,6 +7214,7 @@
                     gx.toast(t('reward_daily_left', { n: 0, max: def.daily }));
                     resolve(false); return;
                 }
+                try { rewardsUI.close(); } catch (e) {}
                 ads.showRewarded(rewardId, function () {
                     const r = rewardSystem.rec(rewardId);
                     r.last = Date.now();
@@ -7818,7 +7924,7 @@
             },
             play() {
                 const ov = document.getElementById('home-overlay'); if (!ov) return;
-                try { sound.unlock(); } catch (e) {}
+                try { sound.unlock(); sound.resumeAudio(); } catch (e) {}
                 const enter = () => {
                     ov.classList.add('closing');
                     // On a phone in PORTRAIT, hold the tutorial until the player rotates to
@@ -7996,6 +8102,10 @@
             // por frame del hilo principal y evitar que las partículas hagan tartamudear el
             // audio del removido al tocar rápido. En escritorio el comportamiento no cambia.
             detectAuto() {
+                try {
+                    const cap = window.Capacitor;
+                    if (cap && typeof cap.isNativePlatform === 'function' && cap.isNativePlatform()) return 'low';
+                } catch (e) {}
                 try {
                     if (window.matchMedia && window.matchMedia('(pointer: coarse)').matches && Math.min(window.innerWidth, window.innerHeight) <= 600) return 'low';
                 } catch (e) {}
@@ -9326,6 +9436,15 @@
             // Restaura el progreso de la nube (solo Playables) ANTES de cargar la partida,
             // para que game.init()->load() recoja el save más reciente. En web es no-op.
             try { await cloudSave.restoreToLocal(); } catch (e) {}
+            try {
+                if (window.Capacitor && typeof window.Capacitor.getPlatform === 'function') {
+                    const p = window.Capacitor.getPlatform();
+                    if (p === 'ios' || p === 'android') {
+                        window.BUILD_TARGET = p;
+                        try { document.documentElement.dataset.build = p; } catch (e) {}
+                    }
+                }
+            } catch (e) {}
             sound.init(); game.init();
             // Leaderboard identity: ensures UUID + display name exist (own localStorage
             // key 'soup_lb_identity'; never touches the integrity-wrapped 'soup_p_v17').
@@ -9410,6 +9529,7 @@
         (function registerSw() {
             try {
                 if (!('serviceWorker' in navigator)) return;
+                if (window.Capacitor && typeof window.Capacitor.isNativePlatform === 'function' && window.Capacitor.isNativePlatform()) return;
                 var host = location.hostname;
                 if (location.protocol !== 'https:' && host !== 'localhost' && host !== '127.0.0.1') return;
                 window.addEventListener('load', function () {

@@ -16,7 +16,7 @@ En Mac: descomprime → `~/Downloads/skullchef-mac` (o donde quieras).
 
 1. https://admob.google.com → crear cuenta / iniciar sesión  
 2. **Apps → Añadir app → iOS**  
-3. Bundle ID: **`com.smallcreek.skullchefapp`**  
+3. Bundle ID: **`com.smallcreek.skullchef`**  
 4. Crear unidad **Rewarded**  
 5. Copiar **App ID** (ca-app-pub-…~…) y **Rewarded Ad Unit ID** (ca-app-pub-…/…)  
 6. En el proyecto Mac, editar **`admob.config.json`**:
@@ -49,7 +49,7 @@ Instala Capacitor + AdMob, crea `ios/`, copia `www/`, parchea `Info.plist`.
 ### Xcode
 
 1. **Signing & Capabilities** → Team = tu cuenta Developer  
-2. **Bundle ID**: `com.smallcreek.skullchefapp`  
+2. **Bundle ID**: `com.smallcreek.skullchef`  
 3. Conecta **iPhone** → **Run ▶**  
 4. Prueba: menú lateral → **🎁 Watch ad** (debe cargar anuncio)  
 5. **Product → Archive → Distribute → App Store Connect**
@@ -63,7 +63,7 @@ https://appstoreconnect.apple.com
 | Campo | Valor |
 |-------|--------|
 | Nombre | Skullchef |
-| Bundle ID | com.smallcreek.skullchefapp |
+| Bundle ID | com.smallcreek.skullchef |
 | Privacidad | https://hunhau.github.io/smallcreek-skullchef/privacy.html |
 | **Contiene anuncios** | **Sí** (recompensados) |
 | Desarrollador | SmallCreek |

@@ -100,3 +100,18 @@ Los ajustes se guardan en TU navegador (`localStorage`, clave `soup_skin_placeme
 
 **Conservar (ocultas):** herramienta de colocación + modo creador.
 - [ ] Revisión final: sin errores, optimizado, copia de seguridad en GitHub.
+
+---
+
+## 4. iOS / App Store — ID canónico (no cambiar)
+
+| Campo | Valor correcto |
+|-------|------------------|
+| **Bundle ID (App Store Connect + Xcode)** | `com.smallcreek.skullchef` |
+| **Nombre en App Store** | Skullchef (o variante si el nombre simple está ocupado) |
+| **Display Name (icono iPhone)** | Skullchef |
+| **Carpeta transfer Mac** | `skullchef-mac` (solo local, no es el Bundle ID) |
+
+**No usar** `com.smallcreek.skullchefapp` — es otro identificador en Apple Developer; la app publicada en App Store Connect usa **`com.smallcreek.skullchef`**.
+
+Tras cambiar el Bundle ID: **Archive nuevo** en Xcode (archives viejos llevan el ID antiguo).
