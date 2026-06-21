@@ -1620,7 +1620,7 @@
     </script>
     <script src="events.js"></script>
     <!-- Cache-bust catalog on every deploy (SW must not serve a stale charm list). -->
-    <script src="assets/skins/catalog.js?v=build-64"></script>
+    <script src="assets/skins/catalog.js?v=build-65"></script>
     <!-- ====================================================================
          === EMBEDDED LEADERBOARD MODULE (from leaderboard/leaderboard-client.js)
          === Self-contained global `leaderboard` object. Single-file game, so the
@@ -2089,7 +2089,7 @@
         // while still retrying if a reload didn't actually land the new build. Fully
         // defensive: any error is silent and never blocks the game. Parent bumps BOTH
         // version.json and BUILD_V on every future deploy.
-        const BUILD_V = "build-64";
+        const BUILD_V = "build-65";
         (function () {
             function hardReloadTo(v) {
                 try {
@@ -2466,8 +2466,18 @@
                 try {
                     if (this._isNativeCap()) return false;
                     if (typeof isPlayablesEnv === 'function' && isPlayablesEnv()) return false;
+                    const ua = navigator.userAgent || '';
+                    if (/iPhone|iPad|iPod|Android/i.test(ua)) return true;
                     return window.matchMedia('(pointer: coarse)').matches;
                 } catch (e) { return false; }
+            },
+            _primeMobileEssentials() {
+                if (!this._useWebAudio()) return;
+                const keys = ['bubble', 'buy', 'eat', 'farmAbrir', 'farmPlantar', 'farmRegar', 'farmCosechar', 'farmListo', 'farmSinStock', 'rainStart', 'bubblePop', 'prestige', 'victory'];
+                for (let ki = 0; ki < keys.length; ki++) {
+                    const arr = this.flat[keys[ki]];
+                    if (arr && arr[0]) try { this._primeOne(arr[0]); } catch (e) {}
+                }
             },
             _waEnsure() {
                 try {
@@ -2489,7 +2499,11 @@
                 if (!ctx) return Promise.resolve(null);
                 this._waLoading[url] = fetch(url, { cache: 'force-cache' })
                     .then(r => (r && r.ok ? r.arrayBuffer() : Promise.reject(new Error('fetch'))))
-                    .then(ab => new Promise((res, rej) => { ctx.decodeAudioData(ab, res, rej); }))
+                    .then(ab => {
+                        const copy = ab.slice(0);
+                        const dec = ctx.decodeAudioData(copy);
+                        return (dec && typeof dec.then === 'function') ? dec : new Promise((res, rej) => { ctx.decodeAudioData(copy, res, rej); });
+                    })
                     .then(buf => { this._waBuf[url] = buf; return buf; })
                     .catch(() => null)
                     .finally(() => { delete this._waLoading[url]; });
@@ -2497,10 +2511,16 @@
             },
             _waLoadAll() {
                 if (!this._useWebAudio()) return;
-                const urls = new Set();
-                for (const k in this.defs) { const arr = this.defs[k]; if (arr) arr.forEach(u => urls.add(u)); }
-                urls.add('audio/farm_ambiente.mp3');
-                urls.forEach(u => { try { this._waLoadSrc(u); } catch (e) {} });
+                const pri = ['farmAbrir', 'farmPlantar', 'farmRegar', 'farmCosechar', 'farmListo', 'farmSinStock', 'farmPrestigio', 'bubble', 'buy', 'eat', 'rainStart', 'bubblePop', 'prestige', 'victory'];
+                for (let i = 0; i < pri.length; i++) {
+                    const arr = this.defs[pri[i]];
+                    if (arr) arr.forEach(u => { try { this._waLoadSrc(u); } catch (e) {} });
+                }
+                try { this._waLoadSrc('audio/farm_ambiente.mp3'); } catch (e) {}
+                for (const k in this.defs) {
+                    const arr = this.defs[k];
+                    if (arr) arr.forEach(u => { try { this._waLoadSrc(u); } catch (e) {} });
+                }
             },
             _waPlayBuffer(buf, vol, rate) {
                 const ctx = this._waEnsure();
@@ -2576,7 +2596,7 @@
                     // The gesture must NOT re-run recovery (it bubbles AFTER tap-driven SFX and
                     // would re-mute/pause the pooled voices); just resume the AudioContext.
                     const gestureWake = () => {
-                        try { this.resumeAudio(); } catch (e) {}
+                        try { this.unlock(); this.resumeAudio(); } catch (e) {}
                         if (this._unlocked && this._needReprime) {
                             this._needReprime = false;
                             try { this.recoverFromBackground(); } catch (e) {}
@@ -2647,6 +2667,8 @@
                             this._primeOne(this._eatPreload);
                             const sv = this._stir.voices;
                             if (sv) for (let i = 0; i < sv.length; i++) this._primeOne(sv[i]);
+                        } else {
+                            this._primeMobileEssentials();
                         }
                         if (this._eatCtx && this._eatCtx.state === 'suspended') { try { this._eatCtx.resume(); } catch (e) {} }
                     } catch (e) {}
@@ -2657,10 +2679,7 @@
             play(name) {
                 if (this.muted || this.volume <= 0) return;
                 this.unlock();
-                if (name !== 'stir' && this._useWebAudio()) {
-                    if (this._waPlaySfx(name)) return;
-                    return;
-                }
+                if (name !== 'stir' && this._useWebAudio() && this._waPlaySfx(name)) return;
                 const grp = this.voices[name]; if (!grp || !grp.length) return;
                 const cfg = this.cfg[name] || this.cfg._default;
                 const now = (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now();
@@ -8287,7 +8306,7 @@
             },
             play() {
                 const ov = document.getElementById('home-overlay'); if (!ov) return;
-                try { sound.unlock(); sound.resumeAudio(); } catch (e) {}
+                try { sound.unlock(); sound.resumeAudio(); sound._primeMobileEssentials(); } catch (e) {}
                 const enter = () => {
                     ov.classList.add('closing');
                     // On a phone in PORTRAIT, hold the tutorial until the player rotates to
