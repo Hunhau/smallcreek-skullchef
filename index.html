@@ -6751,10 +6751,18 @@
                 return false;
             },
             _detect() {
-                try { if (typeof window !== 'undefined' && window.ytgame) { this._sdk = window.ytgame; return true; } } catch (e) {}
+                try {
+                    if (typeof window !== 'undefined' && window.ytgame && window.ytgame.IN_PLAYABLES_ENV) {
+                        this._sdk = window.ytgame;
+                        return true;
+                    }
+                } catch (e) {}
+                this._sdk = null;
                 return false;
             },
-            get available() { return !!this._sdk; },
+            get available() {
+                try { return !!(this._sdk && this._sdk.IN_PLAYABLES_ENV); } catch (e) { return false; }
+            },
             init() {
                 if (this._detect()) { this._wireSystem(); this._onReady(); return; }
                 if (this._isStandalone()) return;
@@ -8522,8 +8530,16 @@
         };
         // === PANTALLA COMPLETA (Tarea 2) === Fullscreen API con feature-detect + prefijos.
         const fullscreen = {
+            _electronActive: false,
+            _isElectron() {
+                try { return !!(window.electronAPI && typeof window.electronAPI.setFullscreen === 'function'); } catch (e) { return false; }
+            },
             supported() {
-                try { if (ytPlayables && ytPlayables.available) return false; return !!(document.fullscreenEnabled || document.webkitFullscreenEnabled); } catch (e) { return false; }
+                try {
+                    if (ytPlayables && ytPlayables.available) return false;
+                    if (this._isElectron()) return true;
+                    return !!(document.fullscreenEnabled || document.webkitFullscreenEnabled);
+                } catch (e) { return false; }
             },
             // Launched from a Home Screen icon (PWA) => already true fullscreen, no chrome.
             isStandalone() {
@@ -8534,9 +8550,29 @@
                 try { const ua = navigator.userAgent || ''; return /iPad|iPhone|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1); } catch (e) { return false; }
             },
             _ytp() { try { return !!(typeof ytPlayables !== 'undefined' && ytPlayables && ytPlayables.available); } catch (e) { return false; } },
-            isActive() { try { return !!(document.fullscreenElement || document.webkitFullscreenElement); } catch (e) { return false; } },
-            enter() { const el = document.documentElement; const fn = el.requestFullscreen || el.webkitRequestFullscreen; if (fn) { try { const r = fn.call(el); if (r && r.catch) r.catch(() => {}); } catch (e) {} } },
-            exit() { const fn = document.exitFullscreen || document.webkitExitFullscreen; if (fn) { try { const r = fn.call(document); if (r && r.catch) r.catch(() => {}); } catch (e) {} } },
+            isActive() {
+                try {
+                    if (this._isElectron()) return !!this._electronActive;
+                    return !!(document.fullscreenElement || document.webkitFullscreenElement);
+                } catch (e) { return false; }
+            },
+            enter() {
+                if (this._isElectron()) {
+                    try { window.electronAPI.setFullscreen(true); this._electronActive = true; this.syncUi(); } catch (e) {}
+                    return;
+                }
+                const el = document.documentElement;
+                const fn = el.requestFullscreen || el.webkitRequestFullscreen;
+                if (fn) { try { const r = fn.call(el); if (r && r.catch) r.catch(() => {}); } catch (e) {} }
+            },
+            exit() {
+                if (this._isElectron()) {
+                    try { window.electronAPI.setFullscreen(false); this._electronActive = false; this.syncUi(); } catch (e) {}
+                    return;
+                }
+                const fn = document.exitFullscreen || document.webkitExitFullscreen;
+                if (fn) { try { const r = fn.call(document); if (r && r.catch) r.catch(() => {}); } catch (e) {} }
+            },
             toggle() {
                 try {
                     if (this.isStandalone()) return;                          // installed: already fullscreen, nothing to do
@@ -8559,6 +8595,22 @@
             },
             init() {
                 ['fullscreenchange', 'webkitfullscreenchange'].forEach(ev => { try { document.addEventListener(ev, () => this.syncUi()); } catch (e) {} });
+                if (this._isElectron()) {
+                    try {
+                        window.electronAPI.onFullscreenChange((active) => {
+                            this._electronActive = !!active;
+                            this.syncUi();
+                        });
+                    } catch (e) {}
+                }
+                try {
+                    document.addEventListener('keydown', (ev) => {
+                        if (ev.key !== 'F11' || ev.repeat || this._ytp() || this.isStandalone()) return;
+                        if (!this.supported()) return;
+                        ev.preventDefault();
+                        this.toggle();
+                    });
+                } catch (e) {}
                 this.syncUi();
             }
         };
