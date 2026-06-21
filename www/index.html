@@ -194,7 +194,67 @@
         .shop-card-actions { display: flex; flex-direction: column; align-items: center; width: 100%; gap: 6px; margin-top: 4px; }
         .shop-hide-toggle { display: block; flex-shrink: 0; margin-top: 0; padding: 4px 10px; border-radius: 6px; font-size: 0.62rem; font-weight: bold; border: 1px solid #fff3; cursor: pointer; text-transform: uppercase; letter-spacing: 0.4px; background: rgba(51, 65, 85, 0.55); color: #cbd5e1; width: 100%; max-width: 180px; box-sizing: border-box; }
         .shop-hide-toggle.on { background: rgba(168, 85, 247, 0.25); color: var(--ac); border-color: var(--ac); }
-        #prestige-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 80000; display: none; opacity: 0; background: linear-gradient(180deg, #020617 0%, #1e1b4b 50%, #2e1065 100%); flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.8s; }
+        #prestige-overlay { position: fixed; inset: 0; z-index: 80000; display: none; opacity: 0; pointer-events: none; flex-direction: column; align-items: center; justify-content: center; overflow: hidden; transition: opacity 0.75s ease; }
+        #prestige-overlay.open { opacity: 1; }
+        #prestige-overlay .pres-scene { position: absolute; inset: 0; overflow: hidden; background: radial-gradient(ellipse 120% 80% at 50% 18%, #1e1b4b 0%, #0f0828 42%, #020617 100%); }
+        #prestige-overlay .pres-nebula { position: absolute; inset: -20%; background:
+            radial-gradient(ellipse 55% 40% at 22% 28%, rgba(168, 85, 247, 0.38) 0%, transparent 62%),
+            radial-gradient(ellipse 48% 36% at 78% 22%, rgba(251, 191, 36, 0.22) 0%, transparent 58%),
+            radial-gradient(ellipse 70% 50% at 50% 88%, rgba(34, 211, 238, 0.14) 0%, transparent 55%);
+            animation: presNebulaDrift 8s ease-in-out infinite alternate; }
+        @keyframes presNebulaDrift { 0% { transform: scale(1) translate(0, 0); opacity: 0.85; } 100% { transform: scale(1.06) translate(-1.5%, 1%); opacity: 1; } }
+        #prestige-overlay .pres-stars { position: absolute; inset: 0; opacity: 0.55; background-image:
+            radial-gradient(1px 1px at 12% 18%, rgba(255,255,255,0.9) 0, transparent 100%),
+            radial-gradient(1px 1px at 28% 42%, rgba(255,255,255,0.7) 0, transparent 100%),
+            radial-gradient(1.5px 1.5px at 44% 12%, rgba(251,191,36,0.85) 0, transparent 100%),
+            radial-gradient(1px 1px at 62% 34%, rgba(255,255,255,0.65) 0, transparent 100%),
+            radial-gradient(1px 1px at 78% 22%, rgba(255,255,255,0.8) 0, transparent 100%),
+            radial-gradient(1.2px 1.2px at 88% 48%, rgba(165,243,252,0.75) 0, transparent 100%),
+            radial-gradient(1px 1px at 18% 68%, rgba(255,255,255,0.5) 0, transparent 100%),
+            radial-gradient(1px 1px at 52% 58%, rgba(255,255,255,0.55) 0, transparent 100%),
+            radial-gradient(1px 1px at 72% 72%, rgba(255,255,255,0.45) 0, transparent 100%);
+            animation: presStarsTwinkle 4s ease-in-out infinite alternate; }
+        @keyframes presStarsTwinkle { 0% { opacity: 0.4; } 100% { opacity: 0.75; } }
+        #prestige-overlay .pres-esquelotia { position: absolute; top: 6%; left: 50%; width: min(140px, 28vw); height: min(140px, 28vw); transform: translateX(-50%); border-radius: 50%;
+            background: radial-gradient(circle at 38% 32%, rgba(255,236,180,0.95) 0%, rgba(251,191,36,0.55) 28%, rgba(124,58,237,0.35) 58%, transparent 72%);
+            box-shadow: 0 0 48px rgba(251,191,36,0.35), 0 0 90px rgba(168,85,247,0.22); opacity: 0.72; animation: presPlanetPulse 3.2s ease-in-out infinite; }
+        @keyframes presPlanetPulse { 0%, 100% { transform: translateX(-50%) scale(1); opacity: 0.65; } 50% { transform: translateX(-50%) scale(1.06); opacity: 0.85; } }
+        #prestige-overlay .pres-soup-light { position: absolute; left: 50%; bottom: -8%; width: min(520px, 92vw); height: min(280px, 38vh); transform: translateX(-50%);
+            background: radial-gradient(ellipse 70% 55% at 50% 72%, rgba(251,191,36,0.55) 0%, rgba(234,179,8,0.28) 32%, rgba(124,58,237,0.12) 58%, transparent 72%);
+            filter: blur(2px); animation: presSoupGlow 2.8s ease-in-out infinite alternate; }
+        @keyframes presSoupGlow { 0% { opacity: 0.55; transform: translateX(-50%) scale(0.96); } 100% { opacity: 0.95; transform: translateX(-50%) scale(1.04); } }
+        #prestige-overlay .pres-threads { position: absolute; inset: 0; pointer-events: none; }
+        #prestige-overlay .pres-threads span { position: absolute; bottom: 18%; width: 2px; height: 42%; border-radius: 999px;
+            background: linear-gradient(180deg, transparent 0%, rgba(251,191,36,0.15) 18%, rgba(255,255,255,0.75) 52%, rgba(251,191,36,0.35) 78%, transparent 100%);
+            filter: blur(0.5px); opacity: 0; animation: presSoulThread 2.4s ease-in-out infinite; }
+        #prestige-overlay .pres-threads span:nth-child(1) { left: 38%; animation-delay: 0s; }
+        #prestige-overlay .pres-threads span:nth-child(2) { left: 46%; animation-delay: 0.35s; height: 48%; }
+        #prestige-overlay .pres-threads span:nth-child(3) { left: 50%; animation-delay: 0.15s; height: 54%; width: 3px; }
+        #prestige-overlay .pres-threads span:nth-child(4) { left: 54%; animation-delay: 0.5s; height: 46%; }
+        #prestige-overlay .pres-threads span:nth-child(5) { left: 62%; animation-delay: 0.25s; height: 40%; }
+        @keyframes presSoulThread { 0% { opacity: 0; transform: translateY(18%) scaleY(0.6); } 35% { opacity: 0.85; transform: translateY(0) scaleY(1); } 100% { opacity: 0; transform: translateY(-22%) scaleY(0.85); } }
+        #prestige-overlay .pres-content { position: relative; z-index: 2; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 24px 20px 32px; max-width: min(680px, 92vw); animation: presContentIn 1s cubic-bezier(0.22, 1.1, 0.36, 1) forwards; }
+        @keyframes presContentIn { 0% { opacity: 0; transform: translateY(24px) scale(0.94); } 100% { opacity: 1; transform: translateY(0) scale(1); } }
+        #prestige-overlay .pres-angel-wrap { position: relative; width: min(200px, 38vw); height: min(200px, 38vw); margin-bottom: 8px; }
+        #prestige-overlay .pres-halo { position: absolute; inset: -12%; border-radius: 50%; border: 2px solid rgba(251,191,36,0.45);
+            box-shadow: 0 0 30px rgba(251,191,36,0.35), inset 0 0 24px rgba(255,255,255,0.12); animation: presHaloSpin 12s linear infinite; }
+        @keyframes presHaloSpin { 0% { transform: rotate(0deg) scale(1); opacity: 0.65; } 50% { opacity: 1; transform: rotate(180deg) scale(1.04); } 100% { transform: rotate(360deg) scale(1); opacity: 0.65; } }
+        #prestige-overlay .pres-angel-img { position: relative; z-index: 1; width: 100%; height: 100%; object-fit: contain;
+            filter: drop-shadow(0 0 28px rgba(251,191,36,0.65)) drop-shadow(0 0 48px rgba(168,85,247,0.35)); animation: presAngelFloat 3s ease-in-out infinite alternate; }
+        @keyframes presAngelFloat { 0% { transform: translateY(0) scale(1); } 100% { transform: translateY(-10px) scale(1.03); } }
+        #prestige-overlay .pres-angel-name { margin: 0 0 4px; font-size: clamp(1.35rem, 4.5vw, 2rem); font-weight: 900; letter-spacing: 0.12em; text-transform: uppercase; color: #fff;
+            text-shadow: 0 0 18px rgba(251,191,36,0.75), 0 0 36px rgba(168,85,247,0.35); }
+        #prestige-overlay .pres-angel-epithet { margin: 0 0 14px; font-size: clamp(0.72rem, 2.2vw, 0.88rem); letter-spacing: 0.08em; text-transform: uppercase; color: rgba(226,232,240,0.82); }
+        #prestige-overlay .pres-title { margin: 0 0 12px; font-size: clamp(1.5rem, 5vw, 2.6rem); font-weight: 900; letter-spacing: 0.14em; color: var(--go);
+            text-shadow: 0 0 24px rgba(251,191,36,0.75), 0 0 48px rgba(251,191,36,0.35); }
+        #prestige-overlay .pres-lore { margin: 0 0 16px; max-width: 560px; font-size: clamp(0.95rem, 2.8vw, 1.25rem); line-height: 1.55; color: #e2e8f0; text-shadow: 0 1px 8px rgba(0,0,0,0.65); }
+        #prestige-overlay .pres-shards-badge { display: inline-flex; align-items: center; gap: 8px; padding: 8px 18px; border-radius: 999px;
+            background: linear-gradient(135deg, rgba(251,191,36,0.22), rgba(168,85,247,0.18)); border: 1px solid rgba(251,191,36,0.55);
+            font-size: clamp(0.85rem, 2.5vw, 1rem); font-weight: 800; color: var(--gold-soft); letter-spacing: 0.06em;
+            box-shadow: 0 0 22px rgba(251,191,36,0.28); animation: presShardPulse 1.6s ease-in-out infinite alternate; }
+        @keyframes presShardPulse { 0% { transform: scale(1); box-shadow: 0 0 16px rgba(251,191,36,0.2); } 100% { transform: scale(1.04); box-shadow: 0 0 28px rgba(251,191,36,0.42); } }
+        body.q-low #prestige-overlay .pres-nebula, body.q-low #prestige-overlay .pres-stars, body.q-low #prestige-overlay .pres-threads { display: none; }
+        body.q-low #prestige-overlay .pres-scene { background: linear-gradient(180deg, #1e1b4b 0%, #0f0828 55%, #020617 100%); }
         #victory-cinema { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 105000; display: none; align-items: center; justify-content: center; pointer-events: none; opacity: 1; transition: opacity 0.8s ease, transform 0.8s ease; }
         #cinema-plushie { position: fixed; top: 45%; left: 50%; transform: translate(-50%, -50%) scale(2.5); width: min(300px, 42vw); max-width: min(320px, 44vw); min-height: 90px; max-height: min(290px, 40vh); object-fit: contain; filter: drop-shadow(0 0 30px var(--ac)); transition: all 1s; z-index: 105001; }
         #cinema-crown { position: fixed; top: -150px; left: 50%; transform: translate(-50%, -50%) scale(2.2); font-size: 4rem; z-index: 105002 !important; filter: drop-shadow(0 0 12px var(--go)); pointer-events: none; }
@@ -1260,7 +1320,26 @@
         <p id="rotate-msg" data-i18n="rotate_msg">This game is best played in landscape. Turn your device sideways to keep cooking.</p>
     </div>
     <img id="angel-showcase" src="assets/img/angel.png" loading="lazy" decoding="async">
-    <div id="prestige-overlay"><h1 data-i18n="soul_awakened" style="color:var(--go); font-size:4rem; text-shadow:0 0 30px var(--go);">[ SOUL AWAKENED ]</h1><p id="pres-lore" style="max-width:600px; text-align:center; font-size:1.4rem; line-height:1.6; margin:20px;"></p></div>
+    <div id="prestige-overlay" aria-hidden="true">
+        <div class="pres-scene" aria-hidden="true">
+            <div class="pres-nebula"></div>
+            <div class="pres-stars"></div>
+            <div class="pres-esquelotia"></div>
+            <div class="pres-soup-light"></div>
+            <div class="pres-threads"><span></span><span></span><span></span><span></span><span></span></div>
+        </div>
+        <div class="pres-content">
+            <div class="pres-angel-wrap">
+                <div class="pres-halo"></div>
+                <img class="pres-angel-img" src="assets/img/angel.png" alt="" decoding="async">
+            </div>
+            <p class="pres-angel-name" data-i18n="pres_angel_name">Small Angel</p>
+            <p class="pres-angel-epithet" data-i18n="pres_angel_epithet">Guardian of Esquelotia · Sacred Soup Soul</p>
+            <h1 class="pres-title" data-i18n="soul_awakened">[ SOUL AWAKENED ]</h1>
+            <p id="pres-lore" class="pres-lore"></p>
+            <div class="pres-shards-badge" id="pres-shards-gain"></div>
+        </div>
+    </div>
     <div id="victory-cinema"><div id="cinema-crown">👑</div><img id="cinema-plushie" src="" alt="" decoding="async"></div>
     <div id="race-modal">
         <h1 data-i18n="prix_title" style="color:var(--go); letter-spacing:4px;">ESQUELOTIA GRAND PRIX</h1>
@@ -1996,7 +2075,7 @@
         // while still retrying if a reload didn't actually land the new build. Fully
         // defensive: any error is silent and never blocks the game. Parent bumps BOTH
         // version.json and BUILD_V on every future deploy.
-        const BUILD_V = "build-57";
+        const BUILD_V = "build-61";
         (function () {
             function hardReloadTo(v) {
                 try {
@@ -2088,6 +2167,7 @@
                 hat1_card:"Sushi Chronicle", hat1_name:"Sushi Roll Chef Hat", hat1_bonus:"+20% Helper Idle CPS",
                 hat2_card:"Milkshake Chronicle", hat2_name:"Milkshake Chef Hat", hat2_bonus:"-10% Helper Upgrade Costs & +15% Charm Drop Luck",
                 pres_lore:"Success. Small Angel's energy is woven into Earth.",
+                pres_angel_name:"Small Angel", pres_angel_epithet:"Guardian of Esquelotia · Sacred Soup Soul", pres_shards_overlay:"+{n} Angel Shards ⬨",
                 lore1:"Skullchef arrived from Esquelotia to heal Earth.", lore2:"The dark entity stole love from Esquelotia.", lore3:"Small Angel gave his life to heal his planet.",
                 lore4:"Skullchef journeyed with Angel's soul in soup.", lore5:"The soup is ready. Awaken the Soul to ascend.", lore6:"Success. Small Angel's energy is woven into Earth.",
                 reward_watch:"Watch",
@@ -2152,6 +2232,10 @@
                 farm_btn:"🌱 Farm", farm_title:"🌱 Ingredient Farm", farm_sub:"Grow ingredients for helper throws. Soup stirring always works!", farm_auto_replant:"Auto-replant after harvest", farm_plant:"Plant", farm_harvest:"Tap!", farm_water:"Water", farm_watered:"Watered", farm_empty_throw:"Out of {glyph}! Helpers need ingredients — open 🌱 Farm!", farm_prestige_reset:"Your pantry restarts fresh for the new kitchen! 🌱", farm_dev_fill:"Ingredient stock filled (dev)",
                 decor_btn:"🏖️ Decorate", decor_title:"🏖️ Decorate", decor_sub:"Swap the kitchen backdrop and dress up the chef for summer.", decor_bg_hint:"Sunny beach backdrop—equip Beach below to replace the kitchen.", decor_section_bg:"Background", decor_section_chef:"Chef", decor_section_edit:"Adjust position", decor_edit_hint:"Use the placement panel (bottom-right): arrows move, +/- size, [ ] rotate, Tab switches hat/glasses.", decor_place_btn:"Adjust position", decor_place_on:"Placement ON — use panel bottom-right", decor_place_off:"Placement OFF", decor_edit_none:"Equip a hat or glasses first", decor_edit_hat:"Straw hat", decor_edit_shades:"Sunglasses", decor_bg_default:"Kitchen (default)", decor_summer_beach:"Beach (background)", decor_summer_straw_hat:"Straw hat", decor_summer_shades:"Sunglasses", decor_equip:"Equip", decor_unequip:"Remove", decor_equipped:"Equipped", decor_locked:"Seasonal pack locked", decor_dev_unlock:"Unlock all decorations (dev)",
                 creator_grant_all:"Unlock all charms", creator_grant_all_ok:"All catalog charms unlocked ({n})",
+                creator_pres_preview:"✨ Preview prestige transition", creator_pres_preview_ok:"Preview done — no prestige spent",
+                creator_pres_demo_ready:"Ready to record — tap the Angel altar ({eb} EB)",
+                creator_pres_demo_btn:"🎬 Prepare prestige (current level)",
+                creator_pres_demo_first:"🎬 Demo: 1st prestige setup", creator_pres_demo_first_ok:"Demo ready: Lv.0 · tap the glowing Angel",
                 creator_reset_spoons:"Reset album spoons", creator_reset_spoons_ok:"Album spoons reset"
                 /* ===== END ===== */
             },
@@ -2205,6 +2289,7 @@
                 hat1_card:"Crónica Sushi", hat1_name:"Gorro Rollo de Sushi", hat1_bonus:"+20% CPS pasivo de ayudantes",
                 hat2_card:"Crónica Batido", hat2_name:"Gorro Batido", hat2_bonus:"-10% coste de mejoras de ayudantes y +15% suerte de amuletos",
                 pres_lore:"Logrado. La energía del Pequeño Ángel se teje en la Tierra.",
+                pres_angel_name:"Pequeño Ángel", pres_angel_epithet:"Guardián de Esquelotia · Alma de la Sopa Sagrada", pres_shards_overlay:"+{n} Fragmentos de Ángel ⬨",
                 lore1:"Skullchef llegó de Esquelotia para sanar la Tierra.", lore2:"La entidad oscura robó el amor de Esquelotia.", lore3:"El Pequeño Ángel dio su vida para sanar su planeta.",
                 lore4:"Skullchef viajó con el alma del Ángel en la sopa.", lore5:"La sopa está lista. Despierta el Alma para ascender.", lore6:"Logrado. La energía del Pequeño Ángel se teje en la Tierra.",
                 reward_watch:"Ver",
@@ -2269,6 +2354,10 @@
                 farm_btn:"🌱 Cultivos", farm_title:"🌱 Cultivos de Ingredientes", farm_sub:"Cultiva ingredientes para los lanzamientos de ayudantes. ¡Remover la sopa siempre funciona!", farm_auto_replant:"Replantar automáticamente al cosechar", farm_plant:"Plantar", farm_harvest:"¡Toca!", farm_water:"Regar", farm_watered:"Regado", farm_empty_throw:"¡Sin {glyph}! Los ayudantes necesitan ingredientes — abre 🌱 Cultivos", farm_prestige_reset:"¡Tu despensa empieza de cero en la nueva cocina! 🌱", farm_dev_fill:"Stock de ingredientes lleno (dev)",
                 decor_btn:"🏖️ Decorar", decor_title:"🏖️ Decorar", decor_sub:"Cambia el fondo de la cocina y viste al chef para el verano.", decor_bg_hint:"Fondo playero veraniego—equipa Playa abajo para cambiar la cocina.", decor_section_bg:"Fondo", decor_section_chef:"Chef", decor_section_edit:"Ajustar posición", decor_edit_hint:"Usa el panel de posición (abajo a la derecha): flechas mueven, +/- tamaño, [ ] rotar, Tab cambia sombrero/gafas.", decor_place_btn:"Ajustar posición", decor_place_on:"Posición ON — panel abajo a la derecha", decor_place_off:"Posición OFF", decor_edit_none:"Equipa un sombrero o gafas primero", decor_edit_hat:"Sombrero de paja", decor_edit_shades:"Gafas de sol", decor_bg_default:"Cocina (normal)", decor_summer_beach:"Playa (fondo)", decor_summer_straw_hat:"Sombrero de paja", decor_summer_shades:"Gafas de sol", decor_equip:"Equipar", decor_unequip:"Quitar", decor_equipped:"Equipado", decor_locked:"Pack estacional bloqueado", decor_dev_unlock:"Desbloquear adornos (dev)",
                 creator_grant_all:"Desbloquear todos los amuletos", creator_grant_all_ok:"Todos los amuletos del catálogo ({n})",
+                creator_pres_preview:"✨ Ver transición de prestigio", creator_pres_preview_ok:"Vista previa lista — no se gastó prestigio",
+                creator_pres_demo_ready:"Listo para grabar — pulsa el ángel del altar ({eb} EB)",
+                creator_pres_demo_btn:"🎬 Preparar prestigio (nivel actual)",
+                creator_pres_demo_first:"🎬 Demo: preparar 1er prestigio", creator_pres_demo_first_ok:"Demo lista: Nv.0 · pulsa el ángel brillante",
                 creator_reset_spoons:"Reiniciar cucharas del álbum", creator_reset_spoons_ok:"Cucharas del álbum reiniciadas"
                 /* ===== END ===== */
             }
@@ -3139,36 +3228,6 @@
                 if (CREATOR.youtube) btns.push(`<button class="gx-btn creator-link" type="button" onclick="creator.go(CREATOR.youtube)">▶ ${t('creator_youtube')}</button>`);
                 if (CREATOR.tiktok)  btns.push(`<button class="gx-btn creator-link" type="button" onclick="creator.go(CREATOR.tiktok)">♪ ${t('creator_tiktok')}</button>`);
                 if (this.isLiveNow()) btns.push(`<button class="gx-btn creator-link creator-live" type="button" onclick="creator.goLive()">${t('creator_live')}</button>`);
-                /* ===== CREATOR PLACEMENT TOOL buttons — KEEP (creator-only, hidden at launch) ===== */
-                if (this.isDev()) {
-                    const on = (typeof placeTool !== 'undefined') && placeTool.active;
-                    btns.push(`<button class="gx-btn creator-link" type="button" style="background:linear-gradient(135deg,#1e3a8a,#3b82f6);border-color:#bfdbfe" onclick="placeTool.toggle()">${t(on ? 'place_tool_adjust_on' : 'place_tool_adjust_off')}</button>`);
-                    if (on) {
-                        btns.push(`<button class="gx-btn creator-link" type="button" style="background:linear-gradient(135deg,#065f46,#10b981);border-color:#a7f3d0" onclick="placeTool.copyValues()">${t('place_tool_copy')}</button>`);
-                        btns.push(`<button class="gx-btn creator-link" type="button" style="background:linear-gradient(135deg,#7c2d12,#f59e0b);border-color:#fde68a" onclick="placeTool.resetActive()">${t('place_tool_reset_btn')}</button>`);
-                    }
-                    /* ===== CREATOR FX TEST buttons — KEEP (creator-only) ===== */
-                    const th = this.testHelperId();
-                    btns.push(`<p class="amb-hint" style="margin:10px 0 6px;text-align:center">${t('dev_test_section')}</p>`);
-                    btns.push(`<p class="amb-hint" style="margin:0 0 6px;font-size:0.72rem;text-align:center">${t('dev_test_helper')}</p>`);
-                    btns.push(`<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px">${game.cp.map((c, i) => {
-                        const sel = i === th ? 'border-color:#fde047;background:rgba(253,224,71,0.22)' : '';
-                        const label = (i + 1) + ' · ' + t(c.nk || 'comp_coco');
-                        return `<button class="gx-btn creator-link" type="button" style="flex:1 1 46%;font-size:0.72rem;padding:8px 6px;${sel}" onclick="creator.pickTestHelper(${i})">${label}</button>`;
-                    }).join('')}</div>`);
-                    btns.push(`<button class="gx-btn creator-link" type="button" style="background:linear-gradient(135deg,#581c87,#a855f7);border-color:#e9d5ff" onclick="game.devTestSummonFx(creator.testHelperId(),'feed')">${t('dev_test_feed')}</button>`);
-                    btns.push(`<button class="gx-btn creator-link" type="button" style="background:linear-gradient(135deg,#0c4a6e,#0284c7);border-color:#bae6fd" onclick="game.devTestSummonFx(creator.testHelperId(),'rain')">${t('dev_test_rain')}</button>`);
-                    btns.push(`<button class="gx-btn creator-link" type="button" style="background:linear-gradient(135deg,#713f12,#eab308);border-color:#fef08a" onclick="game.devTestSummonFx(creator.testHelperId(),'both')">${t('dev_test_both')}</button>`);
-                    /* ===== END CREATOR FX TEST buttons ===== */
-                    /* ===== CREATOR DEV TOOLS — KEEP (creator-only; remove before public launch) ===== */
-                    btns.push(`<p class="amb-hint" style="margin:10px 0 6px;text-align:center">${t('creator_grant_all')}</p>`);
-                    btns.push(`<button class="gx-btn creator-link" type="button" style="background:linear-gradient(135deg,#14532d,#22c55e);border-color:#bbf7d0" onclick="creator.grantAllCharms()">${t('creator_grant_all')}</button>`);
-                    btns.push(`<button class="gx-btn creator-link" type="button" style="background:linear-gradient(135deg,#44403c,#78716c);border-color:#d6d3d1" onclick="creator.resetSpoons()">${t('creator_reset_spoons')}</button>`);
-                    btns.push(`<button class="gx-btn creator-link" type="button" style="background:linear-gradient(135deg,#166534,#4ade80);border-color:#bbf7d0" onclick="farm.devFillStock()">${t('farm_dev_fill')}</button>`);
-                    btns.push(`<button class="gx-btn creator-link" type="button" style="background:linear-gradient(135deg,#0c4a6e,#38bdf8);border-color:#bae6fd" onclick="decor.devUnlockAll()">${t('decor_dev_unlock')}</button>`);
-                    /* ===== END CREATOR DEV TOOLS ===== */
-                }
-                /* ===== END CREATOR PLACEMENT TOOL buttons ===== */
                 box.innerHTML = btns.length ? btns.join('') : `<p class="amb-hint">${t('creator_none')}</p>`;
             },
             // True only on the owner's device (creator UUID/name or hidden __sc_creator flag).
@@ -3207,6 +3266,22 @@
                     else setTimeout(kick, 0);
                     setInterval(kick, 60000);
                 } catch (e) {}
+            },
+            // Creator-only: replay prestige cinematic without spending EB or resetting the run.
+            preparePrestigeDemo() {
+                if (!this.isOwnerDevice()) return;
+                try {
+                    const g = 1e6 * Math.pow(5, game.s);
+                    game.e = g;
+                    game.te = Math.max(game.te || 0, g);
+                    game.render();
+                    game.save();
+                    try { gx.toast(t('creator_pres_demo_ready', { eb: g.toLocaleString() })); } catch (e) {}
+                } catch (e) {}
+            },
+            previewPrestige() {
+                if (!this.isDev()) return;
+                try { game.playPrestigeCinematic({ previewOnly: true, shards: Math.max(3, game.presShards()) }); } catch (e) {}
             },
             // Creator-only: grant every active catalog skin (no drop reveal fanfare).
             grantAllCharms() {
@@ -5609,24 +5684,65 @@
                     }, 650);
                 } catch (e) {}
             },
-            pres() {
-                let g = 1e6 * Math.pow(5, this.s); if (this.e < g) { document.getElementById('btn-prestige').classList.add('shake'); setTimeout(()=>document.getElementById('btn-prestige').classList.remove('shake'), 300); return; }
-                this.p = true; sound.play('prestige'); const show = document.getElementById('angel-showcase'); show.classList.add('active'); this.part(window.innerWidth/2, window.innerHeight/2, 'magic');
+            playPrestigeCinematic(opts) {
+                opts = opts || {};
+                const previewOnly = !!opts.previewOnly;
+                if (this.p && !previewOnly) return false;
+                const shardsPreview = (opts.shards != null && Number.isFinite(opts.shards)) ? Math.max(1, Math.floor(opts.shards)) : this.presShards();
+                this.p = true;
+                sound.play('prestige');
+                const show = document.getElementById('angel-showcase');
+                if (show) show.classList.add('active');
+                this.part(window.innerWidth / 2, window.innerHeight / 2, 'magic');
                 setTimeout(() => {
-                    show.classList.remove('active'); const o = document.getElementById('prestige-overlay'); document.getElementById('pres-lore').innerText = t('pres_lore'); o.style.display = 'flex'; setTimeout(()=>o.style.opacity='1', 20);
+                    if (show) show.classList.remove('active');
+                    const o = document.getElementById('prestige-overlay');
+                    const loreEl = document.getElementById('pres-lore');
+                    const shardsEl = document.getElementById('pres-shards-gain');
+                    if (loreEl) loreEl.textContent = t('pres_lore');
+                    if (shardsEl) shardsEl.textContent = t('pres_shards_overlay', { n: shardsPreview });
+                    if (o) {
+                        o.classList.remove('open');
+                        o.style.opacity = '0';
+                        o.style.display = 'flex';
+                        o.setAttribute('aria-hidden', 'false');
+                        requestAnimationFrame(() => { o.classList.add('open'); o.style.opacity = '1'; });
+                    }
                     setTimeout(() => {
-                        const shardsGained = this.presShards();
+                        if (previewOnly) {
+                            if (o) {
+                                o.classList.remove('open'); o.style.opacity = '0'; o.setAttribute('aria-hidden', 'true');
+                                setTimeout(() => { o.style.display = 'none'; this.p = false; }, 500);
+                            } else { this.p = false; }
+                            try { gx.toast(t('creator_pres_preview_ok')); } catch (e) {}
+                            return;
+                        }
+                        const shardsGained = shardsPreview;
                         this.s++; this.as += shardsGained; this._buffs = [];
-                        try { gx.toast(t('pres_shards_toast', {n: shardsGained})); } catch (e) {}
+                        try { gx.toast(t('pres_shards_toast', { n: shardsGained })); } catch (e) {}
                         try { if (typeof isPlayablesEnv !== 'function' || !isPlayablesEnv()) leaderboard.submit({ prestige: this.s, score: this.te }); } catch (e) {}
                         ach.grant('firstPres');
                         const eco = this.tree.eco;
                         this.e = 0; this.l = 0; this.cp.forEach(c => { const base = this.cpBaseCost[c.id] || this.cpBaseCost[this.cpBaseCost.length - 1]; c.lv = eco; c.ch = 0; c.cs = base; for (let j = 0; j < eco; j++) c.cs = Math.floor(c.cs * 1.15); });
                         try { farm.resetForPrestige(); } catch (e) {}
                         try { this.resetShopForPrestige(); } catch (e) {}
-                        this.rebuild(); this.render(); this.save(); o.style.opacity = '0'; setTimeout(()=>{o.style.display='none'; this.p=false;}, 500);
-                    }, 3000);
+                        this.rebuild(); this.render(); this.save();
+                        if (o) {
+                            o.classList.remove('open'); o.style.opacity = '0'; o.setAttribute('aria-hidden', 'true');
+                            setTimeout(() => { o.style.display = 'none'; this.p = false; }, 500);
+                        }
+                    }, 3200);
                 }, 2000);
+                return true;
+            },
+            pres() {
+                let g = 1e6 * Math.pow(5, this.s);
+                if (this.e < g) {
+                    document.getElementById('btn-prestige').classList.add('shake');
+                    setTimeout(() => document.getElementById('btn-prestige').classList.remove('shake'), 300);
+                    return;
+                }
+                this.playPrestigeCinematic({ previewOnly: false });
             },
             coron(c) {
                 this.p = true; sound.play('victory');
@@ -9709,6 +9825,20 @@
                 }
             } catch (e) {}
             /* ===== END CREATOR UNLOCK GESTURE ===== */
+            /* Owner-only recording shortcuts (never shown in Creator UI): Ctrl+Shift+P = EB to prestige threshold; Ctrl+Shift+V = preview cinematic. */
+            try {
+                document.addEventListener('keydown', function (e) {
+                    if (!scIsOwnerDevice()) return;
+                    if (!e.ctrlKey || !e.shiftKey) return;
+                    if (e.key === 'P' || e.key === 'p') {
+                        e.preventDefault();
+                        try { creator.preparePrestigeDemo(); } catch (err) {}
+                    } else if (e.key === 'V' || e.key === 'v') {
+                        e.preventDefault();
+                        try { creator.previewPrestige(); } catch (err) {}
+                    }
+                });
+            } catch (e) {}
             applyStaticI18n();
             const f = document.getElementById('lang-fab'); if (f) f.textContent = '🌐 ' + LANG.toUpperCase();
             home.init();
