@@ -1620,7 +1620,7 @@
     </script>
     <script src="events.js"></script>
     <!-- Cache-bust catalog on every deploy (SW must not serve a stale charm list). -->
-    <script src="assets/skins/catalog.js?v=build-63"></script>
+    <script src="assets/skins/catalog.js?v=build-64"></script>
     <!-- ====================================================================
          === EMBEDDED LEADERBOARD MODULE (from leaderboard/leaderboard-client.js)
          === Self-contained global `leaderboard` object. Single-file game, so the
@@ -2089,7 +2089,7 @@
         // while still retrying if a reload didn't actually land the new build. Fully
         // defensive: any error is silent and never blocks the game. Parent bumps BOTH
         // version.json and BUILD_V on every future deploy.
-        const BUILD_V = "build-63";
+        const BUILD_V = "build-64";
         (function () {
             function hardReloadTo(v) {
                 try {
@@ -2455,9 +2455,85 @@
                 _default: { minGap: 0,  poly: 3, pitch: 0 }
             },
             _last: {}, flat: {}, _farmBroken: {},
-            pool: {}, voices: {}, muted:false, volume:1, _inited:false, _unlocked:false,
+            pool: {}, voices: {}, muted:false, volume:1, _inited:false, _unlocked:false, _needReprime: false,
             _farmAmb: { audio: null, broken: false, active: false },
             _eatPreload: null, _eatEndTimer: null, _eatAudio: null, _lastEatDur: 2000,
+            // Mobile web (iOS/Android browser): one-shot SFX via Web Audio so sounds triggered
+            // from timers/async (farm ready, ingredient rain, eat) work without a user gesture.
+            // Stir keeps its dedicated HTMLAudio loop (already gesture-started on tap).
+            _waCtx: null, _waBuf: {}, _waLoading: {}, _waAmb: null, _waAmbGain: null,
+            _useWebAudio() {
+                try {
+                    if (this._isNativeCap()) return false;
+                    if (typeof isPlayablesEnv === 'function' && isPlayablesEnv()) return false;
+                    return window.matchMedia('(pointer: coarse)').matches;
+                } catch (e) { return false; }
+            },
+            _waEnsure() {
+                try {
+                    const Ctx = window.AudioContext || window.webkitAudioContext;
+                    if (!Ctx) return null;
+                    if (!this._waCtx) this._waCtx = new Ctx();
+                    const ctx = this._waCtx;
+                    if (ctx.state === 'suspended' || ctx.state === 'interrupted') {
+                        try { const p = ctx.resume(); if (p && p.catch) p.catch(() => {}); } catch (e) {}
+                    }
+                    return ctx;
+                } catch (e) { return null; }
+            },
+            _waLoadSrc(src) {
+                const url = this._mediaUrl(src);
+                if (this._waBuf[url]) return Promise.resolve(this._waBuf[url]);
+                if (this._waLoading[url]) return this._waLoading[url];
+                const ctx = this._waEnsure();
+                if (!ctx) return Promise.resolve(null);
+                this._waLoading[url] = fetch(url, { cache: 'force-cache' })
+                    .then(r => (r && r.ok ? r.arrayBuffer() : Promise.reject(new Error('fetch'))))
+                    .then(ab => new Promise((res, rej) => { ctx.decodeAudioData(ab, res, rej); }))
+                    .then(buf => { this._waBuf[url] = buf; return buf; })
+                    .catch(() => null)
+                    .finally(() => { delete this._waLoading[url]; });
+                return this._waLoading[url];
+            },
+            _waLoadAll() {
+                if (!this._useWebAudio()) return;
+                const urls = new Set();
+                for (const k in this.defs) { const arr = this.defs[k]; if (arr) arr.forEach(u => urls.add(u)); }
+                urls.add('audio/farm_ambiente.mp3');
+                urls.forEach(u => { try { this._waLoadSrc(u); } catch (e) {} });
+            },
+            _waPlayBuffer(buf, vol, rate) {
+                const ctx = this._waEnsure();
+                if (!ctx || !buf) return false;
+                try {
+                    const src = ctx.createBufferSource();
+                    src.buffer = buf;
+                    src.playbackRate.value = rate || 1;
+                    const g = ctx.createGain();
+                    g.gain.value = Math.min(1, Math.max(0, vol));
+                    src.connect(g); g.connect(ctx.destination);
+                    src.start(0);
+                    return true;
+                } catch (e) { return false; }
+            },
+            _waPlaySfx(name) {
+                if (!this._useWebAudio()) return false;
+                const grp = this.defs[name];
+                if (!grp || !grp.length) return false;
+                const cfg = this.cfg[name] || this.cfg._default;
+                const now = (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now();
+                const minGap = name === 'buy' ? 400 : (cfg.minGap || 0);
+                if (minGap > 0 && (now - (this._last[name] || 0)) < minGap) return true;
+                this._last[name] = now;
+                const srcPath = grp.length > 1 ? grp[Math.floor(Math.random() * grp.length)] : grp[0];
+                const url = this._mediaUrl(srcPath);
+                const buf = this._waBuf[url];
+                if (!buf) { try { this._waLoadSrc(srcPath); } catch (e) {} return false; }
+                const vol = Math.min(1, Math.max(0, (this.vols[name] != null ? this.vols[name] : 0.5) * this.volume));
+                const pitch = cfg.pitch || 0;
+                const rate = (name === 'buy' || pitch <= 0) ? 1 : Math.min(2, Math.max(0.5, 1 + (Math.random() * 2 - 1) * pitch));
+                return this._waPlayBuffer(buf, vol, rate);
+            },
             init() {
                 if (this._inited) return; this._inited = true;
                 try { const raw = localStorage.getItem('soup_audio'); if (raw) { const d = JSON.parse(raw); if (d && typeof d === 'object') { this.muted = !!d.m; if (typeof d.v === 'number' && isFinite(d.v)) this.volume = Math.min(1, Math.max(0, d.v)); } } } catch (e) {}
@@ -2499,12 +2575,19 @@
                     // The visibility/focus/pageshow handlers above already recover on return.
                     // The gesture must NOT re-run recovery (it bubbles AFTER tap-driven SFX and
                     // would re-mute/pause the pooled voices); just resume the AudioContext.
-                    const gestureWake = () => { this._needReprime = false; try { this.resumeAudio(); } catch (e) {} };
+                    const gestureWake = () => {
+                        try { this.resumeAudio(); } catch (e) {}
+                        if (this._unlocked && this._needReprime) {
+                            this._needReprime = false;
+                            try { this.recoverFromBackground(); } catch (e) {}
+                        }
+                    };
                     ['pointerdown', 'touchstart', 'click'].forEach(ev => document.addEventListener(ev, gestureWake, { passive: true }));
                 } catch (e) {}
             },
             // Resume any Web Audio context (eat synth) if the OS suspended/interrupted it.
             resumeAudio() {
+                try { this._waEnsure(); } catch (e) {}
                 try {
                     const ctx = this._eatCtx;
                     if (ctx && (ctx.state === 'suspended' || ctx.state === 'interrupted')) {
@@ -2518,6 +2601,7 @@
             recoverFromBackground() {
                 if (!this._inited || this.muted || this.volume <= 0) return;
                 this.resumeAudio();
+                if (this._useWebAudio()) return;
                 // SYNC prime (mirrors unlock()): never leave a voice muted via an async
                 // callback, and never pause/reset a voice that is actively playing — that was
                 // silencing real SFX on mobile (the async mute window + done() clobber).
@@ -2546,30 +2630,37 @@
                 try { a.muted = true; const p = a.play(); if (p && p.catch) p.catch(() => {}); a.pause(); a.currentTime = 0; a.muted = false; } catch (e) {}
             },
             unlock() {
-                if (this._unlocked) return; this._unlocked = true;
-                try {
-                    // iOS WKWebView rejects mass-priming dozens of voices in one gesture.
-                    if (this._isNativeCap()) {
-                        this._primeOne(this._makeAudio('audio/bubble.mp3'));
-                        const sv = this._stirEnsure();
-                        if (sv && sv[0]) this._primeOne(sv[0]);
-                    } else {
-                        for (const k in this.flat) {
-                            const arr = this.flat[k];
-                            if (arr) for (let i = 0; i < arr.length; i++) this._primeOne(arr[i]);
+                const first = !this._unlocked;
+                if (first) {
+                    this._unlocked = true;
+                    try {
+                        // iOS WKWebView rejects mass-priming dozens of voices in one gesture.
+                        if (this._isNativeCap()) {
+                            this._primeOne(this._makeAudio('audio/bubble.mp3'));
+                            const sv = this._stirEnsure();
+                            if (sv && sv[0]) this._primeOne(sv[0]);
+                        } else if (!this._useWebAudio()) {
+                            for (const k in this.flat) {
+                                const arr = this.flat[k];
+                                if (arr) for (let i = 0; i < arr.length; i++) this._primeOne(arr[i]);
+                            }
+                            this._primeOne(this._eatPreload);
+                            const sv = this._stir.voices;
+                            if (sv) for (let i = 0; i < sv.length; i++) this._primeOne(sv[i]);
                         }
-                        this._primeOne(this._eatPreload);
-                        const sv = this._stir.voices;
-                        if (sv) for (let i = 0; i < sv.length; i++) this._primeOne(sv[i]);
-                    }
-                    if (this._eatCtx && this._eatCtx.state === 'suspended') { try { this._eatCtx.resume(); } catch (e) {} }
-                    this.resumeAudio();
-                } catch (e) {}
+                        if (this._eatCtx && this._eatCtx.state === 'suspended') { try { this._eatCtx.resume(); } catch (e) {} }
+                    } catch (e) {}
+                }
+                try { this.resumeAudio(); this._waLoadAll(); } catch (e) {}
             },
             save() { try { localStorage.setItem('soup_audio', JSON.stringify({ m:this.muted, v:this.volume })); } catch (e) {} },
             play(name) {
                 if (this.muted || this.volume <= 0) return;
                 this.unlock();
+                if (name !== 'stir' && this._useWebAudio()) {
+                    if (this._waPlaySfx(name)) return;
+                    return;
+                }
                 const grp = this.voices[name]; if (!grp || !grp.length) return;
                 const cfg = this.cfg[name] || this.cfg._default;
                 const now = (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now();
@@ -2691,6 +2782,19 @@
                     return minMs;
                 }
                 const vol = Math.max(0.1, Math.min(1, (this.vols.eat != null ? this.vols.eat : 0.48) * (this.volume || 1)));
+                if (this._useWebAudio()) {
+                    const eatSrc = (this.defs.eat && this.defs.eat[0]) ? this.defs.eat[0] : 'audio/eat.mp3';
+                    const url = this._mediaUrl(eatSrc);
+                    const buf = this._waBuf[url];
+                    if (buf) {
+                        const durMs = clampMs(buf.duration * 1000);
+                        this._lastEatDur = durMs;
+                        if (this._waPlayBuffer(buf, vol, 1) && onEnd) this._eatEndTimer = setTimeout(() => { try { onEnd(); } catch (e) {} }, durMs);
+                        return durMs;
+                    }
+                    try { this._waLoadSrc(eatSrc); } catch (e) {}
+                    return this._playEatSynth(onEnd, fallbackMs, vol);
+                }
                 const flat = this.flat.eat || [];
                 let a = null;
                 for (let i = 0; i < flat.length; i++) { const v = flat[i]; if (v.paused || v.ended) { a = v; break; } }
@@ -2862,6 +2966,28 @@
                 const F = this._farmAmb;
                 if (F.active) return;
                 this.unlock();
+                if (this._useWebAudio()) {
+                    const ctx = this._waEnsure();
+                    const url = this._mediaUrl('audio/farm_ambiente.mp3');
+                    const buf = this._waBuf[url];
+                    if (ctx && buf) {
+                        try {
+                            if (this._waAmb) { try { this._waAmb.stop(); } catch (e) {} this._waAmb = null; }
+                            const src = ctx.createBufferSource();
+                            src.buffer = buf;
+                            src.loop = true;
+                            const g = ctx.createGain();
+                            g.gain.value = this._farmAmbVol();
+                            src.connect(g); g.connect(ctx.destination);
+                            src.start(0);
+                            this._waAmb = src;
+                            this._waAmbGain = g;
+                            F.active = true;
+                            F.broken = false;
+                            return;
+                        } catch (e) {}
+                    } else { try { this._waLoadSrc('audio/farm_ambiente.mp3'); } catch (e2) {} }
+                }
                 if (F.broken) return;
                 try {
                     if (!F.audio) {
@@ -2880,12 +3006,13 @@
             farmAmbStop() {
                 const F = this._farmAmb;
                 F.active = false;
+                if (this._waAmb) { try { this._waAmb.stop(); } catch (e) {} this._waAmb = null; this._waAmbGain = null; }
                 if (!F.audio) return;
                 try { F.audio.pause(); F.audio.currentTime = 0; } catch (e) {}
             },
             setMuted(m) { this.muted = !!m; if (this.muted) { try { this._stirStopNow(); } catch (e) {} try { this.farmAmbStop(); } catch (e) {} } this.save(); this.updateUi(); try { if (typeof ambient !== 'undefined' && ambient._inited) ambient.syncPlayback(); } catch (e) {} try { if (typeof music !== 'undefined' && music._inited) music.syncPlayback(); } catch (e) {} },
             toggleMute() { this.setMuted(!this.muted); },
-            setVolume(val) { const n = Number(val); this.volume = isFinite(n) ? Math.min(1, Math.max(0, n)) : this.volume; if (this.volume > 0 && this.muted) this.muted = false; this.save(); this.updateUi(); },
+            setVolume(val) { const n = Number(val); this.volume = isFinite(n) ? Math.min(1, Math.max(0, n)) : this.volume; if (this.volume > 0 && this.muted) this.muted = false; if (this._waAmbGain) { try { this._waAmbGain.gain.value = this._farmAmbVol(); } catch (e) {} } this.save(); this.updateUi(); },
             updateUi() {
                 const c = document.getElementById('audio-ctrl'), b = document.getElementById('audio-mute'), v = document.getElementById('audio-vol');
                 if (b) b.innerText = (this.muted || this.volume <= 0) ? '🔇' : '🔊';
