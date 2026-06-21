@@ -582,5 +582,20 @@
     // Pack F · Skullchef Meta (8 × 5) — ej. souplord, cauldronkid, bonebroth, skullemoji…
     // { id: 'ivan_common_souplord',       rarity: 'common',    family: 'helper', img: 'assets/skins/ivan_common_souplord.png',       thumb: 'assets/skins/thumbs/ivan_common_souplord.webp',       name_en: 'Ivan · Soup Lord',      name_es: 'Ivan · Señor Sopa' },
     // Lista completa de sufijos + rarezas por pack → tools/WAVE4_VIRAL_THEMES.md
+
+    // --- Wave 5 pilot (HD art only) ---
+    { id: 'pio_common_clownwig', rarity: 'common', family: 'helper', img: 'assets/skins/pio_common_clownwig.png', thumb: 'assets/skins/thumbs/pio_common_clownwig.webp', name_en: 'Pío · Clown Wig', name_es: 'Pío · Peluca de Payaso' },
+    { id: 'pio_common_rainbowwig', rarity: 'common', family: 'helper', img: 'assets/skins/pio_common_rainbowwig.png', thumb: 'assets/skins/thumbs/pio_common_rainbowwig.webp', name_en: 'Pío · Rainbow Wig', name_es: 'Pío · Peluca Arcoíris' },
+    { id: 'pio_uncommon_afropuff', rarity: 'uncommon', family: 'helper', img: 'assets/skins/pio_uncommon_afropuff.png', thumb: 'assets/skins/thumbs/pio_uncommon_afropuff.webp', name_en: 'Pío · Afro Puff', name_es: 'Pío · Afro Gigante' },
+    { id: 'pio_uncommon_parrotmate', rarity: 'uncommon', family: 'helper', img: 'assets/skins/pio_uncommon_parrotmate.png', thumb: 'assets/skins/thumbs/pio_uncommon_parrotmate.webp', name_en: 'Pío · Parrot Mate', name_es: 'Pío · Loro Compañero' },
+    { id: 'pio_rare_dinocostume', rarity: 'rare', family: 'helper', img: 'assets/skins/pio_rare_dinocostume.png', thumb: 'assets/skins/thumbs/pio_rare_dinocostume.webp', name_en: 'Pío · Dino Costume', name_es: 'Pío · Disfraz Dino' },
+    { id: 'pio_epic_mummywrap', rarity: 'epic', family: 'helper', img: 'assets/skins/pio_epic_mummywrap.png', thumb: 'assets/skins/thumbs/pio_epic_mummywrap.webp', name_en: 'Pío · Mummy Wrap', name_es: 'Pío · Vendas Momia' },
+    { id: 'pio_legendary_dragstar', rarity: 'legendary', family: 'helper', img: 'assets/skins/pio_legendary_dragstar.png', thumb: 'assets/skins/thumbs/pio_legendary_dragstar.webp', name_en: 'Pío · Drag Star', name_es: 'Pío · Estrella Drag' },
+    { id: 'pio_superleg_wigchaos', rarity: 'superleg', family: 'helper', img: 'assets/skins/pio_superleg_wigchaos.png', thumb: 'assets/skins/thumbs/pio_superleg_wigchaos.webp', name_en: 'Pío · Wig Chaos', name_es: 'Pío · Caos de Pelucas' },
+    // === WAVE 5 — Chaos Kawaii (400 skins, arte pendiente) ===
+    // Manifiesto: tools/wave5_chaos_kawaii.json · Guía: tools/WAVE5_CHAOS_KAWAII.md
+    // Generar JSON: python tools/generate-wave5-scaffold.py
+    // Activar fila a fila cuando exista PNG + WebP thumb (no descomentar en bloque).
+
   ];
 })();
