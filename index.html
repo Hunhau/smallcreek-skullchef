@@ -222,6 +222,7 @@
         @keyframes speedScroll { from { background-position: 0 0; } to { background-position: 0 32px; } }
         .manual-stir { transform: rotate(15deg) !important; } .soup-ripple-active { transform: scale(1.018, 0.985) !important; }
         .ingredient-proj { position: fixed; z-index: 25001; pointer-events: none; font-size: clamp(2.6rem, 9.5vw, 5rem); line-height: 1; transition: left 0.64s cubic-bezier(0.22, 1, 0.36, 1), top 0.64s cubic-bezier(0.22, 1, 0.36, 1), transform 0.64s ease-in, opacity 0.20s ease 0.46s; filter: drop-shadow(0 3px 10px rgba(0,0,0,0.5)); will-change: left, top, transform, opacity; }
+        .ingredient-proj-dry { filter: drop-shadow(0 2px 6px rgba(0,0,0,0.25)); }
         /* Kawaii per-ingredient soup splash — 10 DRAMATICALLY unique identities (#soup-liquid) */
         #soup-fx-burst { position: absolute; inset: 0; pointer-events: none; z-index: 1; overflow: hidden; contain: strict; }
         .ingredient-splash-active { --ing-fx-dur: 2.6s; }
@@ -1973,7 +1974,7 @@
         // while still retrying if a reload didn't actually land the new build. Fully
         // defensive: any error is silent and never blocks the game. Parent bumps BOTH
         // version.json and BUILD_V on every future deploy.
-        const BUILD_V = "build-50";
+        const BUILD_V = "build-51";
         (function () {
             function hardReloadTo(v) {
                 try {
@@ -4978,9 +4979,10 @@
                 this._chefMouthCloseTimer = setTimeout(() => this._endChefFeedChew(seq), chewMs + 80);
                 try { gx.toast(t('chef_taste_ingredient')); } catch (e) {}
             },
-            summonIngredientThrow(helperId, fromX, fromY, level, onComplete, feedMode) {
+            summonIngredientThrow(helperId, fromX, fromY, level, onComplete, feedMode, visualOnly) {
                 const cfg = this.pickSummonIngredient(helperId, level != null ? level : (this.cp[helperId] && this.cp[helperId].lv));
                 if (!cfg) { if (typeof onComplete === 'function') onComplete(); return; }
+                const dry = !!visualOnly;
                 const toChef = !!feedMode;
                 const o = toChef ? this.chefMouthOrigin() : this.soupPartOrigin();
                 const glyphs = cfg.glyphs || ['✨'];
@@ -4993,16 +4995,16 @@
                 const startScale = cfg.startScale != null ? cfg.startScale : 1.55;
                 const arcLift = Math.max(42, Math.min(72, (fromY - o.y) * 0.22 + 48));
                 const endYOffset = toChef ? 0 : 8;
-                if (toChef) this.chefFeedAnticipateOpen();
+                if (toChef && !dry) this.chefFeedAnticipateOpen();
                 for (let i = 0; i < count; i++) {
                     setTimeout(() => {
                         const el = document.createElement('div');
-                        el.className = 'ingredient-proj';
+                        el.className = 'ingredient-proj' + (dry ? ' ingredient-proj-dry' : '');
                         el.textContent = glyphs[i % glyphs.length];
                         el.style.left = fromX + 'px';
                         el.style.top = fromY + 'px';
                         el.style.transform = `translate(-50%,-50%) scale(${startScale}) rotate(${startRot}deg)`;
-                        el.style.opacity = '1';
+                        el.style.opacity = dry ? '0.45' : '1';
                         document.body.appendChild(el);
                         requestAnimationFrame(() => {
                             const off = (i - (count - 1) / 2) * spread;
@@ -5024,13 +5026,15 @@
                         setTimeout(() => { if (el.parentNode) el.remove(); }, 1320);
                         if (i === count - 1) {
                             setTimeout(() => {
-                                if (toChef) {
-                                    try { this.chefFeedHit(cfg); } catch (e) { console.warn('chefFeedHit', e); }
-                                    this.chefFeedEatSequence();
-                                } else {
-                                    try { this.soupIngredientHit(cfg); } catch (e) {}
+                                if (!dry) {
+                                    if (toChef) {
+                                        try { this.chefFeedHit(cfg); } catch (e) { console.warn('chefFeedHit', e); }
+                                        this.chefFeedEatSequence();
+                                    } else {
+                                        try { this.soupIngredientHit(cfg); } catch (e) {}
+                                    }
                                 }
-                                const delay = toChef ? 880 : this.SOUP_ING_FX_MS;
+                                const delay = dry ? 420 : (toChef ? 880 : this.SOUP_ING_FX_MS);
                                 if (typeof onComplete === 'function') setTimeout(onComplete, delay);
                             }, 1100);
                         }
@@ -5371,12 +5375,14 @@
                 document.body.appendChild(h);
                 const lv = (testLevel != null && creator.isDev()) ? Math.max(1, Math.floor(Number(testLevel) || c.lv)) : c.lv;
                 const feed = feedMode != null ? !!feedMode : this.isFeedMilestone(lv);
+                let visualOnlyThrow = false;
                 let landed = false;
                 const landClone = () => {
                     if (landed) return;
                     landed = true;
                     clearTimeout(landFailSafe);
                     this.summonLandClone(h, c, () => {
+                        if (visualOnlyThrow) return;
                         const rainLv = this._rainOnLand || (this.isExtraIngredientRainMilestone(lv) ? lv : 0);
                         this._rainOnLand = 0;
                         if (rainLv) this.extraIngredientRain(c.id, rainLv);
@@ -5420,10 +5426,11 @@
                     this.part(pose.x, pose.y, 'magic');
                     const skipCost = testLevel != null && creator.isDev();
                     if (skipCost || farm.consumeThrow(c.id, lv, feed)) {
-                        this.summonIngredientThrow(c.id, pose.x, pose.y, lv, landClone, feed);
+                        this.summonIngredientThrow(c.id, pose.x, pose.y, lv, landClone, feed, false);
                     } else {
+                        visualOnlyThrow = true;
                         farm.toastEmpty(c.id, lv);
-                        landClone();
+                        this.summonIngredientThrow(c.id, pose.x, pose.y, lv, landClone, feed, true);
                     }
                 };
                 let flyStarted = false;
@@ -6995,19 +7002,34 @@
                         self._adUnitId = String(cfg[plat].rewardedAdUnitId).trim();
                         if (!self._adUnitId) return false;
                         const AdMob = self._plugin();
-                        const initOpts = {};
+                        const initOpts = { requestTrackingAuthorization: plat === 'ios' };
                         if (cfg.isTesting) initOpts.initializeForTesting = true;
                         if (Array.isArray(cfg.testingDevices) && cfg.testingDevices.length) {
                             initOpts.testingDevices = cfg.testingDevices;
                         }
-                        return Promise.resolve(AdMob.initialize(initOpts))
-                            .then(function () { return self._runConsent(AdMob); })
+                        const bundleCheck = Promise.resolve().then(function () {
+                            if (!cfg.bundleId) return;
+                            const App = window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.App;
+                            if (!App || !App.getInfo) return;
+                            return App.getInfo().then(function (info) {
+                                if (info && info.id && info.id !== cfg.bundleId) {
+                                    console.warn('[AdMob] Bundle mismatch — native:', info.id, 'admob.config:', cfg.bundleId, '(recreate iOS app in AdMob console)');
+                                }
+                            });
+                        }).catch(function () {});
+                        return bundleCheck.then(function () {
+                            return self._runAtt(AdMob);
+                        }).then(function () {
+                            return Promise.resolve(AdMob.initialize(initOpts));
+                        }).then(function () {
+                            return self._runUmp(AdMob);
+                        })
                             .then(function () { self._ready = true; return true; });
                     })
                     .catch(function () { return false; })
                     .finally(function () { self._booting = false; });
             },
-            _runConsent(AdMob) {
+            _runAtt(AdMob) {
                 return Promise.resolve()
                     .then(function () {
                         if (AdMob.trackingAuthorizationStatus) return AdMob.trackingAuthorizationStatus();
@@ -7017,6 +7039,10 @@
                             return AdMob.requestTrackingAuthorization();
                         }
                     })
+                    .catch(function () {});
+            },
+            _runUmp(AdMob) {
+                return Promise.resolve()
                     .then(function () {
                         if (AdMob.requestConsentInfo) return AdMob.requestConsentInfo();
                     })
@@ -7026,6 +7052,10 @@
                         }
                     })
                     .catch(function () {});
+            },
+            _runConsent(AdMob) {
+                const self = this;
+                return self._runAtt(AdMob).then(function () { return self._runUmp(AdMob); });
             },
             showRewarded(rewardKey, onReward, onFail) {
                 const self = this;
@@ -8258,14 +8288,30 @@
         // STUB Steam Inventory / mercado (BLOQUEADO por requisitos externos).
         const steamMarketProvider = {
             id: 'steam',
-            // TODO(Steam): requiere Steamworks + ISteamInventory (GetAllItems / AddPromoItem),
-            //   definir los items en el panel de Steam y, para el mercado, app PUBLICADA y
-            //   superar el umbral de ventas de Steam. Hasta entonces delega en el local.
-            grantDrop(item) { return localCollectionProvider.grantDrop(item); },
-            getInventory() { return localCollectionProvider.getInventory(); },
+            // TODO(Steam): ISteamInventory + item defs en panel; mercado = app publicada + umbrales Valve.
+            grantDrop(item) {
+                try {
+                    if (window.steamworks && window.steamworks.grantItem) return window.steamworks.grantItem(item);
+                } catch (e) {}
+                return localCollectionProvider.grantDrop(item);
+            },
+            getInventory() {
+                try {
+                    if (window.steamworks && window.steamworks.inventoryReady && window.steamworks.getInventory) {
+                        return window.steamworks.getInventory();
+                    }
+                } catch (e) {}
+                return localCollectionProvider.getInventory();
+            },
             equip(key) { return localCollectionProvider.equip(key); }
         };
-        const collectionProvider = localCollectionProvider;
+        function pickCollectionProvider() {
+            try {
+                if (BUILD === 'steam' && window.steamworks && window.steamworks.inventoryReady) return steamMarketProvider;
+            } catch (e) {}
+            return localCollectionProvider;
+        }
+        const collectionProvider = pickCollectionProvider();
         // === Skin asset manager (LRU, dual-resolution, platform-aware) ===
         // Never decodes the full catalog at boot — scales to 1000+ skins.
         const SkinAssetManager = (function () {
@@ -9239,13 +9285,32 @@
         // STUB Steam (BLOQUEADO: requiere empaquetar con Steamworks y la app dada de alta).
         const steamAchievementsProvider = {
             id: 'steam',
-            // TODO(Steam): con window.steamworks (greenworks / steamworks.js en Electron):
-            //   unlock(id) -> activateAchievement(id) + storeStats()
-            //   setStat(k,v) -> setStat(k,v) + storeStats()
-            unlock(id) { try { if (window.steamworks && window.steamworks.activateAchievement) { window.steamworks.activateAchievement(id); if (window.steamworks.storeStats) window.steamworks.storeStats(); return true; } } catch (e) {} return false; },
-            setStat(k, v) { try { if (window.steamworks && window.steamworks.setStat) { window.steamworks.setStat(k, v); return true; } } catch (e) {} return false; }
+            _apiName(k) { return 'ACH_' + String(k).replace(/[^a-zA-Z0-9_]/g, '_').toUpperCase(); },
+            unlock(id) {
+                try {
+                    if (window.steamworks && window.steamworks.activateAchievement) {
+                        window.steamworks.activateAchievement(this._apiName(id));
+                        if (window.steamworks.storeStats) window.steamworks.storeStats();
+                        return true;
+                    }
+                } catch (e) {}
+                return false;
+            },
+            setStat(k, v) {
+                try {
+                    if (window.steamworks && window.steamworks.setStat) {
+                        window.steamworks.setStat(k, v);
+                        if (window.steamworks.storeStats) window.steamworks.storeStats();
+                        return true;
+                    }
+                } catch (e) {}
+                return false;
+            }
         };
-        function pickAchievementsProvider() { try { if (BUILD === 'steam' && window.steamworks) return steamAchievementsProvider; } catch (e) {} return localAchievementsProvider; }
+        function pickAchievementsProvider() {
+            try { if (BUILD === 'steam' && window.steamworks && window.steamworks.available !== false) return steamAchievementsProvider; } catch (e) {}
+            return localAchievementsProvider;
+        }
         const achievementsProvider = pickAchievementsProvider();
         const achievementsUI = {
             open() { this.render(); document.getElementById('ach-modal').classList.add('open'); },
