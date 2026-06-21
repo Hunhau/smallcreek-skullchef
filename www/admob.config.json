@@ -1,0 +1,13 @@
+{
+  "bundleId": "com.smallcreek.skullchef",
+  "isTesting": false,
+  "testingDevices": [],
+  "ios": {
+    "appId": "ca-app-pub-8530208236054868~3086248782",
+    "rewardedAdUnitId": "ca-app-pub-8530208236054868/7804378526"
+  },
+  "android": {
+    "appId": "",
+    "rewardedAdUnitId": ""
+  }
+}

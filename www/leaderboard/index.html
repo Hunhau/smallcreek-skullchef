@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Skullchef — Leaderboard</title>
+<meta name="description" content="Global player leaderboard for Skullchef — Total Score, Prestige and Grand Prix wins.">
+<style>
+  /* ===== Tokens matched to the game (index.html :root) ===== */
+  :root{
+    --gold:#e0a008; --gold-deep:#a86a06; --gold-soft:#f9dd9b; --cream:#fdf4e6;
+    --ac:#d8b4fe; --en:#a5f3fc; --go:var(--gold);
+    --bg0:#020617; --bg1:#1e1b4b; --bg2:#2e1065;
+    --glass:rgba(46,16,74,0.42); --glass-strong:rgba(33,12,56,0.66);
+    --glass-bd:rgba(255,255,255,0.12); --glass-bd-go:rgba(224,160,8,0.5);
+    --blur:blur(10px); --blur-sm:blur(5px);
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  html,body{margin:0; padding:0;}
+  body{
+    min-height:100vh; color:var(--cream);
+    font-family:'Segoe UI',Tahoma,sans-serif;
+    background:
+      radial-gradient(1200px 700px at 70% -10%, rgba(126,34,206,0.45), transparent 60%),
+      radial-gradient(900px 600px at 10% 110%, rgba(59,130,246,0.18), transparent 55%),
+      linear-gradient(180deg,var(--bg0) 0%, var(--bg1) 45%, var(--bg2) 100%);
+    background-attachment:fixed;
+    padding:24px 16px 60px;
+  }
+  a{color:var(--gold-soft);}
+
+  .wrap{max-width:720px; margin:0 auto;}
+
+  /* ===== Header ===== */
+  header{text-align:center; margin-bottom:22px; position:relative;}
+  .crown{font-size:2.6rem; filter:drop-shadow(0 0 16px rgba(224,160,8,0.7)); line-height:1;}
+  h1{
+    margin:6px 0 2px; font-size:1.9rem; letter-spacing:1px; color:var(--gold-soft);
+    text-shadow:0 2px 10px rgba(0,0,0,0.6), 0 0 22px rgba(224,160,8,0.25);
+  }
+  .subtitle{margin:0; font-size:0.92rem; color:var(--ac); opacity:0.95;}
+
+  .lang-toggle{
+    position:absolute; top:0; right:0;
+    background:var(--glass-strong); -webkit-backdrop-filter:var(--blur-sm); backdrop-filter:var(--blur-sm);
+    border:1px solid var(--glass-bd-go); color:var(--cream);
+    border-radius:12px; padding:7px 12px; font-size:0.8rem; font-weight:bold; cursor:pointer;
+    text-transform:uppercase; letter-spacing:0.5px; transition:0.2s;
+  }
+  .lang-toggle:hover{border-color:var(--gold); filter:brightness(1.12);}
+
+  /* ===== Tabs ===== */
+  .tabs{
+    display:flex; gap:8px; margin:0 auto 18px; max-width:100%;
+    background:var(--glass); -webkit-backdrop-filter:var(--blur-sm); backdrop-filter:var(--blur-sm);
+    border:1px solid var(--glass-bd); border-radius:16px; padding:6px;
+  }
+  .tab{
+    flex:1; text-align:center; padding:11px 6px; border-radius:11px; cursor:pointer;
+    font-weight:bold; font-size:0.82rem; color:var(--cream); opacity:0.7;
+    border:1px solid transparent; transition:0.2s; line-height:1.25;
+  }
+  .tab .ico{display:block; font-size:1.15rem; margin-bottom:2px;}
+  .tab:hover{opacity:1;}
+  .tab.active{
+    opacity:1; color:#1e1b4b;
+    background:linear-gradient(135deg,var(--gold-soft),var(--gold));
+    border-color:rgba(255,255,255,0.5);
+    box-shadow:0 6px 18px rgba(224,160,8,0.35);
+  }
+
+  /* ===== Board card ===== */
+  .board{
+    background:var(--glass-strong); -webkit-backdrop-filter:var(--blur); backdrop-filter:var(--blur);
+    border:1px solid var(--glass-bd); border-radius:18px; padding:10px 10px 14px;
+    box-shadow:0 12px 40px rgba(0,0,0,0.45);
+  }
+  .board-head{
+    display:flex; justify-content:space-between; align-items:center;
+    padding:6px 10px 12px; border-bottom:1px solid rgba(255,255,255,0.08); margin-bottom:6px;
+  }
+  .board-title{font-size:1.05rem; font-weight:bold; color:var(--gold-soft);}
+  .board-metric{font-size:0.72rem; color:var(--ac); text-transform:uppercase; letter-spacing:1px;}
+
+  ol{list-style:none; margin:0; padding:0;}
+  .row{
+    display:flex; align-items:center; gap:12px; padding:11px 12px; border-radius:12px;
+    transition:background 0.15s;
+  }
+  .row + .row{margin-top:4px;}
+  .row:nth-child(odd){background:rgba(255,255,255,0.03);}
+  .row:hover{background:rgba(216,180,254,0.08);}
+
+  .rank{
+    flex:0 0 38px; text-align:center; font-weight:bold; font-size:0.95rem;
+    color:var(--cream); opacity:0.85;
+  }
+  .row.top1 .rank,.row.top2 .rank,.row.top3 .rank{font-size:1.3rem;}
+  .row.top1{background:linear-gradient(90deg,rgba(224,160,8,0.22),transparent);}
+  .row.top2{background:linear-gradient(90deg,rgba(203,213,225,0.16),transparent);}
+  .row.top3{background:linear-gradient(90deg,rgba(176,120,60,0.18),transparent);}
+
+  .who{flex:1 1 auto; min-width:0;}
+  .name{
+    font-weight:bold; font-size:0.98rem; color:var(--cream);
+    display:flex; align-items:center; gap:7px; min-width:0;
+  }
+  .name-txt{white-space:nowrap; overflow:hidden; text-overflow:ellipsis; min-width:0;}
+  .creator-badge{
+    flex:0 0 auto; display:inline-flex; align-items:center; gap:3px;
+    padding:1px 8px; border-radius:9px; font-size:0.66rem; font-weight:bold; letter-spacing:0.3px;
+    color:#3a2a05; background:linear-gradient(135deg,var(--gold-soft),var(--gold));
+    border:1px solid rgba(255,255,255,0.55); box-shadow:0 0 8px rgba(224,160,8,0.4);
+    white-space:nowrap; text-transform:none;
+  }
+  .plat{font-size:0.68rem; color:var(--ac); opacity:0.8; text-transform:uppercase; letter-spacing:0.5px;}
+  .value{
+    flex:0 0 auto; font-family:'Courier New',monospace; font-weight:bold; font-size:1.02rem;
+    color:var(--gold-soft); text-shadow:0 0 8px rgba(224,160,8,0.25);
+  }
+
+  .status{
+    text-align:center; font-size:0.8rem; color:var(--ac); margin:16px auto 0; opacity:0.85;
+    display:flex; align-items:center; justify-content:center; gap:8px; flex-wrap:wrap;
+  }
+  .dot{width:9px; height:9px; border-radius:50%; display:inline-block;}
+  .dot.live{background:#4ade80; box-shadow:0 0 8px #4ade80;}
+  .dot.demo{background:var(--gold); box-shadow:0 0 8px var(--gold);}
+  .skeleton{padding:40px 0; text-align:center; color:var(--ac); opacity:0.8;}
+  footer{text-align:center; margin-top:26px; font-size:0.72rem; color:var(--ac); opacity:0.6;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <button class="lang-toggle" id="langBtn" onclick="LB.toggleLang()">🌐 EN</button>
+    <div class="crown">🏆</div>
+    <h1 id="t-title">Leaderboard</h1>
+    <p class="subtitle" id="t-subtitle">Skullchef · Global Ranks</p>
+  </header>
+
+  <div class="tabs" id="tabs">
+    <div class="tab active" data-board="score"    onclick="LB.setBoard('score')"><span class="ico">🍲</span><span class="lbl-score">Total Score</span></div>
+    <div class="tab"        data-board="prestige" onclick="LB.setBoard('prestige')"><span class="ico">👼</span><span class="lbl-prestige">Prestige</span></div>
+    <div class="tab"        data-board="prix"     onclick="LB.setBoard('prix')"><span class="ico">🏁</span><span class="lbl-prix">Grand Prix Wins</span></div>
+  </div>
+
+  <div class="board">
+    <div class="board-head">
+      <span class="board-title" id="boardTitle">Total Score</span>
+      <span class="board-metric" id="boardMetric">Energy Balls</span>
+    </div>
+    <ol id="list"><li class="skeleton" id="t-loading">Loading…</li></ol>
+  </div>
+
+  <div class="status">
+    <span><span class="dot" id="statusDot"></span> <span id="statusText"></span></span>
+  </div>
+
+  <footer id="t-footer">Skullchef · by SmallCreek</footer>
+</div>
+
+<!-- supabase-js via CDN (only used if CONFIG below is filled in) -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+/* ============================================================================
+ * PUBLIC LEADERBOARD PAGE — standalone. Fill the two CONFIG values to go live.
+ * Leave the __PLACEHOLDER__ strings and the page shows seeded EXAMPLE data
+ * (fully viewable offline / before the backend exists). Anon key is public by
+ * design but kept as a placeholder for you to paste your own. See PLAN.md §4.
+ * ==========================================================================*/
+const CONFIG = {
+  SUPABASE_URL: 'https://ffmcmaujryvyzbhnctzc.supabase.co',
+  SUPABASE_ANON_KEY: 'sb_publishable_GOoZkZVue7yyxR_bTFroXQ_ZDlTIV_t',
+  TOP_N: 100
+};
+
+/* ===== Bilingual strings (EN + ES) — project rule: every user-facing string ===== */
+const I18N = {
+  en: {
+    title:'Leaderboard', subtitle:'Skullchef · Global Ranks',
+    score:'Total Score', prestige:'Prestige', prix:'Grand Prix Wins',
+    metric_score:'Energy Balls', metric_prestige:'Angel Awakening Lv.', metric_prix:'Champions crowned',
+    loading:'Loading…', empty:'No chefs yet — be the first!',
+    live:'Live · updates as players climb', demo:'Demo data · connect Supabase to go live',
+    creator:'Creator', creator_title:'Game creator · official developer account',
+    footer:'Skullchef: The Wooden Soup — a cozy idle clicker · by SmallCreek',
+    lang:'🌐 EN'
+  },
+  es: {
+    title:'Clasificación', subtitle:'Skullchef · Rankings Globales',
+    score:'Puntuación Total', prestige:'Prestigio', prix:'Victorias Grand Prix',
+    metric_score:'Bolas de Energía', metric_prestige:'Nv. Despertar del Ángel', metric_prix:'Campeones coronados',
+    loading:'Cargando…', empty:'Aún no hay chefs — ¡sé el primero!',
+    live:'En vivo · se actualiza al subir', demo:'Datos de demostración · conecta Supabase para activarlo',
+    creator:'Creador', creator_title:'Creador del juego · cuenta oficial del desarrollador',
+    footer:'Skullchef: La Sopa de Madera — un clicker idle acogedor · por SmallCreek',
+    lang:'🌐 ES'
+  }
+};
+
+/* ===== Seed data — mirrors leaderboard/schema.sql so the page works offline ===== */
+const SEED = [
+  { id:'1832ff16-5fec-4afd-b570-f950e19eb434', name:'SmallcreekSkullchef', platform:'web',     score:12000000000, prestige:6, prix_wins:120 },
+  { name:'ChefSkully',     platform:'youtube', score:4820000000, prestige:5, prix_wins:94 },
+  { name:'SopaMaestra',    platform:'android', score:4150000000, prestige:5, prix_wins:88 },
+  { name:'BoneBroth_Boss', platform:'steam',   score:920000000,  prestige:4, prix_wins:73 },
+  { name:'CucharaDeOro',   platform:'ios',     score:610000000,  prestige:4, prix_wins:65 },
+  { name:'MidnightStew',   platform:'web',     score:184000000,  prestige:3, prix_wins:52 },
+  { name:'AngelitoChef',   platform:'youtube', score:121000000,  prestige:3, prix_wins:44 },
+  { name:'SkullSimmer',    platform:'android', score:38500000,   prestige:2, prix_wins:31 },
+  { name:'CalderoFeliz',   platform:'steam',   score:22000000,   prestige:2, prix_wins:24 },
+  { name:'TinyLadle',      platform:'ios',     score:6400000,    prestige:1, prix_wins:12 },
+  { name:'NewChef_Pia',    platform:'web',     score:2100000,    prestige:1, prix_wins:5 }
+];
+
+const COL = { score:'score', prestige:'prestige', prix:'prix_wins' };
+const PLAT_ICON = { youtube:'▶ YouTube', steam:'⚙ Steam', android:'🤖 Android', ios:' iOS', web:'🌐 Web' };
+
+/* ===== Creator identity — flags the developer's row so visitors know the #1 is ===== */
+const CREATOR_ID = '1832ff16-5fec-4afd-b570-f950e19eb434';
+const CREATOR_NAME = 'smallcreekskullchef';
+function isCreatorRow(row){
+  if (!row) return false;
+  if (row.id && String(row.id).toLowerCase() === CREATOR_ID) return true;
+  return !!(row.name && String(row.name).toLowerCase() === CREATOR_NAME);
+}
+
+const LB = {
+  lang: 'en',
+  board: 'score',
+  client: null,
+  live: false,
+
+  init() {
+    try {
+      const saved = localStorage.getItem('soup_lang');
+      if (saved === 'es' || saved === 'en') this.lang = saved;
+    } catch (e) {}
+    // browser default if nothing saved
+    try {
+      if (!localStorage.getItem('soup_lang') && (navigator.language||'').toLowerCase().startsWith('es')) this.lang = 'es';
+    } catch (e) {}
+
+    this.live = (CONFIG.SUPABASE_URL.indexOf('http') === 0 &&
+                 CONFIG.SUPABASE_ANON_KEY.indexOf('__') !== 0 &&
+                 CONFIG.SUPABASE_ANON_KEY.length > 20);
+    if (this.live && window.supabase && window.supabase.createClient) {
+      try {
+        this.client = window.supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY, {
+          auth: { persistSession:false, autoRefreshToken:false }
+        });
+      } catch (e) { this.live = false; }
+    } else {
+      this.live = false;
+    }
+
+    this.applyLang();
+    this.render();
+  },
+
+  toggleLang() {
+    this.lang = this.lang === 'en' ? 'es' : 'en';
+    try { localStorage.setItem('soup_lang', this.lang); } catch (e) {}
+    this.applyLang();
+    this.render();
+  },
+
+  applyLang() {
+    const d = I18N[this.lang];
+    document.documentElement.lang = this.lang;
+    document.getElementById('langBtn').textContent = d.lang;
+    document.getElementById('t-title').textContent = d.title;
+    document.getElementById('t-subtitle').textContent = d.subtitle;
+    document.getElementById('t-footer').textContent = d.footer;
+    document.querySelector('.lbl-score').textContent = d.score;
+    document.querySelector('.lbl-prestige').textContent = d.prestige;
+    document.querySelector('.lbl-prix').textContent = d.prix;
+  },
+
+  setBoard(b) {
+    this.board = b;
+    document.querySelectorAll('.tab').forEach(t => {
+      t.classList.toggle('active', t.dataset.board === b);
+    });
+    this.render();
+  },
+
+  async fetchRows() {
+    const col = COL[this.board];
+    if (this.live && this.client) {
+      try {
+        const res = await this.client
+          .from('players')
+          .select('id, display_name, platform, ' + col)
+          .order(col, { ascending:false })
+          .limit(CONFIG.TOP_N);
+        if (!res.error && Array.isArray(res.data) && res.data.length) {
+          return res.data.map(r => ({ id:r.id, name:r.display_name, platform:r.platform, value:r[col] }));
+        }
+      } catch (e) {}
+    }
+    // fallback: seeded demo data
+    this.live = false;
+    return SEED.slice().sort((a,b)=>b[col]-a[col]).map(r => ({ id:r.id || null, name:r.name, platform:r.platform, value:r[col] }));
+  },
+
+  async render() {
+    const d = I18N[this.lang];
+    document.getElementById('boardTitle').textContent = d[this.board];
+    document.getElementById('boardMetric').textContent = d['metric_' + this.board];
+
+    const list = document.getElementById('list');
+    list.innerHTML = '<li class="skeleton">' + d.loading + '</li>';
+
+    const rows = await this.fetchRows();
+
+    // status line
+    const dot = document.getElementById('statusDot');
+    const txt = document.getElementById('statusText');
+    dot.className = 'dot ' + (this.live ? 'live' : 'demo');
+    txt.textContent = this.live ? d.live : d.demo;
+
+    if (!rows.length) {
+      list.innerHTML = '<li class="skeleton">' + d.empty + '</li>';
+      return;
+    }
+
+    const fmt = n => Number(n).toLocaleString(this.lang === 'es' ? 'es-ES' : 'en-US');
+    const medal = r => r === 1 ? '🥇' : r === 2 ? '🥈' : r === 3 ? '🥉' : r;
+
+    // The creator competes "out of competition": pinned at the very top with the
+    // crown marker and NO numeric rank. Everyone else is numbered from #1.
+    const ordered = rows.filter(isCreatorRow).concat(rows.filter(r => !isCreatorRow(r)));
+    let rankNum = 0;
+    list.innerHTML = ordered.map(row => {
+      const isC = isCreatorRow(row);
+      const rank = isC ? 0 : ++rankNum;
+      const topCls = (!isC && rank <= 3) ? ' top' + rank : '';
+      const plat = PLAT_ICON[row.platform] || PLAT_ICON.web;
+      const badge = isC
+        ? '<span class="creator-badge" title="' + esc(d.creator_title) + '">👑 ' + esc(d.creator) + '</span>'
+        : '';
+      const rankCell = isC ? '👑' : medal(rank);
+      return (
+        '<li class="row' + topCls + '">' +
+          '<div class="rank">' + rankCell + '</div>' +
+          '<div class="who">' +
+            '<div class="name"><span class="name-txt">' + esc(row.name) + '</span>' + badge + '</div>' +
+            '<div class="plat">' + plat + '</div>' +
+          '</div>' +
+          '<div class="value">' + fmt(row.value) + '</div>' +
+        '</li>'
+      );
+    }).join('');
+  }
+};
+
+function esc(s){ return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+LB.init();
+</script>
+</body>
+</html>

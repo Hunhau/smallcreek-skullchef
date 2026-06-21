@@ -1,0 +1,51 @@
+{
+  "tier": "anomaly",
+  "rarity": "anomaly",
+  "drop_weight": 0.04,
+  "quality_bar": "THE best amulets in the game — masterpiece tier. Not a simple accessory swap.",
+  "rules": [
+    "Helper FACE/HEAD must be instantly recognizable (Pío duck face, Ivan teddy face, etc.)",
+    "Body can be WILD HYBRID: snake, kraken, golem, celestial beast — full creative freedom",
+    "Layer multiple insane ideas — each anomaly UNIQUE, never repeat the same hybrid formula between helpers",
+    "Example hybrids are inspiration only (serpent was ONE idea for Pío, not a template for Ivan/Coco/etc.)",
+    "Hilarious and shareable, never gore — premium 3D plush museum render",
+    "Must feel 10× more epic than Super Legendary — the pull of a lifetime"
+  ],
+  "helpers": [
+    {
+      "id": "pio_anomaly_serpent",
+      "family": "helper",
+      "name_en": "Pío · Serpent Duck",
+      "name_es": "Pío · Pato Serpiente",
+      "prompt": "MASTERPIECE ultra-premium 3D plush ANOMALY same epic scale as other anomalies. Iconic Pío yellow duck HEAD recognizable. Colossal triple-coiled serpent-dragon body: quilted golden scales with glowing cyan soup-rune symbols, orange belly, flame-fin spine, bioluminescent bubbles, chef toque with tiny crown, skull-chef gold medallion, steaming mini cauldron, golden ladle in beak, pearl tail tips, duck wings on neck, museum render, white background"
+    },
+    {
+      "id": "ivan_anomaly_chimera",
+      "family": "helper",
+      "name_en": "Ivan · Chimera Bear",
+      "name_es": "Ivan · Oso Quimera",
+      "prompt": "MASTERPIECE 3D plush ANOMALY. Ivan brown teddy bear HEAD with tan muzzle and button eyes clearly recognizable, sitting — but body is epic chimera fusion: lion mane shoulders, six plush arms each different colored shirt sleeve, lower body soft goat legs, back has tiny dragon wings and rainbow soup pot backpack, asymmetric cosmic mutations, premium collectible detail, white background, funny legendary not horror"
+    },
+    {
+      "id": "coco_anomaly_leviathan",
+      "family": "helper",
+      "name_en": "Coco · Leviathan",
+      "name_es": "Coco · Leviatán",
+      "prompt": "MASTERPIECE 3D plush ANOMALY. Purple fuzzy Coco octopus HEAD with orange ring eyes unmistakable — lower body transforms into deep-sea leviathan: dozens of glowing tentacle crowns, whale-shark plush tail, bioluminescent spots, ancient soup runes on mantle, pearl crown, sitting on coiled tentacle throne, epic scale premium render, white background, cute-epic not scary"
+    },
+    {
+      "id": "bunny_anomaly_lunar",
+      "family": "helper",
+      "name_en": "Bunny · Lunar Colossus",
+      "name_es": "Bunny · Coloso Lunar",
+      "prompt": "MASTERPIECE 3D plush ANOMALY. Light blue Bunny HEAD with pink nose and whiskers instantly recognizable, sitting — body becomes celestial colossus: constellation fur patterns glowing, ears extend into nebula wings spanning wide, lower body fluffy cloud legs on crescent moon base, third eye star on forehead, cosmic carrot scepter, premium museum plush render, white background, magical funny epic"
+    },
+    {
+      "id": "bongo_anomaly_grove",
+      "family": "helper",
+      "name_en": "Bongo · Jungle Golem",
+      "name_es": "Bongo · Gólem Selva",
+      "prompt": "MASTERPIECE 3D plush ANOMALY. Black fuzzy Bongo monkey HEAD with golden tan face and big eyes clearly recognizable, sitting — body is epic jungle golem: muscular vine-and-banana bark torso, four powerful arms made of braided bananas and leaves, moss stone legs, parrot friends on shoulders, golden soup amulet chest, tiny waterfall on back, premium collectible epic scale, white background, hilarious king-of-jungle energy not simple banana arms"
+    }
+  ]
+}

@@ -1,0 +1,31 @@
+{
+  "name": "Skullchef",
+  "short_name": "Skullchef",
+  "description": "Skullchef: The Wooden Soup — a cozy idle clicker. Stir the cauldron, summon helpers and ascend. La Sopa de Madera — un clicker idle acogedor.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#1a1030",
+  "theme_color": "#1a1030",
+  "icons": [
+    {
+      "src": "assets/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "assets/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "assets/icons/icon-512-maskable.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}
