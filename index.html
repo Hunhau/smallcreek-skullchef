@@ -1608,7 +1608,8 @@
     })(typeof window !== 'undefined' ? window : this);
     </script>
     <script src="events.js"></script>
-    <script src="assets/skins/catalog.js"></script>
+    <!-- Cache-bust catalog on every deploy (SW must not serve a stale charm list). -->
+    <script src="assets/skins/catalog.js?v=build-62"></script>
     <!-- ====================================================================
          === EMBEDDED LEADERBOARD MODULE (from leaderboard/leaderboard-client.js)
          === Self-contained global `leaderboard` object. Single-file game, so the
@@ -2075,7 +2076,7 @@
         // while still retrying if a reload didn't actually land the new build. Fully
         // defensive: any error is silent and never blocks the game. Parent bumps BOTH
         // version.json and BUILD_V on every future deploy.
-        const BUILD_V = "build-61";
+        const BUILD_V = "build-62";
         (function () {
             function hardReloadTo(v) {
                 try {
