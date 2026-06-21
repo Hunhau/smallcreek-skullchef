@@ -993,7 +993,18 @@
         #collection-modal .coll-head h2 { margin: 0; }
         #collection-modal .coll-close { position: absolute; top: 50%; right: 12px; transform: translateY(-50%); }
         #collection-modal .coll-close:hover { transform: translateY(-50%) rotate(90deg); }
-        #collection-modal .coll-body { flex: 1; min-height: 0; overflow-y: auto; text-align: center; }
+        #collection-modal .coll-body { flex: 1; min-height: 0; overflow-y: auto; -webkit-overflow-scrolling: touch; text-align: center; }
+        @media (pointer: coarse) {
+            #collection-modal.gx-modal.open {
+                align-items: flex-start;
+                padding: max(8px, env(safe-area-inset-top)) max(8px, env(safe-area-inset-right)) max(8px, env(safe-area-inset-bottom)) max(8px, env(safe-area-inset-left));
+            }
+            #collection-modal .coll-box {
+                width: min(520px, 96vw);
+                max-height: calc(100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 16px);
+            }
+            #collection-modal .charm-inspect { min-width: 36px; min-height: 36px; }
+        }
         .coll-sections { text-align: left; }
         .coll-section { margin-bottom: 14px; }
         .coll-section-hd { font-size: 0.78rem; font-weight: bold; color: var(--go); text-transform: uppercase; letter-spacing: 0.5px; margin: 0 0 8px; padding-bottom: 4px; border-bottom: 1px solid var(--glass-bd); }
@@ -1609,7 +1620,7 @@
     </script>
     <script src="events.js"></script>
     <!-- Cache-bust catalog on every deploy (SW must not serve a stale charm list). -->
-    <script src="assets/skins/catalog.js?v=build-62"></script>
+    <script src="assets/skins/catalog.js?v=build-63"></script>
     <!-- ====================================================================
          === EMBEDDED LEADERBOARD MODULE (from leaderboard/leaderboard-client.js)
          === Self-contained global `leaderboard` object. Single-file game, so the
@@ -1705,6 +1716,7 @@
       }
 
       var BLOCKLIST = /(nigger|faggot|kike|spic|chink|cunt|rape)/i;
+      var RESERVED_NAMES = /^(chef|smallcreekskullchef)$/i;
       function cleanName(raw) {
         if (raw == null) return 'Chef';
         var n = String(raw)
@@ -1715,6 +1727,7 @@
           .trim();
         if (n.length > 20) n = n.slice(0, 20);
         if (n.length < 3) return '';
+        if (RESERVED_NAMES.test(n)) return '';
         if (BLOCKLIST.test(n)) return '';
         return n;
       }
@@ -2076,7 +2089,7 @@
         // while still retrying if a reload didn't actually land the new build. Fully
         // defensive: any error is silent and never blocks the game. Parent bumps BOTH
         // version.json and BUILD_V on every future deploy.
-        const BUILD_V = "build-62";
+        const BUILD_V = "build-63";
         (function () {
             function hardReloadTo(v) {
                 try {
@@ -3175,12 +3188,13 @@
         //       // 2) new YT.Player('yt-embed', { videoId / events })
         //       // Gatear SIEMPRE por BUILD; en 'web'/'playables' dejar solo enlaces.
         //   }
-        // Owner identity: fixed creator UUID or public display name (NOT the hidden tap flag).
+        // Owner identity: fixed creator UUID (production). Name match only in local dev builds.
         function scOwnerIdentityMatch() {
             try {
                 const id = leaderboard.identity();
                 const uid = String(id && id.uuid || '').toLowerCase();
                 if (uid === '1832ff16-5fec-4afd-b570-f950e19eb434') return true;
+                if (typeof PRODUCTION_BUILD !== 'undefined' && PRODUCTION_BUILD) return false;
                 const nm = String(id && id.name || '').toLowerCase();
                 if (nm === 'smallcreekskullchef') return true;
             } catch (e) {}
@@ -6527,7 +6541,7 @@
                 const clean = String(raw == null ? '' : raw).replace(/\s+/g, ' ').trim();
                 const btn = document.getElementById('name-confirm');
                 if (clean.length < 3) { this._setStatus('name_too_short', 'bad'); if (btn) btn.disabled = true; return; }
-                if (/^chef$/i.test(clean)) { this._setStatus('name_reserved', 'bad'); if (btn) btn.disabled = true; return; }
+                if (/^chef$/i.test(clean) || /^smallcreekskullchef$/i.test(clean.replace(/\s+/g, ''))) { this._setStatus('name_reserved', 'bad'); if (btn) btn.disabled = true; return; }
                 this._setStatus('name_checking', '');
                 if (btn) btn.disabled = false;
                 const token = ++this._ct;
