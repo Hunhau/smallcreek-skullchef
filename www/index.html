@@ -409,10 +409,10 @@
         body.coronation-active #m-scrim { display: none !important; }
         #cinema-plushie { position: fixed; top: 45%; left: 50%; transform: translate(-50%, -50%) scale(2.5); width: min(300px, 42vw); max-width: min(320px, 44vw); min-height: 90px; max-height: min(290px, 40vh); object-fit: contain; filter: drop-shadow(0 0 30px var(--ac)); transition: all 1s; z-index: 105001; }
         #cinema-crown { position: fixed; top: -150px; left: 50%; transform: translate(-50%, -50%) scale(2.2); font-size: 4rem; z-index: 105002 !important; filter: drop-shadow(0 0 12px var(--go)); pointer-events: none; }
-        /* Grand Prix coronation on phones: match .summon-clone purchase animation sizing */
+        /* Grand Prix coronation on phones: same .summon-clone size as portrait purchase (both orientations) */
         @media (pointer: coarse) and (orientation: landscape) and (max-height: 600px) {
-            #cinema-plushie { width: min(228px, 28vw) !important; max-width: min(240px, 30vw) !important; max-height: min(162px, 32vh) !important; min-height: 90px !important; min-width: 0 !important; object-fit: contain; }
-            #cinema-crown { font-size: 2.1rem !important; }
+            #cinema-plushie { width: min(340px, 35.7vw) !important; max-width: min(357px, 37.4vw) !important; max-height: min(247px, 34vh) !important; min-height: 90px !important; min-width: 0 !important; object-fit: contain; }
+            #cinema-crown { font-size: 2.5rem !important; }
         }
         @media (orientation: portrait) and (max-width: 768px) {
             #cinema-plushie { width: min(340px, 35.7vw) !important; max-width: min(357px, 37.4vw) !important; max-height: min(247px, 34vh) !important; min-height: 90px !important; min-width: 0 !important; object-fit: contain; }
@@ -2398,7 +2398,7 @@
         // while still retrying if a reload didn't actually land the new build. Fully
         // defensive: any error is silent and never blocks the game. Parent bumps BOTH
         // version.json and BUILD_V on every future deploy.
-        const BUILD_V = "build-109";
+        const BUILD_V = "build-110";
         function paintBuildTag() {
             try {
                 var b = document.getElementById('build-tag');
@@ -6928,18 +6928,14 @@
             },
             cinemaPoseOrigin() {
                 if (!this._cinemaPhone()) return this.summonPoseOrigin();
-                if (this._mPortrait()) return this.summonPoseOrigin();
-                const w = window.innerWidth, h = window.innerHeight;
-                return { x: w * 0.5, y: h * 0.46 };
+                return this.summonPoseOrigin();
             },
             cinemaChampScale() {
                 if (!this._cinemaPhone()) return 2.5;
-                /* Same peakScale as summon-clone fly-in (index.html ~6808) */
-                return this._mPortrait() ? 2.1 : 0.8;
+                return 2.1;
             },
             cinemaCrownIntroScale() {
-                if (!this._cinemaPhone()) return 2.2;
-                return this._mPortrait() ? 2.2 : 0.95;
+                return this._cinemaPhone() ? 2.2 : 2.2;
             },
             /* True when the shop is the collapsible slide-in SHEET (phone, portrait OR
                landscape) rather than a permanent desktop sidebar. Gates the buy-then-auto-close
@@ -7106,7 +7102,7 @@
                 let placed = false;
                 const estRect = () => {
                     const baseW = this._cinemaPhone()
-                        ? (this._mPortrait() ? Math.min(340, window.innerWidth * 0.357) : Math.min(228, window.innerWidth * 0.28))
+                        ? Math.min(340, window.innerWidth * 0.357)
                         : Math.min(300, window.innerWidth * 0.42);
                     const w = (p.naturalWidth > 0 && p.naturalHeight > 0)
                         ? Math.min(baseW, baseW * (p.naturalWidth / p.naturalHeight))
@@ -7123,7 +7119,6 @@
                     const headX = r.left + r.width * off.x;
                     landY = (r.top + r.height * off.y) + 'px';
                     let scale = Math.max(0.45, (r.width * off.w) / 64);
-                    if (this._cinemaPhone() && !this._mPortrait()) scale = Math.min(scale, 1.12);
                     cr.style.left = headX + 'px';
                     cr.style.transform = `translate(-50%, -50%) scale(${scale})`;
                     void cr.offsetHeight;
