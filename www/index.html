@@ -80,20 +80,16 @@
         /* Mobile chronicle: show tappable goal chip when farm / prix / etc. are available */
         @media (pointer: coarse) and (orientation: landscape) and (max-height: 600px),
                (orientation: portrait) and (max-width: 768px) {
-            #lore-scroll.lore-has-action { display: flex; flex-direction: column; pointer-events: auto; overflow-y: auto; overflow-x: hidden; }
-            #lore-scroll.lore-has-action .goal-chip { margin-top: 2px; min-height: 0; padding: 3px 5px; font-size: 0.54rem; line-height: 1.15; align-items: flex-start; pointer-events: auto; touch-action: manipulation; -webkit-user-select: none; user-select: none; width: 100%; box-sizing: border-box; flex-shrink: 0; }
+            #lore-scroll.lore-has-action { display: block; pointer-events: auto; overflow-y: auto; overflow-x: hidden; -webkit-overflow-scrolling: touch; }
+            #lore-scroll.lore-has-action .goal-chip { margin-top: 4px; min-height: 0; padding: 3px 5px; font-size: 0.54rem; line-height: 1.15; align-items: flex-start; pointer-events: auto; touch-action: manipulation; -webkit-user-select: none; user-select: none; box-sizing: border-box; }
             #lore-scroll.lore-goal-priority { box-shadow: 0 0 10px rgba(74,222,128,0.3); }
             #lore-scroll.lore-goal-priority.lore-kind-prix { border-color: rgba(251,191,36,0.75); box-shadow: 0 0 10px rgba(251,191,36,0.35); }
             #lore-scroll.lore-goal-priority.lore-kind-prestige { border-color: rgba(216,180,254,0.65); box-shadow: 0 0 10px rgba(216,180,254,0.3); }
             #lore-scroll.lore-goal-priority { border-color: rgba(74,222,128,0.65); }
-            #lore-scroll.lore-goal-priority #lore-text,
-            #lore-scroll.lore-goal-priority #soup-recipe-inline,
-            #lore-scroll.lore-goal-priority #event-lore-inline,
-            #lore-scroll.lore-goal-priority #lore-title { display: none !important; }
             #lore-scroll.lore-goal-priority .goal-chip { animation: goalChipPulse 1.6s ease-in-out infinite alternate; border-color: rgba(74,222,128,0.7); background: rgba(74,222,128,0.14); }
             #lore-scroll.lore-goal-priority.lore-kind-prix .goal-chip { border-color: rgba(251,191,36,0.75); background: rgba(251,191,36,0.16); animation-name: goalChipPulse; }
-            #lore-scroll.lore-has-action:not(.lore-goal-priority) #lore-text { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; font-size: 0.58rem; line-height: 1.25; max-height: 2.6em; margin-bottom: 4px; }
-            #lore-scroll.lore-has-action:not(.lore-goal-priority) #lore-title { font-size: 0.55rem; margin-bottom: 3px; }
+            #lore-scroll.lore-has-action #lore-text { display: block; overflow: visible; max-height: none; -webkit-line-clamp: unset; font-size: 0.58rem; line-height: 1.25; }
+            #lore-scroll.lore-has-action #lore-title { display: block; font-size: 0.55rem; margin-bottom: 3px; }
         }
         #set-celebrate { position: fixed; inset: 0; z-index: 75000; pointer-events: none; display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.35s ease; }
         #set-celebrate.show { opacity: 1; }
@@ -784,10 +780,10 @@
             #shard-box { font-size: 0.84rem; }
             #score-box span[data-i18n], #shard-box span[data-i18n] { display: inline; font-size: inherit; opacity: 0.92; }
             #cps-tag { font-size: 0.72rem; text-align: center; }
-            /* Landscape: chips hugging the owned-helper column on the left */
+            /* Landscape: chips to the right of owned-helper column — no overlap */
             #hud-status-stack {
                 position: fixed;
-                left: calc(max(8px, env(safe-area-inset-left)) + 48px + 2px);
+                left: calc(max(8px, env(safe-area-inset-left)) + 48px + 10px);
                 top: calc(env(safe-area-inset-top) + 62px);
                 bottom: calc(env(safe-area-inset-bottom) + 68px);
                 width: min(128px, 22vw);
@@ -981,7 +977,7 @@
             #helpers-toggle { top: calc(env(safe-area-inset-top) + 56px); }
             #companion-column { top: calc(env(safe-area-inset-top) + 88px); bottom: 60px; gap: 4px; max-width: 42px; }
             .companion-slot { width: 38px; height: 38px; border-radius: 10px; }
-            #hud-status-stack { left: calc(max(8px, env(safe-area-inset-left)) + 42px + 2px); }
+            #hud-status-stack { left: calc(max(8px, env(safe-area-inset-left)) + 42px + 10px); }
             #altar-panel { transform: scale(0.42); top: 40px; }
             .lv-badge { font-size: 0.48rem; }
             .slot-crown { top: -8px; font-size: 0.74rem; }
@@ -1929,8 +1925,8 @@
     </script>
     <script src="events.js"></script>
     <!-- Cache-bust catalog on every deploy (SW must not serve a stale charm list). -->
-    <script src="assets/skins/catalog.js?v=build-100"></script>
-    <script src="assets/atlas_manifest.js?v=build-100"></script>
+    <script src="assets/skins/catalog.js?v=build-101"></script>
+    <script src="assets/atlas_manifest.js?v=build-101"></script>
     <!-- ====================================================================
          === EMBEDDED LEADERBOARD MODULE (from leaderboard/leaderboard-client.js)
          === Self-contained global `leaderboard` object. Single-file game, so the
@@ -2399,7 +2395,7 @@
         // while still retrying if a reload didn't actually land the new build. Fully
         // defensive: any error is silent and never blocks the game. Parent bumps BOTH
         // version.json and BUILD_V on every future deploy.
-        const BUILD_V = "build-100";
+        const BUILD_V = "build-101";
         function paintBuildTag() {
             try {
                 var b = document.getElementById('build-tag');
