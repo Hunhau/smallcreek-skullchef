@@ -259,6 +259,18 @@
         #cinema-plushie { position: fixed; top: 45%; left: 50%; transform: translate(-50%, -50%) scale(2.5); width: min(300px, 42vw); max-width: min(320px, 44vw); min-height: 90px; max-height: min(290px, 40vh); object-fit: contain; filter: drop-shadow(0 0 30px var(--ac)); transition: all 1s; z-index: 105001; }
         #cinema-crown { position: fixed; top: -150px; left: 50%; transform: translate(-50%, -50%) scale(2.2); font-size: 4rem; z-index: 105002 !important; filter: drop-shadow(0 0 12px var(--go)); pointer-events: none; }
         #race-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle, #1e1b4b, #000); z-index: 100000; display: none; flex-direction: column; align-items: center; justify-content: center; }
+        #p-sel { width: min(100%, 520px); padding: 0 12px; box-sizing: border-box; }
+        #p-list { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; max-width: 100%; }
+        .p-sel-card { background: #fff1; padding: 10px; border-radius: 10px; cursor: pointer; text-align: center; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+        .p-sel-card img { width: 80px; height: auto; display: block; margin: 0 auto; object-fit: contain; }
+        .p-sel-card p { margin: 6px 0 0; font-size: 0.85rem; line-height: 1.2; }
+        #p-end { width: min(92vw, 420px); padding: 8px 12px 4px; }
+        #p-end h2 { color: var(--go); font-size: 1.65rem; margin: 8px 0 12px; text-shadow: 0 0 14px rgba(224,160,8,0.45); }
+        .p-reward-box { background: linear-gradient(135deg, rgba(126,34,206,0.35), rgba(59,130,246,0.28)); border: 2px solid var(--go); border-radius: 16px; padding: 16px 18px; margin: 0 auto 8px; box-shadow: 0 0 24px rgba(224,160,8,0.25); }
+        .p-reward-box.defeat { border-color: #94a3b8; box-shadow: 0 0 18px rgba(148,163,184,0.2); background: linear-gradient(135deg, rgba(51,65,85,0.55), rgba(30,41,59,0.45)); }
+        .p-reward-icon { font-size: 2.4rem; line-height: 1; margin-bottom: 6px; filter: drop-shadow(0 0 8px var(--go)); }
+        #p-reward { font-size: 1.05rem; font-weight: 800; color: #fef3c7; margin: 0 0 6px; line-height: 1.35; }
+        .p-reward-detail { font-size: 0.88rem; color: #cbd5e1; margin: 0; line-height: 1.4; opacity: 0.95; }
         #race-track { width: 800px; height: 65vh; border: 4px solid var(--ac); display: flex; position: relative; border-radius: 20px; overflow: hidden;
             background:
                 repeating-linear-gradient(0deg, transparent 0 44px, rgba(255,255,255,0.16) 44px 50px),
@@ -975,6 +987,12 @@
            title + the track are untouched. */
         @media (pointer: coarse) and (orientation: portrait) and (max-width: 600px) {
             #race-modal > h1 { width: 100%; box-sizing: border-box; text-align: center; padding: 0 12px; margin: 8px 0; line-height: 1.25; font-size: 1.25rem; letter-spacing: normal !important; }
+            #p-sel { width: 100%; max-width: 100vw; padding: 0 6px; }
+            #p-sel > p { margin: 6px 0 10px; font-size: 0.95rem; }
+            #p-list { flex-wrap: nowrap; gap: clamp(4px, 1.4vw, 8px); width: 100%; }
+            .p-sel-card { flex: 1 1 0; min-width: 0; max-width: none; padding: 5px 3px; border-radius: 8px; }
+            .p-sel-card img { width: 100%; max-width: 52px; }
+            .p-sel-card p { font-size: clamp(0.5rem, 2.8vw, 0.65rem); margin-top: 3px; line-height: 1.1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         }
         /* === Ajustes in-game + menú de pausa + colección/logros (Tareas 2/5/6) === */
         .seg-group { display: inline-flex; gap: 4px; background: rgba(0,0,0,0.3); border-radius: 10px; padding: 4px; }
@@ -1354,9 +1372,9 @@
     <div id="victory-cinema"><div id="cinema-crown">👑</div><img id="cinema-plushie" src="" alt="" decoding="async"></div>
     <div id="race-modal">
         <h1 data-i18n="prix_title" style="color:var(--go); letter-spacing:4px;">ESQUELOTIA GRAND PRIX</h1>
-        <div id="p-sel" style="text-align:center;"><p data-i18n="select_champion">Select Champion!</p><div id="p-list" style="display:flex; gap:20px; justify-content:center;"></div></div>
+        <div id="p-sel" style="text-align:center;"><p data-i18n="select_champion">Select Champion!</p><div id="p-list"></div></div>
         <div id="p-run" style="display:none; width:100%; flex-direction:column; align-items:center;"><div id="race-track" onpointerdown="prix.pClick()"><div class="speed-lines"></div><div id="finish-line"></div><div id="finish-label" data-i18n="finish_line">FINISH</div><div class="lane" id="l-0"></div><div class="lane" id="l-1"></div><div class="lane" id="l-2"></div><div class="lane" id="l-3"></div><div class="lane" id="l-4"></div></div><div id="p-timer" style="font-size:8rem; color:var(--go); position:absolute; top:50%; text-shadow:0 0 20px #000"></div></div>
-        <div id="p-end" style="display:none; text-align:center;"><h2 id="p-rank"></h2><p id="p-reward"></p><button id="btn-close-race" style="background:#ef4444; color:#fff; padding:15px 40px; border-radius:50px; font-weight:bold; border:2px solid #fff; cursor:pointer; margin-top:30px;" onclick="prix.ret()" data-i18n="return_cauldron">RETURN TO CAULDRON</button></div>
+        <div id="p-end" style="display:none; text-align:center;"><h2 id="p-rank"></h2><div id="p-reward-box" class="p-reward-box"><div id="p-reward-icon" class="p-reward-icon">👑</div><p id="p-reward"></p><p id="p-reward-detail" class="p-reward-detail"></p></div><button id="btn-close-race" style="background:#ef4444; color:#fff; padding:15px 40px; border-radius:50px; font-weight:bold; border:2px solid #fff; cursor:pointer; margin-top:30px;" onclick="prix.ret()" data-i18n="return_cauldron">RETURN TO CAULDRON</button></div>
     </div>
     <div id="game-wrapper">
         <div id="hud"><div id="score-box"><span data-i18n="energy_balls">Energy Balls:</span> <span id="score">0</span></div><div id="shard-box"><span data-i18n="angel_shards">Angel Shards:</span> <span id="shards-count">0</span></div></div>
@@ -1620,7 +1638,7 @@
     </script>
     <script src="events.js"></script>
     <!-- Cache-bust catalog on every deploy (SW must not serve a stale charm list). -->
-    <script src="assets/skins/catalog.js?v=build-65"></script>
+    <script src="assets/skins/catalog.js?v=build-66"></script>
     <!-- ====================================================================
          === EMBEDDED LEADERBOARD MODULE (from leaderboard/leaderboard-client.js)
          === Self-contained global `leaderboard` object. Single-file game, so the
@@ -2089,7 +2107,7 @@
         // while still retrying if a reload didn't actually land the new build. Fully
         // defensive: any error is silent and never blocks the game. Parent bumps BOTH
         // version.json and BUILD_V on every future deploy.
-        const BUILD_V = "build-65";
+        const BUILD_V = "build-67";
         (function () {
             function hardReloadTo(v) {
                 try {
@@ -2148,6 +2166,8 @@
                 angel_power:"(+{pct}% Angel Power!)", milestone_word:"Milestone", milestone_next:"next", milestone_max:"MAX", champion_banner:"👑 CHAMPION (x{mult}!)",
                 spoon_equipped:"[ EQUIPPED ]", spoon_equip_btn:"EQUIP SPOON", spoon_buy_btn:"BUY CARD", spoon_hide:"Hide spoon", spoon_show:"Show spoon", rarity_rare:"RARE", rarity_epic:"EPIC", rarity_legendary:"LEGENDARY", rarity_superleg:"SUPER LEGENDARY",
                 first_place:"1ST PLACE!", victory_crown:"VICTORY! Return to crown {name}!", defeat:"DEFEAT!", awarded_eb:"Awarded +{eb} EB!",
+                prix_win_reward:"+1 Crown for {name}! ({crowns} total)", prix_win_bonus:"Production bonus: ×{mult} idle CPS & stir power", prix_win_hint:"Tap below to watch the coronation ceremony.", prix_win_toast:"👑 {name} crowned!\n+1 Crown ({crowns} total)\n×{mult} production bonus!",
+                prix_loss_detail:"Consolation prize added to your Energy Balls.", prix_loss_toast:"Grand Prix consolation\n+{eb} EB",
                 offline_body:'You were away {time}. Your soup kept cooking and produced:<br><b style="color:var(--go); font-size:1.4rem">+{eb} EB</b>',
                 buff_frenzy:"Frenzy x7", buff_frenzy_toast:"Frenzy! Click x7 for 15s", buff_boil:"Boiling Broth x3", buff_boil_toast:"Boiling Broth! CPS x3 for 30s", buff_rain_toast:"EB Rain! +{eb}",
                 ach_toast:"🏆 Achievement: {n}", ach_firstPres_n:"First Awakening", ach_firstPres_d:"Perform your first prestige", ach_firstChamp_n:"First Champion", ach_firstChamp_d:"Crown a champion in the Grand Prix",
@@ -2270,6 +2290,8 @@
                 angel_power:"(+{pct}% ¡Poder del Ángel!)", milestone_word:"Hito", milestone_next:"próx.", milestone_max:"MÁX", champion_banner:"👑 CAMPEÓN (¡x{mult}!)",
                 spoon_equipped:"[ EQUIPADA ]", spoon_equip_btn:"EQUIPAR CUCHARA", spoon_buy_btn:"COMPRAR CARTA", spoon_hide:"Ocultar cuchara", spoon_show:"Mostrar cuchara", rarity_rare:"RARA", rarity_epic:"ÉPICA", rarity_legendary:"LEGENDARIA", rarity_superleg:"SÚPER LEGENDARIA",
                 first_place:"¡1ER PUESTO!", victory_crown:"¡VICTORIA! ¡Vuelve para coronar a {name}!", defeat:"¡DERROTA!", awarded_eb:"¡Recompensa +{eb} EB!",
+                prix_win_reward:"+1 Corona para {name} ({crowns} en total)", prix_win_bonus:"Bonus de producción: ×{mult} CPS pasivo y remo", prix_win_hint:"Pulsa abajo para ver la ceremonia de coronación.", prix_win_toast:"👑 ¡{name} coronado!\n+1 Corona ({crowns} total)\n×{mult} bonus de producción!",
+                prix_loss_detail:"Premio de consolación añadido a tus Bolas de Energía.", prix_loss_toast:"Consolación Gran Premio\n+{eb} EB",
                 offline_body:'Estuviste fuera {time}. Tu sopa siguió cociéndose y generó:<br><b style="color:var(--go); font-size:1.4rem">+{eb} EB</b>',
                 buff_frenzy:"Frenesí x7", buff_frenzy_toast:"¡Frenesí! Click x7 durante 15s", buff_boil:"Caldo Hirviente x3", buff_boil_toast:"¡Caldo Hirviente! CPS x3 durante 30s", buff_rain_toast:"¡Lluvia de EB! +{eb}",
                 ach_toast:"🏆 Logro: {n}", ach_firstPres_n:"Primer Despertar", ach_firstPres_d:"Realiza tu primer prestigio", ach_firstChamp_n:"Primer Campeón", ach_firstChamp_d:"Corona un campeón en el Grand Prix",
@@ -5905,8 +5927,9 @@
                 }
                 this.playPrestigeCinematic({ previewOnly: false });
             },
-            coron(c) {
-                this.p = true; sound.play('victory');
+            coron(c, rewardToast) {
+                this.p = true;
+                try { sound.play('victory'); } catch (e) {}
                 const v = document.getElementById('victory-cinema'), p = document.getElementById('cinema-plushie'), cr = document.getElementById('cinema-crown'), wo = document.getElementById('white-out');
                 const off = (game.CROWN_HEAD[c.id] || { x: 0.5, y: 0.18, w: 0.22 });
                 const pose = this.summonPoseOrigin();
@@ -6007,6 +6030,9 @@
                     this.p = false;
                     this.rebuild();
                     this.render();
+                    if (rewardToast) {
+                        try { gx.toast(rewardToast); } catch (e) {}
+                    }
                 }, 3700);
             },
             loop() {
@@ -6361,13 +6387,13 @@
             }
         };
         const prix = {
-            a:false, rs:[], tk:null, cdIv:null, ch:null, w:false,
-            open() { if(game.cd > 0) return; if(game.cp[0].lv === 0) return; game.p = true; document.getElementById('race-modal').style.display='flex'; document.getElementById('p-sel').style.display='block'; document.getElementById('p-run').style.display='none'; document.getElementById('p-end').style.display='none';
+            a:false, rs:[], tk:null, cdIv:null, ch:null, w:false, _pendingReward: null,
+            open() { if(game.cd > 0) return; if(game.cp[0].lv === 0) return; this._pendingReward = null; game.p = true; document.getElementById('race-modal').style.display='flex'; document.getElementById('p-sel').style.display='block'; document.getElementById('p-run').style.display='none'; document.getElementById('p-end').style.display='none';
                 this.refreshList();
             },
             refreshList() {
                 const l = document.getElementById('p-list'); if (!l) return; l.innerHTML = '';
-                game.cp.filter(c => c.lv > 0).forEach(c => { const d = document.createElement('div'); d.style="background:#fff1; padding:10px; border-radius:10px; cursor:pointer;"; let imgSrc = c.im; try { imgSrc = collection.sceneImgForHelper(c.id); } catch (e) {} d.innerHTML = `<img src="${imgSrc}" style="width:80px;" loading="lazy" decoding="async"><p>${t(c.nk)}</p>`; d.onclick = () => this.start(c); l.appendChild(d); });
+                game.cp.filter(c => c.lv > 0).forEach(c => { const d = document.createElement('div'); d.className = 'p-sel-card'; let imgSrc = c.im; try { imgSrc = collection.sceneImgForHelper(c.id); } catch (e) {} d.innerHTML = `<img src="${imgSrc}" loading="lazy" decoding="async"><p>${t(c.nk)}</p>`; d.onclick = () => this.start(c); l.appendChild(d); });
             },
             start(c) {
                 if (this.tk) { clearInterval(this.tk); this.tk = null; }
@@ -6389,15 +6415,69 @@
                 const tr = document.getElementById('race-track'); if(tr) tr.style.animationDuration = (0.7 - Math.min(lead,100)/100*0.48).toFixed(2)+'s'; },
             stopFx() { const tr = document.getElementById('race-track'); if(tr) { tr.classList.remove('racing'); tr.style.animationDuration = ''; } this.rs.forEach(r => { const el = document.getElementById(`r-${r.lane}`); if(el) el.classList.remove('run'); }); },
             check() { const w = this.rs.find(r => r.pos >= 100); if(w) { this.a = false; clearInterval(this.tk); this.stopFx(); this.w = w.isP; this.end(); } },
-            end() { document.getElementById('p-run').style.display='none'; document.getElementById('p-end').style.display='block';
-                const r = document.getElementById('p-rank'), m = document.getElementById('p-reward'); if(this.w) { r.innerText=t('first_place'); m.innerText=t('victory_crown', {name: t(this.ch.nk)}); this.ch.ch = (this.ch.ch || 0) + 1; game.track('crowns', 1); try { leaderboard.bumpPrixWin(); if (typeof isPlayablesEnv !== 'function' || !isPlayablesEnv()) leaderboard.submit({ prix: leaderboard.getPrixWins() }); } catch (e) {} ach.grant('firstChamp'); try { game.save(); } catch (e) {} }
-                else { let p = Math.floor(1e6 * Math.pow(5, game.s) * 0.01); r.innerText=t('defeat'); m.innerText=t('awarded_eb', {eb: p.toLocaleString()}); game.e += p; game.te += p; }
+            end() {
+                document.getElementById('p-run').style.display = 'none';
+                const pe = document.getElementById('p-end');
+                pe.style.display = 'block';
+                const rm = document.getElementById('race-modal');
+                if (rm) rm.scrollTop = 0;
+                const r = document.getElementById('p-rank');
+                const box = document.getElementById('p-reward-box');
+                const icon = document.getElementById('p-reward-icon');
+                const m = document.getElementById('p-reward');
+                const d = document.getElementById('p-reward-detail');
+                if (this.w) {
+                    const prevCrowns = this.ch.ch || 0;
+                    const newCrowns = prevCrowns + 1;
+                    const newMult = game.champMult(newCrowns);
+                    const helperName = t(this.ch.nk);
+                    if (r) r.innerText = t('first_place');
+                    if (box) box.classList.remove('defeat');
+                    if (icon) icon.textContent = '👑';
+                    if (m) m.innerText = t('prix_win_reward', { name: helperName, crowns: newCrowns });
+                    if (d) d.innerText = t('prix_win_bonus', { mult: newMult }) + '\n' + t('prix_win_hint');
+                    this.ch.ch = newCrowns;
+                    game.track('crowns', 1);
+                    try { leaderboard.bumpPrixWin(); if (typeof isPlayablesEnv !== 'function' || !isPlayablesEnv()) leaderboard.submit({ prix: leaderboard.getPrixWins() }); } catch (e) {}
+                    ach.grant('firstChamp');
+                    try { game.save(); } catch (e) {}
+                    this._pendingReward = t('prix_win_toast', {
+                        name: helperName,
+                        crowns: newCrowns,
+                        mult: newMult,
+                    });
+                } else {
+                    const p = Math.floor(1e6 * Math.pow(5, game.s) * 0.01);
+                    if (r) r.innerText = t('defeat');
+                    if (box) box.classList.add('defeat');
+                    if (icon) icon.textContent = '💫';
+                    if (m) m.innerText = t('awarded_eb', { eb: p.toLocaleString() });
+                    if (d) d.innerText = t('prix_loss_detail');
+                    game.e += p;
+                    game.te += p;
+                    this._pendingReward = t('prix_loss_toast', { eb: p.toLocaleString() });
+                }
                 // Refresh BOTH surfaces so the new champion multiplier shows immediately: the
                 // scene column crown (rebuild) and the shop card x-badge (render).
                 try { game.rebuild(); } catch (e) {}
                 game.render();
             },
-            ret() { if(this.tk) { clearInterval(this.tk); this.tk = null; } if(this.cdIv) { clearInterval(this.cdIv); this.cdIv = null; } this.stopFx(); game.cd = game.getPrixCd(); document.getElementById('race-modal').style.display='none'; const won = this.w; this.w = false; if(won) game.coron(this.ch); else game.p = false; }
+            ret() {
+                if (this.tk) { clearInterval(this.tk); this.tk = null; }
+                if (this.cdIv) { clearInterval(this.cdIv); this.cdIv = null; }
+                this.stopFx();
+                game.cd = game.getPrixCd();
+                const rewardToast = this._pendingReward;
+                this._pendingReward = null;
+                document.getElementById('race-modal').style.display = 'none';
+                const won = this.w;
+                this.w = false;
+                if (won) game.coron(this.ch, rewardToast);
+                else {
+                    game.p = false;
+                    if (rewardToast) { try { gx.toast(rewardToast); } catch (e) {} }
+                }
+            }
         };
         const gx = {
             // Toasts ("carteles") are shown ONE AT A TIME in a chain: one appears, holds,
@@ -8775,14 +8855,24 @@
             DROP_INTERVAL: 600, DAILY_CAP: 12,
             _cache: {}, _gridIO: null, _loadedThumbs: null, _lastGridSig: '', _bulkGrant: false, _grantRenderTimer: null,
             catalog() { const c = (window.SKIN_CATALOG || []); return Array.isArray(c) ? c : []; },
+            // Album + drop stats for normal players: hide staged skins (dropLive:false) until released.
+            // Creator device sees full catalog; owned staging skins always stay visible.
+            visibleCatalog() {
+                const cat = this.catalog();
+                let owner = false;
+                try { owner = scIsOwnerDevice(); } catch (e) {}
+                if (owner) return cat;
+                const owned = (game.coll && game.coll.items) ? game.coll.items : {};
+                return cat.filter(s => s && s.id && (s.dropLive !== false || owned[s.id]));
+            },
             skinById(id) { const cat = this.catalog(); for (let i = 0; i < cat.length; i++) { if (cat[i] && cat[i].id === id) return cat[i]; } return null; },
             skinsOfRarity(rar) { return this.catalog().filter(s => s && s.id && s.rarity === rar); },
-            // Drop pool excludes EB shop spoons (those are album-only purchases).
+            // Drop pool excludes EB shop spoons + skins staged on server with dropLive: false.
             dropPool(rarity) {
                 let block = [];
                 try { block = game.shopExclusiveSkinIds(); } catch (e) {}
                 const shop = new Set(block);
-                return this.skinsOfRarity(rarity).filter(s => !shop.has(s.id));
+                return this.skinsOfRarity(rarity).filter(s => !shop.has(s.id) && s.dropLive !== false);
             },
             // === PER-SLOT EQUIP MODEL ===
             // Independent equip slots. Each helper family is its own slot, plus one spoon
@@ -9131,7 +9221,7 @@
                 this.refreshFab();
                 return true;
             },
-            catalogCount() { return this.catalog().length; },
+            catalogCount() { return this.visibleCatalog().length; },
             // Baseline ownership: every player owns the common white chef hat from the
             // very start (new players AND existing saves). Idempotent + silent — no drop
             // reveal overlay, no victory sound, and it is NOT auto-equipped (the chef
@@ -9633,7 +9723,7 @@
             },
             render(force) {
                 const c = this.normalize();
-                const cat = this.catalog();
+                const cat = this.visibleCatalog();
                 const stats = document.getElementById('collection-stats');
                 if (stats) stats.innerHTML = `${t('coll_owned', { n: this.distinctCount(), total: this.catalogCount() })} · ${t('coll_total_label', { n: this.totalCount() })}<br>${this.nextDropText()} · ${t('coll_daily_left', { n: this.DAILY_CAP - c.today, max: this.DAILY_CAP })}`;
                 const grid = document.getElementById('collection-grid'); if (!grid) return;
