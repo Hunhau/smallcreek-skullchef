@@ -794,6 +794,7 @@
                 left: calc(max(8px, env(safe-area-inset-left)) + 48px + 34px);
                 top: calc(env(safe-area-inset-top) + 154px);
                 bottom: calc(env(safe-area-inset-bottom) + 70px);
+                height: auto;
                 width: min(128px, 22vw);
                 transform: none;
                 flex-direction: column;
@@ -813,8 +814,8 @@
             }
             #hud-status-stack::-webkit-scrollbar { display: none; }
             #hud-status-stack > * { font-size: 0.56rem; flex: 0 0 auto; max-width: 100%; white-space: normal; text-align: left; line-height: 1.2; }
-            /* Chronicle: vertically centered on energy counter pill (equal margin above/below vs #hud) */
-            #lore-scroll { top: calc(max(12px, env(safe-area-inset-top)) + var(--landscape-hud-pill-half, 17px)); left: max(8px, env(safe-area-inset-left)); transform: translateY(-50%); width: min(132px, 30vw); padding: 6px 8px; max-height: 56px; overflow-y: auto; overflow-x: hidden; z-index: 6500; pointer-events: auto; }
+            /* Chronicle: top/transform set by mobileUI.syncLandscapeLeftHud() from #hud box */
+            #lore-scroll { top: calc(max(12px, env(safe-area-inset-top)) + 17px); left: max(8px, env(safe-area-inset-left)); transform: translateY(-50%); width: min(132px, 30vw); padding: 6px 8px; max-height: 56px; overflow-y: auto; overflow-x: hidden; z-index: 6500; pointer-events: auto; box-sizing: border-box; }
             #lore-title { font-size: 0.62rem; }
             #lore-text { font-size: 0.64rem; line-height: 1.22; }
             .goal-chip { margin-top: 4px; padding: 4px 6px; font-size: 0.58rem; gap: 4px; border-radius: 8px; }
@@ -828,7 +829,8 @@
                chronicle and STOPS well above the bottom-left ☰ / 🛒 launchers. */
             #helpers-toggle {
                 display: inline-flex; align-items: center; gap: 4px;
-                position: absolute; left: max(8px, env(safe-area-inset-left)); top: calc(env(safe-area-inset-top) + 122px);
+                position: fixed; left: max(8px, env(safe-area-inset-left)); transform: none;
+                top: calc(env(safe-area-inset-top) + 122px);
                 z-index: 6600; pointer-events: auto;
                 background: var(--glass-strong); backdrop-filter: var(--glass-blur-sm); -webkit-backdrop-filter: var(--glass-blur-sm);
                 border: 1px solid var(--glass-bd-go); border-radius: 12px;
@@ -846,6 +848,7 @@
             /* Column auto-fits between its top and a bottom anchored above the launchers,
                so it scales to the device height without colliding with the ☰/🛒 row. */
             #companion-column {
+                position: fixed;
                 left: max(8px, env(safe-area-inset-left)); top: calc(env(safe-area-inset-top) + 154px); bottom: 70px;
                 width: auto; max-width: 48px;
                 display: flex; flex-flow: column wrap; align-content: flex-start;
@@ -2397,7 +2400,7 @@
         // while still retrying if a reload didn't actually land the new build. Fully
         // defensive: any error is silent and never blocks the game. Parent bumps BOTH
         // version.json and BUILD_V on every future deploy.
-        const BUILD_V = "build-114";
+        const BUILD_V = "build-115";
         function paintBuildTag() {
             try {
                 var b = document.getElementById('build-tag');
@@ -5518,6 +5521,7 @@
                 this.cp.forEach(c => { if (c.lv > 0) this.slot(c); });
                 this.ensureReservedHelperSlot();
                 this.syncCompanionLayout();
+                try { if (typeof mobileUI !== 'undefined') mobileUI.syncLandscapeLeftHud(); } catch (e) {}
                 try { if (typeof helpersBox !== 'undefined') helpersBox.updateCount(); } catch (e) {}
             },
             slot(c) {
@@ -12419,6 +12423,41 @@
                     this._setBadge('m-menu-btn', menuReady);
                 } catch (e) {}
             },
+            _landscapePhone() {
+                try { return window.matchMedia('(pointer: coarse) and (orientation: landscape) and (max-height: 600px)').matches; } catch (e) { return false; }
+            },
+            /* Align fixed carteles with owned-helper column top; center lore on #hud pill. */
+            syncLandscapeLeftHud() {
+                try {
+                    const lore = document.getElementById('lore-scroll');
+                    const stack = document.getElementById('hud-status-stack');
+                    if (!this._landscapePhone()) {
+                        if (lore) { lore.style.top = ''; lore.style.transform = ''; lore.style.maxHeight = ''; }
+                        if (stack) stack.style.top = '';
+                        return;
+                    }
+                    const hud = document.getElementById('hud');
+                    if (hud && lore) {
+                        const hr = hud.getBoundingClientRect();
+                        if (hr.height > 4) {
+                            lore.style.top = (hr.top + hr.height * 0.5) + 'px';
+                            lore.style.transform = 'translateY(-50%)';
+                            lore.style.maxHeight = Math.max(24, Math.round(hr.height - 4)) + 'px';
+                        }
+                    }
+                    if (stack) {
+                        const col = document.getElementById('companion-column');
+                        const toggle = document.getElementById('helpers-toggle');
+                        let anchorTop = null;
+                        if (col && !document.body.classList.contains('helpers-collapsed')) {
+                            const cr = col.getBoundingClientRect();
+                            if (cr.height > 0 || (col.children && col.children.length)) anchorTop = cr.top;
+                        }
+                        if (anchorTop == null && toggle) anchorTop = toggle.getBoundingClientRect().top;
+                        if (anchorTop != null) stack.style.top = Math.round(anchorTop) + 'px';
+                    }
+                } catch (e) {}
+            },
             closeAll() {
                 try {
                     ['side-buttons', 'side-shop'].forEach(id => { const el = document.getElementById(id); if (el) el.classList.remove('m-open'); });
@@ -12461,16 +12500,20 @@
                     sc.style.transformOrigin = '';
                     const dy = Math.round(r.height * DROP_Y);
                     sc.style.transform = 'translate(-50%, calc(-50% + ' + dy + 'px)) scale(' + s + ')';
+                    this.syncLandscapeLeftHud();
                 } catch (e) {}
             },
             init() {
                 try {
-                    const run = () => this.fitScene();
+                    const run = () => { this.fitScene(); this.syncLandscapeLeftHud(); };
                     window.addEventListener('resize', run);
                     window.addEventListener('load', run);
                     window.addEventListener('orientationchange', () => { setTimeout(run, 60); setTimeout(run, 280); });
                     try {
-                        const syncHelpers = () => { try { game.syncCompanionLayout(); game.ensureReservedHelperSlot(); } catch (e) {} };
+                        const syncHelpers = () => {
+                            try { game.syncCompanionLayout(); game.ensureReservedHelperSlot(); } catch (e) {}
+                            try { mobileUI.syncLandscapeLeftHud(); } catch (e) {}
+                        };
                         window.addEventListener('resize', syncHelpers);
                         window.addEventListener('orientationchange', () => { setTimeout(syncHelpers, 60); setTimeout(syncHelpers, 280); });
                     } catch (e) {}
@@ -12497,6 +12540,7 @@
                         if (chev) chev.textContent = collapsed ? '▸' : '▾';
                     }
                     this.updateCount();
+                    try { if (typeof mobileUI !== 'undefined') mobileUI.syncLandscapeLeftHud(); } catch (e) {}
                 } catch (e) {}
             },
             // Small teaser count on the chip = number of owned helpers. Only writes when the
