@@ -409,14 +409,12 @@
         body.coronation-active #m-scrim { display: none !important; }
         #cinema-plushie { position: fixed; top: 45%; left: 50%; transform: translate(-50%, -50%) scale(2.5); width: min(300px, 42vw); max-width: min(320px, 44vw); min-height: 90px; max-height: min(290px, 40vh); object-fit: contain; filter: drop-shadow(0 0 30px var(--ac)); transition: all 1s; z-index: 105001; }
         #cinema-crown { position: fixed; top: -150px; left: 50%; transform: translate(-50%, -50%) scale(2.2); font-size: 4rem; z-index: 105002 !important; filter: drop-shadow(0 0 12px var(--go)); pointer-events: none; }
-        /* Grand Prix coronation on phones: centered + sized to fit short/tall viewports */
+        /* Grand Prix coronation on phones: sized to fit short/tall viewports (overlay only while active) */
         @media (pointer: coarse) and (orientation: landscape) and (max-height: 600px) {
-            #victory-cinema { display: flex !important; align-items: center; justify-content: center; }
             #cinema-plushie { width: min(108px, 24vh) !important; max-width: min(118px, 26vh) !important; max-height: min(96px, 22vh) !important; min-height: 0 !important; min-width: 0 !important; object-fit: contain; }
             #cinema-crown { font-size: 1.65rem !important; }
         }
         @media (orientation: portrait) and (max-width: 768px) {
-            #victory-cinema { display: flex !important; align-items: center; justify-content: center; }
             #cinema-plushie { width: min(150px, 38vw) !important; max-width: min(165px, 42vw) !important; max-height: min(130px, 16vh) !important; min-height: 0 !important; min-width: 0 !important; object-fit: contain; }
             #cinema-crown { font-size: 2rem !important; }
         }
@@ -2400,7 +2398,7 @@
         // while still retrying if a reload didn't actually land the new build. Fully
         // defensive: any error is silent and never blocks the game. Parent bumps BOTH
         // version.json and BUILD_V on every future deploy.
-        const BUILD_V = "build-106";
+        const BUILD_V = "build-107";
         function paintBuildTag() {
             try {
                 var b = document.getElementById('build-tag');
