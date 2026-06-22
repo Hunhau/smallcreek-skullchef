@@ -80,11 +80,12 @@
         /* Mobile chronicle: show tappable goal chip when farm / prix / etc. are available */
         @media (pointer: coarse) and (orientation: landscape) and (max-height: 600px),
                (orientation: portrait) and (max-width: 768px) {
-            #lore-scroll.lore-has-action { display: flex; flex-direction: column; max-height: none; overflow: visible; pointer-events: auto; z-index: 9000; }
-            #lore-scroll.lore-has-action .goal-chip { margin-top: 0; min-height: 44px; padding: 8px 10px; font-size: 0.68rem; align-items: center; pointer-events: auto; touch-action: manipulation; -webkit-user-select: none; user-select: none; width: 100%; box-sizing: border-box; }
-            #lore-scroll.lore-goal-priority { border-color: rgba(74,222,128,0.65); box-shadow: 0 0 16px rgba(74,222,128,0.35); }
-            #lore-scroll.lore-goal-priority.lore-kind-prix { border-color: rgba(251,191,36,0.75); box-shadow: 0 0 16px rgba(251,191,36,0.4); }
-            #lore-scroll.lore-goal-priority.lore-kind-prestige { border-color: rgba(216,180,254,0.65); box-shadow: 0 0 16px rgba(216,180,254,0.35); }
+            #lore-scroll.lore-has-action { display: flex; flex-direction: column; pointer-events: auto; overflow-y: auto; overflow-x: hidden; }
+            #lore-scroll.lore-has-action .goal-chip { margin-top: 2px; min-height: 0; padding: 3px 5px; font-size: 0.54rem; line-height: 1.15; align-items: flex-start; pointer-events: auto; touch-action: manipulation; -webkit-user-select: none; user-select: none; width: 100%; box-sizing: border-box; flex-shrink: 0; }
+            #lore-scroll.lore-goal-priority { box-shadow: 0 0 10px rgba(74,222,128,0.3); }
+            #lore-scroll.lore-goal-priority.lore-kind-prix { border-color: rgba(251,191,36,0.75); box-shadow: 0 0 10px rgba(251,191,36,0.35); }
+            #lore-scroll.lore-goal-priority.lore-kind-prestige { border-color: rgba(216,180,254,0.65); box-shadow: 0 0 10px rgba(216,180,254,0.3); }
+            #lore-scroll.lore-goal-priority { border-color: rgba(74,222,128,0.65); }
             #lore-scroll.lore-goal-priority #lore-text,
             #lore-scroll.lore-goal-priority #soup-recipe-inline,
             #lore-scroll.lore-goal-priority #event-lore-inline,
@@ -812,8 +813,6 @@
                with a firm max-height + internal scroll so growing text can NEVER expand down
                into the owned-helpers chip/column. */
             #lore-scroll { top: calc(env(safe-area-inset-top) + 6px); left: max(8px, env(safe-area-inset-left)); width: min(132px, 30vw); padding: 6px 8px; max-height: 56px; overflow-y: auto; overflow-x: hidden; z-index: 6500; pointer-events: auto; }
-            #lore-scroll.lore-has-action { width: min(156px, 34vw); max-height: none; overflow: visible; }
-            #lore-scroll.lore-goal-priority { max-height: none; width: min(168px, 36vw); }
             #lore-title { font-size: 0.62rem; }
             #lore-text { font-size: 0.64rem; line-height: 1.22; }
             .goal-chip { margin-top: 4px; padding: 4px 6px; font-size: 0.58rem; gap: 4px; border-radius: 8px; }
@@ -979,7 +978,6 @@
            and shrink the slot so up to 5 helpers still fit one column above the launchers. */
         @media (pointer: coarse) and (orientation: landscape) and (max-height: 400px) {
             #lore-scroll { top: calc(env(safe-area-inset-top) + 4px); max-height: 44px; }
-            #lore-scroll.lore-has-action, #lore-scroll.lore-goal-priority { max-height: none; }
             #helpers-toggle { top: calc(env(safe-area-inset-top) + 56px); }
             #companion-column { top: calc(env(safe-area-inset-top) + 88px); bottom: 60px; gap: 4px; max-width: 42px; }
             .companion-slot { width: 38px; height: 38px; border-radius: 10px; }
@@ -1055,8 +1053,6 @@
                 z-index: 9000;
                 pointer-events: auto;
             }
-            #lore-scroll.lore-has-action { width: min(186px, 52vw); max-height: none; overflow: visible; }
-            #lore-scroll.lore-goal-priority { width: min(196px, 54vw); max-height: none; }
             #lore-title { font-size: 0.6rem; }
             #lore-text { font-size: 0.62rem; line-height: 1.2; }
             /* Small Angel prestige: lower + smaller so vertical chips do not cover it */
@@ -1933,8 +1929,8 @@
     </script>
     <script src="events.js"></script>
     <!-- Cache-bust catalog on every deploy (SW must not serve a stale charm list). -->
-    <script src="assets/skins/catalog.js?v=build-99"></script>
-    <script src="assets/atlas_manifest.js?v=build-99"></script>
+    <script src="assets/skins/catalog.js?v=build-100"></script>
+    <script src="assets/atlas_manifest.js?v=build-100"></script>
     <!-- ====================================================================
          === EMBEDDED LEADERBOARD MODULE (from leaderboard/leaderboard-client.js)
          === Self-contained global `leaderboard` object. Single-file game, so the
@@ -2403,7 +2399,7 @@
         // while still retrying if a reload didn't actually land the new build. Fully
         // defensive: any error is silent and never blocks the game. Parent bumps BOTH
         // version.json and BUILD_V on every future deploy.
-        const BUILD_V = "build-99";
+        const BUILD_V = "build-100";
         function paintBuildTag() {
             try {
                 var b = document.getElementById('build-tag');
