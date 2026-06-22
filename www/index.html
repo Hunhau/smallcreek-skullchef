@@ -782,18 +782,18 @@
                label stacked over a big readable number, with a recognizable icon (🍲 energy
                balls / ⬨ angel shards). max-width + overflow keep it on-screen; the labels
                wrap instead of pushing the pill off either edge. */
-            #hud-top-band { left: 0; right: 0; transform: none; width: 100%; padding: 0 max(8px, env(safe-area-inset-right)) 0 max(8px, env(safe-area-inset-left)); align-items: center; gap: 4px; }
+            #hud-top-band { left: 0; right: 0; transform: none; width: 100%; padding: 0 max(8px, env(safe-area-inset-right)) 0 max(8px, env(safe-area-inset-left)); align-items: center; gap: 4px; --landscape-hud-pill-half: 17px; }
             #hud { gap: 8px 12px; padding: 3px 10px; max-width: min(480px, calc(100vw - 140px)); flex-wrap: wrap; justify-content: center; white-space: normal; box-sizing: border-box; }
             #score-box { font-size: 0.92rem; }
             #shard-box { font-size: 0.84rem; }
             #score-box span[data-i18n], #shard-box span[data-i18n] { display: inline; font-size: inherit; opacity: 0.92; }
             #cps-tag { font-size: 0.72rem; text-align: center; }
-            /* Landscape: chips to the right of owned-helper column — no overlap */
+            /* Landscape: chips beside owned-helper column — same top as companion slots */
             #hud-status-stack {
                 position: fixed;
                 left: calc(max(8px, env(safe-area-inset-left)) + 48px + 34px);
-                top: calc(env(safe-area-inset-top) + 86px);
-                bottom: calc(env(safe-area-inset-bottom) + 68px);
+                top: calc(env(safe-area-inset-top) + 154px);
+                bottom: calc(env(safe-area-inset-bottom) + 70px);
                 width: min(128px, 22vw);
                 transform: none;
                 flex-direction: column;
@@ -813,10 +813,8 @@
             }
             #hud-status-stack::-webkit-scrollbar { display: none; }
             #hud-status-stack > * { font-size: 0.56rem; flex: 0 0 auto; max-width: 100%; white-space: normal; text-align: left; line-height: 1.2; }
-            /* Chronicle: compact card on the LEFT, at the SAME top as the counter (beside it),
-               with a firm max-height + internal scroll so growing text can NEVER expand down
-               into the owned-helpers chip/column. */
-            #lore-scroll { top: max(12px, env(safe-area-inset-top)); left: max(8px, env(safe-area-inset-left)); width: min(132px, 30vw); padding: 6px 8px; max-height: 56px; overflow-y: auto; overflow-x: hidden; z-index: 6500; pointer-events: auto; }
+            /* Chronicle: vertically centered on energy counter pill (equal margin above/below vs #hud) */
+            #lore-scroll { top: calc(max(12px, env(safe-area-inset-top)) + var(--landscape-hud-pill-half, 17px)); left: max(8px, env(safe-area-inset-left)); transform: translateY(-50%); width: min(132px, 30vw); padding: 6px 8px; max-height: 56px; overflow-y: auto; overflow-x: hidden; z-index: 6500; pointer-events: auto; }
             #lore-title { font-size: 0.62rem; }
             #lore-text { font-size: 0.64rem; line-height: 1.22; }
             .goal-chip { margin-top: 4px; padding: 4px 6px; font-size: 0.58rem; gap: 4px; border-radius: 8px; }
@@ -970,11 +968,12 @@
         /* SHORTER landscape phones: tighten the left stack (chronicle/chip/column move up)
            and shrink the slot so up to 5 helpers still fit one column above the launchers. */
         @media (pointer: coarse) and (orientation: landscape) and (max-height: 400px) {
-            #lore-scroll { top: max(12px, env(safe-area-inset-top)); max-height: 44px; }
+            #hud-top-band { --landscape-hud-pill-half: 15px; }
+            #lore-scroll { top: calc(max(12px, env(safe-area-inset-top)) + var(--landscape-hud-pill-half, 15px)); transform: translateY(-50%); max-height: 44px; }
             #helpers-toggle { top: calc(env(safe-area-inset-top) + 80px); }
             #companion-column { top: calc(env(safe-area-inset-top) + 112px); bottom: 60px; gap: 4px; max-width: 42px; }
             .companion-slot { width: 38px; height: 38px; border-radius: 10px; }
-            #hud-status-stack { left: calc(max(8px, env(safe-area-inset-left)) + 42px + 34px); top: calc(env(safe-area-inset-top) + 86px); }
+            #hud-status-stack { left: calc(max(8px, env(safe-area-inset-left)) + 42px + 34px); top: calc(env(safe-area-inset-top) + 112px); bottom: 60px; }
             #altar-panel { transform: scale(0.42); top: 40px; }
             .lv-badge { font-size: 0.48rem; }
             .slot-crown { top: -8px; font-size: 0.74rem; }
@@ -2398,7 +2397,7 @@
         // while still retrying if a reload didn't actually land the new build. Fully
         // defensive: any error is silent and never blocks the game. Parent bumps BOTH
         // version.json and BUILD_V on every future deploy.
-        const BUILD_V = "build-112";
+        const BUILD_V = "build-113";
         function paintBuildTag() {
             try {
                 var b = document.getElementById('build-tag');
