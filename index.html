@@ -767,7 +767,7 @@
             /* Landscape: chips fixed on viewport — right of owned-helper column, before chef */
             #hud-status-stack {
                 position: fixed;
-                left: calc(max(8px, env(safe-area-inset-left)) + min(168px, 40vw) + 8px);
+                left: calc(max(8px, env(safe-area-inset-left)) + min(168px, 40vw) - 42px);
                 top: calc(env(safe-area-inset-top) + 62px);
                 bottom: calc(env(safe-area-inset-bottom) + 68px);
                 width: min(132px, 24vw);
@@ -1904,8 +1904,8 @@
     </script>
     <script src="events.js"></script>
     <!-- Cache-bust catalog on every deploy (SW must not serve a stale charm list). -->
-    <script src="assets/skins/catalog.js?v=build-96"></script>
-    <script src="assets/atlas_manifest.js?v=build-96"></script>
+    <script src="assets/skins/catalog.js?v=build-97"></script>
+    <script src="assets/atlas_manifest.js?v=build-97"></script>
     <!-- ====================================================================
          === EMBEDDED LEADERBOARD MODULE (from leaderboard/leaderboard-client.js)
          === Self-contained global `leaderboard` object. Single-file game, so the
@@ -2374,7 +2374,7 @@
         // while still retrying if a reload didn't actually land the new build. Fully
         // defensive: any error is silent and never blocks the game. Parent bumps BOTH
         // version.json and BUILD_V on every future deploy.
-        const BUILD_V = "build-96";
+        const BUILD_V = "build-97";
         function paintBuildTag() {
             try {
                 var b = document.getElementById('build-tag');
