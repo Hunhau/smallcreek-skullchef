@@ -2398,7 +2398,7 @@
         // while still retrying if a reload didn't actually land the new build. Fully
         // defensive: any error is silent and never blocks the game. Parent bumps BOTH
         // version.json and BUILD_V on every future deploy.
-        const BUILD_V = "build-110";
+        const BUILD_V = "build-111";
         function paintBuildTag() {
             try {
                 var b = document.getElementById('build-tag');
@@ -6926,9 +6926,26 @@
             _cinemaPhone() {
                 try { return typeof mobileUI !== 'undefined' && mobileUI.isPhone(); } catch (e) { return this._mPortrait() || this._mLandscapePhone(); }
             },
+            cinemaViewCenter() {
+                const vv = window.visualViewport;
+                const w = vv ? vv.width : window.innerWidth;
+                const h = vv ? vv.height : window.innerHeight;
+                const ox = vv ? vv.offsetLeft : 0;
+                const oy = vv ? vv.offsetTop : 0;
+                const cx = ox + w * 0.5;
+                if (this._mPortrait()) {
+                    const root = getComputedStyle(document.documentElement);
+                    const sat = parseFloat(root.getPropertyValue('env(safe-area-inset-top)')) || 0;
+                    const sab = parseFloat(root.getPropertyValue('env(safe-area-inset-bottom)')) || 0;
+                    const padT = Math.max(h * 0.14, sat + 56);
+                    const padB = Math.max(h * 0.12, sab + 52);
+                    return { x: cx, y: oy + padT + (h - padT - padB) * 0.5 };
+                }
+                return { x: cx, y: oy + h * 0.5 };
+            },
             cinemaPoseOrigin() {
                 if (!this._cinemaPhone()) return this.summonPoseOrigin();
-                return this.summonPoseOrigin();
+                return this.cinemaViewCenter();
             },
             cinemaChampScale() {
                 if (!this._cinemaPhone()) return 2.5;
