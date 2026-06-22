@@ -1051,7 +1051,7 @@
             #lore-title { font-size: 0.6rem; }
             #lore-text { font-size: 0.62rem; line-height: 1.2; }
             /* Small Angel prestige: lower + smaller so vertical chips do not cover it */
-            #altar-panel { right: max(6px, env(safe-area-inset-right)); top: calc(env(safe-area-inset-top) + 210px); transform: scale(0.46); transform-origin: top right; z-index: 6500; }
+            #altar-panel { position: fixed; right: max(6px, env(safe-area-inset-right)); top: calc(env(safe-area-inset-top) + 210px); transform: scale(0.46); transform-origin: top right; z-index: 6500; }
             #altar-panel #pres-stat { font-size: 0.68rem; padding: 3px 8px; margin-top: 6px; }
             #altar-panel .pres-eta { font-size: 0.58rem; }
 
@@ -2401,7 +2401,7 @@
         // while still retrying if a reload didn't actually land the new build. Fully
         // defensive: any error is silent and never blocks the game. Parent bumps BOTH
         // version.json and BUILD_V on every future deploy.
-        const BUILD_V = "build-116";
+        const BUILD_V = "build-117";
         function paintBuildTag() {
             try {
                 var b = document.getElementById('build-tag');
@@ -5493,7 +5493,10 @@
                     const ls = document.getElementById('lore-scroll');
                     const gw = document.getElementById('game-wrapper');
                     if (!col || !ls || !gw) return;
-                    if (!this._usesDesktopHelperGrid()) { col.style.top = ''; return; }
+                    if (!this._usesDesktopHelperGrid()) {
+                        try { if (typeof mobileUI !== 'undefined') mobileUI.syncPortraitHelperColumn(); } catch (e) {}
+                        return;
+                    }
                     const gap = 52;
                     const top = ls.offsetTop + ls.offsetHeight + gap;
                     if (col.__layoutTop !== top) { col.style.top = top + 'px'; col.__layoutTop = top; }
@@ -12430,25 +12433,32 @@
             _portraitPhone() {
                 try { return window.matchMedia('(orientation: portrait) and (max-width: 768px)').matches; } catch (e) { return false; }
             },
-            /* Portrait: align owned-helper column top with Small Angel (#altar-panel) top edge. */
+            /* Portrait: align owned-helper column top with Small Angel (#btn-prestige) top edge. */
             syncPortraitHelperColumn() {
                 try {
                     const col = document.getElementById('companion-column');
                     const toggle = document.getElementById('helpers-toggle');
                     if (!this._portraitPhone()) {
-                        if (col) col.style.top = '';
-                        if (toggle) toggle.style.top = '';
+                        if (col) { col.style.top = ''; delete col.__portraitTop; }
+                        if (toggle) { toggle.style.top = ''; delete toggle.__portraitTop; }
                         return;
                     }
-                    const altar = document.getElementById('altar-panel');
-                    if (!altar || !col) return;
-                    const ar = altar.getBoundingClientRect();
+                    const angel = document.getElementById('btn-prestige') || document.getElementById('altar-panel');
+                    if (!angel || !col) return;
+                    const ar = angel.getBoundingClientRect();
                     if (ar.height < 2) return;
                     const angelTop = Math.round(ar.top);
-                    col.style.top = angelTop + 'px';
+                    if (col.__portraitTop !== angelTop) {
+                        col.style.top = angelTop + 'px';
+                        col.__portraitTop = angelTop;
+                    }
                     if (toggle) {
                         const th = toggle.offsetHeight || 38;
-                        toggle.style.top = Math.max(0, angelTop - th - 6) + 'px';
+                        const toggleTop = Math.max(0, angelTop - th - 6);
+                        if (toggle.__portraitTop !== toggleTop) {
+                            toggle.style.top = toggleTop + 'px';
+                            toggle.__portraitTop = toggleTop;
+                        }
                     }
                 } catch (e) {}
             },
