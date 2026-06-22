@@ -764,8 +764,27 @@
             #shard-box { font-size: 1.05rem; }
             #score-box span[data-i18n], #shard-box span[data-i18n] { display: inline; font-size: inherit; opacity: 0.92; }
             #cps-tag { font-size: 0.74rem; }
-            #hud-status-stack { gap: 4px; flex-wrap: nowrap; justify-content: center; }
-            #hud-status-stack > * { font-size: 0.58rem; flex: 0 0 auto; max-width: none; }
+            /* Landscape: chips in a LEFT column between owned helpers and the chef */
+            #hud-status-stack {
+                position: fixed;
+                left: calc(max(8px, env(safe-area-inset-left)) + min(168px, 40vw) + 6px);
+                top: calc(env(safe-area-inset-top) + 58px);
+                bottom: calc(env(safe-area-inset-bottom) + 68px);
+                width: min(148px, 28vw);
+                transform: none;
+                flex-direction: column;
+                flex-wrap: nowrap;
+                align-items: stretch;
+                justify-content: flex-start;
+                gap: 3px;
+                overflow-x: hidden;
+                overflow-y: auto;
+                -webkit-overflow-scrolling: touch;
+                scrollbar-width: none;
+                z-index: 6550;
+            }
+            #hud-status-stack::-webkit-scrollbar { display: none; }
+            #hud-status-stack > * { font-size: 0.56rem; flex: 0 0 auto; max-width: 100%; white-space: normal; text-align: left; line-height: 1.2; }
             /* Chronicle: compact card on the LEFT, at the SAME top as the counter (beside it),
                with a firm max-height + internal scroll so growing text can NEVER expand down
                into the owned-helpers chip/column. */
@@ -976,30 +995,37 @@
             #shard-box { font-size: clamp(0.68rem, 2.9vw, 0.84rem); }
             #score-box span[data-i18n], #shard-box span[data-i18n] { display: inline; font-size: inherit; opacity: 0.92; }
             #cps-tag { align-self: center; font-size: 0.76rem; text-align: center; }
-            /* Portrait: chips wrap downward — plenty of room below, no horizontal scroll */
+            /* Portrait: chips strictly stacked vertically — never side-by-side */
             #hud-status-stack {
-                justify-content: center;
+                flex-direction: column;
+                flex-wrap: nowrap;
                 align-items: center;
+                justify-content: flex-start;
                 width: 100%;
-                gap: 4px;
-                flex-wrap: wrap;
-                overflow: visible;
-                max-height: none;
-                padding-bottom: 0;
+                gap: 3px;
+                overflow-x: hidden;
+                overflow-y: auto;
+                max-height: min(38vh, 240px);
+                scrollbar-width: none;
+                -webkit-overflow-scrolling: touch;
+                padding-bottom: 2px;
             }
-            #hud-status-stack > * { font-size: 0.56rem; max-width: 100%; white-space: nowrap; line-height: 1.2; flex: 0 0 auto; }
+            #hud-status-stack::-webkit-scrollbar { display: none; }
+            #hud-status-stack > * { font-size: 0.56rem; width: auto; max-width: 100%; white-space: normal; text-align: center; line-height: 1.2; flex: 0 0 auto; }
             /* Chronicle: fixed top-left slot — HUD band content stays in the right column */
             #lore-scroll { top: calc(env(safe-area-inset-top) + 8px); left: max(8px, env(safe-area-inset-left)); width: min(104px, 28vw); padding: 6px 8px; max-height: 62px; overflow-y: auto; overflow-x: hidden; z-index: 6600; }
             #lore-title { font-size: 0.6rem; }
             #lore-text { font-size: 0.62rem; line-height: 1.2; }
-            /* Altar / helpers: sit below the taller wrapped chip block */
-            #altar-panel { right: max(6px, env(safe-area-inset-right)); top: calc(env(safe-area-inset-top) + 152px); transform: scale(0.56); transform-origin: top right; z-index: 6500; }
+            /* Small Angel prestige: lower + smaller so vertical chips do not cover it */
+            #altar-panel { right: max(6px, env(safe-area-inset-right)); top: calc(env(safe-area-inset-top) + 210px); transform: scale(0.46); transform-origin: top right; z-index: 6500; }
+            #altar-panel #pres-stat { font-size: 0.68rem; padding: 3px 8px; margin-top: 6px; }
+            #altar-panel .pres-eta { font-size: 0.58rem; }
 
             /* Owned-helpers: a single vertical rail on the LEFT, like the desktop layout. */
             #helpers-toggle {
                 display: inline-flex; align-items: center; gap: 4px;
                 position: absolute; left: max(8px, env(safe-area-inset-left)); transform: none;
-                top: calc(env(safe-area-inset-top) + 194px);
+                top: calc(env(safe-area-inset-top) + 268px);
                 z-index: 6600; pointer-events: auto;
                 background: var(--glass-strong); backdrop-filter: var(--glass-blur-sm); -webkit-backdrop-filter: var(--glass-blur-sm);
                 border: 1px solid var(--glass-bd-go); border-radius: 12px;
@@ -1013,7 +1039,7 @@
             .helpers-chevron { font-size: 0.66rem; }
             #companion-column {
                 left: max(6px, env(safe-area-inset-left)); right: auto;
-                top: calc(env(safe-area-inset-top) + 232px); bottom: 96px;
+                top: calc(env(safe-area-inset-top) + 306px); bottom: 96px;
                 width: auto; display: flex; flex-direction: column;
                 grid-template-columns: none; grid-template-rows: none;
                 justify-content: flex-start; align-items: flex-start;
@@ -1864,8 +1890,8 @@
     </script>
     <script src="events.js"></script>
     <!-- Cache-bust catalog on every deploy (SW must not serve a stale charm list). -->
-    <script src="assets/skins/catalog.js?v=build-94"></script>
-    <script src="assets/atlas_manifest.js?v=build-94"></script>
+    <script src="assets/skins/catalog.js?v=build-95"></script>
+    <script src="assets/atlas_manifest.js?v=build-95"></script>
     <!-- ====================================================================
          === EMBEDDED LEADERBOARD MODULE (from leaderboard/leaderboard-client.js)
          === Self-contained global `leaderboard` object. Single-file game, so the
@@ -2334,7 +2360,7 @@
         // while still retrying if a reload didn't actually land the new build. Fully
         // defensive: any error is silent and never blocks the game. Parent bumps BOTH
         // version.json and BUILD_V on every future deploy.
-        const BUILD_V = "build-94";
+        const BUILD_V = "build-95";
         function paintBuildTag() {
             try {
                 var b = document.getElementById('build-tag');
