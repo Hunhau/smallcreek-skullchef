@@ -1055,11 +1055,11 @@
             #altar-panel #pres-stat { font-size: 0.68rem; padding: 3px 8px; margin-top: 6px; }
             #altar-panel .pres-eta { font-size: 0.58rem; }
 
-            /* Owned-helpers: top synced to Small Angel via mobileUI.syncPortraitHelperColumn() */
+            /* Owned-helpers: toggle + column synced via mobileUI.syncPortraitHelperColumn() */
             #helpers-toggle {
                 display: inline-flex; align-items: center; gap: 4px;
                 position: fixed; left: max(8px, env(safe-area-inset-left)); transform: none;
-                top: calc(env(safe-area-inset-top) + 172px);
+                top: calc(env(safe-area-inset-top) + 210px);
                 z-index: 6600; pointer-events: auto;
                 background: var(--glass-strong); backdrop-filter: var(--glass-blur-sm); -webkit-backdrop-filter: var(--glass-blur-sm);
                 border: 1px solid var(--glass-bd-go); border-radius: 12px;
@@ -1074,7 +1074,7 @@
             #companion-column {
                 position: fixed;
                 left: max(6px, env(safe-area-inset-left)); right: auto;
-                top: calc(env(safe-area-inset-top) + 210px); bottom: 96px;
+                top: calc(env(safe-area-inset-top) + 252px); bottom: 96px;
                 width: auto; display: flex; flex-direction: column;
                 grid-template-columns: none; grid-template-rows: none;
                 justify-content: flex-start; align-items: flex-start;
@@ -2401,7 +2401,7 @@
         // while still retrying if a reload didn't actually land the new build. Fully
         // defensive: any error is silent and never blocks the game. Parent bumps BOTH
         // version.json and BUILD_V on every future deploy.
-        const BUILD_V = "build-118";
+        const BUILD_V = "build-119";
         function paintBuildTag() {
             try {
                 var b = document.getElementById('build-tag');
@@ -12438,7 +12438,7 @@
             _portraitPhone() {
                 try { return window.matchMedia('(orientation: portrait) and (max-width: 768px)').matches; } catch (e) { return false; }
             },
-            /* Portrait: align owned-helper column top with Small Angel (#btn-prestige) top edge. */
+            /* Portrait: toggle top = Small Angel top; column sits below toggle. */
             syncPortraitHelperColumn() {
                 try {
                     const col = document.getElementById('companion-column');
@@ -12449,20 +12449,22 @@
                         return;
                     }
                     const angel = document.getElementById('btn-prestige') || document.getElementById('altar-panel');
-                    if (!angel || !col) return;
+                    if (!angel) return;
                     const ar = angel.getBoundingClientRect();
                     if (ar.height < 2) return;
                     const angelTop = Math.round(ar.top);
-                    if (col.__portraitTop !== angelTop) {
-                        col.style.top = angelTop + 'px';
-                        col.__portraitTop = angelTop;
-                    }
                     if (toggle) {
-                        const th = toggle.offsetHeight || 38;
-                        const toggleTop = Math.max(0, angelTop - th - 6);
-                        if (toggle.__portraitTop !== toggleTop) {
-                            toggle.style.top = toggleTop + 'px';
-                            toggle.__portraitTop = toggleTop;
+                        if (toggle.__portraitTop !== angelTop) {
+                            toggle.style.top = angelTop + 'px';
+                            toggle.__portraitTop = angelTop;
+                        }
+                    }
+                    if (col) {
+                        const th = (toggle && toggle.offsetHeight) ? toggle.offsetHeight : 38;
+                        const colTop = angelTop + th + 6;
+                        if (col.__portraitTop !== colTop) {
+                            col.style.top = colTop + 'px';
+                            col.__portraitTop = colTop;
                         }
                     }
                 } catch (e) {}
