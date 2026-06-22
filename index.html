@@ -49,8 +49,53 @@
         #shard-box { font-size: 1.4rem; color: var(--go); align-self: center; }
         #cps-tag { position: absolute; top: 85px; left: 50%; transform: translateX(-50%); font-size: 1.1rem; color: var(--ac); z-index: 5000; opacity: 0.9; }
         #lore-scroll { position: absolute; top: 20px; left: 20px; width: 340px; background: var(--glass); backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur); border: 1px solid rgba(216,180,254,0.35); border-radius: 15px; padding: 15px; z-index: 8000; box-shadow: 0 8px 28px rgba(0,0,0,0.35); }
+        #lore-scroll.lore-adventure { cursor: pointer; }
+        #lore-scroll.lore-adventure:hover { filter: brightness(1.06); }
+        .chronicle-list { text-align: left; max-height: 52vh; overflow-y: auto; }
+        .chronicle-ch { border: 1px solid var(--glass-bd); border-radius: 10px; padding: 10px; margin-bottom: 8px; background: rgba(0,0,0,0.12); }
+        .chronicle-ch.unlocked { border-color: rgba(251,191,36,0.45); }
+        .chronicle-ch.locked { opacity: 0.55; }
+        .chronicle-ch-hd { font-size: 0.78rem; font-weight: bold; color: var(--go); margin-bottom: 4px; }
+        .chronicle-ch-tx { font-size: 0.68rem; color: #cbd5e1; line-height: 1.35; font-style: italic; }
+        .chronicle-ch-req { font-size: 0.58rem; color: #64748b; margin-top: 4px; }
         #lore-title { font-size: 0.8rem; text-transform: uppercase; color: var(--ac); font-weight: bold; border-bottom: 1px solid #fff2; margin-bottom: 5px; }
         #lore-text { font-size: 0.85rem; line-height: 1.4; font-style: italic; }
+        .soup-recipe-inline { font-size: 0.68rem; color: var(--go); margin-top: 6px; line-height: 1.25; font-style: normal; text-shadow: 0 0 8px rgba(251,191,36,0.35); }
+        .event-lore-inline { font-size: 0.65rem; color: #fcd34d; margin-top: 5px; line-height: 1.3; font-style: italic; opacity: 0.92; }
+        #event-pill { position: absolute; top: 115px; left: 50%; transform: translateX(-50%); z-index: 5000; font-size: 0.68rem; padding: 3px 11px; border-radius: 999px; background: rgba(251,191,36,0.14); border: 1px solid rgba(251,191,36,0.42); color: var(--go); pointer-events: none; white-space: nowrap; animation: eventPillPulse 3.2s ease-in-out infinite; }
+        @keyframes eventPillPulse { 0%, 100% { opacity: 0.88; } 50% { opacity: 1; filter: brightness(1.08); } }
+        html[data-event="summer"] { --ac: #fbbf24; --go: #fde047; --glass-bd: rgba(251,191,36,0.38); }
+        html[data-event="summer"] #lore-scroll { border-color: rgba(251,191,36,0.45); }
+        html[data-event="summer"] #event-pill { background: rgba(56,189,248,0.16); border-color: rgba(56,189,248,0.45); color: #bae6fd; }
+        html[data-event="bloom"] { --ac: #86efac; --go: #bbf7d0; --glass-bd: rgba(134,239,172,0.35); }
+        html[data-event="bloom"] #event-pill { background: rgba(74,222,128,0.14); border-color: rgba(74,222,128,0.42); color: #bbf7d0; }
+        html[data-event="halloween"] { --ac: #c084fc; --go: #e9d5ff; --glass-bd: rgba(192,132,252,0.38); }
+        html[data-event="halloween"] #event-pill { background: rgba(168,85,247,0.16); border-color: rgba(192,132,252,0.45); color: #e9d5ff; }
+        html[data-event="halloween"] #soup-steam .steam-wisp { filter: hue-rotate(260deg) saturate(1.2); }
+        #sticky-center.soup-ev #asset-soup-liquid { transition: filter 1.4s ease; }
+        #sticky-center.soup-ev:not(.ingredient-splash-active) #asset-soup-liquid { filter: var(--soup-liq-filter, none); }
+        #sticky-center.soup-ev #soup-steam { transition: filter 1.4s ease; filter: var(--soup-steam-filter, none); }
+        #sticky-center.soup-ev-cauldron { --soup-liq-filter: sepia(0.08) saturate(1.05) brightness(1.03); --soup-steam-filter: sepia(0.2) brightness(1.05); }
+        #sticky-center.soup-ev-cauldron.soup-ev-tier-1 { --soup-liq-filter: sepia(0.18) saturate(1.12) brightness(1.06); }
+        #sticky-center.soup-ev-cauldron.soup-ev-tier-2 { --soup-liq-filter: sepia(0.28) saturate(1.2) brightness(1.08) hue-rotate(-8deg); }
+        #sticky-center.soup-ev-cauldron.soup-ev-tier-3 { --soup-liq-filter: sepia(0.35) saturate(1.28) brightness(1.1) hue-rotate(-12deg); --soup-steam-filter: sepia(0.35) brightness(1.1); }
+        #sticky-center.soup-ev-cauldron.soup-ev-tier-4 { --soup-liq-filter: sepia(0.42) saturate(1.35) brightness(1.12) hue-rotate(-15deg) drop-shadow(0 0 12px rgba(251,191,36,0.25)); }
+        #sticky-center.soup-ev-cosmic { --soup-liq-filter: hue-rotate(195deg) saturate(1.15) brightness(1.05); --soup-steam-filter: hue-rotate(180deg) saturate(1.2); }
+        #sticky-center.soup-ev-cosmic.soup-ev-tier-1 { --soup-liq-filter: hue-rotate(200deg) saturate(1.25) brightness(1.08); }
+        #sticky-center.soup-ev-cosmic.soup-ev-tier-2 { --soup-liq-filter: hue-rotate(210deg) saturate(1.35) brightness(1.1); }
+        #sticky-center.soup-ev-cosmic.soup-ev-tier-3 { --soup-liq-filter: hue-rotate(218deg) saturate(1.45) brightness(1.12) drop-shadow(0 0 10px rgba(96,165,250,0.3)); }
+        #sticky-center.soup-ev-cosmic.soup-ev-tier-4 { --soup-liq-filter: hue-rotate(225deg) saturate(1.55) brightness(1.14) drop-shadow(0 0 16px rgba(147,197,253,0.4)); }
+        #sticky-center.soup-ev-chaos { --soup-liq-filter: saturate(1.2) hue-rotate(300deg) brightness(1.04); --soup-steam-filter: hue-rotate(280deg) saturate(1.15); }
+        #sticky-center.soup-ev-chaos.soup-ev-tier-1 { --soup-liq-filter: saturate(1.35) hue-rotate(310deg) brightness(1.06); }
+        #sticky-center.soup-ev-chaos.soup-ev-tier-2 { --soup-liq-filter: saturate(1.5) hue-rotate(320deg) brightness(1.08); }
+        #sticky-center.soup-ev-chaos.soup-ev-tier-3 { --soup-liq-filter: saturate(1.65) hue-rotate(330deg) brightness(1.1) drop-shadow(0 0 12px rgba(244,114,182,0.35)); }
+        #sticky-center.soup-ev-chaos.soup-ev-tier-4 { --soup-liq-filter: saturate(1.8) hue-rotate(340deg) brightness(1.12) drop-shadow(0 0 18px rgba(236,72,153,0.45)); }
+        #sticky-center.soup-ev-realms { --soup-liq-filter: sepia(0.12) hue-rotate(15deg) saturate(1.1); --soup-steam-filter: sepia(0.15) hue-rotate(10deg); }
+        #sticky-center.soup-ev-realms.soup-ev-tier-1 { --soup-liq-filter: sepia(0.22) hue-rotate(22deg) saturate(1.18) brightness(1.06); }
+        #sticky-center.soup-ev-realms.soup-ev-tier-2 { --soup-liq-filter: sepia(0.3) hue-rotate(28deg) saturate(1.25) brightness(1.08); }
+        #sticky-center.soup-ev-realms.soup-ev-tier-3 { --soup-liq-filter: sepia(0.38) hue-rotate(35deg) saturate(1.32) brightness(1.1) drop-shadow(0 0 12px rgba(251,146,60,0.3)); }
+        #sticky-center.soup-ev-realms.soup-ev-tier-4 { --soup-liq-filter: sepia(0.45) hue-rotate(42deg) saturate(1.4) brightness(1.12) drop-shadow(0 0 16px rgba(234,88,12,0.38)); }
+        body.q-low #sticky-center.soup-ev #asset-soup-liquid { transition: filter 0.4s ease; }
         #altar-panel { position: absolute; top: 20px; right: 400px; z-index: 7000; display: flex; flex-direction: column; align-items: center; }
         #btn-prestige { background-image: url("assets/img/angel.png") !important; background-size: contain !important; background-repeat: no-repeat !important; background-position: center !important; width: 180px; height: 260px; border: none !important; background-color: transparent !important; transition: 0.4s; cursor: not-allowed; opacity: 0.4; display: flex; flex-direction: column; justify-content: flex-end; }
         #btn-prestige.locked { animation: none; filter: none; }
@@ -117,7 +162,14 @@
         /* Decorative legs behind the cauldron (below pot/liquid z-index:2); left/top/width tuned to the pot's footprint */
         #cauldron-legs { position: absolute; z-index: 1; transform: translate(-50%, -50%); left: 20px; top: 500px; width: 700px; pointer-events: none; }
         #asset-soup { position: absolute; z-index: 2; transform: translate(-50%, -50%); left: 70px; top: 250px; width: 1250px; pointer-events: none; transition: transform 0.1s; }
-        #soup-liquid { position: absolute; z-index: 2; transform: translate(-50%, -50%) translateZ(0); left: 70px; top: 250px; width: 1250px; pointer-events: none; -webkit-mask-image: radial-gradient(ellipse 33% 31% at 47% 47%, #000 68%, rgba(0,0,0,0) 92%); mask-image: radial-gradient(ellipse 33% 31% at 47% 47%, #000 68%, rgba(0,0,0,0) 92%); -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; will-change: transform; contain: paint; }
+        #soup-liquid { position: absolute; z-index: 2; transform: translate(-50%, -50%) translateZ(0); left: 70px; top: 250px; width: 1250px; pointer-events: none; -webkit-mask-image: radial-gradient(ellipse 33% 31% at 47% 47%, #000 68%, rgba(0,0,0,0) 92%); mask-image: radial-gradient(ellipse 33% 31% at 47% 47%, #000 68%, rgba(0,0,0,0) 92%); -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; will-change: transform; }
+        #soup-ambient-bubbles { position: absolute; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
+        .soup-ambient-ball { position: absolute; border-radius: 50%; transform: translate(-50%, -50%); opacity: var(--ball-a, 0.62); pointer-events: none;
+            background: radial-gradient(circle at 32% 28%, rgba(224,252,255,0.96) 0%, rgba(125,211,252,0.72) 42%, rgba(34,150,180,0) 72%);
+            box-shadow: inset -3px -5px 9px rgba(255,255,255,0.55), 0 0 10px rgba(125,211,252,0.28);
+            animation: soupAmbientBob var(--ball-dur, 3.6s) ease-in-out infinite alternate; animation-delay: var(--ball-delay, 0s); animation-play-state: running; will-change: transform; }
+        @keyframes soupAmbientBob { 0% { transform: translate(-50%, -50%) translate(calc(var(--sway, 4px) * -1), calc(var(--bob, -3px) * -0.55)); } 100% { transform: translate(-50%, -50%) translate(var(--sway, 4px), var(--bob, -3px)); } }
+        body.soup-stirring .soup-ambient-ball { animation-duration: 2.3s; }
         #asset-soup-liquid { display: block; width: 100%; pointer-events: none; transform-origin: 47% 47%; will-change: transform; backface-visibility: hidden; }
         #spoon-rig { position: absolute; z-index: 3; left: -95px; top: 5px; width: 840px; transform: translate(-50%, -50%) rotate(-27deg); transform-origin: 85% 15%; pointer-events: none; }
         #asset-spoon { width: 100%; transition: transform 0.1s; transform-origin: inherit; }
@@ -305,7 +357,7 @@
         .ingredient-proj { position: fixed; z-index: 25001; pointer-events: none; font-size: clamp(2.6rem, 9.5vw, 5rem); line-height: 1; transition: left 0.64s cubic-bezier(0.22, 1, 0.36, 1), top 0.64s cubic-bezier(0.22, 1, 0.36, 1), transform 0.64s ease-in, opacity 0.20s ease 0.46s; filter: drop-shadow(0 3px 10px rgba(0,0,0,0.5)); will-change: left, top, transform, opacity; }
         .ingredient-proj-dry { filter: drop-shadow(0 2px 6px rgba(0,0,0,0.25)); }
         /* Kawaii per-ingredient soup splash — 10 DRAMATICALLY unique identities (#soup-liquid) */
-        #soup-fx-burst { position: absolute; inset: 0; pointer-events: none; z-index: 1; overflow: hidden; contain: strict; }
+        #soup-fx-burst { position: absolute; inset: 0; pointer-events: none; z-index: 1; overflow: hidden; }
         .ingredient-splash-active { --ing-fx-dur: 2.6s; }
         .ingredient-splash-active #asset-soup-liquid { transition: filter 0.32s ease, transform 0.42s ease !important; filter: var(--ing-filter) !important; transform: translateX(0) scale(1.04, 1.03) skewX(0deg) !important; animation: var(--ing-anim, ingFxPop 2.6s ease-out) !important; }
         .ing-fx-ink.ingredient-splash-active { --ing-anim: ingFxInkSpiral 2.6s ease-out; }
@@ -372,7 +424,7 @@
         .sfx-coco-half { font-size: clamp(1rem, 2.8vw, 1.45rem); line-height: 1; opacity: 0; animation: sfxCocoHalf 1.5s ease-out forwards; filter: drop-shadow(0 2px 5px rgba(255,255,255,0.4)); }
         @keyframes sfxCocoHalf { 0% { opacity: 0; transform: translate(-50%,-50%) scale(0.4) rotate(-15deg); } 22% { opacity: 1; transform: translate(-50%,-50%) scale(1.12) rotate(5deg); } 100% { opacity: 0; transform: translate(-50%,-50%) scale(0.85) rotate(0deg); } }
         /* Kawaii colored bubbles — LOCO palette per ingredient, rise/pop/float/swirl */
-        .sfx-k-bubble { position: absolute; border-radius: 50%; pointer-events: none; opacity: 0; will-change: transform, opacity; box-shadow: inset 0 -4px 8px rgba(255,255,255,0.55), inset 0 2px 4px rgba(255,255,255,0.35), 0 1px 3px rgba(0,0,0,0.18), 0 0 8px var(--bb-glow, rgba(255,255,255,0.5)); }
+        .sfx-k-bubble { position: absolute; border-radius: 50%; pointer-events: none; opacity: 0; transform: translate(-50%, -50%); will-change: transform, opacity; box-shadow: inset 0 -4px 8px rgba(255,255,255,0.55), inset 0 2px 4px rgba(255,255,255,0.35), 0 1px 3px rgba(0,0,0,0.18), 0 0 8px var(--bb-glow, rgba(255,255,255,0.5)); }
         .sfx-k-bubble.rise { animation: sfxBubbleRise var(--bd, 1.75s) ease-out forwards; }
         .sfx-k-bubble.rise-pop { animation: sfxBubbleRisePop var(--bd, 1.65s) ease-out forwards; }
         .sfx-k-bubble.float { animation: sfxBubbleFloat var(--bd, 1.9s) ease-in-out forwards; }
@@ -618,6 +670,7 @@
         #m-launch button { position: relative; }
         #m-launch button.has-badge::after { content: ''; position: absolute; top: -3px; right: -3px; width: 12px; height: 12px; border-radius: 50%; background: #ef4444; border: 2px solid #1e1b4b; box-shadow: 0 0 8px rgba(239, 68, 68, 0.85); }
         .helpers-count { background: var(--go); color: #1e1b4b; border-radius: 9px; padding: 0 5px; font-size: 0.62rem; font-weight: bold; margin-left: 2px; }
+        #build-tag { position: fixed; left: 50%; bottom: max(1px, env(safe-area-inset-bottom)); transform: translateX(-50%); font: 700 9px/1 monospace; letter-spacing: 0.5px; color: rgba(255,255,255,0.55); background: rgba(0,0,0,0.32); padding: 1px 6px; border-radius: 6px; z-index: 100000; pointer-events: none; }
         @media (pointer: coarse) and (orientation: landscape) and (max-height: 600px) {
             body { overflow: hidden; }
             /* The scene is the star: main stage fills the width (shop is a slide-in now). */
@@ -1012,6 +1065,38 @@
         .q-low .steam-wisp:nth-child(n+4) { display: none; }
         .q-low .steam-wisp { filter: blur(6px) !important; }
         .coll-stats { font-size: 0.82rem; color: #cbd5e1; margin: 2px 0 10px; line-height: 1.4; }
+        .coll-tabs { display: flex; gap: 8px; justify-content: center; margin: 0 0 10px; flex-wrap: wrap; }
+        .coll-tab { border: 1px solid var(--glass-bd); background: var(--glass); color: #cbd5e1; border-radius: 999px; padding: 6px 14px; font-size: 0.72rem; font-weight: bold; cursor: pointer; letter-spacing: 0.4px; }
+        .coll-tab.active { color: #0f172a; background: var(--go); border-color: var(--go); }
+        .coll-atlas { text-align: left; }
+        .atlas-region { margin-bottom: 14px; padding: 10px; border-radius: 12px; border: 1px solid var(--glass-bd); background: rgba(0,0,0,0.12); }
+        .atlas-region-hd { display: flex; align-items: center; gap: 8px; margin: 0 0 8px; font-size: 0.82rem; font-weight: bold; color: var(--go); }
+        .atlas-region-sub { font-size: 0.62rem; color: #94a3b8; margin: -4px 0 8px; line-height: 1.35; font-style: italic; }
+        .atlas-pack-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 8px; }
+        .atlas-pack { border: 1px solid var(--glass-bd); border-radius: 10px; padding: 8px; background: var(--glass); cursor: pointer; transition: 0.15s; }
+        .atlas-pack:hover { filter: brightness(1.08); transform: translateY(-1px); }
+        .atlas-pack.complete { border-color: rgba(251,191,36,0.65); box-shadow: 0 0 10px rgba(251,191,36,0.25); }
+        .atlas-pack-name { font-size: 0.68rem; font-weight: bold; color: #e2e8f0; margin-bottom: 6px; line-height: 1.25; }
+        .atlas-pack-bar { height: 6px; border-radius: 999px; background: rgba(255,255,255,0.08); overflow: hidden; }
+        .atlas-pack-fill { height: 100%; border-radius: 999px; background: linear-gradient(90deg, #4ade80, var(--go)); width: 0; transition: width 0.25s; }
+        .atlas-pack-meta { font-size: 0.58rem; color: #94a3b8; margin-top: 4px; }
+        .coll-filter-bar { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin: 0 0 8px; padding: 6px 10px; border-radius: 10px; border: 1px dashed rgba(251,191,36,0.45); background: rgba(251,191,36,0.08); font-size: 0.68rem; color: #fde68a; }
+        .coll-filter-clear { border: none; background: transparent; color: #fbbf24; cursor: pointer; font-size: 0.68rem; font-weight: bold; }
+        .atlas-path-card { margin-bottom: 12px; padding: 12px; border-radius: 12px; border: 1px solid rgba(251,191,36,0.45); background: linear-gradient(135deg, rgba(251,191,36,0.12), rgba(0,0,0,0.15)); text-align: left; }
+        .atlas-path-card-hd { display: flex; align-items: center; gap: 8px; font-size: 0.82rem; font-weight: bold; color: var(--go); margin-bottom: 4px; }
+        .atlas-path-card-sub { font-size: 0.64rem; color: #94a3b8; line-height: 1.35; margin-bottom: 8px; }
+        .atlas-path-chapters { font-size: 0.62rem; color: #cbd5e1; line-height: 1.4; margin-bottom: 8px; }
+        .atlas-path-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+        .atlas-path-actions .gx-btn.sm { font-size: 0.68rem; padding: 6px 10px; min-height: 32px; }
+        .atlas-region.path-focus { border-color: rgba(251,191,36,0.55); box-shadow: 0 0 16px rgba(251,191,36,0.15); }
+        .atlas-region.path-dim { opacity: 0.72; }
+        .path-choice-grid { display: grid; grid-template-columns: 1fr; gap: 10px; margin: 10px 0 4px; text-align: left; }
+        .path-choice { border: 2px solid var(--glass-bd); border-radius: 12px; padding: 12px; background: var(--glass); cursor: pointer; transition: 0.15s; }
+        .path-choice:hover { filter: brightness(1.08); border-color: var(--go); transform: translateY(-1px); }
+        .path-choice.active { border-color: var(--go); box-shadow: 0 0 12px rgba(251,191,36,0.3); }
+        .path-choice-hd { font-size: 0.88rem; font-weight: bold; color: #fde68a; margin-bottom: 4px; }
+        .path-choice-sub { font-size: 0.68rem; color: #94a3b8; line-height: 1.35; }
+        .path-choice-meta { font-size: 0.58rem; color: #64748b; margin-top: 6px; }
         #collection-modal .coll-box { display: flex; flex-direction: column; max-height: 84vh; overflow: hidden; padding-top: 0; }
         #collection-modal .coll-head { position: relative; flex-shrink: 0; padding: 18px 44px 10px; margin: 0 -24px 4px; border-bottom: 1px solid var(--glass-bd); background: var(--glass-strong); }
         #collection-modal .coll-head h2 { margin: 0; }
@@ -1385,11 +1470,12 @@
     <div id="game-wrapper">
         <div id="hud"><div id="score-box"><span data-i18n="energy_balls">Energy Balls:</span> <span id="score">0</span></div><div id="shard-box"><span data-i18n="angel_shards">Angel Shards:</span> <span id="shards-count">0</span></div></div>
         <div id="cps-tag">0.0 EB PER SECOND</div>
-        <div id="lore-scroll"><div id="lore-title" data-i18n="chronicle">CHRONICLE</div><div id="lore-text">...</div></div>
+        <div id="lore-scroll" onclick="try{atlas.openChronicleModal()}catch(e){}"><div id="lore-title" data-i18n="chronicle">CHRONICLE</div><div id="lore-text">...</div><div id="soup-recipe-inline" class="soup-recipe-inline" style="display:none"></div><div id="event-lore-inline" class="event-lore-inline" style="display:none"></div></div>
+        <div id="event-pill" style="display:none" aria-hidden="true"></div>
         <button id="helpers-toggle" type="button" onclick="helpersBox.toggle()" aria-expanded="true" data-i18n-title="helpers_toggle_title" title="Helpers">👥 <span class="helpers-chevron">▾</span></button>
         <div id="companion-column"></div>
         <div id="altar-panel"><div id="btn-prestige" onclick="game.pres()"><div class="prestige-label" id="pres-txt" data-i18n="locked">LOCKED</div></div><div id="pres-stat">Lv. 0 (+0%)</div></div>
-        <section id="main-stage" onpointerdown="game.click(event)"><canvas id="particle-canvas"></canvas><div id="sticky-center"><div id="chef-rig"><img id="asset-chef" src="assets/img/chef.png" decoding="async"><img id="asset-chef-mouth" src="assets/img/chef-mouth-delta.png" alt="" decoding="async"></div><img id="asset-chef-hand" src="assets/img/chef-hand.png" decoding="async"><img id="cauldron-legs" src="assets/img/cauldron-legs.png" alt="" decoding="async"><img id="asset-soup" src="assets/img/soup.png" decoding="async"><div id="soup-liquid"><img id="asset-soup-liquid" src="assets/img/soup.png" decoding="async"><div id="soup-fx-burst" aria-hidden="true"></div></div><div id="soup-steam"><div class="steam-wisp"></div><div class="steam-wisp"></div><div class="steam-wisp"></div><div class="steam-wisp"></div><div class="steam-wisp"></div><div class="steam-wisp"></div></div><div id="spoon-rig"><img id="asset-spoon" src="assets/img/spoon.png" decoding="async"></div></div><div id="soup-ripples"></div></section>
+        <section id="main-stage" onpointerdown="game.click(event)"><canvas id="particle-canvas"></canvas><div id="sticky-center"><div id="chef-rig"><img id="asset-chef" src="assets/img/chef.png" decoding="async"><img id="asset-chef-mouth" src="assets/img/chef-mouth-delta.png" alt="" decoding="async"></div><img id="asset-chef-hand" src="assets/img/chef-hand.png" decoding="async"><img id="cauldron-legs" src="assets/img/cauldron-legs.png" alt="" decoding="async"><img id="asset-soup" src="assets/img/soup.png" decoding="async"><div id="soup-liquid"><img id="asset-soup-liquid" src="assets/img/soup.png" decoding="async"><div id="soup-ambient-bubbles" aria-hidden="true"></div><div id="soup-fx-burst" aria-hidden="true"></div></div><div id="soup-steam"><div class="steam-wisp"></div><div class="steam-wisp"></div><div class="steam-wisp"></div><div class="steam-wisp"></div><div class="steam-wisp"></div><div class="steam-wisp"></div></div><div id="spoon-rig"><img id="asset-spoon" src="assets/img/spoon.png" decoding="async"></div></div><div id="soup-ripples"></div></section>
         <aside id="side-shop"><button id="shop-close-m" type="button" onclick="mobileUI.closeAll()" data-i18n-title="close" aria-label="Close" title="Close">✕</button><h1 data-i18n="shop" style="text-align:center; font-size:1.3rem;">SHOP</h1><div id="shop-companions-panel"><div id="buy-mode-toggle" onclick="game.cycleBuyMode()" data-i18n="buy_x1">Buy x1</div><div id="prix-btn" style="padding:12px; background:linear-gradient(135deg,#7e22ce,#3b82f6); border-radius:10px; text-align:center; font-weight:bold; border:2px solid #fff; margin-bottom:15px; display:none; cursor:pointer;" onclick="prix.open()" data-i18n="enter_prix">Enter Grand Prix</div><div id="companion-list"></div><div id="spoons-album-section"><div id="spoons-album-title" data-i18n="spoons_album_title">SACRED SPOONS ALBUM</div><div id="spoons-album"></div></div><div id="hats-album-section"><div id="hats-album-title" data-i18n="hats_album_title">SACRED HATS ALBUM</div><div id="hats-album"></div></div></div></aside>
     </div>
     <div id="audio-ctrl"><button id="audio-mute" type="button" onclick="sound.toggleMute()" data-i18n-title="audio_mute_title" title="Mute / Unmute sound">🔊</button><input id="audio-vol" type="range" min="0" max="100" value="100" oninput="sound.setVolume(this.value/100)" data-i18n-title="audio_vol_title" title="Volume"></div>
@@ -1415,6 +1501,7 @@
         <button id="m-shop-btn" type="button" onclick="mobileUI.toggleShop()" aria-label="Shop"><span data-i18n="m_shop_btn">🛒 Shop</span></button>
     </div>
     <div id="m-scrim" onclick="mobileUI.closeAll()"></div>
+    <div id="build-tag" aria-hidden="true"></div>
     <div id="offline-modal" class="gx-modal"><div class="gx-box"><h2 data-i18n="offline_title">Your soup kept cooking</h2><p id="offline-text" style="font-size:1rem; line-height:1.5"></p><div style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin-top:6px"><button class="gx-btn" style="min-height:44px; background:linear-gradient(135deg,#f59e0b,#b45309); border-color:var(--go)" id="offline-double-btn" onclick="offline.double()" data-i18n="offline_double">x2 (Free reward)</button><button class="gx-btn" style="min-height:44px" onclick="offline.claim()" data-i18n="claim">Claim</button></div></div></div>
     <div id="import-modal" class="gx-modal"><div class="gx-box">
         <h2 data-i18n="backup_import_title">📥 Import Backup</h2>
@@ -1480,9 +1567,30 @@
         </div>
         <div class="coll-body">
             <div id="collection-stats" class="coll-stats"></div>
+            <div class="coll-tabs">
+                <button type="button" class="coll-tab active" id="coll-tab-all" onclick="collection.setView('grid')" data-i18n="coll_tab_all">All</button>
+                <button type="button" class="coll-tab" id="coll-tab-atlas" onclick="collection.setView('atlas')" data-i18n="coll_tab_atlas">Atlas</button>
+            </div>
+            <div id="coll-filter-bar" class="coll-filter-bar" style="display:none">
+                <span id="coll-filter-label"></span>
+                <button type="button" class="coll-filter-clear" onclick="collection.clearPackFilter()" data-i18n="coll_filter_clear">Clear filter</button>
+            </div>
+            <div id="collection-atlas" class="coll-atlas" style="display:none"></div>
             <div id="collection-grid" class="coll-sections"></div>
             <button class="gx-btn" style="margin-top:14px" onclick="collection.close()" data-i18n="close">Close</button>
         </div>
+    </div></div>
+    <div id="atlas-path-modal" class="gx-modal"><div class="gx-box">
+        <h2 data-i18n="path_choose_title">Choose Your Path</h2>
+        <p class="amb-hint" data-i18n="path_choose_hint">Pick a route through Esqueletia. Drops favor your path; your chronicle follows your journey.</p>
+        <div id="atlas-path-choices" class="path-choice-grid"></div>
+        <button class="gx-btn" style="margin-top:12px" type="button" onclick="atlas.closePathModal()" data-i18n="close">Close</button>
+    </div></div>
+    <div id="chronicle-modal" class="gx-modal"><div class="gx-box">
+        <h2 data-i18n="chronicle_modal_title">Your Adventure</h2>
+        <p id="chronicle-modal-sub" class="amb-hint"></p>
+        <div id="chronicle-modal-list" class="chronicle-list"></div>
+        <button class="gx-btn" style="margin-top:12px" type="button" onclick="atlas.closeChronicleModal()" data-i18n="close">Close</button>
     </div></div>
     <div id="charm-preview" onclick="if(event.target===this)collection.closePreview()">
         <div class="cp-box">
@@ -1644,7 +1752,8 @@
     </script>
     <script src="events.js"></script>
     <!-- Cache-bust catalog on every deploy (SW must not serve a stale charm list). -->
-    <script src="assets/skins/catalog.js?v=build-66"></script>
+    <script src="assets/skins/catalog.js?v=build-79"></script>
+    <script src="assets/atlas_manifest.js?v=build-79"></script>
     <!-- ====================================================================
          === EMBEDDED LEADERBOARD MODULE (from leaderboard/leaderboard-client.js)
          === Self-contained global `leaderboard` object. Single-file game, so the
@@ -2113,7 +2222,15 @@
         // while still retrying if a reload didn't actually land the new build. Fully
         // defensive: any error is silent and never blocks the game. Parent bumps BOTH
         // version.json and BUILD_V on every future deploy.
-        const BUILD_V = "build-68";
+        const BUILD_V = "build-79";
+        function paintBuildTag() {
+            try {
+                var b = document.getElementById('build-tag');
+                if (b) b.textContent = BUILD_V;
+                var hv = document.getElementById('home-version');
+                if (hv && typeof VERSION !== 'undefined') hv.textContent = VERSION + ' · ' + BUILD_V;
+            } catch (e) {}
+        }
         (function () {
             function hardReloadTo(v) {
                 try {
@@ -2138,6 +2255,11 @@
                 } catch (e) {}
             }
             checkForUpdate();
+            paintBuildTag();
+            try {
+                if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', paintBuildTag);
+                else paintBuildTag();
+            } catch (e) {}
             try {
                 document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'visible') checkForUpdate(); });
                 window.addEventListener('focus', checkForUpdate);
@@ -2179,6 +2301,7 @@
                 ach_toast:"🏆 Achievement: {n}", ach_firstPres_n:"First Awakening", ach_firstPres_d:"Perform your first prestige", ach_firstChamp_n:"First Champion", ach_firstChamp_d:"Crown a champion in the Grand Prix",
                 ach_fullTeam_n:"Full Team", ach_fullTeam_d:"Unlock all 5 companions", ach_allSpoons_n:"Spoon Collector", ach_allSpoons_d:"Own all sacred spoons", ach_centurion_n:"Broth Centurion", ach_centurion_d:"Take a companion to Lv.100",
                 quest_clicks:"Stir the soup {g} times", quest_eb:"Cook {g} EB", quest_levels:"Buy {g} companion levels", quest_crowns:"Crown a champion in the Grand Prix",
+                quest_path_charms:"Collect {g} charms from your path ({path})",
                 quest_done_toast:"Chef's Order complete! 📜", quest_shard_toast:"+1 Angel Shard ⬨", quests_today:"Today's orders · refreshed daily", claimed:"✓ CLAIMED", claim_reward:"Claim {r}", reward_label:"Reward: {r}", achievements_header:"Achievements",
                 node_caldo_name:"Broth Blessing", node_caldo_desc:"+15% CPS per level", node_manos_name:"Skullchef's Hands", node_manos_desc:"+20% click power per level",
                 node_eco_name:"Angel's Echo", node_eco_desc:"+1 free level per companion on prestige", node_cuchara_name:"Blessed Spoon", node_cuchara_desc:"-8% spoon cost per level",
@@ -2228,6 +2351,18 @@
                 reveal_new_charm:"NEW CHARM!", reveal_continue:"Add to Charms",
                 coll_fam_helper:"Helper", coll_fam_spoon:"Spoon", coll_fam_chefhat:"Chef Hat", coll_unknown:"Unknown skin",
                 coll_inspect:"Inspect", coll_inspect_aria:"View charm in large size",
+                coll_tab_all:"All", coll_tab_atlas:"Atlas", coll_atlas_goal:"{n} / {goal} toward Esqueletia Atlas",
+                coll_set_bonus:"{n} sets complete · +{pct}% CPS", coll_set_complete:"Set complete! {name} (+{pct}% CPS)",
+                coll_filter_clear:"Clear filter", coll_filter_pack:"Showing set: {name}",
+                path_choose_title:"Choose Your Path", path_choose_hint:"Pick a route through Esqueletia. Drops favor your path; your chronicle follows your journey.",
+                path_current:"Your path: {name}", path_change:"Change path", path_choose:"Choose path",
+                path_chapters:"Chronicle chapters: {n}/{total}", path_drop_bias:"Path drops boosted",
+                path_set_toast:"Path chosen: {name}", path_change_toast:"Path changed: {name}",
+                path_chapter_toast:"New chronicle chapter: {title}",
+                chronicle_modal_title:"Your Adventure", chronicle_modal_sub:"Path: {path}", chronicle_modal_locked:"Complete {n} set(s) on this path to unlock",
+                chronicle_tap_hint:"Tap chronicle to read your adventure",
+                soup_recipe_label:"Recipe: {name} · Tier {tier}", soup_evolved_toast:"Soup evolved! {name} (Tier {tier})",
+                event_welcome_toast:"{name} is live! +{cps}% CPS · +{click}% stir power",
                 r_common:"Common", r_uncommon:"Uncommon", r_rare:"Rare", r_epic:"Epic", r_legendary:"Legendary", r_superleg:"Super Legendary", r_anomaly:"Anomaly",
                 achievements_btn:"🏆 Achievements", ach_progress:"{cur}/{goal}",
                 ach_firstClick_n:"First Stir", ach_firstClick_d:"Stir the soup for the first time",
@@ -2303,6 +2438,7 @@
                 ach_toast:"🏆 Logro: {n}", ach_firstPres_n:"Primer Despertar", ach_firstPres_d:"Realiza tu primer prestigio", ach_firstChamp_n:"Primer Campeón", ach_firstChamp_d:"Corona un campeón en el Grand Prix",
                 ach_fullTeam_n:"Equipo Completo", ach_fullTeam_d:"Desbloquea los 5 compañeros", ach_allSpoons_n:"Coleccionista de Cucharas", ach_allSpoons_d:"Posee todas las cucharas sagradas", ach_centurion_n:"Centurión del Caldo", ach_centurion_d:"Lleva un compañero a Nv.100",
                 quest_clicks:"Remueve la sopa {g} veces", quest_eb:"Cocina {g} EB", quest_levels:"Compra {g} niveles de compañeros", quest_crowns:"Corona un campeón en el Grand Prix",
+                quest_path_charms:"Consigue {g} amuletos de tu camino ({path})",
                 quest_done_toast:"¡Pedido del Chef completado! 📜", quest_shard_toast:"+1 Fragmento de Ángel ⬨", quests_today:"Pedidos de hoy · se renuevan cada día", claimed:"✓ RECLAMADO", claim_reward:"Reclamar {r}", reward_label:"Recompensa: {r}", achievements_header:"Logros",
                 node_caldo_name:"Bendición del Caldo", node_caldo_desc:"+15% CPS por nivel", node_manos_name:"Manos del Skullchef", node_manos_desc:"+20% poder de click por nivel",
                 node_eco_name:"Eco del Ángel", node_eco_desc:"+1 nivel gratis por compañero al prestigiar", node_cuchara_name:"Cuchara Bendita", node_cuchara_desc:"-8% coste de cucharas por nivel",
@@ -2352,6 +2488,18 @@
                 reveal_new_charm:"¡NUEVO AMULETO!", reveal_continue:"Añadir a Amuletos",
                 coll_fam_helper:"Ayudante", coll_fam_spoon:"Cuchara", coll_fam_chefhat:"Gorro de Chef", coll_unknown:"Skin desconocida",
                 coll_inspect:"Revisar", coll_inspect_aria:"Ver el amuleto en grande",
+                coll_tab_all:"Todos", coll_tab_atlas:"Atlas", coll_atlas_goal:"{n} / {goal} hacia el Atlas de Esqueletia",
+                coll_set_bonus:"{n} sets completos · +{pct}% CPS", coll_set_complete:"¡Set completo! {name} (+{pct}% CPS)",
+                coll_filter_clear:"Quitar filtro", coll_filter_pack:"Mostrando set: {name}",
+                path_choose_title:"Elige tu camino", path_choose_hint:"Elige una ruta por Esqueletia. Los drops favorecen tu camino; la crónica sigue tu aventura.",
+                path_current:"Tu camino: {name}", path_change:"Cambiar camino", path_choose:"Elegir camino",
+                path_chapters:"Capítulos de crónica: {n}/{total}", path_drop_bias:"Drops del camino potenciados",
+                path_set_toast:"Camino elegido: {name}", path_change_toast:"Camino cambiado: {name}",
+                path_chapter_toast:"Nuevo capítulo de crónica: {title}",
+                chronicle_modal_title:"Tu aventura", chronicle_modal_sub:"Camino: {path}", chronicle_modal_locked:"Completa {n} set(s) en este camino para desbloquear",
+                chronicle_tap_hint:"Toca la crónica para leer tu aventura",
+                soup_recipe_label:"Receta: {name} · Nivel {tier}", soup_evolved_toast:"¡Sopa evolucionada! {name} (Nivel {tier})",
+                event_welcome_toast:"¡{name} activo! +{cps}% CPS · +{click}% fuerza de remeo",
                 r_common:"Común", r_uncommon:"Poco común", r_rare:"Raro", r_epic:"Épico", r_legendary:"Legendario", r_superleg:"Súper Legendario", r_anomaly:"Anomalía",
                 achievements_btn:"🏆 Logros", ach_progress:"{cur}/{goal}",
                 ach_firstClick_n:"Primer Removido", ach_firstClick_d:"Remueve la sopa por primera vez",
@@ -2416,7 +2564,7 @@
             applyStaticI18n();
             const f = document.getElementById('lang-fab'); if (f) f.textContent = '🌐 ' + LANG.toUpperCase();
             const hf = document.getElementById('home-lang'); if (hf) hf.textContent = '🌐 ' + LANG.toUpperCase();
-            if (game._inited) { game.render(); game.updateLore(); game.ui(); }
+            if (game._inited) { game.render(); game.updateLore(); game.ui(); try { softEvents.sync(); } catch (e) {} }
             const qm = document.getElementById('quest-modal'); if (qm && qm.classList.contains('open')) quests.render();
             const tm = document.getElementById('tree-modal'); if (tm && tm.classList.contains('open')) atree.render();
             const om = document.getElementById('offline-modal'); if (om && om.classList.contains('open')) offline.renderText();
@@ -3744,7 +3892,7 @@
         // === Versionado del esquema de guardado ===
         // Sube este número cada vez que cambie la forma del save. Cada incremento debe
         // tener su paso de migración en SAVE_MIGRATIONS (clave = versión de ORIGEN).
-        const SCHEMA_VERSION = 31;
+        const SCHEMA_VERSION = 36;
         const SAVE_MIGRATIONS = {
             // v16 -> v17: el campo `as` (Angel Shards acumulados) pasó a guardarse aparte de `s`.
             16: (s) => {
@@ -3878,9 +4026,43 @@
             30: (s) => {
                 s.v = 31;
                 return s;
+            },
+            31: (s) => {
+                if (s.coll && typeof s.coll === 'object') {
+                    if (!s.coll.atlasAnnounced || typeof s.coll.atlasAnnounced !== 'object') s.coll.atlasAnnounced = {};
+                }
+                s.v = 32;
+                return s;
+            },
+            32: (s) => {
+                if (s.coll && typeof s.coll === 'object') {
+                    if (typeof s.coll.atlasPath !== 'string') s.coll.atlasPath = null;
+                    if (!s.coll.atlasChapterAnnounced || typeof s.coll.atlasChapterAnnounced !== 'object') s.coll.atlasChapterAnnounced = {};
+                }
+                s.v = 33;
+                return s;
+            },
+            33: (s) => {
+                if (s.daily && s.daily.counters && s.daily.counters.pathCharms == null) s.daily.counters.pathCharms = 0;
+                s.v = 34;
+                return s;
+            },
+            34: (s) => {
+                if (s.coll && typeof s.coll === 'object') {
+                    if (!s.coll.soupEvAnnounced || typeof s.coll.soupEvAnnounced !== 'object') s.coll.soupEvAnnounced = {};
+                }
+                s.v = 35;
+                return s;
+            },
+            35: (s) => {
+                if (s.coll && typeof s.coll === 'object') {
+                    if (!s.coll.eventAnnounced || typeof s.coll.eventAnnounced !== 'object') s.coll.eventAnnounced = {};
+                }
+                s.v = 36;
+                return s;
             }
-            // FUTURO: para añadir v31 -> v32 solo añade aquí:
-            //   31: (s) => { /* transforma s */ s.v = 32; return s; },
+            // FUTURO: para añadir v36 -> v37 solo añade aquí:
+            //   32: (s) => { /* transforma s */ s.v = 33; return s; },
             // y sube SCHEMA_VERSION. No borres pasos antiguos.
         };
         // Transforma un save antiguo al esquema actual de forma incremental. Nunca lanza:
@@ -4109,6 +4291,10 @@
                 this.ctx = document.getElementById('particle-canvas').getContext('2d'); this.resize(); window.onresize = () => this.resize();
                 this.initSoupBalls();
                 this.load(); this.render(); this.updateBuyModeBtn();
+                try { atlas.checkNewCompletions(); } catch (e) {}
+                try { atlas.checkChapterUnlocks(false); } catch (e2) {}
+                try { soupEvolution.catchUpSilent(); soupEvolution.sync(); } catch (e3) {}
+                try { softEvents.sync(); } catch (e4) {}
                 const alb = document.getElementById('spoons-album');
                 if (alb && !alb._spoonDelegated) {
                     alb._spoonDelegated = true;
@@ -4175,7 +4361,14 @@
                 this._chefMouthShowClosed();
             },
             resize() { this.ctx.canvas.width = window.innerWidth; this.ctx.canvas.height = window.innerHeight; this._soupRect = null; this._stageRect = null; this._scoreTarget = null; },
-            _chefEl() { return document.getElementById('asset-chef'); },
+            _cacheSoupSurf() {
+                const so = document.getElementById('asset-soup');
+                const r = so ? so.getBoundingClientRect() : null;
+                this._soupRect = r;
+                this._surf = r ? { x: r.left + r.width * 0.52, y: r.top + r.height * 0.42, w: r.width, h: r.height } : null;
+                const stg = document.getElementById('main-stage');
+                this._stageRect = stg ? stg.getBoundingClientRect() : null;
+            },
             _chefMouthHideOverlay() {
                 const mouth = document.getElementById('asset-chef-mouth');
                 if (mouth) mouth.style.display = 'none';
@@ -4360,6 +4553,8 @@
                 cps *= this.treeAuraMult();
                 cps *= this.treeEternalMult();
                 cps *= this.buffMult('cps');
+                try { cps *= atlas.setBonusMult(); } catch (e) {}
+                try { cps *= softEvents.cpsMult(); } catch (e2) {}
                 return cps;
             },
             milestoneMult(lv) { let m = 1; if (lv >= 10) m *= 2; if (lv >= 25) m *= 2; if (lv >= 50) m *= 2; if (lv >= 100) m *= 2; return m; },
@@ -4711,6 +4906,8 @@
                 try { farm.tickReady(); farm.updateBadge(); } catch (e) {}
             },
             updateLore() {
+                try { soupEvolution.updateRecipe(); } catch (e0) {}
+                try { softEvents.updateLoreLine(); } catch (e0b) {}
                 // this.m (the click multiplier tier) must be recomputed every call; the DOM
                 // text only changes when the tier / era / language changes, so guard the write.
                 let m;
@@ -4727,11 +4924,17 @@
                 this._loreKey = key;
                 const lt = document.getElementById('lore-text'), ti = document.getElementById('lore-title');
                 if (!lt || !ti) return;
+                const ls = document.getElementById('lore-scroll');
+                if (ls) ls.classList.toggle('lore-adventure', !!atlas.path());
                 if (this.s === 0) {
-                    lt.innerText = t('lore' + m);
+                    let main = t('lore' + m);
+                    try { const extra = atlas.chronicleSnippet(); if (extra) main += '\n\n' + extra; } catch (e) {}
+                    lt.innerText = main;
                     ti.innerText = t('chronicle') + ' ' + m;
                 } else {
-                    lt.innerText = t('lore6');
+                    let main = t('lore6');
+                    try { const extra = atlas.chronicleSnippet(); if (extra) main += '\n\n' + extra; } catch (e) {}
+                    lt.innerText = main;
                     ti.innerText = t('chronicle') + ' 6 (' + t('era') + ' ' + this.s + ')';
                 }
             },
@@ -4815,6 +5018,8 @@
                 if (eq && eq.id === 0) gain *= 1.50;
                 if (eq && eq.id === 1 && Math.random() < 0.05) gain *= 10;
                 gain *= this.milestoneMult(this.cp[1].lv) * this.bongoClickMult() * this.treeClickMult() * this.treeAuraMult() * this.treeEternalMult() * this.buffMult('click');
+                try { gain *= soupEvolution.clickMult(); } catch (e) {}
+                try { gain *= softEvents.clickMult(); } catch (e2) {}
                 if (!Number.isFinite(gain) || gain <= 0) return;
                 this.e += gain; this.te += gain; this._lastClick = _now;
                 // Keep the stir/soup audio loop alive FIRST, before any DOM work, so the
@@ -5365,6 +5570,23 @@
                 this.particles.push({ x, y, t: 'ingredient', vx: (Math.random() - 0.5) * 10, vy: (Math.random() - 0.5) * 10 - 5, life: 1, size: Math.random() * 8 + 4, color: color || '#fde047' });
             },
             _soupFxBurst() { return document.getElementById('soup-fx-burst'); },
+            _kickSoupFxAnim(el) {
+                if (!el || !el.parentNode) return;
+                requestAnimationFrame(() => {
+                    if (!el.parentNode) return;
+                    void el.offsetWidth;
+                    try {
+                        const runs = el.getAnimations ? el.getAnimations() : [];
+                        if (runs.length) {
+                            runs.forEach(a => { try { if (a.playState === 'paused') a.play(); } catch (e) {} });
+                            return;
+                        }
+                    } catch (e) {}
+                    const delay = el.style.animationDelay;
+                    el.style.animationPlayState = 'running';
+                    if (delay) el.style.animationDelay = delay;
+                });
+            },
             _soupFxEl(tag, className, opts) {
                 const burst = this._soupFxBurst();
                 if (!burst) return null;
@@ -5377,10 +5599,12 @@
                 if (opts.css) { for (const k in opts.css) el.style.setProperty(k, opts.css[k]); }
                 if (opts.delay != null) el.style.animationDelay = opts.delay + 's';
                 burst.appendChild(el);
+                if (className.indexOf('sfx-k-bubble') >= 0 || className.indexOf('sfx-part') >= 0) this._kickSoupFxAnim(el);
                 const ms = (opts.lifeMs != null ? opts.lifeMs : 2400);
                 const cleanup = () => { if (el.parentNode) el.remove(); };
                 el.addEventListener('animationend', cleanup, { once: true });
-                setTimeout(cleanup, ms);
+                el.addEventListener('animationcancel', cleanup, { once: true });
+                setTimeout(cleanup, ms + 120);
                 return el;
             },
             _bubbleGradient(color) {
@@ -5707,26 +5931,31 @@
                     });
                 };
                 const landFailSafe = setTimeout(landClone, 12000);
-                // Fly the clone to its pose and run the ingredient throw. The whole visible
-                // window (fly -> throw -> land -> remove) only lasts ~2.5s, so if the sprite
-                // image hasn't decoded yet it can be removed before it ever paints — the
-                // intermittent "only particles, no helper" bug (cache/decode dependent, so
-                // ~1-in-3). We therefore defer the fly+throw+removal until the image has
-                // actually decoded, and use double-rAF so the CSS transition reliably runs.
+                let throwDone = false;
+                const ensureThrow = () => {
+                    if (throwDone) return;
+                    throwDone = true;
+                    clearTimeout(throwFailSafe);
+                    const pose = this.summonPoseOrigin();
+                    this.part(pose.x, pose.y, 'magic');
+                    const skipCost = testLevel != null && creator.isDev();
+                    if (skipCost || farm.consumeThrow(c.id, lv, feed)) {
+                        this.summonIngredientThrow(c.id, pose.x, pose.y, lv, landClone, feed, false);
+                    } else {
+                        visualOnlyThrow = true;
+                        farm.toastEmpty(c.id, lv);
+                        this.summonIngredientThrow(c.id, pose.x, pose.y, lv, landClone, feed, true);
+                    }
+                };
                 const startFly = () => {
+                    ensureThrow();
                     if (!h.parentNode) { landClone(); return; }
                     const pose = this.summonPoseOrigin();
-                    // Peak "appear" scale. Landscape phones are short + wide, so the default
-                    // 2.1 blows the (already CSS-shrunk) clone up to ~2x the chef's width and
-                    // plants it on top of him — use a much smaller peak there so the helper
-                    // stays clearly smaller than the chef and sits beside him.
                     const peakScale = window.matchMedia('(pointer: coarse) and (orientation: landscape) and (max-height: 600px)').matches ? 0.8 : 2.1;
                     requestAnimationFrame(() => requestAnimationFrame(() => {
                         if (!h.parentNode) return;
                         h.style.left = pose.x + 'px'; h.style.top = pose.y + 'px';
                         h.style.transform = 'translate(-50%,-50%) scale(' + peakScale + ') rotate(360deg)';
-                        // Safeguard: if geometry pushed the clone off-screen or made it invisible,
-                        // nudge it beside the chef so the throw animation is always visible.
                         requestAnimationFrame(() => {
                             if (!h.parentNode) return;
                             const rc = h.getBoundingClientRect();
@@ -5741,15 +5970,6 @@
                             }
                         });
                     }));
-                    this.part(pose.x, pose.y, 'magic');
-                    const skipCost = testLevel != null && creator.isDev();
-                    if (skipCost || farm.consumeThrow(c.id, lv, feed)) {
-                        this.summonIngredientThrow(c.id, pose.x, pose.y, lv, landClone, feed, false);
-                    } else {
-                        visualOnlyThrow = true;
-                        farm.toastEmpty(c.id, lv);
-                        this.summonIngredientThrow(c.id, pose.x, pose.y, lv, landClone, feed, true);
-                    }
                 };
                 let flyStarted = false;
                 const beginFly = () => {
@@ -5758,19 +5978,17 @@
                     clearTimeout(flyReadyFailSafe);
                     startFly();
                 };
-                // Start the moment the sprite is decoded/painted, but never block gameplay:
-                // a last-resort failsafe (~2.5s) fires the throw only if decode is unusually
-                // slow or never resolves, so we don't preempt a cold decode and reveal an
-                // invisible sprite (bubbles + throw with no visible helper).
-                const flyReadyFailSafe = setTimeout(beginFly, 2500);
+                const flyReadyFailSafe = setTimeout(beginFly, 1800);
+                const throwFailSafe = setTimeout(ensureThrow, 700);
                 const waitForSprite = () => {
                     if (h.complete && h.naturalWidth > 0) { beginFly(); return; }
+                    if (h.complete && h.naturalWidth === 0 && h.src) { beginFly(); return; }
                     if (typeof h.decode === 'function') {
-                        h.decode().then(beginFly).catch(() => {});
+                        h.decode().then(beginFly).catch(beginFly);
                     }
                     h.addEventListener('load', beginFly, { once: true });
+                    h.addEventListener('error', () => { setTimeout(beginFly, 0); }, { once: true });
                 };
-                // Defer one frame so the start transform (scale 0.2) is committed first.
                 requestAnimationFrame(waitForSprite);
             },
             devTestSummonFx(helperId, kind) {
@@ -6051,27 +6269,19 @@
                 const lowQ = quality.effMode() === 'low';
                 const clickStir = performance.now() - this._lastClick < 1500;
                 const nativeCap = (() => { try { const c = window.Capacitor; return !!(c && c.isNativePlatform && c.isNativePlatform()); } catch (e) { return false; } })();
-                // On low/native, halve idle rAF work; also while stirring if no particles (saves CPU/heat).
+                const feedActive = this._chefFeedInProgress();
+                const stirActive = !this.p && !feedActive && (this.c > 0 || clickStir);
+                if (!this.p) this._wave += 0.018;
+                try { document.body.classList.toggle('soup-stirring', stirActive); } catch (e) {}
+                // On low/native, halve idle rAF work (ambient soup bubbles are CSS-driven).
                 if (lowQ && !this.p && this.particles.length === 0 && (this._frame % 2 === 1) && (!clickStir || nativeCap)) {
                     if (!document.hidden) requestAnimationFrame(() => this.loop());
                     return;
                 }
                 // El rect de #asset-soup se cachea y solo se relee cada 30 frames (o cuando se
                 // invalida en resize/visibilitychange). Evita forzar layout cada frame.
-                if (!this._soupRect || (this._frame % 30 === 0)) {
-                    const so = document.getElementById('asset-soup');
-                    const r = so ? so.getBoundingClientRect() : null;
-                    this._soupRect = r;
-                    this._surf = r ? { x: r.left + r.width * 0.52, y: r.top + r.height * 0.42, w: r.width, h: r.height } : null;
-                    // Cache the stage rect too (it doesn't move) so spawnRipple() never forces
-                    // a synchronous layout in the click path — the main cause of audio stutter.
-                    const stg = document.getElementById('main-stage');
-                    this._stageRect = stg ? stg.getBoundingClientRect() : null;
-                }
+                if (!this._soupRect || (this._frame % 30 === 0)) this._cacheSoupSurf();
                 const sr = this._soupRect;
-                if (!this.p) { this._wave += 0.018; const tgt = clickStir ? 1.9 : 1; this._ballSpeed += (tgt - this._ballSpeed) * 0.04; this._ballWave += 0.012 * this._ballSpeed; }
-                const feedActive = this._chefFeedInProgress();
-                const stirActive = !this.p && !feedActive && (this.c > 0 || clickStir);
                 if (stirActive && !(lowQ && this._frame % 2 === 1)) {
                     this.f += this.c > 0 ? (0.04 + Math.log10(this.c + 1) * 0.05) : 0.055;
                     if (sp) {
@@ -6190,50 +6400,46 @@
                 return { x: r.left + r.width * 0.52, y: r.top + r.height * 0.42 };
             },
             initSoupBalls() {
-                this.soupBalls = [];
+                let host = document.getElementById('soup-ambient-bubbles');
+                if (!host) {
+                    const liq = document.getElementById('soup-liquid');
+                    if (!liq) return;
+                    host = document.createElement('div');
+                    host.id = 'soup-ambient-bubbles';
+                    host.setAttribute('aria-hidden', 'true');
+                    const burst = document.getElementById('soup-fx-burst');
+                    if (burst) liq.insertBefore(host, burst);
+                    else liq.appendChild(host);
+                }
+                host.innerHTML = '';
                 const n = 10;
                 for (let i = 0; i < n; i++) {
                     const ang = (i / n) * Math.PI * 2 + Math.random() * 0.5;
                     const rr = 0.25 + Math.random() * 0.7;
-                    this.soupBalls.push({ nx: Math.cos(ang) * rr, ny: Math.sin(ang) * rr, r: 12 + Math.random() * 12, ph: Math.random() * Math.PI * 2, bobA: 3 + Math.random() * 3, bobSp: 0.26 + Math.random() * 0.18, swayA: 4 + Math.random() * 4, swaySp: 0.15 + Math.random() * 0.15, a: 0.46 + Math.random() * 0.30 });
+                    const nx = Math.cos(ang) * rr;
+                    const ny = Math.sin(ang) * rr;
+                    const r = 12 + Math.random() * 12;
+                    const a = 0.46 + Math.random() * 0.30;
+                    const el = document.createElement('div');
+                    el.className = 'soup-ambient-ball';
+                    el.style.left = (47 + nx * 20).toFixed(2) + '%';
+                    el.style.top = (47 + ny * 8.5).toFixed(2) + '%';
+                    const pct = Math.max(1.6, (r * 2 * 100) / 1250);
+                    el.style.width = pct.toFixed(2) + '%';
+                    el.style.height = (pct * 0.78).toFixed(2) + '%';
+                    el.style.setProperty('--ball-a', a.toFixed(3));
+                    el.style.setProperty('--sway', (3 + Math.random() * 4).toFixed(1) + 'px');
+                    el.style.setProperty('--bob', (-3 - Math.random() * 3).toFixed(1) + 'px');
+                    el.style.setProperty('--ball-dur', (2.8 + Math.random() * 2.4).toFixed(2) + 's');
+                    el.style.setProperty('--ball-delay', (-Math.random() * 4).toFixed(2) + 's');
+                    host.appendChild(el);
                 }
-                this.buildSoupBallGradients();
-            },
-            buildSoupBallGradients() {
-                // Cada gradiente radial es constante en forma (radio y colores fijos por bola);
-                // solo cambia su posición. Lo creamos UNA vez centrado en el origen y al
-                // dibujar trasladamos el canvas, evistando crear 10 gradientes por frame.
-                if (!this.ctx) return;
-                const c = this.ctx;
-                for (let k = 0; k < this.soupBalls.length; k++) {
-                    const b = this.soupBalls[k];
-                    const r = b.r;
-                    const g = c.createRadialGradient(-r * 0.3, -r * 0.4, r * 0.1, 0, 0, r);
-                    g.addColorStop(0, `rgba(224,252,255,${Math.min(1, b.a * 1.05)})`);
-                    g.addColorStop(0.45, `rgba(125,211,252,${b.a * 0.7})`);
-                    g.addColorStop(1, 'rgba(34,150,180,0)');
-                    b.grad = g;
-                }
-            },
-            drawSoupBalls() {
-                const s = this._surf; if (!s) return;
-                const c = this.ctx, w = this._ballWave;
-                for (let k = 0; k < this.soupBalls.length; k++) {
-                    const b = this.soupBalls[k];
-                    const cx = s.x + b.nx * s.w * 0.20 + Math.sin(w * b.swaySp + b.ph) * b.swayA;
-                    const cy = s.y + b.ny * s.h * 0.085 + Math.sin(w * b.bobSp + b.ph) * b.bobA;
-                    const r = b.r;
-                    if (!b.grad) this.buildSoupBallGradients();
-                    c.save();
-                    c.translate(cx, cy);
-                    c.globalAlpha = 1; c.fillStyle = b.grad;
-                    c.beginPath(); c.ellipse(0, 0, r, r * 0.78, 0, 0, Math.PI * 2); c.fill();
-                    c.globalAlpha = b.a * 0.85;
-                    c.fillStyle = `rgba(255,255,255,${b.a * 0.6})`;
-                    c.beginPath(); c.ellipse(-r * 0.32, -r * 0.4, r * 0.26, r * 0.18, -0.5, 0, Math.PI * 2); c.fill();
-                    c.restore();
-                }
-                c.globalAlpha = 1;
+                requestAnimationFrame(() => {
+                    host.querySelectorAll('.soup-ambient-ball').forEach(el => {
+                        void el.offsetWidth;
+                        el.style.animationPlayState = 'running';
+                    });
+                });
             },
             spawnRipple(cx, cy, tint) {
                 const cont = this._rippleContEl || (this._rippleContEl = document.getElementById('soup-ripples'));
@@ -6342,18 +6548,8 @@
             draw() {
                 const ctx = this.ctx;
                 const lowQ = quality.effMode() === 'low';
-                if (lowQ && this.particles.length === 0) {
-                    // Clear the last frame exactly once when the array drains, otherwise the
-                    // final painted particles stay frozen on the canvas ("stuck bubbles").
-                    if (this._canvasDirty) { ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height); this._canvasDirty = false; }
-                    return;
-                }
                 ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-                this._canvasDirty = true;
-                // On low/mobile, skip the per-frame soup-ball fills (10 radial gradients) and the
-                // homing physics; energy particles just fade upward (see below). Saves main-thread
-                // + GPU work during rapid tapping.
-                if (!this.p && !lowQ) this.drawSoupBalls();
+                if (lowQ && this.particles.length === 0) return;
                 const scoreTarget = lowQ ? null : this.scorePartTarget();
                 // Compactación in-place: recorremos una sola vez y vamos guardando las
                 // partículas vivas al frente del array. Evita el splice(i,1) dentro de un
@@ -6381,8 +6577,9 @@
                             } else { p.x += dx * 0.2; p.y += dy * 0.2; }
                         }
                     } else if (p.t === 'steam') { p.vx *= 0.985; p.vy -= 0.015; }
+                    else if (p.t === 'ingredient') { p.vy += 0.06; p.vx *= 0.98; p.life -= 0.022; }
                     p.x += p.vx; p.y += p.vy;
-                    p.life -= p.t === 'steam' ? 0.011 : 0.015;
+                    if (p.t !== 'ingredient') p.life -= p.t === 'steam' ? 0.011 : 0.015;
                     ctx.fillStyle = p.color;
                     ctx.globalAlpha = p.t === 'steam' ? p.life * 1.05 : p.life;
                     ctx.beginPath();
@@ -7750,7 +7947,11 @@
         };
         const bubble = {
             timer: 60 + Math.floor(Math.random() * 120), node: null, hideTimer: null,
-            reset() { this.timer = 60 + Math.floor(Math.random() * 120); },
+            reset() {
+                let base = 60 + Math.floor(Math.random() * 120);
+                try { if (typeof softEvents !== 'undefined' && softEvents.active()) base = Math.max(35, Math.floor(base * 0.72)); } catch (e) {}
+                this.timer = base;
+            },
             tick() {
                 if (game.p || this.node) return;
                 if (this.timer <= 0) { this.spawn(); return; }
@@ -7843,7 +8044,7 @@
             _transformsMigrated: false,
             itemById(id) { return DECOR_ITEMS.find(x => x.id === id) || null; },
             isSummerLive() {
-                try { return typeof events !== 'undefined' && events.getActive().some(ev => ev.id === 'summer'); } catch (e) { return false; }
+                try { return typeof softEvents !== 'undefined' && softEvents.hasDecorPack('summer'); } catch (e) { return false; }
             },
             ensure() {
                 if (!game.decor || typeof game.decor !== 'object') game.decor = { slots: {}, owned: [] };
@@ -8137,6 +8338,7 @@
                 const need = this.throwCost(helperId, level, feedMode);
                 if ((game.farm.stock[key] || 0) < need) return false;
                 game.farm.stock[key] -= need;
+                try { game.save(); } catch (e) {}
                 this.updateBadge();
                 return true;
             },
@@ -8310,16 +8512,30 @@
                 { type: 'levels', goal: () => 15, reward: () => Math.max(2500, Math.floor(game.getCps() * 180)) + 2500 },
                 { type: 'crowns', goal: () => 1, reward: () => 0, shard: true }
             ],
-            label(m) { return t('quest_' + m.type, {g: m.type === 'eb' ? m.goal.toLocaleString() : m.goal}); },
+            label(m) {
+                if (m.type === 'path_charms') return t('quest_path_charms', { g: m.goal, path: atlas.pathTitle(m.pathId || atlas.path()) });
+                return t('quest_' + m.type, { g: m.type === 'eb' ? m.goal.toLocaleString() : m.goal });
+            },
             gen() {
                 const order = [0, 1, 2, 3].sort(() => Math.random() - 0.5).slice(0, 3);
-                return order.map(i => { const p = this.pool[i]; const goal = p.goal(); return { type: p.type, goal, prog: 0, done: false, claimed: false, shard: !!p.shard, reward: p.shard ? 0 : p.reward() }; });
+                const missions = order.map(i => { const p = this.pool[i]; const goal = p.goal(); return { type: p.type, goal, prog: 0, done: false, claimed: false, shard: !!p.shard, reward: p.shard ? 0 : p.reward() }; });
+                const pathId = atlas.path();
+                if (pathId) {
+                    missions[2] = {
+                        type: 'path_charms', goal: 3, prog: 0, done: false, claimed: false, shard: false,
+                        pathId: pathId,
+                        reward: Math.max(2000, Math.floor(game.getCps() * 120)) + 2000
+                    };
+                }
+                return missions;
             },
             ensureDaily() {
                 const today = new Date().toDateString();
                 if (!game.daily || game.daily.date !== today) {
-                    game.daily = { date: today, counters: { clicks: 0, levels: 0, eb: 0, crowns: 0 }, missions: this.gen() };
+                    game.daily = { date: today, counters: { clicks: 0, levels: 0, eb: 0, crowns: 0, pathCharms: 0 }, missions: this.gen() };
                     this.updateBadge();
+                } else if (game.daily.counters && game.daily.counters.pathCharms == null) {
+                    game.daily.counters.pathCharms = 0;
                 }
             },
             bump(type, amt) {
@@ -8400,6 +8616,7 @@
             init() {
                 const lb = document.getElementById('home-lang'); if (lb) lb.textContent = '🌐 ' + LANG.toUpperCase();
                 const ver = document.getElementById('home-version'); if (ver) ver.textContent = VERSION + ' · ' + BUILD_V;
+                paintBuildTag();
                 this.syncAudio();
             },
             play() {
@@ -8855,6 +9072,514 @@
             initLimits();
             return { initLimits, get, canLoadFull, bumpThumbLimit, limits: function () { return limits; } };
         })();
+        const atlas = {
+            PATH_DROP_BIAS: 0.45,
+            PATHS: [
+                { id: 'cauldron', region: 'cauldron_core', emoji: '🍲', title_en: 'Path of the Cauldron', title_es: 'Camino del Caldero', tagline_en: 'Classic helpers, sacred utensils, and the heart of Esqueletia.', tagline_es: 'Ayudantes clásicos, utensilios sagrados y el corazón de Esqueletia.', chapters: [
+                    { id: 'start', needSets: 0, title_en: 'First Stir', title_es: 'Primer remeo', text_en: 'Skullchef dips a wooden spoon into the broth. Five helpers lean in — this is where every legend begins.', text_es: 'Skullchef mete la cuchara de madera en el caldo. Cinco ayudantes se asoman: aquí empieza toda leyenda.' },
+                    { id: 'album1', needSets: 1, title_en: 'Helper Album', title_es: 'Álbum de ayudantes', text_en: 'Your first set is complete. The cauldron remembers who stirred with you.', text_es: 'Tu primer set está completo. El caldero recuerda quién removió contigo.' },
+                    { id: 'album2', needSets: 2, title_en: 'Kitchen Relics', title_es: 'Reliquias de cocina', text_en: 'Two albums sealed. Spoons and hats hum when you click — Esqueletia approves.', text_es: 'Dos álbumes sellados. Cucharas y gorros vibran al clicar: Esqueletia aprueba.' },
+                    { id: 'master', needSets: 4, title_en: 'Cauldron Master', title_es: 'Maestro del caldero', text_en: 'The core of Esqueletia is yours. Other paths still exist — but this pot is home.', text_es: 'El núcleo de Esqueletia es tuyo. Otros caminos existen, pero esta olla es tu hogar.' }
+                ]},
+                { id: 'cosmic', region: 'cosmic_kitchen', emoji: '🛸', title_en: 'Cosmic Kitchen Route', title_es: 'Ruta Cocina Cósmica', tagline_en: 'Aliens, fast food, and superheroes in zero-gravity broth.', tagline_es: 'Aliens, comida rápida y superhéroes en caldo sin gravedad.', chapters: [
+                    { id: 'start', needSets: 0, title_en: 'Snack-Space Breach', title_es: 'Brecha snack-espacial', text_en: 'The broth bubbles through a wormhole. Burgers float past UFOs. You chose the weird lane.', text_es: 'El caldo burbujea por un agujero de gusano. Burgers flotan junto a OVNIs. Elegiste el carril raro.' },
+                    { id: 'album1', needSets: 1, title_en: 'Orbital Drop', title_es: 'Drop orbital', text_en: 'One cosmic set complete. Helpers wear helmets now — fashion and survival.', text_es: 'Un set cósmico completo. Los ayudantes llevan casco: moda y supervivencia.' },
+                    { id: 'album2', needSets: 2, title_en: 'Galaxy Garnish', title_es: 'Guarnición galáctica', text_en: 'Two albums from the stars. Your chronicle now smells like fries and nebula dust.', text_es: 'Dos álbumes de las estrellas. Tu crónica huele a fritas y polvo de nebulosa.' },
+                    { id: 'master', needSets: 4, title_en: 'Cosmic Chef', title_es: 'Chef cósmico', text_en: 'The kitchen orbits your will. Earth was practice — snack-space is the main course.', text_es: 'La cocina orbita tu voluntad. La Tierra fue práctica; el snack-espacio es el plato fuerte.' }
+                ]},
+                { id: 'chaos', region: 'chaos_realm', emoji: '🎭', title_en: 'Chaos Kawaii Trail', title_es: 'Senda Caos Kawaii', tagline_en: 'Meme disguises, cosmic cute, and staged madness.', tagline_es: 'Disfraces meme, cosmic cute y locura en staging.', chapters: [
+                    { id: 'start', needSets: 0, title_en: 'Main Character Soup', title_es: 'Sopa protagonista', text_en: 'You picked chaos. Wigs, memes, and cursed kawaii — the pot laughs back.', text_es: 'Elegiste el caos. Pelucas, memes y kawaii maldito: la olla se ríe contigo.' },
+                    { id: 'album1', needSets: 1, title_en: 'Disguise Unlocked', title_es: 'Disfraz desbloqueado', text_en: 'First chaos set done. Helpers refuse to wear normal shirts. Good.', text_es: 'Primer set del caos listo. Los ayudantes rechazan camisetas normales. Bien.' },
+                    { id: 'album2', needSets: 2, title_en: 'Meme Stock', title_es: 'Existencias meme', text_en: 'Two albums of pure nonsense. Your adventure is nobody else\'s run.', text_es: 'Dos álbumes de puro nonsense. Tu aventura no es la de nadie más.' },
+                    { id: 'master', needSets: 3, title_en: 'Chaos Sovereign', title_es: 'Soberano del caos', text_en: 'Esqueletia crowns you lord of cursed cute. The broth has opinions now.', text_es: 'Esqueletia te corona señor del cute maldito. El caldo tiene opiniones ahora.' }
+                ]},
+                { id: 'realms', region: 'realm_ruckus', emoji: '🗺️', title_en: 'Realm Ruckus Expedition', title_es: 'Expedición Alboroto de Reinos', tagline_en: 'Desert, winter, pirates — new lands as waves arrive.', tagline_es: 'Desierto, invierno, piratas: tierras nuevas con cada wave.', chapters: [
+                    { id: 'start', needSets: 0, title_en: 'Map Unfolds', title_es: 'El mapa se abre', text_en: 'You set sail on the atlas. Realms are mostly blank — your future stamps wait.', text_es: 'Zarpas en el atlas. Los reinos están casi en blanco: tus sellos futuros esperan.' },
+                    { id: 'album1', needSets: 1, title_en: 'First Realm Stamp', title_es: 'Primer sello de reino', text_en: 'A new land answers your collection. The chronicle adds a page you wrote.', text_es: 'Una tierra nueva responde a tu colección. La crónica suma una página tuya.' },
+                    { id: 'album2', needSets: 2, title_en: 'Border Crosser', title_es: 'Cruzador de fronteras', text_en: 'Two realm sets sealed. Your path is a passport — others may never see these shores.', text_es: 'Dos sets de reinos sellados. Tu camino es un pasaporte; otros no verán estas costas.' },
+                    { id: 'master', needSets: 3, title_en: 'Realm Walker', title_es: 'Caminante de reinos', text_en: 'You chart Esqueletia before most chefs know it exists. The adventure is yours alone.', text_es: 'Mapeas Esqueletia antes de que exista para la mayoría. La aventura es solo tuya.' }
+                ]}
+            ],
+            pathDef(id) { if (!id) return null; for (let i = 0; i < this.PATHS.length; i++) if (this.PATHS[i].id === id) return this.PATHS[i]; return null; },
+            pathTitle(id) { const p = this.pathDef(id || this.path()); if (!p) return ''; return (LANG === 'es') ? (p.title_es || p.title_en) : (p.title_en || p.title_es); },
+            path() { try { const c = collection.normalize(); return (typeof c.atlasPath === 'string' && c.atlasPath) ? c.atlasPath : null; } catch (e) { return null; } },
+            pathRegion(pathId) { const p = this.pathDef(pathId || this.path()); return p ? p.region : null; },
+            setPath(id) {
+                const p = this.pathDef(id); if (!p) return false;
+                const c = collection.normalize();
+                const prev = c.atlasPath;
+                c.atlasPath = p.id;
+                try { game.save(); } catch (e) {}
+                try { gx.toast(t(prev ? 'path_change_toast' : 'path_set_toast', { name: this.pathTitle(p.id) })); } catch (e2) {}
+                this.checkChapterUnlocks(true);
+                try { game.updateLore(); } catch (e3) {}
+                try { soupEvolution.onPathSet(); } catch (e5) {}
+                try { collection.render(true); } catch (e4) {}
+                return true;
+            },
+            packRegion(packId) { const meta = this.packMeta(packId); return meta ? meta.region : null; },
+            skinInPath(skinId, pathId) {
+                const region = this.pathRegion(pathId || this.path());
+                if (!region) return false;
+                const pack = this.packFor(skinId);
+                return pack ? this.packRegion(pack) === region : false;
+            },
+            regionPacks(regionId) {
+                const m = this.raw(); if (!m || !Array.isArray(m.regions)) return [];
+                for (let i = 0; i < m.regions.length; i++) if (m.regions[i].id === regionId) return m.regions[i].packs || [];
+                return [];
+            },
+            pathCompleteSets(pathId) {
+                const p = this.pathDef(pathId || this.path()); if (!p) return 0;
+                const packs = this.regionPacks(p.region);
+                let n = 0;
+                for (let i = 0; i < packs.length; i++) if (this.packProgress(packs[i]).complete) n++;
+                return n;
+            },
+            unlockedChapters(pathId) {
+                const p = this.pathDef(pathId || this.path()); if (!p || !Array.isArray(p.chapters)) return [];
+                const sets = this.pathCompleteSets(p.id);
+                const out = [];
+                for (let i = 0; i < p.chapters.length; i++) {
+                    const ch = p.chapters[i];
+                    if (sets >= (ch.needSets || 0)) out.push(ch);
+                }
+                return out;
+            },
+            adventureChronicle() {
+                const pid = this.path(); if (!pid) return '';
+                const chapters = this.unlockedChapters(pid);
+                if (!chapters.length) return '';
+                const ch = chapters[chapters.length - 1];
+                const title = (LANG === 'es') ? (ch.title_es || ch.title_en) : (ch.title_en || ch.title_es);
+                const text = (LANG === 'es') ? (ch.text_es || ch.text_en) : (ch.text_en || ch.text_es);
+                return '— ' + title + ' —\n' + text;
+            },
+            raw() { try { return window.ESQUELOTIA_ATLAS || null; } catch (e) { return null; } },
+            goalTotal() { const m = this.raw(); return (m && m.goalTotal) ? m.goalTotal : 1000; },
+            bonusPctPerSet() { const m = this.raw(); return (m && m.setBonusPct) ? m.setBonusPct : 1; },
+            packFor(skinId) { const m = this.raw(); return (m && m.skinPack && m.skinPack[skinId]) ? m.skinPack[skinId] : null; },
+            packMeta(packId) { const m = this.raw(); return (m && m.packs && m.packs[packId]) ? m.packs[packId] : null; },
+            packTitle(pack) {
+                if (!pack) return '';
+                const meta = typeof pack === 'string' ? this.packMeta(pack) : pack;
+                if (!meta) return String(pack);
+                return (LANG === 'es') ? (meta.title_es || meta.title_en || meta.id) : (meta.title_en || meta.title_es || meta.id);
+            },
+            ownedCount() { try { return collection.distinctCount(); } catch (e) { return 0; } },
+            packProgress(packId) {
+                const meta = this.packMeta(packId);
+                if (!meta || !Array.isArray(meta.skinIds)) return { owned: 0, total: 0, complete: false, pct: 0 };
+                const items = (game.coll && game.coll.items) ? game.coll.items : {};
+                let owned = 0;
+                for (let i = 0; i < meta.skinIds.length; i++) if (items[meta.skinIds[i]]) owned++;
+                const total = meta.total || meta.skinIds.length;
+                const pct = total ? Math.min(100, Math.round((owned / total) * 100)) : 0;
+                return { owned, total, complete: total > 0 && owned >= total, pct };
+            },
+            completedPackCount() {
+                const m = this.raw(); if (!m || !m.packs) return 0;
+                let n = 0;
+                for (const k in m.packs) if (this.packProgress(k).complete) n++;
+                return n;
+            },
+            setBonusMult() {
+                const n = this.completedPackCount();
+                const pct = this.bonusPctPerSet();
+                const cap = 15;
+                return 1 + (Math.min(cap, n * pct) / 100);
+            },
+            setBonusPctDisplay() {
+                const n = this.completedPackCount();
+                const pct = this.bonusPctPerSet();
+                const cap = 15;
+                return Math.min(cap, n * pct);
+            },
+            chronicleSnippet() {
+                const adv = this.adventureChronicle();
+                if (adv) return adv;
+                const m = this.raw(); if (!m || !Array.isArray(m.regions)) return '';
+                let best = null, bestScore = -1;
+                for (let i = 0; i < m.regions.length; i++) {
+                    const r = m.regions[i];
+                    let owned = 0, complete = 0, packs = r.packs || [];
+                    for (let j = 0; j < packs.length; j++) {
+                        const pr = this.packProgress(packs[j]);
+                        owned += pr.owned;
+                        if (pr.complete) complete++;
+                    }
+                    const score = complete * 1000 + owned;
+                    if (score > 0 && score > bestScore) { bestScore = score; best = r; }
+                }
+                if (!best) return '';
+                return (LANG === 'es') ? (best.chronicle_es || best.chronicle_en || '') : (best.chronicle_en || best.chronicle_es || '');
+            },
+            ensureAnnounced() {
+                const c = collection.normalize();
+                if (!c.atlasAnnounced || typeof c.atlasAnnounced !== 'object') c.atlasAnnounced = {};
+                return c.atlasAnnounced;
+            },
+            ensureChapterAnnounced() {
+                const c = collection.normalize();
+                if (!c.atlasChapterAnnounced || typeof c.atlasChapterAnnounced !== 'object') c.atlasChapterAnnounced = {};
+                return c.atlasChapterAnnounced;
+            },
+            checkChapterUnlocks(forceAll) {
+                const pid = this.path(); if (!pid) return;
+                const p = this.pathDef(pid); if (!p) return;
+                const ann = this.ensureChapterAnnounced();
+                const unlocked = this.unlockedChapters(pid);
+                for (let i = 0; i < unlocked.length; i++) {
+                    const ch = unlocked[i];
+                    const key = pid + ':' + ch.id;
+                    if (!forceAll && ann[key]) continue;
+                    if (forceAll && ch.needSets > 0) continue;
+                    if (!ann[key]) {
+                        ann[key] = 1;
+                        if (ch.needSets > 0 || forceAll) {
+                            const title = (LANG === 'es') ? (ch.title_es || ch.title_en) : (ch.title_en || ch.title_es);
+                            try { gx.toast(t('path_chapter_toast', { title: title })); } catch (e) {}
+                        }
+                    }
+                }
+                try { game.updateLore(); } catch (e2) {}
+            },
+            checkNewCompletions() {
+                const m = this.raw(); if (!m || !m.packs) return;
+                const ann = this.ensureAnnounced();
+                const pct = this.bonusPctPerSet();
+                for (const packId in m.packs) {
+                    const pr = this.packProgress(packId);
+                    if (!pr.complete || ann[packId]) continue;
+                    ann[packId] = 1;
+                    try { gx.toast(t('coll_set_complete', { name: this.packTitle(packId), pct: pct })); } catch (e) {}
+                }
+                this.checkChapterUnlocks(false);
+                try { soupEvolution.onProgress(); } catch (e4) {}
+                try { const cm = document.getElementById('chronicle-modal'); if (cm && cm.classList.contains('open')) atlas.renderChronicleModal(); } catch (e3) {}
+            },
+            openPathModal() {
+                const md = document.getElementById('atlas-path-modal'); if (!md) return;
+                this.renderPathChoices();
+                md.classList.add('open');
+            },
+            closePathModal() {
+                const md = document.getElementById('atlas-path-modal'); if (md) md.classList.remove('open');
+            },
+            renderPathChoices() {
+                const host = document.getElementById('atlas-path-choices'); if (!host) return;
+                const cur = this.path();
+                let html = '';
+                for (let i = 0; i < this.PATHS.length; i++) {
+                    const p = this.PATHS[i];
+                    const title = (LANG === 'es') ? (p.title_es || p.title_en) : (p.title_en || p.title_es);
+                    const tag = (LANG === 'es') ? (p.tagline_es || p.tagline_en) : (p.tagline_en || p.tagline_es);
+                    const packs = this.regionPacks(p.region);
+                    const sets = this.pathCompleteSets(p.id);
+                    const cls = (cur === p.id) ? 'path-choice active' : 'path-choice';
+                    const pid = String(p.id).replace(/'/g, "\\'");
+                    html += `<button type="button" class="${cls}" onclick="atlas.pickPath('${pid}')"><div class="path-choice-hd">${p.emoji || '🗺️'} ${title}</div><div class="path-choice-sub">${tag}</div><div class="path-choice-meta">${packs.length ? (sets + '/' + packs.length + ' sets') : (LANG === 'es' ? 'Próximamente' : 'Coming soon')}</div></button>`;
+                }
+                host.innerHTML = html;
+            },
+            pickPath(id) {
+                if (!this.setPath(id)) return;
+                this.closePathModal();
+            },
+            renderPathCard() {
+                const pid = this.path();
+                if (!pid) {
+                    return `<div class="atlas-path-card"><div class="atlas-path-card-hd">🧭 ${t('path_choose_title')}</div><div class="atlas-path-card-sub">${t('path_choose_hint')}</div><div class="atlas-path-actions"><button type="button" class="gx-btn sm" onclick="atlas.openPathModal()">${t('path_choose')}</button></div></div>`;
+                }
+                const p = this.pathDef(pid);
+                const chapters = this.unlockedChapters(pid);
+                const totalCh = (p && p.chapters) ? p.chapters.length : 0;
+                return `<div class="atlas-path-card"><div class="atlas-path-card-hd">${p.emoji || '🗺️'} ${t('path_current', { name: this.pathTitle(pid) })}</div><div class="atlas-path-card-sub">${(LANG === 'es') ? (p.tagline_es || p.tagline_en) : (p.tagline_en || p.tagline_es)} · ${t('path_drop_bias')}</div><div class="atlas-path-chapters">${t('path_chapters', { n: chapters.length, total: totalCh })}</div><div class="atlas-path-actions"><button type="button" class="gx-btn sm" onclick="atlas.openChronicleModal()">${t('chronicle_modal_title')}</button><button type="button" class="gx-btn sm" onclick="atlas.openPathModal()">${t('path_change')}</button></div></div>`;
+            },
+            openChronicleModal() {
+                const pid = this.path();
+                if (!pid) { try { this.openPathModal(); } catch (e) {} return; }
+                const md = document.getElementById('chronicle-modal'); if (!md) return;
+                const sub = document.getElementById('chronicle-modal-sub');
+                if (sub) sub.textContent = t('chronicle_modal_sub', { path: this.pathTitle(pid) });
+                this.renderChronicleModal();
+                md.classList.add('open');
+            },
+            closeChronicleModal() {
+                const md = document.getElementById('chronicle-modal'); if (md) md.classList.remove('open');
+            },
+            renderChronicleModal() {
+                const host = document.getElementById('chronicle-modal-list'); if (!host) return;
+                const pid = this.path(); if (!pid) { host.innerHTML = ''; return; }
+                const p = this.pathDef(pid); if (!p || !p.chapters) { host.innerHTML = ''; return; }
+                const sets = this.pathCompleteSets(pid);
+                let html = '';
+                for (let i = 0; i < p.chapters.length; i++) {
+                    const ch = p.chapters[i];
+                    const unlocked = sets >= (ch.needSets || 0);
+                    const title = (LANG === 'es') ? (ch.title_es || ch.title_en) : (ch.title_en || ch.title_es);
+                    const text = (LANG === 'es') ? (ch.text_es || ch.text_en) : (ch.text_en || ch.text_es);
+                    const cls = unlocked ? 'chronicle-ch unlocked' : 'chronicle-ch locked';
+                    html += `<div class="${cls}"><div class="chronicle-ch-hd">${unlocked ? '✓' : '🔒'} ${title}</div>`;
+                    if (unlocked) html += `<div class="chronicle-ch-tx">${text}</div>`;
+                    else html += `<div class="chronicle-ch-req">${t('chronicle_modal_locked', { n: ch.needSets || 0 })}</div>`;
+                    html += '</div>';
+                }
+                host.innerHTML = html;
+            },
+            renderPanel() {
+                const host = document.getElementById('collection-atlas'); if (!host) return;
+                const m = this.raw();
+                if (!m || !Array.isArray(m.regions)) {
+                    host.innerHTML = `<div style="color:#94a3b8;font-size:0.82rem;padding:12px">${t('coll_empty')}</div>`;
+                    return;
+                }
+                const focusRegion = this.pathRegion();
+                let html = this.renderPathCard();
+                for (let ri = 0; ri < m.regions.length; ri++) {
+                    const r = m.regions[ri];
+                    const packs = r.packs || [];
+                    if (!packs.length) continue;
+                    let regionOwned = 0, regionTotal = 0, regionComplete = 0;
+                    for (let pi = 0; pi < packs.length; pi++) {
+                        const pr = this.packProgress(packs[pi]);
+                        regionOwned += pr.owned;
+                        regionTotal += pr.total;
+                        if (pr.complete) regionComplete++;
+                    }
+                    const regionTitle = (LANG === 'es') ? (r.title_es || r.title_en) : (r.title_en || r.title_es);
+                    const regionChron = (LANG === 'es') ? (r.chronicle_es || r.chronicle_en) : (r.chronicle_en || r.chronicle_es);
+                    let regionCls = 'atlas-region';
+                    if (focusRegion) {
+                        if (r.id === focusRegion) regionCls += ' path-focus';
+                        else regionCls += ' path-dim';
+                    }
+                    html += `<section class="${regionCls}"><h3 class="atlas-region-hd"><span>${r.emoji || '🗺️'}</span><span>${regionTitle}</span><span style="margin-left:auto;font-size:0.62rem;color:#94a3b8">${regionOwned}/${regionTotal}${regionComplete ? ' · ' + regionComplete + '✓' : ''}</span></h3>`;
+                    if (regionChron) html += `<p class="atlas-region-sub">${regionChron}</p>`;
+                    html += '<div class="atlas-pack-grid">';
+                    for (let pi = 0; pi < packs.length; pi++) {
+                        const packId = packs[pi];
+                        const pr = this.packProgress(packId);
+                        const cls = pr.complete ? ' complete' : '';
+                        const pid = String(packId).replace(/'/g, "\\'");
+                        html += `<button type="button" class="atlas-pack${cls}" onclick="collection.openPack('${pid}')"><div class="atlas-pack-name">${this.packTitle(packId)}</div><div class="atlas-pack-bar"><div class="atlas-pack-fill" style="width:${pr.pct}%"></div></div><div class="atlas-pack-meta">${pr.owned}/${pr.total}${pr.complete ? ' ✓' : ''}</div></button>`;
+                    }
+                    html += '</div></section>';
+                }
+                host.innerHTML = html || `<div style="color:#94a3b8;font-size:0.82rem;padding:12px">${t('coll_empty')}</div>`;
+            }
+        };
+        const soupEvolution = {
+            CLICK_BONUS_PER_TIER: 0.02,
+            RECIPES: {
+                cauldron: [
+                    { en: 'Golden Broth', es: 'Caldo Dorado' },
+                    { en: "Helper's Stew", es: 'Guiso de Ayudantes' },
+                    { en: 'Sacred Simmer', es: 'Remolino Sagrado' },
+                    { en: 'Esqueletia Essence', es: 'Esencia Esqueletia' },
+                    { en: "Master's Cauldron", es: 'Caldero del Maestro' }
+                ],
+                cosmic: [
+                    { en: 'Nebula Noodle', es: 'Fideo Nebulosa' },
+                    { en: 'Orbital Broth', es: 'Caldo Orbital' },
+                    { en: 'Galaxy Garnish', es: 'Guarnición Galáctica' },
+                    { en: 'Zero-G Bisque', es: 'Bisque sin Gravedad' },
+                    { en: 'Cosmic Chef Soup', es: 'Sopa del Chef Cósmico' }
+                ],
+                chaos: [
+                    { en: 'Meme Stock', es: 'Existencias Meme' },
+                    { en: 'Disguise Broth', es: 'Caldo Disfraz' },
+                    { en: 'Chaos Cute Stew', es: 'Guiso Cute Caos' },
+                    { en: 'Cursed Kawaii', es: 'Kawaii Maldito' },
+                    { en: 'Sovereign Soup', es: 'Sopa Soberana' }
+                ],
+                realms: [
+                    { en: "Wanderer's Broth", es: 'Caldo del Caminante' },
+                    { en: 'First Realm Stock', es: 'Existencias del Primer Reino' },
+                    { en: 'Border Crossing Stew', es: 'Guiso Cruzador' },
+                    { en: 'Expedition Bisque', es: 'Bisque de Expedición' },
+                    { en: 'Realm Walker Soup', es: 'Sopa del Caminante de Reinos' }
+                ]
+            },
+            tierFromSets(sets) {
+                const n = Math.max(0, Math.floor(Number(sets) || 0));
+                return Math.min(4, n);
+            },
+            currentTier() {
+                const pid = atlas.path();
+                if (!pid) return -1;
+                return this.tierFromSets(atlas.pathCompleteSets(pid));
+            },
+            recipeName(pathId, tier) {
+                const list = this.RECIPES[pathId];
+                if (!list || !list.length) return '';
+                const idx = Math.min(Math.max(Math.floor(tier), 0), list.length - 1);
+                const rec = list[idx];
+                return (LANG === 'es') ? (rec.es || rec.en) : (rec.en || rec.es);
+            },
+            clickMult() {
+                const tier = this.currentTier();
+                if (tier < 0) return 1;
+                return 1 + tier * this.CLICK_BONUS_PER_TIER;
+            },
+            ensureAnnounced() {
+                const c = collection.normalize();
+                if (!c.soupEvAnnounced || typeof c.soupEvAnnounced !== 'object') c.soupEvAnnounced = {};
+                return c.soupEvAnnounced;
+            },
+            applyVisual() {
+                const pid = atlas.path();
+                const center = document.getElementById('sticky-center');
+                if (!center) return;
+                center.classList.remove('soup-ev', 'soup-ev-cauldron', 'soup-ev-cosmic', 'soup-ev-chaos', 'soup-ev-realms');
+                for (let i = 0; i <= 4; i++) center.classList.remove('soup-ev-tier-' + i);
+                if (!pid) return;
+                const tier = this.currentTier();
+                center.classList.add('soup-ev', 'soup-ev-' + pid, 'soup-ev-tier-' + tier);
+            },
+            updateRecipe() {
+                const el = document.getElementById('soup-recipe-inline');
+                if (!el) return;
+                const pid = atlas.path();
+                if (!pid) { el.style.display = 'none'; el.textContent = ''; return; }
+                const tier = this.currentTier();
+                const name = this.recipeName(pid, tier);
+                if (!name) { el.style.display = 'none'; el.textContent = ''; return; }
+                el.style.display = '';
+                el.textContent = t('soup_recipe_label', { name: name, tier: tier + 1 });
+            },
+            sync() {
+                this.applyVisual();
+                this.updateRecipe();
+            },
+            markUpTo(pathId, tier, silent) {
+                const ann = this.ensureAnnounced();
+                let toasted = false;
+                for (let t = 0; t <= tier; t++) {
+                    const key = pathId + ':t' + t;
+                    if (ann[key]) continue;
+                    ann[key] = 1;
+                    if (!silent && t > 0 && !toasted) {
+                        toasted = true;
+                        try { gx.toast(t('soup_evolved_toast', { name: this.recipeName(pathId, t), tier: t + 1 })); } catch (e) {}
+                    }
+                }
+                if (toasted) try { game.save(); } catch (e2) {}
+            },
+            onPathSet() {
+                const pid = atlas.path();
+                if (!pid) { this.sync(); return; }
+                this.markUpTo(pid, this.currentTier(), true);
+                try { game.save(); } catch (e) {}
+                this.sync();
+            },
+            onProgress() {
+                const pid = atlas.path();
+                if (!pid) { this.sync(); return; }
+                const tier = this.currentTier();
+                const ann = this.ensureAnnounced();
+                const key = pid + ':t' + tier;
+                if (!ann[key]) this.markUpTo(pid, tier, false);
+                this.sync();
+            },
+            catchUpSilent() {
+                const pid = atlas.path();
+                if (!pid) return;
+                const ann = this.ensureAnnounced();
+                const tier = this.currentTier();
+                let dirty = false;
+                for (let t = 0; t <= tier; t++) {
+                    const key = pid + ':t' + t;
+                    if (!ann[key]) { ann[key] = 1; dirty = true; }
+                }
+                if (dirty) try { game.save(); } catch (e) {}
+            }
+        };
+        const softEvents = {
+            active() {
+                try {
+                    if (typeof events === 'undefined') return null;
+                    if (events.getPrimary) return events.getPrimary();
+                    const list = events.getActive();
+                    return (list && list.length) ? list[0] : null;
+                } catch (e) { return null; }
+            },
+            activeId() { const ev = this.active(); return ev ? ev.id : null; },
+            label(ev) {
+                if (!ev) return '';
+                return (LANG === 'es') ? (ev.label_es || ev.label || ev.id) : (ev.label || ev.label_es || ev.id);
+            },
+            loreLine(ev) {
+                if (!ev) return '';
+                return (LANG === 'es') ? (ev.lore_es || ev.lore_en || '') : (ev.lore_en || ev.lore_es || '');
+            },
+            hasDecorPack(packId) {
+                const ev = this.active();
+                return !!(ev && ev.decorPack === packId);
+            },
+            cpsMult() {
+                const ev = this.active();
+                const b = ev && Number.isFinite(ev.cpsBonus) ? ev.cpsBonus : 0;
+                return 1 + Math.max(0, b);
+            },
+            clickMult() {
+                const ev = this.active();
+                const b = ev && Number.isFinite(ev.clickBonus) ? ev.clickBonus : 0;
+                return 1 + Math.max(0, b);
+            },
+            bonusPctDisplay(bonus) {
+                return Math.round(Math.max(0, Number(bonus) || 0) * 100);
+            },
+            ensureAnnounced() {
+                const c = collection.normalize();
+                if (!c.eventAnnounced || typeof c.eventAnnounced !== 'object') c.eventAnnounced = {};
+                return c.eventAnnounced;
+            },
+            updateLoreLine() {
+                const el = document.getElementById('event-lore-inline');
+                if (!el) return;
+                const line = this.loreLine(this.active());
+                if (!line) { el.style.display = 'none'; el.textContent = ''; return; }
+                el.style.display = '';
+                el.textContent = '🎉 ' + line;
+            },
+            sync() {
+                const ev = this.active();
+                const pill = document.getElementById('event-pill');
+                if (pill) {
+                    if (ev) {
+                        const cps = this.bonusPctDisplay(ev.cpsBonus);
+                        const clk = this.bonusPctDisplay(ev.clickBonus);
+                        pill.style.display = '';
+                        pill.setAttribute('aria-hidden', 'false');
+                        pill.textContent = '🎉 ' + this.label(ev) + ' · +' + cps + '% CPS · +' + clk + '%';
+                    } else {
+                        pill.style.display = 'none';
+                        pill.setAttribute('aria-hidden', 'true');
+                        pill.textContent = '';
+                    }
+                }
+                this.updateLoreLine();
+                this.checkWelcomeToast(ev);
+                try { decor.ensure(); decor.applyVisual(); } catch (e) {}
+            },
+            checkWelcomeToast(ev) {
+                if (!ev) return;
+                const ann = this.ensureAnnounced();
+                const day = new Date().toDateString();
+                const key = ev.id + ':' + day;
+                if (ann[key]) return;
+                ann[key] = 1;
+                try { game.save(); } catch (e) {}
+                try {
+                    gx.toast(t('event_welcome_toast', {
+                        name: this.label(ev),
+                        cps: this.bonusPctDisplay(ev.cpsBonus),
+                        click: this.bonusPctDisplay(ev.clickBonus)
+                    }));
+                } catch (e2) {}
+            }
+        };
         const collection = {
             RARITIES: [
                 { k: 'common', weight: 55 }, { k: 'uncommon', weight: 28 }, { k: 'rare', weight: 12 },
@@ -8863,6 +9588,7 @@
             rarRank: { common: 0, uncommon: 1, rare: 2, epic: 3, legendary: 4, superleg: 5, anomaly: 6 },
             RAR_GLOW: { common: '#94a3b8', uncommon: '#4ade80', rare: '#a5f3fc', epic: '#d8b4fe', legendary: '#fbbf24', superleg: '#fb7185', anomaly: '#22d3ee' },
             DROP_INTERVAL: 600, DAILY_CAP: 12,
+            _view: 'grid', _packFilter: null,
             _cache: {}, _gridIO: null, _loadedThumbs: null, _lastGridSig: '', _bulkGrant: false, _grantRenderTimer: null,
             catalog() { const c = (window.SKIN_CATALOG || []); return Array.isArray(c) ? c : []; },
             // Album + drop stats for normal players: hide staged skins (dropLive:false) until released.
@@ -8883,6 +9609,21 @@
                 try { block = game.shopExclusiveSkinIds(); } catch (e) {}
                 const shop = new Set(block);
                 return this.skinsOfRarity(rarity).filter(s => !shop.has(s.id) && s.dropLive !== false);
+            },
+            applyPathDropBias(pool) {
+                try {
+                    const pathId = atlas.path();
+                    if (!pathId || !pool || !pool.length) return pool;
+                    const region = atlas.pathRegion(pathId);
+                    if (!region) return pool;
+                    const biased = [];
+                    for (let i = 0; i < pool.length; i++) {
+                        if (atlas.skinInPath(pool[i].id, pathId)) biased.push(pool[i]);
+                    }
+                    if (!biased.length) return pool;
+                    if (Math.random() < atlas.PATH_DROP_BIAS) return biased;
+                    return pool;
+                } catch (e) { return pool; }
             },
             // === PER-SLOT EQUIP MODEL ===
             // Independent equip slots. Each helper family is its own slot, plus one spoon
@@ -9168,6 +9909,12 @@
                 equips.spoon = null;
                 equips.hat = null;
                 c.equips = equips;
+                if (!c.atlasAnnounced || typeof c.atlasAnnounced !== 'object') c.atlasAnnounced = {};
+                if (typeof c.atlasPath !== 'string') c.atlasPath = null;
+                else if (!atlas.pathDef(c.atlasPath)) c.atlasPath = null;
+                if (!c.atlasChapterAnnounced || typeof c.atlasChapterAnnounced !== 'object') c.atlasChapterAnnounced = {};
+                if (!c.soupEvAnnounced || typeof c.soupEvAnnounced !== 'object') c.soupEvAnnounced = {};
+                if (!c.eventAnnounced || typeof c.eventAnnounced !== 'object') c.eventAnnounced = {};
                 this.syncShopSpoons(c);
                 this.syncShopHats(c);
                 game.coll = c;
@@ -9303,6 +10050,7 @@
                     rarity = this.RARITIES[(this.rarRank[rarity] || 0) - 1].k;
                     pool = this.dropPool(rarity);
                 }
+                pool = this.applyPathDropBias(pool);
                 if (!pool.length) return null;
                 const skin = pool[Math.floor(Math.random() * pool.length)];
                 const id = String(skin.id);
@@ -9316,9 +10064,11 @@
                 }
                 c.today++;
                 collectionProvider.grantDrop(c.items[id]);
+                try { if (atlas.skinInPath(id)) quests.bump('pathCharms', 1); } catch (e) {}
                 if (rarity === 'legendary' || rarity === 'superleg') { try { ach.grant('mythicCharm'); } catch (e) {} }
                 if (rarity === 'anomaly') { try { ach.grant('anomalyCharm'); } catch (e) {} try { ach.grant('mythicCharm'); } catch (e2) {} }
                 try { ach.check(); } catch (e) {}
+                try { atlas.checkNewCompletions(); } catch (e) {}
                 try { game.save(); } catch (e) {}
                 this.refreshFab();
                 if (document.getElementById('collection-modal').classList.contains('open')) this.render();
@@ -9631,8 +10381,32 @@
                 const mm = Math.floor(left / 60), ss = Math.floor(left % 60);
                 return t('coll_next_drop', { time: mm + ':' + String(ss).padStart(2, '0') });
             },
-            open() { try { scGrantOwnerCatalog(); } catch (e) {} this.render(); document.getElementById('collection-modal').classList.add('open'); },
+            open() { try { scGrantOwnerCatalog(); } catch (e) {} this.render(true); document.getElementById('collection-modal').classList.add('open'); },
             close() { document.getElementById('collection-modal').classList.remove('open'); },
+            setView(view) {
+                this._view = (view === 'atlas') ? 'atlas' : 'grid';
+                const tabAll = document.getElementById('coll-tab-all');
+                const tabAtlas = document.getElementById('coll-tab-atlas');
+                if (tabAll) tabAll.classList.toggle('active', this._view === 'grid');
+                if (tabAtlas) tabAtlas.classList.toggle('active', this._view === 'atlas');
+                this.render(true);
+                if (this._view === 'atlas' && !atlas.path()) {
+                    try { atlas.openPathModal(); } catch (e) {}
+                }
+            },
+            openPack(packId) {
+                this._packFilter = packId || null;
+                this._view = 'grid';
+                const tabAll = document.getElementById('coll-tab-all');
+                const tabAtlas = document.getElementById('coll-tab-atlas');
+                if (tabAll) tabAll.classList.add('active');
+                if (tabAtlas) tabAtlas.classList.remove('active');
+                this.render(true);
+            },
+            clearPackFilter() {
+                this._packFilter = null;
+                this.render(true);
+            },
             preview(id) {
                 const ov = document.getElementById('charm-preview'); if (!ov) return;
                 const c = game.coll;
@@ -9733,10 +10507,46 @@
             },
             render(force) {
                 const c = this.normalize();
-                const cat = this.visibleCatalog();
+                let cat = this.visibleCatalog();
+                if (this._packFilter) {
+                    const pf = this._packFilter;
+                    cat = cat.filter(s => s && s.id && atlas.packFor(s.id) === pf);
+                }
                 const stats = document.getElementById('collection-stats');
-                if (stats) stats.innerHTML = `${t('coll_owned', { n: this.distinctCount(), total: this.catalogCount() })} · ${t('coll_total_label', { n: this.totalCount() })}<br>${this.nextDropText()} · ${t('coll_daily_left', { n: this.DAILY_CAP - c.today, max: this.DAILY_CAP })}`;
-                const grid = document.getElementById('collection-grid'); if (!grid) return;
+                if (stats) {
+                    let bonusLine = '';
+                    try {
+                        const sets = atlas.completedPackCount();
+                        if (sets > 0) bonusLine = `<br>${t('coll_set_bonus', { n: sets, pct: atlas.setBonusPctDisplay() })}`;
+                    } catch (e) {}
+                    let pathLine = '';
+                    try {
+                        const pp = atlas.path();
+                        if (pp) pathLine = `<br>${atlas.pathDef(pp).emoji || '🧭'} ${t('path_current', { name: atlas.pathTitle(pp) })}`;
+                    } catch (e2) {}
+                    stats.innerHTML = `${t('coll_owned', { n: this.distinctCount(), total: this.catalogCount() })} · ${t('coll_total_label', { n: this.totalCount() })}<br>${t('coll_atlas_goal', { n: this.distinctCount(), goal: atlas.goalTotal() })}${pathLine}${bonusLine}<br>${this.nextDropText()} · ${t('coll_daily_left', { n: this.DAILY_CAP - c.today, max: this.DAILY_CAP })}`;
+                }
+                const filterBar = document.getElementById('coll-filter-bar');
+                const filterLabel = document.getElementById('coll-filter-label');
+                if (filterBar && filterLabel) {
+                    if (this._packFilter) {
+                        filterBar.style.display = 'flex';
+                        filterLabel.textContent = t('coll_filter_pack', { name: atlas.packTitle(this._packFilter) });
+                    } else {
+                        filterBar.style.display = 'none';
+                        filterLabel.textContent = '';
+                    }
+                }
+                const atlasHost = document.getElementById('collection-atlas');
+                const grid = document.getElementById('collection-grid');
+                if (this._view === 'atlas') {
+                    if (atlasHost) { atlasHost.style.display = 'block'; try { atlas.renderPanel(); } catch (e) {} }
+                    if (grid) grid.style.display = 'none';
+                    return;
+                }
+                if (atlasHost) atlasHost.style.display = 'none';
+                if (grid) grid.style.display = '';
+                if (!grid) return;
                 if (!cat.length) {
                     grid.innerHTML = `<div style="grid-column:1/-1; color:#94a3b8; font-size:0.85rem; padding:14px">${t('coll_empty')}</div>`;
                     this._lastGridSig = '';

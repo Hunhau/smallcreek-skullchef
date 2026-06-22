@@ -1,0 +1,33 @@
+SKULLCHEF — assets/skins (LEEME)
+================================
+
+Amuletos UNICOS del juego = solo los .png en ESTA carpeta (raiz).
+Ahora mismo: 417 amuletos (no 800, no 1300).
+
+Por que parece que hay duplicados / triplicados / cuadruplicados:
+
+1) TRIPLE por formato (normal, no es error)
+   Cada amuleto usa 3 archivos:
+   - nombre.png          (fuente)
+   - nombre.webp         (carga rapida en juego)
+   - thumbs/nombre.webp  (miniatura en coleccion)
+   417 x 3 = 1251 archivos en total.
+
+2) CARPETA originals/ (38 archivos)
+   Copias maestras de respaldo. El juego NO las usa.
+   No son amuletos extra.
+
+3) MISMO TEMA x 5 AYUDANTES (diseno del juego)
+   Ejemplo: pio_common_greenie, ivan_common_greenie, coco_...
+   Son 5 PNG distintos (uno por ayudante), no copias del batch Wave 5.
+
+4) Wave 5 batch FALLO — REVERTIDO
+   Los 392 generados automaticamente ya se borraron.
+   Solo quedan 8 Pio HD (clownwig, rainbowwig, etc.).
+
+Comprobar en PowerShell:
+  cd "D:\SmallCreek Game"
+  python tools\verify_skin_counts.py
+
+Ver SOLO amuletos unicos en Explorador:
+  Filtrar por *.png en la raiz (no entrar en thumbs ni originals).
