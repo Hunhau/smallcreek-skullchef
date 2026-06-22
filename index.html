@@ -788,11 +788,11 @@
             #shard-box { font-size: 0.84rem; }
             #score-box span[data-i18n], #shard-box span[data-i18n] { display: inline; font-size: inherit; opacity: 0.92; }
             #cps-tag { font-size: 0.72rem; text-align: center; }
-            /* Landscape: chips beside owned-helper column — same top as companion slots */
+            /* Landscape: chips beside helpers toggle — top synced to #helpers-toggle via JS */
             #hud-status-stack {
                 position: fixed;
                 left: calc(max(8px, env(safe-area-inset-left)) + 48px + 34px);
-                top: calc(env(safe-area-inset-top) + 154px);
+                top: calc(env(safe-area-inset-top) + 122px);
                 bottom: calc(env(safe-area-inset-bottom) + 70px);
                 height: auto;
                 width: min(128px, 22vw);
@@ -976,7 +976,7 @@
             #helpers-toggle { top: calc(env(safe-area-inset-top) + 80px); }
             #companion-column { top: calc(env(safe-area-inset-top) + 112px); bottom: 60px; gap: 4px; max-width: 42px; }
             .companion-slot { width: 38px; height: 38px; border-radius: 10px; }
-            #hud-status-stack { left: calc(max(8px, env(safe-area-inset-left)) + 42px + 34px); top: calc(env(safe-area-inset-top) + 112px); bottom: 60px; }
+            #hud-status-stack { left: calc(max(8px, env(safe-area-inset-left)) + 42px + 34px); top: calc(env(safe-area-inset-top) + 80px); bottom: 60px; }
             #altar-panel { transform: scale(0.42); top: 40px; }
             .lv-badge { font-size: 0.48rem; }
             .slot-crown { top: -8px; font-size: 0.74rem; }
@@ -2401,7 +2401,7 @@
         // while still retrying if a reload didn't actually land the new build. Fully
         // defensive: any error is silent and never blocks the game. Parent bumps BOTH
         // version.json and BUILD_V on every future deploy.
-        const BUILD_V = "build-117";
+        const BUILD_V = "build-118";
         function paintBuildTag() {
             try {
                 var b = document.getElementById('build-tag');
@@ -5494,7 +5494,12 @@
                     const gw = document.getElementById('game-wrapper');
                     if (!col || !ls || !gw) return;
                     if (!this._usesDesktopHelperGrid()) {
-                        try { if (typeof mobileUI !== 'undefined') mobileUI.syncPortraitHelperColumn(); } catch (e) {}
+                        try {
+                            if (typeof mobileUI !== 'undefined') {
+                                if (mobileUI._landscapePhone()) mobileUI.syncLandscapeLeftHud();
+                                else mobileUI.syncPortraitHelperColumn();
+                            }
+                        } catch (e) {}
                         return;
                     }
                     const gap = 52;
@@ -12462,14 +12467,14 @@
                     }
                 } catch (e) {}
             },
-            /* Align fixed carteles with owned-helper column top; center lore on #hud pill. */
+            /* Align fixed carteles with #helpers-toggle top; center lore on #hud pill. */
             syncLandscapeLeftHud() {
                 try {
                     const lore = document.getElementById('lore-scroll');
                     const stack = document.getElementById('hud-status-stack');
                     if (!this._landscapePhone()) {
                         if (lore) { lore.style.top = ''; lore.style.transform = ''; lore.style.maxHeight = ''; }
-                        if (stack) stack.style.top = '';
+                        if (stack) { stack.style.top = ''; delete stack.__landscapeTop; }
                         return;
                     }
                     const hud = document.getElementById('hud');
@@ -12482,15 +12487,15 @@
                         }
                     }
                     if (stack) {
-                        const col = document.getElementById('companion-column');
                         const toggle = document.getElementById('helpers-toggle');
-                        let anchorTop = null;
-                        if (col && !document.body.classList.contains('helpers-collapsed')) {
-                            const cr = col.getBoundingClientRect();
-                            if (cr.height > 0 || (col.children && col.children.length)) anchorTop = cr.top;
+                        if (!toggle) return;
+                        const tr = toggle.getBoundingClientRect();
+                        if (tr.height < 2) return;
+                        const anchorTop = Math.round(tr.top);
+                        if (stack.__landscapeTop !== anchorTop) {
+                            stack.style.top = anchorTop + 'px';
+                            stack.__landscapeTop = anchorTop;
                         }
-                        if (anchorTop == null && toggle) anchorTop = toggle.getBoundingClientRect().top;
-                        if (anchorTop != null) stack.style.top = Math.round(anchorTop) + 'px';
                     }
                 } catch (e) {}
             },
