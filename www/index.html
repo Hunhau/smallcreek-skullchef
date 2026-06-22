@@ -1055,10 +1055,10 @@
             #altar-panel #pres-stat { font-size: 0.68rem; padding: 3px 8px; margin-top: 6px; }
             #altar-panel .pres-eta { font-size: 0.58rem; }
 
-            /* Owned-helpers: top aligned with Small Angel (#altar-panel) */
+            /* Owned-helpers: top synced to Small Angel via mobileUI.syncPortraitHelperColumn() */
             #helpers-toggle {
                 display: inline-flex; align-items: center; gap: 4px;
-                position: absolute; left: max(8px, env(safe-area-inset-left)); transform: none;
+                position: fixed; left: max(8px, env(safe-area-inset-left)); transform: none;
                 top: calc(env(safe-area-inset-top) + 172px);
                 z-index: 6600; pointer-events: auto;
                 background: var(--glass-strong); backdrop-filter: var(--glass-blur-sm); -webkit-backdrop-filter: var(--glass-blur-sm);
@@ -1072,6 +1072,7 @@
             #helpers-toggle:active { filter: brightness(1.15); }
             .helpers-chevron { font-size: 0.66rem; }
             #companion-column {
+                position: fixed;
                 left: max(6px, env(safe-area-inset-left)); right: auto;
                 top: calc(env(safe-area-inset-top) + 210px); bottom: 96px;
                 width: auto; display: flex; flex-direction: column;
@@ -2400,7 +2401,7 @@
         // while still retrying if a reload didn't actually land the new build. Fully
         // defensive: any error is silent and never blocks the game. Parent bumps BOTH
         // version.json and BUILD_V on every future deploy.
-        const BUILD_V = "build-115";
+        const BUILD_V = "build-116";
         function paintBuildTag() {
             try {
                 var b = document.getElementById('build-tag');
@@ -5521,7 +5522,7 @@
                 this.cp.forEach(c => { if (c.lv > 0) this.slot(c); });
                 this.ensureReservedHelperSlot();
                 this.syncCompanionLayout();
-                try { if (typeof mobileUI !== 'undefined') mobileUI.syncLandscapeLeftHud(); } catch (e) {}
+                try { if (typeof mobileUI !== 'undefined') { mobileUI.syncLandscapeLeftHud(); mobileUI.syncPortraitHelperColumn(); } } catch (e) {}
                 try { if (typeof helpersBox !== 'undefined') helpersBox.updateCount(); } catch (e) {}
             },
             slot(c) {
@@ -12426,6 +12427,31 @@
             _landscapePhone() {
                 try { return window.matchMedia('(pointer: coarse) and (orientation: landscape) and (max-height: 600px)').matches; } catch (e) { return false; }
             },
+            _portraitPhone() {
+                try { return window.matchMedia('(orientation: portrait) and (max-width: 768px)').matches; } catch (e) { return false; }
+            },
+            /* Portrait: align owned-helper column top with Small Angel (#altar-panel) top edge. */
+            syncPortraitHelperColumn() {
+                try {
+                    const col = document.getElementById('companion-column');
+                    const toggle = document.getElementById('helpers-toggle');
+                    if (!this._portraitPhone()) {
+                        if (col) col.style.top = '';
+                        if (toggle) toggle.style.top = '';
+                        return;
+                    }
+                    const altar = document.getElementById('altar-panel');
+                    if (!altar || !col) return;
+                    const ar = altar.getBoundingClientRect();
+                    if (ar.height < 2) return;
+                    const angelTop = Math.round(ar.top);
+                    col.style.top = angelTop + 'px';
+                    if (toggle) {
+                        const th = toggle.offsetHeight || 38;
+                        toggle.style.top = Math.max(0, angelTop - th - 6) + 'px';
+                    }
+                } catch (e) {}
+            },
             /* Align fixed carteles with owned-helper column top; center lore on #hud pill. */
             syncLandscapeLeftHud() {
                 try {
@@ -12492,6 +12518,7 @@
                         sc.style.transformOrigin = 'center center';
                         const ps = Math.max(0.22, Math.min((r.width * 0.78) / DW, 0.38));
                         sc.style.transform = 'translate(-50%, -50%) scale(' + ps + ')';
+                        this.syncPortraitHelperColumn();
                         return;
                     }
                     sc.style.left = '50%';
@@ -12505,14 +12532,14 @@
             },
             init() {
                 try {
-                    const run = () => { this.fitScene(); this.syncLandscapeLeftHud(); };
+                    const run = () => { this.fitScene(); this.syncLandscapeLeftHud(); this.syncPortraitHelperColumn(); };
                     window.addEventListener('resize', run);
                     window.addEventListener('load', run);
                     window.addEventListener('orientationchange', () => { setTimeout(run, 60); setTimeout(run, 280); });
                     try {
                         const syncHelpers = () => {
                             try { game.syncCompanionLayout(); game.ensureReservedHelperSlot(); } catch (e) {}
-                            try { mobileUI.syncLandscapeLeftHud(); } catch (e) {}
+                            try { mobileUI.syncLandscapeLeftHud(); mobileUI.syncPortraitHelperColumn(); } catch (e) {}
                         };
                         window.addEventListener('resize', syncHelpers);
                         window.addEventListener('orientationchange', () => { setTimeout(syncHelpers, 60); setTimeout(syncHelpers, 280); });
@@ -12540,7 +12567,7 @@
                         if (chev) chev.textContent = collapsed ? '▸' : '▾';
                     }
                     this.updateCount();
-                    try { if (typeof mobileUI !== 'undefined') mobileUI.syncLandscapeLeftHud(); } catch (e) {}
+                    try { if (typeof mobileUI !== 'undefined') { mobileUI.syncLandscapeLeftHud(); mobileUI.syncPortraitHelperColumn(); } } catch (e) {}
                 } catch (e) {}
             },
             // Small teaser count on the chip = number of owned helpers. Only writes when the
