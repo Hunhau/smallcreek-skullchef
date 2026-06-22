@@ -664,19 +664,18 @@
         .gx-toast.gx-toast-out { animation: toastOut 0.45s ease-in forwards; }
         @keyframes toastIn { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes toastOut { to { opacity: 0; transform: translateY(-20px); } }
-        /* Landscape phone toasts — placed AFTER base rule so left-pin wins over center. */
+        /* Mobile landscape: ephemeral blue toasts centered (fixed HUD chips unchanged). */
         @media (pointer: coarse) and (orientation: landscape) and (max-height: 600px) {
             #gx-toast-wrap {
-                top: calc(env(safe-area-inset-top) + 56px) !important;
-                left: max(8px, env(safe-area-inset-left)) !important;
+                top: calc(env(safe-area-inset-top) + 48px) !important;
+                left: 50% !important;
                 right: auto !important;
-                transform: none !important;
-                align-items: flex-start !important;
-                max-width: min(168px, 34vw) !important;
-                gap: 4px !important;
+                transform: translateX(-50%) !important;
+                align-items: center !important;
+                max-width: min(92vw, 340px) !important;
+                gap: 5px !important;
             }
-            .gx-toast { padding: 4px 10px !important; font-size: 0.7rem !important; border-radius: 9px; line-height: 1.25; text-align: left !important; }
-            /* Buff chips live inside #hud-status-stack — no separate position override needed. */
+            .gx-toast { padding: 5px 12px !important; font-size: 0.72rem !important; border-radius: 10px; line-height: 1.25; text-align: center !important; }
         }
         #home-overlay { position: fixed; inset: 0; z-index: 200000; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: clamp(12px, 2.6vh, 24px); text-align: center; overflow-y: auto; padding: calc(env(safe-area-inset-top) + 24px) calc(env(safe-area-inset-right) + 20px) calc(env(safe-area-inset-bottom) + 24px) calc(env(safe-area-inset-left) + 20px); background: url('assets/img/bg.jpg') center/cover no-repeat; transition: opacity 0.55s ease, transform 0.55s ease; }
         #home-overlay.closing { opacity: 0; transform: scale(1.05); pointer-events: none; }
@@ -852,18 +851,7 @@
             .lv-badge { bottom: -4px; right: -4px; padding: 0 3px; font-size: 0.52rem; border-width: 1px; }
             .slot-crown { top: -10px; font-size: 0.9rem; }
 
-            /* Toasts ("carteles"): pin LEFT where there is free space — NOT centered on
-               the chef's face. Landscape top band is short; keep them compact. */
-            #gx-toast-wrap {
-                top: calc(env(safe-area-inset-top) + 56px);
-                left: max(8px, env(safe-area-inset-left));
-                right: auto;
-                transform: none;
-                align-items: flex-start;
-                max-width: min(168px, 34vw);
-                gap: 4px;
-            }
-            .gx-toast { padding: 4px 10px; font-size: 0.7rem; border-radius: 9px; line-height: 1.25; text-align: left; }
+            /* Ephemeral blue toasts: centered (see shared rule above); fixed HUD chips unchanged. */
 
             /* ---- SHOP: centered panel (not stuck to the right edge) ---- */
             #side-shop {
@@ -1099,10 +1087,16 @@
             }
             #side-shop.m-open { transform: translateX(0); }
             #side-shop h1 { font-size: 1.15rem; }
-            /* Toasts ("carteles"): pin high + compact so even 3 stacked stay ABOVE the
-               helper (which sits ~y341) instead of covering it. */
-            #gx-toast-wrap { top: calc(env(safe-area-inset-top) + 50px); gap: 5px; max-width: 88vw; }
-            .gx-toast { padding: 6px 12px; font-size: 0.76rem; border-radius: 10px; }
+            /* Ephemeral blue toasts: centered on screen (fixed HUD chips unchanged). */
+            #gx-toast-wrap {
+                top: calc(env(safe-area-inset-top) + 50px);
+                left: 50%;
+                transform: translateX(-50%);
+                align-items: center;
+                gap: 5px;
+                max-width: min(92vw, 340px);
+            }
+            .gx-toast { padding: 6px 12px; font-size: 0.76rem; border-radius: 10px; text-align: center; }
             /* Sticky ✕ close pinned top-right of the sheet (stays while the list scrolls). */
             #shop-close-m {
                 display: flex; align-items: center; justify-content: center;
@@ -1925,8 +1919,8 @@
     </script>
     <script src="events.js"></script>
     <!-- Cache-bust catalog on every deploy (SW must not serve a stale charm list). -->
-    <script src="assets/skins/catalog.js?v=build-101"></script>
-    <script src="assets/atlas_manifest.js?v=build-101"></script>
+    <script src="assets/skins/catalog.js?v=build-102"></script>
+    <script src="assets/atlas_manifest.js?v=build-102"></script>
     <!-- ====================================================================
          === EMBEDDED LEADERBOARD MODULE (from leaderboard/leaderboard-client.js)
          === Self-contained global `leaderboard` object. Single-file game, so the
@@ -2395,7 +2389,7 @@
         // while still retrying if a reload didn't actually land the new build. Fully
         // defensive: any error is silent and never blocks the game. Parent bumps BOTH
         // version.json and BUILD_V on every future deploy.
-        const BUILD_V = "build-101";
+        const BUILD_V = "build-102";
         function paintBuildTag() {
             try {
                 var b = document.getElementById('build-tag');
