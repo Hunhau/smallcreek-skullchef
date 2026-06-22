@@ -771,7 +771,8 @@
                is the scarce axis — cap it hard by vh so the helper stays clearly smaller than
                the chef and never covers him. Does NOT affect thrown ingredients
                (.ingredient-proj keep their own size). */
-            .summon-clone { width: min(210px, 26vw); max-width: min(228px, 28vw); max-height: min(150px, 30vh); }
+            .summon-clone { width: min(228px, 28vw); max-width: min(240px, 30vw); max-height: min(162px, 32vh); }
+            .ingredient-proj { font-size: clamp(1.45rem, 4vw, 2.1rem); }
             /* Clearly-labeled energy counter (centered): each stat is a small uppercase
                label stacked over a big readable number, with a recognizable icon (🍲 energy
                balls / ⬨ angel shards). max-width + overflow keep it on-screen; the labels
@@ -782,13 +783,13 @@
             #shard-box { font-size: 0.84rem; }
             #score-box span[data-i18n], #shard-box span[data-i18n] { display: inline; font-size: inherit; opacity: 0.92; }
             #cps-tag { font-size: 0.72rem; text-align: center; }
-            /* Landscape: chips fixed on viewport — right of owned-helper column, before chef */
+            /* Landscape: chips hugging the owned-helper column on the left */
             #hud-status-stack {
                 position: fixed;
-                left: calc(max(8px, env(safe-area-inset-left)) + min(168px, 40vw) - 42px);
+                left: calc(max(8px, env(safe-area-inset-left)) + 48px + 2px);
                 top: calc(env(safe-area-inset-top) + 62px);
                 bottom: calc(env(safe-area-inset-bottom) + 68px);
-                width: min(132px, 24vw);
+                width: min(128px, 22vw);
                 transform: none;
                 flex-direction: column;
                 flex-wrap: nowrap;
@@ -817,8 +818,10 @@
             #lore-text { font-size: 0.64rem; line-height: 1.22; }
             .goal-chip { margin-top: 4px; padding: 4px 6px; font-size: 0.58rem; gap: 4px; border-radius: 8px; }
             .goal-chip-icon { font-size: 0.72rem; }
-            /* Altar / prestige: free top-right corner (below the HUD line) */
-            #altar-panel { right: max(6px, env(safe-area-inset-right)); top: 52px; transform: scale(0.56); transform-origin: top right; z-index: 6500; }
+            /* Small Angel: smaller + tucked to the right edge, still on-screen */
+            #altar-panel { right: max(4px, env(safe-area-inset-right)); top: 44px; transform: scale(0.46); transform-origin: top right; z-index: 6500; }
+            #altar-panel #pres-stat { font-size: 0.72rem; padding: 3px 8px; margin-top: 5px; }
+            #altar-panel .pres-eta { font-size: 0.58rem; }
             /* Owned-helpers box (scene): a HORIZONTAL row that wraps (up to ~5 across),
                with a collapse chip above it. Sits in the free left band below the
                chronicle and STOPS well above the bottom-left ☰ / 🛒 launchers. */
@@ -843,13 +846,14 @@
                so it scales to the device height without colliding with the ☰/🛒 row. */
             #companion-column {
                 left: max(8px, env(safe-area-inset-left)); top: calc(env(safe-area-inset-top) + 130px); bottom: 70px;
-                width: min(168px, 40vw);
+                width: auto; max-width: 48px;
                 display: flex; flex-flow: column wrap; align-content: flex-start;
                 grid-template-columns: none; grid-template-rows: none;
                 justify-content: flex-start; gap: 5px; overflow: hidden;
             }
             body.helpers-collapsed #companion-column { display: none; }
-            .companion-slot { width: 36px; height: 36px; border-radius: 11px; }
+            .companion-slot { width: 44px; height: 44px; border-radius: 12px; }
+            .companion-slot .slot-img { width: 78%; height: 78%; }
             .lv-badge { bottom: -4px; right: -4px; padding: 0 3px; font-size: 0.52rem; border-width: 1px; }
             .slot-crown { top: -10px; font-size: 0.9rem; }
 
@@ -977,8 +981,10 @@
             #lore-scroll { top: calc(env(safe-area-inset-top) + 4px); max-height: 44px; }
             #lore-scroll.lore-has-action, #lore-scroll.lore-goal-priority { max-height: none; }
             #helpers-toggle { top: calc(env(safe-area-inset-top) + 56px); }
-            #companion-column { top: calc(env(safe-area-inset-top) + 88px); bottom: 60px; gap: 4px; }
-            .companion-slot { width: 32px; height: 32px; border-radius: 9px; }
+            #companion-column { top: calc(env(safe-area-inset-top) + 88px); bottom: 60px; gap: 4px; max-width: 42px; }
+            .companion-slot { width: 38px; height: 38px; border-radius: 10px; }
+            #hud-status-stack { left: calc(max(8px, env(safe-area-inset-left)) + 42px + 2px); }
+            #altar-panel { transform: scale(0.42); top: 40px; }
             .lv-badge { font-size: 0.48rem; }
             .slot-crown { top: -8px; font-size: 0.74rem; }
         }
@@ -1927,8 +1933,8 @@
     </script>
     <script src="events.js"></script>
     <!-- Cache-bust catalog on every deploy (SW must not serve a stale charm list). -->
-    <script src="assets/skins/catalog.js?v=build-98"></script>
-    <script src="assets/atlas_manifest.js?v=build-98"></script>
+    <script src="assets/skins/catalog.js?v=build-99"></script>
+    <script src="assets/atlas_manifest.js?v=build-99"></script>
     <!-- ====================================================================
          === EMBEDDED LEADERBOARD MODULE (from leaderboard/leaderboard-client.js)
          === Self-contained global `leaderboard` object. Single-file game, so the
@@ -2397,7 +2403,7 @@
         // while still retrying if a reload didn't actually land the new build. Fully
         // defensive: any error is silent and never blocks the game. Parent bumps BOTH
         // version.json and BUILD_V on every future deploy.
-        const BUILD_V = "build-98";
+        const BUILD_V = "build-99";
         function paintBuildTag() {
             try {
                 var b = document.getElementById('build-tag');
