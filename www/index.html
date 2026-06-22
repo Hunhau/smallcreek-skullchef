@@ -1052,11 +1052,11 @@
             #altar-panel #pres-stat { font-size: 0.68rem; padding: 3px 8px; margin-top: 6px; }
             #altar-panel .pres-eta { font-size: 0.58rem; }
 
-            /* Owned-helpers: a single vertical rail on the LEFT, like the desktop layout. */
+            /* Owned-helpers: top aligned with Small Angel (#altar-panel) */
             #helpers-toggle {
                 display: inline-flex; align-items: center; gap: 4px;
                 position: absolute; left: max(8px, env(safe-area-inset-left)); transform: none;
-                top: calc(env(safe-area-inset-top) + 268px);
+                top: calc(env(safe-area-inset-top) + 172px);
                 z-index: 6600; pointer-events: auto;
                 background: var(--glass-strong); backdrop-filter: var(--glass-blur-sm); -webkit-backdrop-filter: var(--glass-blur-sm);
                 border: 1px solid var(--glass-bd-go); border-radius: 12px;
@@ -1070,7 +1070,7 @@
             .helpers-chevron { font-size: 0.66rem; }
             #companion-column {
                 left: max(6px, env(safe-area-inset-left)); right: auto;
-                top: calc(env(safe-area-inset-top) + 306px); bottom: 96px;
+                top: calc(env(safe-area-inset-top) + 210px); bottom: 96px;
                 width: auto; display: flex; flex-direction: column;
                 grid-template-columns: none; grid-template-rows: none;
                 justify-content: flex-start; align-items: flex-start;
@@ -2397,7 +2397,7 @@
         // while still retrying if a reload didn't actually land the new build. Fully
         // defensive: any error is silent and never blocks the game. Parent bumps BOTH
         // version.json and BUILD_V on every future deploy.
-        const BUILD_V = "build-113";
+        const BUILD_V = "build-114";
         function paintBuildTag() {
             try {
                 var b = document.getElementById('build-tag');
