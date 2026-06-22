@@ -959,47 +959,47 @@
                Does NOT affect thrown ingredients (.ingredient-proj). */
             .summon-clone { width: min(340px, 35.7vw); max-width: min(357px, 37.4vw); max-height: min(247px, 34vh); }
             /* Chef/cauldron: CSS scale above; fitScene skips inline transform in portrait */
-            /* Clearly-labeled energy counter, RIGHT-anchored: each stat is a small uppercase
-               label (with a recognizable icon — 🍲 energy balls / ⬨ angel shards) stacked
-               over a big readable number. Labels wrap rather than push the pill off-screen;
-               max-width + overflow keep it on-screen even with large numbers. The chronicle
-               sits at the SAME top on the LEFT (beside it), freeing the space below. */
-            #hud-top-band { left: 0; right: 0; transform: none; width: 100%; padding: 0 max(8px, env(safe-area-inset-right)) 0 max(8px, env(safe-area-inset-left)); align-items: stretch; gap: 4px; }
-            #hud { align-self: flex-end; gap: 14px; padding: 4px 12px; max-width: calc(100vw - 120px); overflow-x: auto; overflow-y: hidden; flex-wrap: nowrap; white-space: nowrap; scrollbar-width: none; }
-            #hud::-webkit-scrollbar { display: none; }
-            #score-box { font-size: 1.05rem; }
-            #shard-box { font-size: 0.95rem; }
+            /* Portrait HUD: reserve the top-left column for chronicle; counter + chips use
+               the rest of the width so nothing clips off-screen or stacks on CRÓNICA. */
+            #hud-top-band {
+                left: 0; right: 0; transform: none; width: 100%;
+                padding: 0 max(8px, env(safe-area-inset-right)) 0 calc(max(8px, env(safe-area-inset-left)) + min(104px, 28vw) + 10px);
+                align-items: stretch; gap: 4px;
+            }
+            #hud {
+                align-self: center; width: 100%; max-width: 100%; box-sizing: border-box;
+                justify-content: center; align-items: center;
+                gap: 2px 10px; padding: 3px 6px;
+                flex-wrap: wrap; overflow: visible;
+            }
+            #score-box { font-size: clamp(0.72rem, 3.1vw, 0.9rem); }
+            #shard-box { font-size: clamp(0.68rem, 2.9vw, 0.84rem); }
             #score-box span[data-i18n], #shard-box span[data-i18n] { display: inline; font-size: inherit; opacity: 0.92; }
-            #cps-tag { align-self: flex-end; font-size: 0.76rem; }
-            /* Portrait: one scrollable row of pills — saves vertical space for the cauldron */
+            #cps-tag { align-self: center; font-size: 0.76rem; text-align: center; }
+            /* Portrait: chips wrap downward — plenty of room below, no horizontal scroll */
             #hud-status-stack {
-                justify-content: flex-start;
+                justify-content: center;
+                align-items: center;
                 width: 100%;
                 gap: 4px;
-                flex-wrap: nowrap;
-                overflow-x: auto;
-                overflow-y: hidden;
-                -webkit-overflow-scrolling: touch;
-                scrollbar-width: none;
-                max-height: 28px;
-                padding-bottom: 2px;
+                flex-wrap: wrap;
+                overflow: visible;
+                max-height: none;
+                padding-bottom: 0;
             }
-            #hud-status-stack::-webkit-scrollbar { display: none; }
-            #hud-status-stack > * { font-size: 0.56rem; max-width: none; white-space: nowrap; line-height: 1.2; flex: 0 0 auto; }
-            /* Chronicle: compact card on the LEFT at the SAME top as the counter (beside it),
-               with a firm max-height + internal scroll so growing story text can NEVER expand
-               down into the owned-helpers chip / column. */
-            #lore-scroll { top: calc(env(safe-area-inset-top) + 8px); left: max(8px, env(safe-area-inset-left)); width: min(104px, 28vw); padding: 6px 8px; max-height: 62px; overflow-y: auto; overflow-x: hidden; z-index: 6500; }
+            #hud-status-stack > * { font-size: 0.56rem; max-width: 100%; white-space: nowrap; line-height: 1.2; flex: 0 0 auto; }
+            /* Chronicle: fixed top-left slot — HUD band content stays in the right column */
+            #lore-scroll { top: calc(env(safe-area-inset-top) + 8px); left: max(8px, env(safe-area-inset-left)); width: min(104px, 28vw); padding: 6px 8px; max-height: 62px; overflow-y: auto; overflow-x: hidden; z-index: 6600; }
             #lore-title { font-size: 0.6rem; }
             #lore-text { font-size: 0.62rem; line-height: 1.2; }
-            /* Altar / prestige: top-RIGHT, below the counter + CPS line */
-            #altar-panel { right: max(6px, env(safe-area-inset-right)); top: calc(env(safe-area-inset-top) + 96px); transform: scale(0.56); transform-origin: top right; z-index: 6500; }
+            /* Altar / helpers: sit below the taller wrapped chip block */
+            #altar-panel { right: max(6px, env(safe-area-inset-right)); top: calc(env(safe-area-inset-top) + 152px); transform: scale(0.56); transform-origin: top right; z-index: 6500; }
 
             /* Owned-helpers: a single vertical rail on the LEFT, like the desktop layout. */
             #helpers-toggle {
                 display: inline-flex; align-items: center; gap: 4px;
                 position: absolute; left: max(8px, env(safe-area-inset-left)); transform: none;
-                top: calc(env(safe-area-inset-top) + 138px);
+                top: calc(env(safe-area-inset-top) + 194px);
                 z-index: 6600; pointer-events: auto;
                 background: var(--glass-strong); backdrop-filter: var(--glass-blur-sm); -webkit-backdrop-filter: var(--glass-blur-sm);
                 border: 1px solid var(--glass-bd-go); border-radius: 12px;
@@ -1013,7 +1013,7 @@
             .helpers-chevron { font-size: 0.66rem; }
             #companion-column {
                 left: max(6px, env(safe-area-inset-left)); right: auto;
-                top: calc(env(safe-area-inset-top) + 176px); bottom: 96px;
+                top: calc(env(safe-area-inset-top) + 232px); bottom: 96px;
                 width: auto; display: flex; flex-direction: column;
                 grid-template-columns: none; grid-template-rows: none;
                 justify-content: flex-start; align-items: flex-start;
@@ -1107,6 +1107,10 @@
             .farm-timer { font-size: 0.58rem; }
             .farm-plot-btn, .farm-plot-label { font-size: 0.56rem; padding: 3px 5px; min-height: 24px; }
             .farm-water-btn { min-height: 28px; min-width: 28px; font-size: 0.9rem; padding: 3px 8px; }
+            /* Very narrow phones: stack EB / fragments on two lines so labels never clip */
+            @media (max-width: 380px) {
+                #hud { flex-direction: column; gap: 1px; padding: 2px 4px; }
+            }
         }
         /* Grand Prix track: fit the viewport width on any touch device (lanes flex auto-fit). */
         @media (pointer: coarse) {
@@ -1859,8 +1863,8 @@
     </script>
     <script src="events.js"></script>
     <!-- Cache-bust catalog on every deploy (SW must not serve a stale charm list). -->
-    <script src="assets/skins/catalog.js?v=build-92"></script>
-    <script src="assets/atlas_manifest.js?v=build-92"></script>
+    <script src="assets/skins/catalog.js?v=build-93"></script>
+    <script src="assets/atlas_manifest.js?v=build-93"></script>
     <!-- ====================================================================
          === EMBEDDED LEADERBOARD MODULE (from leaderboard/leaderboard-client.js)
          === Self-contained global `leaderboard` object. Single-file game, so the
@@ -2329,7 +2333,7 @@
         // while still retrying if a reload didn't actually land the new build. Fully
         // defensive: any error is silent and never blocks the game. Parent bumps BOTH
         // version.json and BUILD_V on every future deploy.
-        const BUILD_V = "build-92";
+        const BUILD_V = "build-93";
         function paintBuildTag() {
             try {
                 var b = document.getElementById('build-tag');
