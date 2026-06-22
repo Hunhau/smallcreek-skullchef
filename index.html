@@ -411,12 +411,12 @@
         #cinema-crown { position: fixed; top: -150px; left: 50%; transform: translate(-50%, -50%) scale(2.2); font-size: 4rem; z-index: 105002 !important; filter: drop-shadow(0 0 12px var(--go)); pointer-events: none; }
         /* Grand Prix coronation on phones: sized to fit short/tall viewports (overlay only while active) */
         @media (pointer: coarse) and (orientation: landscape) and (max-height: 600px) {
-            #cinema-plushie { width: min(108px, 24vh) !important; max-width: min(118px, 26vh) !important; max-height: min(96px, 22vh) !important; min-height: 0 !important; min-width: 0 !important; object-fit: contain; }
-            #cinema-crown { font-size: 1.65rem !important; }
+            #cinema-plushie { width: min(135px, 30vh) !important; max-width: min(150px, 32vh) !important; max-height: min(120px, 27vh) !important; min-height: 0 !important; min-width: 0 !important; object-fit: contain; }
+            #cinema-crown { font-size: 2.1rem !important; }
         }
         @media (orientation: portrait) and (max-width: 768px) {
-            #cinema-plushie { width: min(150px, 38vw) !important; max-width: min(165px, 42vw) !important; max-height: min(130px, 16vh) !important; min-height: 0 !important; min-width: 0 !important; object-fit: contain; }
-            #cinema-crown { font-size: 2rem !important; }
+            #cinema-plushie { width: min(185px, 44vw) !important; max-width: min(205px, 48vw) !important; max-height: min(160px, 20vh) !important; min-height: 0 !important; min-width: 0 !important; object-fit: contain; }
+            #cinema-crown { font-size: 2.5rem !important; }
         }
         #race-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle, #1e1b4b, #000); z-index: 100000; display: none; flex-direction: column; align-items: center; justify-content: center; }
         #p-sel { width: min(100%, 520px); padding: 0 12px; box-sizing: border-box; }
@@ -2398,7 +2398,7 @@
         // while still retrying if a reload didn't actually land the new build. Fully
         // defensive: any error is silent and never blocks the game. Parent bumps BOTH
         // version.json and BUILD_V on every future deploy.
-        const BUILD_V = "build-107";
+        const BUILD_V = "build-108";
         function paintBuildTag() {
             try {
                 var b = document.getElementById('build-tag');
@@ -6933,13 +6933,13 @@
             },
             cinemaChampScale() {
                 if (!this._cinemaPhone()) return 2.5;
-                const h = window.innerHeight, w = window.innerWidth;
-                if (this._mPortrait()) return Math.min(0.88, Math.max(0.62, Math.min(h / 920, w / 420)));
-                return Math.min(0.68, Math.max(0.48, h / 560));
+                /* CSS caps plushie size on phone; keep scale near 1 to avoid double-shrink */
+                if (this._mPortrait()) return Math.min(1.08, Math.max(0.92, window.innerWidth / 380));
+                return Math.min(1.05, Math.max(0.88, window.innerHeight / 520));
             },
             cinemaCrownIntroScale() {
                 if (!this._cinemaPhone()) return 2.2;
-                return this._mPortrait() ? 0.95 : 0.78;
+                return this._mPortrait() ? 1.15 : 0.95;
             },
             /* True when the shop is the collapsible slide-in SHEET (phone, portrait OR
                landscape) rather than a permanent desktop sidebar. Gates the buy-then-auto-close
@@ -7082,11 +7082,11 @@
                 p.style.transform = `translate(-50%, -50%) scale(${champScale})`;
                 if (this._cinemaPhone()) {
                     if (this._mPortrait()) {
-                        p.style.maxWidth = Math.min(165, window.innerWidth * 0.42) + 'px';
-                        p.style.maxHeight = Math.min(130, window.innerHeight * 0.16) + 'px';
+                        p.style.maxWidth = Math.min(205, window.innerWidth * 0.48) + 'px';
+                        p.style.maxHeight = Math.min(160, window.innerHeight * 0.20) + 'px';
                     } else {
-                        p.style.maxWidth = Math.min(118, window.innerHeight * 0.26) + 'px';
-                        p.style.maxHeight = Math.min(96, window.innerHeight * 0.22) + 'px';
+                        p.style.maxWidth = Math.min(150, window.innerHeight * 0.32) + 'px';
+                        p.style.maxHeight = Math.min(120, window.innerHeight * 0.27) + 'px';
                     }
                     p.style.width = 'auto';
                     p.style.height = 'auto';
@@ -7111,7 +7111,7 @@
                 let placed = false;
                 const estRect = () => {
                     const baseW = this._cinemaPhone()
-                        ? (this._mPortrait() ? Math.min(150, window.innerWidth * 0.38) : Math.min(108, window.innerHeight * 0.24))
+                        ? (this._mPortrait() ? Math.min(185, window.innerWidth * 0.44) : Math.min(135, window.innerHeight * 0.30))
                         : Math.min(300, window.innerWidth * 0.42);
                     const w = (p.naturalWidth > 0 && p.naturalHeight > 0)
                         ? Math.min(baseW, baseW * (p.naturalWidth / p.naturalHeight))
@@ -7128,7 +7128,7 @@
                     const headX = r.left + r.width * off.x;
                     landY = (r.top + r.height * off.y) + 'px';
                     let scale = Math.max(0.45, (r.width * off.w) / 64);
-                    if (this._cinemaPhone()) scale = Math.min(scale, this._mPortrait() ? 1.05 : 0.88);
+                    if (this._cinemaPhone()) scale = Math.min(scale, this._mPortrait() ? 1.35 : 1.12);
                     cr.style.left = headX + 'px';
                     cr.style.transform = `translate(-50%, -50%) scale(${scale})`;
                     void cr.offsetHeight;
