@@ -26,7 +26,7 @@ const VERSION = 'v1.0.1';
             },
             play() {
                 const ov = document.getElementById('home-overlay'); if (!ov) return;
-                try { sound.touchAudio(); } catch (e) {}
+                try { if (typeof sound.touchAudioIfOn === 'function') sound.touchAudioIfOn(); else if (!sound.muted && sound.volume > 0) sound.touchAudio(); } catch (e) {}
                 const enter = () => {
                     ov.classList.add('closing');
                     // On a phone in PORTRAIT, hold the tutorial until the player rotates to

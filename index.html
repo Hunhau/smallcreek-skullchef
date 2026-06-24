@@ -2790,36 +2790,36 @@
     })(typeof window !== 'undefined' ? window : this);
     </script>
     <script src="events.js"></script>
-    <script src="js/soft-events.js?v=build-273"></script>
-    <script src="js/gx.js?v=build-273"></script>
-    <script src="js/visual-theme.js?v=build-273"></script>
-    <script src="js/decor.js?v=build-273"></script>
-    <script src="js/quests.js?v=build-273"></script>
-    <script src="js/achievements.js?v=build-273"></script>
-    <script src="js/soup-menu.js?v=build-273"></script>
-    <script src="js/weekly-challenges.js?v=build-273"></script>
-    <script src="js/helper-team.js?v=build-273"></script>
-    <script src="js/chef-mood.js?v=build-273"></script>
-    <script src="js/farm.js?v=build-273"></script>
-    <script src="js/ambient.js?v=build-273"></script>
-    <script src="js/music.js?v=build-273"></script>
-    <script src="js/creator.js?v=build-273"></script>
-    <script src="js/prix.js?v=build-273"></script>
-    <script src="js/soup-skirmish.js?v=build-273"></script>
-    <script src="js/objective.js?v=build-273"></script>
-    <script src="js/angel-tree.js?v=build-273"></script>
-    <script src="js/tutorial.js?v=build-273"></script>
-    <script src="js/quality.js?v=build-273"></script>
-    <script src="js/fullscreen.js?v=build-273"></script>
-    <script src="js/home.js?v=build-273"></script>
-    <script src="js/pause-menu.js?v=build-273"></script>
-    <script src="js/guide.js?v=build-273"></script>
-    <script src="js/hud-chips.js?v=build-273"></script>
-    <script src="js/item-bonus.js?v=build-273"></script>
+    <script src="js/soft-events.js?v=build-274"></script>
+    <script src="js/gx.js?v=build-274"></script>
+    <script src="js/visual-theme.js?v=build-274"></script>
+    <script src="js/decor.js?v=build-274"></script>
+    <script src="js/quests.js?v=build-274"></script>
+    <script src="js/achievements.js?v=build-274"></script>
+    <script src="js/soup-menu.js?v=build-274"></script>
+    <script src="js/weekly-challenges.js?v=build-274"></script>
+    <script src="js/helper-team.js?v=build-274"></script>
+    <script src="js/chef-mood.js?v=build-274"></script>
+    <script src="js/farm.js?v=build-274"></script>
+    <script src="js/ambient.js?v=build-274"></script>
+    <script src="js/music.js?v=build-274"></script>
+    <script src="js/creator.js?v=build-274"></script>
+    <script src="js/prix.js?v=build-274"></script>
+    <script src="js/soup-skirmish.js?v=build-274"></script>
+    <script src="js/objective.js?v=build-274"></script>
+    <script src="js/angel-tree.js?v=build-274"></script>
+    <script src="js/tutorial.js?v=build-274"></script>
+    <script src="js/quality.js?v=build-274"></script>
+    <script src="js/fullscreen.js?v=build-274"></script>
+    <script src="js/home.js?v=build-274"></script>
+    <script src="js/pause-menu.js?v=build-274"></script>
+    <script src="js/guide.js?v=build-274"></script>
+    <script src="js/hud-chips.js?v=build-274"></script>
+    <script src="js/item-bonus.js?v=build-274"></script>
     <!-- Cache-bust catalog on every deploy (SW must not serve a stale charm list). -->
-    <script src="assets/skins/catalog.js?v=build-273"></script>
-    <script src="assets/atlas_manifest.js?v=build-273"></script>
-    <script src="js/atlas.js?v=build-273"></script>
+    <script src="assets/skins/catalog.js?v=build-274"></script>
+    <script src="assets/atlas_manifest.js?v=build-274"></script>
+    <script src="js/atlas.js?v=build-274"></script>
     <!-- ====================================================================
          === EMBEDDED LEADERBOARD MODULE (from leaderboard/leaderboard-client.js)
          === Self-contained global `leaderboard` object. Single-file game, so the
@@ -3299,7 +3299,7 @@
 
     })(typeof window !== 'undefined' ? window : this);
     </script>
-    <script src="js/lb-ui.js?v=build-273"></script>
+    <script src="js/lb-ui.js?v=build-274"></script>
     <!-- ==================== END EMBEDDED LEADERBOARD MODULE ==================== -->
     <script>
         // === AUTO-UPDATE / ANTI-STALE-CACHE ===========================================
@@ -3313,7 +3313,7 @@
         // while still retrying if a reload didn't actually land the new build. Fully
         // defensive: any error is silent and never blocks the game. Parent bumps BOTH
         // version.json and BUILD_V on every future deploy.
-        const BUILD_V = "build-273";
+        const BUILD_V = "build-274";
         function paintBuildTag() {
             try {
                 var prod = (typeof PRODUCTION_BUILD !== 'undefined' && PRODUCTION_BUILD)
@@ -4183,6 +4183,20 @@
                     return window.matchMedia('(pointer: coarse)').matches;
                 } catch (e) { return false; }
             },
+            // Prod mobile, cuenta nueva: altavoz apagado hasta que el jugador lo encienda
+            // (gesto explícito = iOS desbloquea audio). PC sin cambios.
+            _prodMobileFreshAudio() {
+                try {
+                    if (typeof SC_LOCAL_DEV !== 'undefined' && SC_LOCAL_DEV) return false;
+                    if (window.matchMedia && window.matchMedia('(pointer: fine)').matches) {
+                        const ua = navigator.userAgent || '';
+                        if (!/iPhone|iPad|iPod|Android/i.test(ua)) return false;
+                    }
+                    const ua = navigator.userAgent || '';
+                    if (/iPhone|iPad|iPod|Android/i.test(ua)) return true;
+                    return !!(window.matchMedia && window.matchMedia('(pointer: coarse)').matches);
+                } catch (e) { return false; }
+            },
             _primeMobileEssentials() {
                 if (!this._useWebAudio()) return;
                 const keys = ['bubble', 'buy', 'eat', 'farmAbrir', 'farmPlantar', 'farmRegar', 'farmCosechar', 'farmListo', 'farmSinStock', 'rainStart', 'bubblePop', 'prestige', 'victory'];
@@ -4293,7 +4307,20 @@
             },
             init() {
                 if (this._inited) return; this._inited = true;
-                try { const raw = localStorage.getItem('soup_audio'); if (raw) { const d = JSON.parse(raw); if (d && typeof d === 'object') { this.muted = !!d.m; if (typeof d.v === 'number' && isFinite(d.v)) this.volume = Math.min(1, Math.max(0, d.v)); } } } catch (e) {}
+                try {
+                    const raw = localStorage.getItem('soup_audio');
+                    if (raw) {
+                        const d = JSON.parse(raw);
+                        if (d && typeof d === 'object') {
+                            this.muted = !!d.m;
+                            if (typeof d.v === 'number' && isFinite(d.v)) this.volume = Math.min(1, Math.max(0, d.v));
+                        }
+                    } else if (this._prodMobileFreshAudio()) {
+                        this.muted = true;
+                        this.volume = 1;
+                        this.save();
+                    }
+                } catch (e) {}
                 // HARDENING: si un archivo de audio falta (404) o no se puede decodificar,
                 // el evento 'error' del elemento NO es una excepción y NO ensucia la consola
                 // con throws. Lo silenciamos explícitamente para que el juego suene "vacío"
@@ -4364,6 +4391,10 @@
                         if (eat && (eat.state === 'suspended' || eat.state === 'interrupted')) this.resumeAudio();
                     }
                 } catch (e) {}
+            },
+            touchAudioIfOn() {
+                if (this.muted || this.volume <= 0) return;
+                this.touchAudio();
             },
             // Re-arm audio after Play / privacy / name modals (iOS needs a fresh gesture chain).
             touchAudio() {
@@ -5011,12 +5042,26 @@
                 if (!F.audio) return;
                 try { F.audio.pause(); F.audio.currentTime = 0; } catch (e) {}
             },
-            setMuted(m) { this.muted = !!m; if (this.muted) { try { this._stirStopNow(); } catch (e) {} try { this.farmAmbStop(); } catch (e) {} } this.save(); this.updateUi(); try { if (typeof ambient !== 'undefined' && ambient._inited) ambient.syncPlayback(); } catch (e) {} try { if (typeof music !== 'undefined' && music._inited) music.syncPlayback(); } catch (e) {} },
+            setMuted(m) {
+                const wasOff = this.muted || this.volume <= 0;
+                this.muted = !!m;
+                if (wasOff && !this.muted && this.volume > 0) {
+                    try { this.touchAudio(); } catch (e) {}
+                }
+                if (this.muted) { try { this._stirStopNow(); } catch (e) {} try { this.farmAmbStop(); } catch (e) {} }
+                this.save(); this.updateUi();
+                try { if (typeof ambient !== 'undefined' && ambient._inited) ambient.syncPlayback(); } catch (e) {}
+                try { if (typeof music !== 'undefined' && music._inited) music.syncPlayback(); } catch (e) {}
+            },
             toggleMute() { this.setMuted(!this.muted); },
             setVolume(val) {
                 const n = Number(val);
+                const wasOff = this.muted || this.volume <= 0;
                 this.volume = isFinite(n) ? Math.min(1, Math.max(0, n)) : this.volume;
                 if (this.volume > 0 && this.muted) this.muted = false;
+                if (wasOff && this.volume > 0 && !this.muted) {
+                    try { this.touchAudio(); } catch (e) {}
+                }
                 if (this._waAmbGain) { try { this._waAmbGain.gain.value = this._farmAmbVol(); } catch (e) {} }
                 const F = this._farmAmb;
                 if (F.audio && F.active) { try { F.audio.volume = this._farmAmbVol(); } catch (e) {} }
@@ -7058,7 +7103,7 @@
                 if (_now - this._clickGate < 33) return;
                 this._clickGate = _now;
                 try { if (ev && ev.pointerType === 'mouse' && ev.button !== 0) return; } catch (e) {}
-                try { sound.touchAudio(); } catch (e) {}
+                try { sound.touchAudioIfOn(); } catch (e) {}
                 const m = Number.isFinite(this.m) ? Math.min(Math.max(this.m, 1), 6) : 1;
                 const exp = Math.min(this.cp[1].lv * this.champMult(this.cp[1].ch) * 0.5, 24);
                 let gain = m * Math.pow(1.33, exp) * (1 + this.s * 0.5);
@@ -7099,16 +7144,16 @@
                     const spoon = this._spoonEl || (this._spoonEl = document.getElementById('asset-spoon'));
                     if (spoon) { spoon.classList.add('manual-stir'); clearTimeout(this._stirT); this._stirT = setTimeout(() => { spoon.classList.remove('manual-stir'); }, 120); }
                     this.floatNum(px, py, gain, crit ? { crit: true } : null);
-                    if (!this._energyPartGate || _now - this._energyPartGate >= 220) {
+                    if (!this._energyPartGate || _now - this._energyPartGate >= 180) {
                         let ec = 0;
                         for (let pi = 0; pi < this.particles.length; pi++) if (this.particles[pi].t === 'energy') ec++;
-                        if (ec < 2 && this.particles.length < quality.params.maxParts) {
+                        if (ec < 3 && this.particles.length < quality.params.maxParts) {
                             const o = this.soupPartOrigin();
                             this.particles.push({
-                                x: o.x + (Math.random() - 0.5) * 22,
-                                y: o.y + (Math.random() - 0.5) * 10,
-                                t: 'energy', vx: (Math.random() - 0.5) * 3, vy: -1.5,
-                                life: 0.68, size: Math.random() * 2 + 2.5, color: '#a5f3fc'
+                                x: o.x + (Math.random() - 0.5) * 26,
+                                y: o.y + (Math.random() - 0.5) * 12,
+                                t: 'energy', vx: (Math.random() - 0.5) * 3, vy: -1.8,
+                                life: 0.82, size: Math.random() * 3 + 4.5, color: '#a5f3fc'
                             });
                             this._energyPartGate = _now;
                         }
@@ -9162,11 +9207,11 @@
                         if (lowQ) {
                             const dx = scoreTarget.x - p.x, dy = scoreTarget.y - p.y;
                             const dist = Math.hypot(dx, dy);
-                            if (dist < 8 || p.arrived) {
+                            if (dist < 10 || p.arrived) {
                                 p.arrived = true;
-                                p.life -= 0.28;
+                                p.life -= 0.24;
                             } else {
-                                p.x += dx * 0.12; p.y += dy * 0.12;
+                                p.x += dx * 0.16; p.y += dy * 0.16;
                             }
                         } else if (p.boost > 0) { p.boost--; p.vy += 0.18; }
                         else {
@@ -9241,13 +9286,13 @@
             },
             _close() { try { const m = document.getElementById('privacy-consent-modal'); if (m) m.classList.remove('open'); } catch (e) {} },
             agree() {
-                try { sound.touchAudio(); } catch (e) {}
+                try { sound.touchAudioIfOn(); } catch (e) {}
                 this._store(); this._close();
                 const cb = this._onAgree; this._onAgree = null; this._onDecline = null;
                 if (cb) { try { cb(); } catch (e) {} }
             },
             decline() {
-                try { sound.touchAudio(); } catch (e) {}
+                try { sound.touchAudioIfOn(); } catch (e) {}
                 this._sessionDeferred = true; this._close();
                 const cb = this._onDecline; this._onDecline = null; this._onAgree = null;
                 if (cb) { try { cb(); } catch (e) {} }
@@ -9279,7 +9324,7 @@
                 } catch (e) { this._finish(); }
             },
             _finish() {
-                try { sound.touchAudio(); } catch (e) {}
+                try { sound.touchAudioIfOn(); } catch (e) {}
                 const cb = this._onDone; this._onDone = null; if (cb) { try { cb(); } catch (e) {} }
             },
             open(firstRun) {
@@ -9324,7 +9369,7 @@
             },
             confirm() {
                 if (this._busy) return;
-                try { sound.touchAudio(); } catch (e) {}
+                try { sound.touchAudioIfOn(); } catch (e) {}
                 const inp = document.getElementById('name-input'); if (!inp) return;
                 const raw = inp.value;
                 const btn = document.getElementById('name-confirm');
