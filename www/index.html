@@ -2790,36 +2790,36 @@
     })(typeof window !== 'undefined' ? window : this);
     </script>
     <script src="events.js"></script>
-    <script src="js/soft-events.js?v=build-268"></script>
-    <script src="js/gx.js?v=build-268"></script>
-    <script src="js/visual-theme.js?v=build-268"></script>
-    <script src="js/decor.js?v=build-268"></script>
-    <script src="js/quests.js?v=build-268"></script>
-    <script src="js/achievements.js?v=build-268"></script>
-    <script src="js/soup-menu.js?v=build-268"></script>
-    <script src="js/weekly-challenges.js?v=build-268"></script>
-    <script src="js/helper-team.js?v=build-268"></script>
-    <script src="js/chef-mood.js?v=build-268"></script>
-    <script src="js/farm.js?v=build-268"></script>
-    <script src="js/ambient.js?v=build-268"></script>
-    <script src="js/music.js?v=build-268"></script>
-    <script src="js/creator.js?v=build-268"></script>
-    <script src="js/prix.js?v=build-268"></script>
-    <script src="js/soup-skirmish.js?v=build-268"></script>
-    <script src="js/objective.js?v=build-268"></script>
-    <script src="js/angel-tree.js?v=build-268"></script>
-    <script src="js/tutorial.js?v=build-268"></script>
-    <script src="js/quality.js?v=build-268"></script>
-    <script src="js/fullscreen.js?v=build-268"></script>
-    <script src="js/home.js?v=build-268"></script>
-    <script src="js/pause-menu.js?v=build-268"></script>
-    <script src="js/guide.js?v=build-268"></script>
-    <script src="js/hud-chips.js?v=build-268"></script>
-    <script src="js/item-bonus.js?v=build-268"></script>
+    <script src="js/soft-events.js?v=build-269"></script>
+    <script src="js/gx.js?v=build-269"></script>
+    <script src="js/visual-theme.js?v=build-269"></script>
+    <script src="js/decor.js?v=build-269"></script>
+    <script src="js/quests.js?v=build-269"></script>
+    <script src="js/achievements.js?v=build-269"></script>
+    <script src="js/soup-menu.js?v=build-269"></script>
+    <script src="js/weekly-challenges.js?v=build-269"></script>
+    <script src="js/helper-team.js?v=build-269"></script>
+    <script src="js/chef-mood.js?v=build-269"></script>
+    <script src="js/farm.js?v=build-269"></script>
+    <script src="js/ambient.js?v=build-269"></script>
+    <script src="js/music.js?v=build-269"></script>
+    <script src="js/creator.js?v=build-269"></script>
+    <script src="js/prix.js?v=build-269"></script>
+    <script src="js/soup-skirmish.js?v=build-269"></script>
+    <script src="js/objective.js?v=build-269"></script>
+    <script src="js/angel-tree.js?v=build-269"></script>
+    <script src="js/tutorial.js?v=build-269"></script>
+    <script src="js/quality.js?v=build-269"></script>
+    <script src="js/fullscreen.js?v=build-269"></script>
+    <script src="js/home.js?v=build-269"></script>
+    <script src="js/pause-menu.js?v=build-269"></script>
+    <script src="js/guide.js?v=build-269"></script>
+    <script src="js/hud-chips.js?v=build-269"></script>
+    <script src="js/item-bonus.js?v=build-269"></script>
     <!-- Cache-bust catalog on every deploy (SW must not serve a stale charm list). -->
-    <script src="assets/skins/catalog.js?v=build-268"></script>
-    <script src="assets/atlas_manifest.js?v=build-268"></script>
-    <script src="js/atlas.js?v=build-268"></script>
+    <script src="assets/skins/catalog.js?v=build-269"></script>
+    <script src="assets/atlas_manifest.js?v=build-269"></script>
+    <script src="js/atlas.js?v=build-269"></script>
     <!-- ====================================================================
          === EMBEDDED LEADERBOARD MODULE (from leaderboard/leaderboard-client.js)
          === Self-contained global `leaderboard` object. Single-file game, so the
@@ -3299,7 +3299,7 @@
 
     })(typeof window !== 'undefined' ? window : this);
     </script>
-    <script src="js/lb-ui.js?v=build-268"></script>
+    <script src="js/lb-ui.js?v=build-269"></script>
     <!-- ==================== END EMBEDDED LEADERBOARD MODULE ==================== -->
     <script>
         // === AUTO-UPDATE / ANTI-STALE-CACHE ===========================================
@@ -3313,7 +3313,7 @@
         // while still retrying if a reload didn't actually land the new build. Fully
         // defensive: any error is silent and never blocks the game. Parent bumps BOTH
         // version.json and BUILD_V on every future deploy.
-        const BUILD_V = "build-268";
+        const BUILD_V = "build-269";
         function paintBuildTag() {
             try {
                 var prod = (typeof PRODUCTION_BUILD !== 'undefined' && PRODUCTION_BUILD)
@@ -5580,6 +5580,7 @@
             CHEF_FALLBACK_EAT_MS: 2000,
             CHEW_SLICE_MS: 500,
             CHEW_MAX_TOGGLES: 3,
+            CHEW_LITE_MAX_TOGGLES: 4,
             CHEF_SRC_CLOSED: 'assets/img/chef.png',
             CHEF_SRC_OPEN: 'assets/img/chef-mouth-open.png',
             SOUP_FX_BUBBLE_MAX: 58,
@@ -7680,7 +7681,7 @@
                 else chewMs = Math.max(this.CHEF_FALLBACK_EAT_MS || 2000, chewMs);
                 if (liteFeed) {
                     try { this._chefWarmMouthSprites(); } catch (e) {}
-                    this._runChefMouthChewLoop(380);
+                    this._runChefMouthChewLoop(380, this.CHEW_LITE_MAX_TOGGLES != null ? this.CHEW_LITE_MAX_TOGGLES : 4);
                 } else {
                     this._chefMouthChewActive = true;
                     this._setChefEating(true, true);
@@ -7783,6 +7784,7 @@
                 this.particles.push({ x, y, t: 'ingredient', vx: (Math.random() - 0.5) * 10, vy: (Math.random() - 0.5) * 10 - 5, life: 1, size: Math.random() * 8 + 4, color: color || '#fde047' });
             },
             spawnSoupCanvasBubbles(cx, cy, colors, count) {
+                if (this._mProdMobile && this._mProdMobile()) return;
                 const MAX = quality.params.maxParts;
                 const n = Math.max(1, Math.min(count || 10, 16));
                 const room = MAX - this.particles.length;
@@ -7893,6 +7895,7 @@
                 return smin + (smax - smin) * 0.58 + Math.random() * (smax - smin) * 0.42;
             },
             spawnSoupColoredBubbles(fxId, opts) {
+                if (this._mProdMobile && this._mProdMobile()) return;
                 opts = opts || {};
                 const spec = this.SOUP_FX_BUBBLES[fxId] || this.SOUP_FX_BUBBLES.banana;
                 const colors = spec.colors;
