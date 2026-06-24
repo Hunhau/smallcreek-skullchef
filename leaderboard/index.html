@@ -294,9 +294,14 @@ const LB = {
           .from('players')
           .select('id, display_name, platform, ' + col)
           .order(col, { ascending:false })
-          .limit(CONFIG.TOP_N);
+          .limit(CONFIG.TOP_N + 1);
         if (!res.error && Array.isArray(res.data) && res.data.length) {
-          return res.data.map(r => ({ id:r.id, name:r.display_name, platform:r.platform, value:r[col] }));
+          const creator = res.data.find(r => isCreatorRow({ id: r.id, name: r.display_name }));
+          const others = res.data.filter(r => !isCreatorRow({ id: r.id, name: r.display_name })).slice(0, CONFIG.TOP_N);
+          const ordered = [];
+          if (creator) ordered.push({ id: creator.id, name: creator.display_name, platform: creator.platform, value: creator[col] });
+          others.forEach(r => ordered.push({ id: r.id, name: r.display_name, platform: r.platform, value: r[col] }));
+          return ordered;
         }
       } catch (e) {}
     }

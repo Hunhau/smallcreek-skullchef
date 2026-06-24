@@ -95,21 +95,11 @@
   };
 
   // ----------------------------------------------------------------------
-  // Seeded EXAMPLE data — must mirror schema.sql seeds so mock == live shape.
+  // Offline fallback only — creator row; no fake seed players.
   // Used by top() when not configured (offline/before backend exists).
   // ----------------------------------------------------------------------
   var SEED = [
-    { name: 'SmallcreekSkullchef', platform: 'web',     score: 12000000000, prestige: 6, prix_wins: 120 },
-    { name: 'ChefSkully',     platform: 'youtube', score: 4820000000, prestige: 5, prix_wins: 94 },
-    { name: 'SopaMaestra',    platform: 'android', score: 4150000000, prestige: 5, prix_wins: 88 },
-    { name: 'BoneBroth_Boss', platform: 'steam',   score: 920000000,  prestige: 4, prix_wins: 73 },
-    { name: 'CucharaDeOro',   platform: 'ios',     score: 610000000,  prestige: 4, prix_wins: 65 },
-    { name: 'MidnightStew',   platform: 'web',     score: 184000000,  prestige: 3, prix_wins: 52 },
-    { name: 'AngelitoChef',   platform: 'youtube', score: 121000000,  prestige: 3, prix_wins: 44 },
-    { name: 'SkullSimmer',    platform: 'android', score: 38500000,   prestige: 2, prix_wins: 31 },
-    { name: 'CalderoFeliz',   platform: 'steam',   score: 22000000,   prestige: 2, prix_wins: 24 },
-    { name: 'TinyLadle',      platform: 'ios',     score: 6400000,    prestige: 1, prix_wins: 12 },
-    { name: 'NewChef_Pia',    platform: 'web',     score: 2100000,    prestige: 1, prix_wins: 5 }
+    { id: '1832ff16-5fec-4afd-b570-f950e19eb434', name: 'SmallcreekSkullchef', platform: 'web', score: 12000000000, prestige: 6, prix_wins: 120 }
   ];
 
   var BOARD_COLUMN = { score: 'score', prestige: 'prestige', prix: 'prix_wins' };
@@ -438,6 +428,44 @@
      * @param {number} n
      * @returns {Promise<Array<{rank,name,value,platform,you}>>}
      */
+    CREATOR_UUID: '1832ff16-5fec-4afd-b570-f950e19eb434',
+
+    // Creator is pinned with 👑 and does not consume one of the N numbered slots.
+    _normalizeTopRows: function (data, col, myUuid, want) {
+      if (!data || !data.length) return [];
+      var cid = this.CREATOR_UUID;
+      var creator = null;
+      var others = [];
+      for (var i = 0; i < data.length; i++) {
+        var row = data[i];
+        if (String(row.id).toLowerCase() === cid) creator = row;
+        else others.push(row);
+      }
+      others = others.slice(0, want);
+      var out = [];
+      if (creator) {
+        out.push({
+          rank: 0,
+          id: creator.id,
+          name: creator.display_name,
+          value: creator[col],
+          platform: creator.platform,
+          you: creator.id === myUuid
+        });
+      }
+      for (var j = 0; j < others.length; j++) {
+        out.push({
+          rank: j + 1,
+          id: others[j].id,
+          name: others[j].display_name,
+          value: others[j][col],
+          platform: others[j].platform,
+          you: others[j].id === myUuid
+        });
+      }
+      return out;
+    },
+
     top: function (board, n) {
       var col = BOARD_COLUMN[board] || 'score';
       n = Math.max(1, Math.min(500, n || 50));
@@ -454,29 +482,25 @@
           .from('players')
           .select('id, display_name, platform, ' + col)
           .order(col, { ascending: false })
-          .limit(n)
+          .limit(n + 1)
           .then(function (res) {
             if (!res || res.error || !Array.isArray(res.data)) {
               return self._mockTop(col, n);
             }
-            return res.data.map(function (row, i) {
-              return {
-                rank: i + 1,
-                name: row.display_name,
-                value: row[col],
-                platform: row.platform,
-                you: row.id === myUuid
-              };
-            });
+            return self._normalizeTopRows(res.data, col, myUuid, n);
           });
       }).catch(function () { return self._mockTop(col, n); });
     },
 
     _mockTop: function (col, n) {
-      var rows = SEED.slice().sort(function (a, b) { return b[col] - a[col]; }).slice(0, n);
-      return rows.map(function (r, i) {
-        return { rank: i + 1, name: r.name, value: r[col], platform: r.platform, you: false };
+      var rows = SEED.slice().sort(function (a, b) { return b[col] - a[col]; }).slice(0, n + 1);
+      var data = rows.map(function (r) {
+        var o = { id: r.id || null, display_name: r.name, platform: r.platform };
+        o[col] = r[col];
+        return o;
       });
+      if (!_id) loadIdentity();
+      return this._normalizeTopRows(data, col, _id.uuid, n);
     },
 
     /** Raw seed data (for a public page's offline fallback). */

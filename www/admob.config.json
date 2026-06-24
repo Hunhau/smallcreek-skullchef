@@ -1,6 +1,7 @@
 {
   "bundleId": "com.smallcreek.skullchef",
   "isTesting": false,
+  "useFillFallback": true,
   "testingDevices": [],
   "ios": {
     "appId": "ca-app-pub-8530208236054868~3086248782",

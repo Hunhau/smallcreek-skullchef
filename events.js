@@ -3,7 +3,7 @@
 (function (global) {
   'use strict';
 
-  /** @type {Array<{id:string, start:string, end:string, theme?:string, label?:string, label_es?:string, lore_en?:string, lore_es?:string, cpsBonus?:number, clickBonus?:number, decorPack?:string}>} */
+  /** @type {Array<{id:string, start:string, end:string, theme?:string, label?:string, label_es?:string, lore_en?:string, lore_es?:string, cpsBonus?:number, clickBonus?:number, decorPack?:string, dropPack?:string}>} */
   const EVENTS = [
     {
       id: 'summer',
@@ -16,7 +16,8 @@
       lore_es: 'El caldero está sospechosamente frío. Skullchef lo llama ASMR de sopa fría. Coco trajo flotadores.',
       cpsBonus: 0.05,
       clickBonus: 0.03,
-      decorPack: 'summer'
+      decorPack: 'summer',
+      dropPack: 'pirate_plunder'
     },
     {
       id: 'bloom',
@@ -28,7 +29,8 @@
       lore_en: 'Green steam wisps rise from the pot. Bunny insists the carrots are "seasonal garnish".',
       lore_es: 'Vapor verde sale de la olla. Bunny insiste en que las zanahorias son "guarnición de temporada".',
       cpsBonus: 0.04,
-      clickBonus: 0.02
+      clickBonus: 0.02,
+      dropPack: 'fairy_glade'
     },
     {
       id: 'halloween',
@@ -38,9 +40,10 @@
       label: 'Spooky Stir',
       label_es: 'Remolino Espeluznante',
       lore_en: 'Purple fog curls over Esquelotia. The golden bubbles cackle when you pop them.',
-      lore_es: 'Niebla morada envuelve Esquelotia. Las burbujas doradas sueltan risitas al explotar.',
+      lore_es: 'Niebla morada envuelve Esqueletia. Las burbujas doradas sueltan risitas al explotar.',
       cpsBonus: 0.05,
-      clickBonus: 0.04
+      clickBonus: 0.04,
+      dropPack: 'vampire_vogue'
     }
   ];
 
@@ -78,8 +81,8 @@
       try {
         const active = getActive();
         const id = active.length ? active[0].id : '';
-        document.documentElement.dataset.event = id;
+        document.documentElement.setAttribute('data-event', id);
       } catch (e) {}
     }
   };
-})(typeof window !== 'undefined' ? window : this);
+})(typeof window !== 'undefined' ? window : globalThis);

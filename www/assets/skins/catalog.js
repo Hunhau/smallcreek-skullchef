@@ -147,7 +147,7 @@
     { id: 'bongo_rare_detective',    rarity: 'rare',      family: 'helper', img: 'assets/skins/bongo_rare_detective.png', thumb: 'assets/skins/thumbs/bongo_rare_detective.webp',    name_en: 'Bongo · Detective',     name_es: 'Bongo · Detective' },
     { id: 'bongo_epic_spacepirate',  rarity: 'epic',      family: 'helper', img: 'assets/skins/bongo_epic_spacepirate.png', thumb: 'assets/skins/thumbs/bongo_epic_spacepirate.webp',  name_en: 'Bongo · Space Pirate',  name_es: 'Bongo · Pirata Espacial' },
     { id: 'bongo_superleg_prism',    rarity: 'superleg',  family: 'helper', img: 'assets/skins/bongo_superleg_prism.png', thumb: 'assets/skins/thumbs/bongo_superleg_prism.webp',    name_en: 'Bongo · Prism',         name_es: 'Bongo · Prisma' },
-    // === BONGO — Aliens (Wave 3) ===
+    // ----- Bongo · Wave 3 · Aliens -----
     { id: 'bongo_common_greenie',    rarity: 'common',    family: 'helper', img: 'assets/skins/bongo_common_greenie.png', thumb: 'assets/skins/thumbs/bongo_common_greenie.webp',    name_en: 'Bongo · Green Alien',   name_es: 'Bongo · Alienígena Verde' },
     { id: 'bongo_uncommon_antenna',  rarity: 'uncommon',  family: 'helper', img: 'assets/skins/bongo_uncommon_antenna.png', thumb: 'assets/skins/thumbs/bongo_uncommon_antenna.webp', name_en: 'Bongo · Antenna',       name_es: 'Bongo · Antena' },
     { id: 'bongo_rare_bugzoid',      rarity: 'rare',      family: 'helper', img: 'assets/skins/bongo_rare_bugzoid.png', thumb: 'assets/skins/thumbs/bongo_rare_bugzoid.webp',      name_en: 'Bongo · Bugzoid',       name_es: 'Bongo · Insectoide' },
@@ -156,7 +156,7 @@
     { id: 'bongo_epic_triclops',     rarity: 'epic',      family: 'helper', img: 'assets/skins/bongo_epic_triclops.png', thumb: 'assets/skins/thumbs/bongo_epic_triclops.webp',     name_en: 'Bongo · Triclops',      name_es: 'Bongo · Tríclope' },
     { id: 'bongo_legendary_warlord', rarity: 'legendary', family: 'helper', img: 'assets/skins/bongo_legendary_warlord.png', thumb: 'assets/skins/thumbs/bongo_legendary_warlord.webp', name_en: 'Bongo · Alien Warlord', name_es: 'Bongo · Señor Alienígena' },
     { id: 'bongo_superleg_saucer',   rarity: 'superleg',  family: 'helper', img: 'assets/skins/bongo_superleg_saucer.png', thumb: 'assets/skins/thumbs/bongo_superleg_saucer.webp',   name_en: 'Bongo · UFO Pilot',     name_es: 'Bongo · Piloto OVNI' },
-    // === BONGO — Fastfood / Comida (Wave 3) ===
+    // ----- Bongo · Wave 3 · Fast Food -----
     { id: 'bongo_common_sushi',      rarity: 'common',    family: 'helper', img: 'assets/skins/bongo_common_sushi.png', thumb: 'assets/skins/thumbs/bongo_common_sushi.webp',      name_en: 'Bongo · Sushi',         name_es: 'Bongo · Sushi' },
     { id: 'bongo_uncommon_ramen',    rarity: 'uncommon',  family: 'helper', img: 'assets/skins/bongo_uncommon_ramen.png', thumb: 'assets/skins/thumbs/bongo_uncommon_ramen.webp',    name_en: 'Bongo · Ramen',         name_es: 'Bongo · Ramen' },
     { id: 'bongo_uncommon_taco',     rarity: 'uncommon',  family: 'helper', img: 'assets/skins/bongo_uncommon_taco.png', thumb: 'assets/skins/thumbs/bongo_uncommon_taco.webp',     name_en: 'Bongo · Taco',          name_es: 'Bongo · Taco' },
@@ -165,7 +165,7 @@
     { id: 'bongo_epic_takoyaki',     rarity: 'epic',      family: 'helper', img: 'assets/skins/bongo_epic_takoyaki.png', thumb: 'assets/skins/thumbs/bongo_epic_takoyaki.webp',     name_en: 'Bongo · Takoyaki',      name_es: 'Bongo · Takoyaki' },
     { id: 'bongo_legendary_donut',   rarity: 'legendary', family: 'helper', img: 'assets/skins/bongo_legendary_donut.png', thumb: 'assets/skins/thumbs/bongo_legendary_donut.webp',   name_en: 'Bongo · Donut',         name_es: 'Bongo · Dona' },
     { id: 'bongo_superleg_milkshake',rarity: 'superleg',  family: 'helper', img: 'assets/skins/bongo_superleg_milkshake.png', thumb: 'assets/skins/thumbs/bongo_superleg_milkshake.webp',name_en: 'Bongo · Milkshake',     name_es: 'Bongo · Batido' },
-    // === BONGO — Mixed (Wave 3) ===
+    // ----- Bongo · Wave 3 · Mixed -----
     { id: 'bongo_uncommon_soccer',   rarity: 'uncommon',  family: 'helper', img: 'assets/skins/bongo_uncommon_soccer.png', thumb: 'assets/skins/thumbs/bongo_uncommon_soccer.webp',   name_en: 'Bongo · Soccer',        name_es: 'Bongo · Fútbol' },
     { id: 'bongo_rare_ninja',        rarity: 'rare',      family: 'helper', img: 'assets/skins/bongo_rare_ninja.png', thumb: 'assets/skins/thumbs/bongo_rare_ninja.webp',        name_en: 'Bongo · Ninja',         name_es: 'Bongo · Ninja' },
     { id: 'bongo_rare_pilot',        rarity: 'rare',      family: 'helper', img: 'assets/skins/bongo_rare_pilot.png', thumb: 'assets/skins/thumbs/bongo_rare_pilot.webp',        name_en: 'Bongo · Pilot',         name_es: 'Bongo · Piloto' },
@@ -174,7 +174,7 @@
     { id: 'bongo_epic_zombie',       rarity: 'epic',      family: 'helper', img: 'assets/skins/bongo_epic_zombie.png', thumb: 'assets/skins/thumbs/bongo_epic_zombie.webp',       name_en: 'Bongo · Zombie',        name_es: 'Bongo · Zombi' },
     { id: 'bongo_legendary_corsair', rarity: 'legendary', family: 'helper', img: 'assets/skins/bongo_legendary_corsair.png', thumb: 'assets/skins/thumbs/bongo_legendary_corsair.webp', name_en: 'Bongo · Corsair',       name_es: 'Bongo · Corsario' },
     { id: 'bongo_superleg_robot',    rarity: 'superleg',  family: 'helper', img: 'assets/skins/bongo_superleg_robot.png', thumb: 'assets/skins/thumbs/bongo_superleg_robot.webp',    name_en: 'Bongo · Robot',         name_es: 'Bongo · Robot' },
-    // === BONGO — Superheroes (Wave 3) ===
+    // ----- Bongo · Wave 3 · Superheroes -----
     { id: 'bongo_common_caped',      rarity: 'common',    family: 'helper', img: 'assets/skins/bongo_common_caped.png', thumb: 'assets/skins/thumbs/bongo_common_caped.webp',      name_en: 'Bongo · Caped Hero',    name_es: 'Bongo · Héroe con Capa' },
     { id: 'bongo_uncommon_aqua',     rarity: 'uncommon',  family: 'helper', img: 'assets/skins/bongo_uncommon_aqua.png', thumb: 'assets/skins/thumbs/bongo_uncommon_aqua.webp',     name_en: 'Bongo · Aqua Hero',     name_es: 'Bongo · Héroe Acuático' },
     { id: 'bongo_uncommon_stealth',  rarity: 'uncommon',  family: 'helper', img: 'assets/skins/bongo_uncommon_stealth.png', thumb: 'assets/skins/thumbs/bongo_uncommon_stealth.webp',  name_en: 'Bongo · Stealth',       name_es: 'Bongo · Sigilo' },
