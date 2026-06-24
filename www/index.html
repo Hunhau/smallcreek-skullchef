@@ -2781,36 +2781,36 @@
     })(typeof window !== 'undefined' ? window : this);
     </script>
     <script src="events.js"></script>
-    <script src="js/soft-events.js?v=build-246"></script>
-    <script src="js/gx.js?v=build-246"></script>
-    <script src="js/visual-theme.js?v=build-246"></script>
-    <script src="js/decor.js?v=build-246"></script>
-    <script src="js/quests.js?v=build-246"></script>
-    <script src="js/achievements.js?v=build-246"></script>
-    <script src="js/soup-menu.js?v=build-246"></script>
-    <script src="js/weekly-challenges.js?v=build-246"></script>
-    <script src="js/helper-team.js?v=build-246"></script>
-    <script src="js/chef-mood.js?v=build-246"></script>
-    <script src="js/farm.js?v=build-246"></script>
-    <script src="js/ambient.js?v=build-246"></script>
-    <script src="js/music.js?v=build-246"></script>
-    <script src="js/creator.js?v=build-246"></script>
-    <script src="js/prix.js?v=build-246"></script>
-    <script src="js/soup-skirmish.js?v=build-246"></script>
-    <script src="js/objective.js?v=build-246"></script>
-    <script src="js/angel-tree.js?v=build-246"></script>
-    <script src="js/tutorial.js?v=build-246"></script>
-    <script src="js/quality.js?v=build-246"></script>
-    <script src="js/fullscreen.js?v=build-246"></script>
-    <script src="js/home.js?v=build-246"></script>
-    <script src="js/pause-menu.js?v=build-246"></script>
-    <script src="js/guide.js?v=build-246"></script>
-    <script src="js/hud-chips.js?v=build-246"></script>
-    <script src="js/item-bonus.js?v=build-246"></script>
+    <script src="js/soft-events.js?v=build-247"></script>
+    <script src="js/gx.js?v=build-247"></script>
+    <script src="js/visual-theme.js?v=build-247"></script>
+    <script src="js/decor.js?v=build-247"></script>
+    <script src="js/quests.js?v=build-247"></script>
+    <script src="js/achievements.js?v=build-247"></script>
+    <script src="js/soup-menu.js?v=build-247"></script>
+    <script src="js/weekly-challenges.js?v=build-247"></script>
+    <script src="js/helper-team.js?v=build-247"></script>
+    <script src="js/chef-mood.js?v=build-247"></script>
+    <script src="js/farm.js?v=build-247"></script>
+    <script src="js/ambient.js?v=build-247"></script>
+    <script src="js/music.js?v=build-247"></script>
+    <script src="js/creator.js?v=build-247"></script>
+    <script src="js/prix.js?v=build-247"></script>
+    <script src="js/soup-skirmish.js?v=build-247"></script>
+    <script src="js/objective.js?v=build-247"></script>
+    <script src="js/angel-tree.js?v=build-247"></script>
+    <script src="js/tutorial.js?v=build-247"></script>
+    <script src="js/quality.js?v=build-247"></script>
+    <script src="js/fullscreen.js?v=build-247"></script>
+    <script src="js/home.js?v=build-247"></script>
+    <script src="js/pause-menu.js?v=build-247"></script>
+    <script src="js/guide.js?v=build-247"></script>
+    <script src="js/hud-chips.js?v=build-247"></script>
+    <script src="js/item-bonus.js?v=build-247"></script>
     <!-- Cache-bust catalog on every deploy (SW must not serve a stale charm list). -->
-    <script src="assets/skins/catalog.js?v=build-246"></script>
-    <script src="assets/atlas_manifest.js?v=build-246"></script>
-    <script src="js/atlas.js?v=build-246"></script>
+    <script src="assets/skins/catalog.js?v=build-247"></script>
+    <script src="assets/atlas_manifest.js?v=build-247"></script>
+    <script src="js/atlas.js?v=build-247"></script>
     <!-- ====================================================================
          === EMBEDDED LEADERBOARD MODULE (from leaderboard/leaderboard-client.js)
          === Self-contained global `leaderboard` object. Single-file game, so the
@@ -3290,7 +3290,7 @@
 
     })(typeof window !== 'undefined' ? window : this);
     </script>
-    <script src="js/lb-ui.js?v=build-246"></script>
+    <script src="js/lb-ui.js?v=build-247"></script>
     <!-- ==================== END EMBEDDED LEADERBOARD MODULE ==================== -->
     <script>
         // === AUTO-UPDATE / ANTI-STALE-CACHE ===========================================
@@ -3304,7 +3304,7 @@
         // while still retrying if a reload didn't actually land the new build. Fully
         // defensive: any error is silent and never blocks the game. Parent bumps BOTH
         // version.json and BUILD_V on every future deploy.
-        const BUILD_V = "build-246";
+        const BUILD_V = "build-247";
         function paintBuildTag() {
             try {
                 var prod = (typeof PRODUCTION_BUILD !== 'undefined' && PRODUCTION_BUILD)
@@ -4399,7 +4399,15 @@
                 if (name === 'buy') {
                     const flatB = this.flat[name] || [];
                     if (!flatB.length) return;
-                    for (let i = 0; i < flatB.length; i++) { const v = flatB[i]; if (!v.paused && !v.ended) return; }
+                    let mobileCoarse = false;
+                    try { mobileCoarse = window.matchMedia('(pointer: coarse)').matches; } catch (e) {}
+                    if (mobileCoarse) {
+                        const minGap = 220;
+                        if ((now - (this._lastBuyM || 0)) < minGap) return;
+                        this._lastBuyM = now;
+                    } else {
+                        for (let i = 0; i < flatB.length; i++) { const v = flatB[i]; if (!v.paused && !v.ended) return; }
+                    }
                     const a = flatB[0];
                     try {
                         a.muted = false;
@@ -6007,6 +6015,10 @@
                 try {
                     clearTimeout(this._mShopCloseTimer);
                     this._mShopCloseTimer = null;
+                    clearTimeout(this._mRebuildTimer);
+                    this._mRebuildTimer = null;
+                    this._mRebuildDirty = false;
+                    this._mSummonPumping = false;
                     this._mSummonQueue = [];
                 } catch (e) {}
                 try { document.querySelectorAll('.summon-clone').forEach(el => el.remove()); } catch (e) {}
@@ -8003,8 +8015,6 @@
                 try { chefMood.bump(Math.min(4, 1 + n * 0.4), 'buy'); } catch (e) {}
                 if ([10, 25, 50, 100].some(th => prevLv < th && c.lv >= th)) { this.part(window.innerWidth / 2, window.innerHeight * 0.5, 'magic'); sound.play('bubble'); gx.toast(t(this.milestoneMsg[i] || 'milestone_generic')); }
                 ach.check();
-                this.rebuild();
-                this.syncMinigameButtons();
                 const feed = this.isFeedMilestone(c.lv);
                 let originStub = ev && ev.currentTarget;
                 try {
@@ -8015,6 +8025,16 @@
                 } catch (e) {}
                 if (!this.patchCompanionCard(i)) this.renderCompanionCards();
                 this.save();
+                if (this._mSheet()) {
+                    if (c.lv > 0) { try { this.slot(c); this.syncCompanionLayout(); } catch (e) {} }
+                    this._mScheduleRebuild();
+                    this.syncMinigameButtons();
+                    this._mDeferSummonClose(() => this.summon(c, originStub, feed, null, rainOnLand));
+                    try { if (typeof tutorial !== 'undefined' && tutorial.active) tutorial.notify('buy'); } catch (e) {}
+                    return;
+                }
+                this.rebuild();
+                this.syncMinigameButtons();
                 this._summonGen = (this._summonGen || 0) + 1;
                 const summonGen = this._summonGen;
                 const launchSummon = () => {
@@ -8022,9 +8042,7 @@
                     this.ensureHelperSlotLayout(c, () => {
                         if (summonGen !== this._summonGen) return;
                         try { this._warmHelperSprites(); } catch (e) {}
-                        const run = () => this.summon(c, originStub, feed, null, rainOnLand);
-                        if (this._mSheet()) this._mDeferSummonClose(run);
-                        else run();
+                        this.summon(c, originStub, feed, null, rainOnLand);
                     });
                 };
                 requestAnimationFrame(() => requestAnimationFrame(() => requestAnimationFrame(launchSummon)));
@@ -8190,18 +8208,76 @@
                     this._mScheduleShopClose();
                 } catch (e) {}
             },
-            /* Shared debounced close: closes the sheet quickly once buying pauses, then (after
-               the slide-out) fires any queued helper throws, staggered. Drains the queue
-               regardless of whether the last buy was a companion, spoon or hat. */
+            /* Shared debounced close: closes the sheet once buying pauses, then drains the
+               summon queue ONE AT A TIME (no overlap — rapid buys used to fire all at 240ms
+               and freeze mobile / kill audio). */
             _mScheduleShopClose() {
                 try {
                     clearTimeout(this._mShopCloseTimer);
                     this._mShopCloseTimer = setTimeout(() => {
                         try { if (typeof mobileUI !== 'undefined') mobileUI.closeAll(); } catch (e) {}
-                        const q = this._mSummonQueue || []; this._mSummonQueue = [];
-                        setTimeout(() => { q.forEach((fn, i) => setTimeout(() => { try { fn(); } catch (e) {} }, i * 240)); }, 320);
+                        setTimeout(() => { try { this._mPumpSummonQueue(); } catch (e) {} }, 320);
                     }, 650);
                 } catch (e) {}
+            },
+            _summonBusy() {
+                try {
+                    if (document.querySelector('.summon-clone')) return true;
+                    if (this._chefFeedInProgress()) return true;
+                } catch (e) {}
+                return false;
+            },
+            _mPumpSummonQueue() {
+                if (this._mSummonPumping) return;
+                if (!this._mSummonQueue || !this._mSummonQueue.length) {
+                    this._mFlushPendingRebuild();
+                    return;
+                }
+                this._mSummonPumping = true;
+                const step = () => {
+                    const q = this._mSummonQueue;
+                    if (!q || !q.length) {
+                        this._mSummonPumping = false;
+                        this._mFlushPendingRebuild();
+                        return;
+                    }
+                    if (this._summonBusy()) {
+                        setTimeout(step, 200);
+                        return;
+                    }
+                    const job = q.shift();
+                    let started = false;
+                    const t0 = Date.now();
+                    try { job(); } catch (e) {}
+                    const waitDone = () => {
+                        const busy = this._summonBusy();
+                        if (busy) started = true;
+                        if (started && !busy) { setTimeout(step, 120); return; }
+                        if (!started && Date.now() - t0 > 3000) { setTimeout(step, 120); return; }
+                        if (Date.now() - t0 > 18000) { setTimeout(step, 120); return; }
+                        setTimeout(waitDone, 200);
+                    };
+                    setTimeout(waitDone, 200);
+                };
+                step();
+            },
+            _mScheduleRebuild() {
+                this._mRebuildDirty = true;
+                if (this._mRebuildTimer) return;
+                const tick = () => {
+                    this._mRebuildTimer = null;
+                    if (this._mSummonPumping || this._summonBusy() || (this._mSummonQueue && this._mSummonQueue.length > 0)) {
+                        this._mRebuildTimer = setTimeout(tick, 200);
+                        return;
+                    }
+                    this._mFlushPendingRebuild();
+                };
+                this._mRebuildTimer = setTimeout(tick, 220);
+            },
+            _mFlushPendingRebuild() {
+                if (!this._mRebuildDirty) return;
+                this._mRebuildDirty = false;
+                try { this.rebuild(); } catch (e) {}
             },
             playPrestigeCinematic(opts) {
                 opts = opts || {};
