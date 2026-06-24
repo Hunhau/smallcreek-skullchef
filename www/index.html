@@ -2781,36 +2781,36 @@
     })(typeof window !== 'undefined' ? window : this);
     </script>
     <script src="events.js"></script>
-    <script src="js/soft-events.js?v=build-249"></script>
-    <script src="js/gx.js?v=build-249"></script>
-    <script src="js/visual-theme.js?v=build-249"></script>
-    <script src="js/decor.js?v=build-249"></script>
-    <script src="js/quests.js?v=build-249"></script>
-    <script src="js/achievements.js?v=build-249"></script>
-    <script src="js/soup-menu.js?v=build-249"></script>
-    <script src="js/weekly-challenges.js?v=build-249"></script>
-    <script src="js/helper-team.js?v=build-249"></script>
-    <script src="js/chef-mood.js?v=build-249"></script>
-    <script src="js/farm.js?v=build-249"></script>
-    <script src="js/ambient.js?v=build-249"></script>
-    <script src="js/music.js?v=build-249"></script>
-    <script src="js/creator.js?v=build-249"></script>
-    <script src="js/prix.js?v=build-249"></script>
-    <script src="js/soup-skirmish.js?v=build-249"></script>
-    <script src="js/objective.js?v=build-249"></script>
-    <script src="js/angel-tree.js?v=build-249"></script>
-    <script src="js/tutorial.js?v=build-249"></script>
-    <script src="js/quality.js?v=build-249"></script>
-    <script src="js/fullscreen.js?v=build-249"></script>
-    <script src="js/home.js?v=build-249"></script>
-    <script src="js/pause-menu.js?v=build-249"></script>
-    <script src="js/guide.js?v=build-249"></script>
-    <script src="js/hud-chips.js?v=build-249"></script>
-    <script src="js/item-bonus.js?v=build-249"></script>
+    <script src="js/soft-events.js?v=build-250"></script>
+    <script src="js/gx.js?v=build-250"></script>
+    <script src="js/visual-theme.js?v=build-250"></script>
+    <script src="js/decor.js?v=build-250"></script>
+    <script src="js/quests.js?v=build-250"></script>
+    <script src="js/achievements.js?v=build-250"></script>
+    <script src="js/soup-menu.js?v=build-250"></script>
+    <script src="js/weekly-challenges.js?v=build-250"></script>
+    <script src="js/helper-team.js?v=build-250"></script>
+    <script src="js/chef-mood.js?v=build-250"></script>
+    <script src="js/farm.js?v=build-250"></script>
+    <script src="js/ambient.js?v=build-250"></script>
+    <script src="js/music.js?v=build-250"></script>
+    <script src="js/creator.js?v=build-250"></script>
+    <script src="js/prix.js?v=build-250"></script>
+    <script src="js/soup-skirmish.js?v=build-250"></script>
+    <script src="js/objective.js?v=build-250"></script>
+    <script src="js/angel-tree.js?v=build-250"></script>
+    <script src="js/tutorial.js?v=build-250"></script>
+    <script src="js/quality.js?v=build-250"></script>
+    <script src="js/fullscreen.js?v=build-250"></script>
+    <script src="js/home.js?v=build-250"></script>
+    <script src="js/pause-menu.js?v=build-250"></script>
+    <script src="js/guide.js?v=build-250"></script>
+    <script src="js/hud-chips.js?v=build-250"></script>
+    <script src="js/item-bonus.js?v=build-250"></script>
     <!-- Cache-bust catalog on every deploy (SW must not serve a stale charm list). -->
-    <script src="assets/skins/catalog.js?v=build-249"></script>
-    <script src="assets/atlas_manifest.js?v=build-249"></script>
-    <script src="js/atlas.js?v=build-249"></script>
+    <script src="assets/skins/catalog.js?v=build-250"></script>
+    <script src="assets/atlas_manifest.js?v=build-250"></script>
+    <script src="js/atlas.js?v=build-250"></script>
     <!-- ====================================================================
          === EMBEDDED LEADERBOARD MODULE (from leaderboard/leaderboard-client.js)
          === Self-contained global `leaderboard` object. Single-file game, so the
@@ -3290,7 +3290,7 @@
 
     })(typeof window !== 'undefined' ? window : this);
     </script>
-    <script src="js/lb-ui.js?v=build-249"></script>
+    <script src="js/lb-ui.js?v=build-250"></script>
     <!-- ==================== END EMBEDDED LEADERBOARD MODULE ==================== -->
     <script>
         // === AUTO-UPDATE / ANTI-STALE-CACHE ===========================================
@@ -3304,7 +3304,7 @@
         // while still retrying if a reload didn't actually land the new build. Fully
         // defensive: any error is silent and never blocks the game. Parent bumps BOTH
         // version.json and BUILD_V on every future deploy.
-        const BUILD_V = "build-249";
+        const BUILD_V = "build-250";
         function paintBuildTag() {
             try {
                 var prod = (typeof PRODUCTION_BUILD !== 'undefined' && PRODUCTION_BUILD)
@@ -5582,7 +5582,17 @@
                 if (!chef) return;
                 this._chefMouthHideOverlay();
                 this._chefMouthVisual = 'open';
-                chef.src = this.CHEF_SRC_OPEN;
+                if (chef.src !== this.CHEF_SRC_OPEN) chef.src = this.CHEF_SRC_OPEN;
+            },
+            _chefWarmMouthSprites() {
+                try {
+                    if (!this._chefMouthWarm) {
+                        this._chefMouthWarm = true;
+                        const im = new Image();
+                        im.decoding = 'async';
+                        im.src = this.CHEF_SRC_OPEN;
+                    }
+                } catch (e) {}
             },
             _chefMouthStopChewLoop() {
                 this._chefMouthChewActive = false;
@@ -5597,14 +5607,14 @@
                 }
             },
             _chefMouthStopAnim() { this._chefMouthStopChewLoop(); },
-            _runChefMouthChewLoop() {
+            _runChefMouthChewLoop(sliceOverride) {
                 this._chefMouthStopChewLoop();
                 this._chefMouthChewActive = true;
                 this._setChefEating(true, true);
                 this._chefMouthVisual = null;
                 this._chefMouthOpenState = true;
                 this._chefMouthShowOpen();
-                const sliceMs = this.CHEW_SLICE_MS || 500;
+                const sliceMs = sliceOverride || this.CHEW_SLICE_MS || 500;
                 this._chefMouthAnimTimer = setInterval(() => {
                     if (!this._chefMouthChewActive) return;
                     this._chefMouthOpenState = !this._chefMouthOpenState;
@@ -6006,7 +6016,7 @@
             track(type, amt) { if (this.daily && this.daily.counters && this.daily.counters[type] != null) this.daily.counters[type] += amt; quests.bump(type, amt); try { quests.bumpWeekly(type, amt); } catch (e) {} try { if (type === 'eb') { soupMenu.bumpEb(amt); try { commChallenge.bump(amt); } catch (e2) {} } } catch (e3) {} },
             getPrixCd() { const eq = this.getEquippedSpoon(); return (eq && eq.id === 2) ? 300 : 600; },
             getSkirmishCd() { const eq = this.getEquippedSpoon(); return (eq && eq.id === 2) ? 150 : 300; },
-            _chefFeedInProgress() { return !!(this._chefMouthChewActive || this._chefFeedPendingTimer); },
+            _chefFeedInProgress() { return !!(this._chefMouthChewActive || this._chefFeedPendingTimer || this._chefMouthCloseTimer); },
             _chefEl() { return document.getElementById('asset-chef'); },
             _chefHandEl() { return document.getElementById('asset-chef-hand'); },
             /** Limpia animaciones de compra / feed del chef tras prestigio o cancelación. */
@@ -7349,6 +7359,7 @@
             _chefRigEl() { return document.getElementById('chef-rig'); },
             chefFeedAnticipateOpen() {
                 if (this._chefMouthChewActive) return;
+                try { this._chefWarmMouthSprites(); } catch (e) {}
                 this._chefFeedSeq = (this._chefFeedSeq || 0) + 1;
                 if (this._chefMouthCloseTimer) {
                     clearTimeout(this._chefMouthCloseTimer);
@@ -7419,11 +7430,8 @@
                 if (!this._chefEl()) return;
                 const seq = this._chefFeedSeq || 0;
                 this._chefFeedFinished = null;
-                this._chefMouthChewActive = true;
-                this._setChefEating(true, true);
-                try { this.applySpoonVisual(); } catch (e) {}
-                let chewMs = this.CHEF_FALLBACK_EAT_MS || 2000;
                 const liteFeed = this._mProdMobile && this._mProdMobile();
+                let chewMs = this.CHEF_FALLBACK_EAT_MS || 2000;
                 try {
                     sound.unlock();
                     sound.stopEat();
@@ -7432,20 +7440,28 @@
                         if (dur) chewMs = Math.max(chewMs, dur);
                     }
                 } catch (e) {}
-                if (liteFeed) chewMs = Math.min(chewMs, 1200);
-                chewMs = Math.max(liteFeed ? 900 : (this.CHEF_FALLBACK_EAT_MS || 2000), chewMs);
-                let isOpen = true;
-                let togglesLeft = liteFeed ? 2 : (this.CHEW_MAX_TOGGLES != null ? this.CHEW_MAX_TOGGLES : 3);
-                this._chefMouthShowOpen();
-                const sliceMs = this.CHEW_SLICE_MS || 500;
-                this._chewIv = setInterval(() => {
-                    if (!this._chefMouthChewActive || togglesLeft <= 0) return;
-                    togglesLeft--;
-                    isOpen = !isOpen;
-                    if (isOpen) this._chefMouthShowOpen();
-                    else this._chefMouthShowClosed();
-                    if (togglesLeft <= 0) this._chefMouthStopChewLoop();
-                }, sliceMs);
+                if (liteFeed) chewMs = Math.max(1500, Math.min(chewMs, 2200));
+                else chewMs = Math.max(this.CHEF_FALLBACK_EAT_MS || 2000, chewMs);
+                if (liteFeed) {
+                    try { this._chefWarmMouthSprites(); } catch (e) {}
+                    this._runChefMouthChewLoop(380);
+                } else {
+                    this._chefMouthChewActive = true;
+                    this._setChefEating(true, true);
+                    try { this.applySpoonVisual(); } catch (e) {}
+                    let isOpen = true;
+                    let togglesLeft = this.CHEW_MAX_TOGGLES != null ? this.CHEW_MAX_TOGGLES : 3;
+                    this._chefMouthShowOpen();
+                    const sliceMs = this.CHEW_SLICE_MS || 500;
+                    this._chewIv = setInterval(() => {
+                        if (!this._chefMouthChewActive || togglesLeft <= 0) return;
+                        togglesLeft--;
+                        isOpen = !isOpen;
+                        if (isOpen) this._chefMouthShowOpen();
+                        else this._chefMouthShowClosed();
+                        if (togglesLeft <= 0) this._chefMouthStopChewLoop();
+                    }, sliceMs);
+                }
                 this._chefMouthCloseTimer = setTimeout(() => this._endChefFeedChew(seq), chewMs + 80);
                 if (!liteFeed) { try { gx.toast(t('chef_taste_ingredient')); } catch (e) {} }
             },
