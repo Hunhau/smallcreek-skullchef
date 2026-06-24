@@ -869,14 +869,14 @@
         @keyframes sfxCocoHalf { 0% { opacity: 0; transform: translate(-50%,-50%) scale(0.4) rotate(-15deg); } 22% { opacity: 1; transform: translate(-50%,-50%) scale(1.12) rotate(5deg); } 100% { opacity: 0; transform: translate(-50%,-50%) scale(0.85) rotate(0deg); } }
         /* Kawaii colored bubbles — LOCO palette per ingredient, rise/pop/float/swirl */
         .sfx-k-bubble { position: absolute; border-radius: 50%; pointer-events: none; opacity: 0; transform: translate(-50%, -50%); will-change: transform, opacity; box-shadow: inset 0 -4px 8px rgba(255,255,255,0.55), inset 0 2px 4px rgba(255,255,255,0.35), 0 1px 3px rgba(0,0,0,0.18), 0 0 8px var(--bb-glow, rgba(255,255,255,0.5)); -webkit-backface-visibility: hidden; backface-visibility: hidden; }
-        .sfx-k-bubble.rise { animation: sfxBubbleRise var(--bd, 1.75s) ease-out forwards; }
-        .sfx-k-bubble.rise-pop { animation: sfxBubbleRisePop var(--bd, 1.65s) ease-out forwards; }
-        .sfx-k-bubble.float { animation: sfxBubbleFloat var(--bd, 1.9s) ease-in-out forwards; }
-        .sfx-k-bubble.swirl { animation: sfxBubbleSwirl var(--bd, 1.85s) ease-out forwards; }
-        .sfx-k-bubble.sticky { animation: sfxBubbleSticky var(--bd, 2s) ease-in-out forwards; }
-        .sfx-k-bubble.wobble { animation: sfxBubbleWobble var(--bd, 1.7s) ease-out forwards; }
-        .sfx-k-bubble.bounce { animation: sfxBubbleBounce var(--bd, 1.55s) cubic-bezier(0.34, 1.4, 0.64, 1) forwards; }
-        .sfx-k-bubble.drift { animation: sfxBubbleDrift var(--bd, 1.8s) ease-out forwards; }
+        .sfx-k-bubble.rise { animation: sfxBubbleRise var(--bd, 1.75s) var(--be, ease-out) forwards; }
+        .sfx-k-bubble.rise-pop { animation: sfxBubbleRisePop var(--bd, 1.65s) var(--be, ease-out) forwards; }
+        .sfx-k-bubble.float { animation: sfxBubbleFloat var(--bd, 1.9s) var(--be, ease-in-out) forwards; }
+        .sfx-k-bubble.swirl { animation: sfxBubbleSwirl var(--bd, 1.85s) var(--be, ease-out) forwards; }
+        .sfx-k-bubble.sticky { animation: sfxBubbleSticky var(--bd, 2s) var(--be, ease-in-out) forwards; }
+        .sfx-k-bubble.wobble { animation: sfxBubbleWobble var(--bd, 1.7s) var(--be, ease-out) forwards; }
+        .sfx-k-bubble.bounce { animation: sfxBubbleBounce var(--bd, 1.55s) var(--be, cubic-bezier(0.34, 1.4, 0.64, 1)) forwards; }
+        .sfx-k-bubble.drift { animation: sfxBubbleDrift var(--bd, 1.8s) var(--be, ease-out) forwards; }
         .sfx-k-pop-ring { position: absolute; border-radius: 50%; pointer-events: none; opacity: 0; border: 2px solid var(--pop-c, rgba(255,255,255,0.7)); animation: sfxBubblePopRing 0.45s ease-out forwards; }
         @keyframes sfxBubbleRise { 0% { opacity: 0; transform: translate(-50%,-50%) scale(0.25); } 14% { opacity: 1; transform: translate(-50%,-50%) scale(1); } 82% { opacity: 1; } 100% { opacity: 0; transform: translate(calc(-50% + var(--bx, 0px)), calc(-50% - var(--rise, 48px))) scale(0.85); } }
         @keyframes sfxBubbleRisePop { 0% { opacity: 0; transform: translate(-50%,-50%) scale(0.2); } 12% { opacity: 1; transform: translate(-50%,-50%) scale(1.05); } 68% { opacity: 1; transform: translate(calc(-50% + var(--bx, 0px)), calc(-50% - var(--rise, 52px))) scale(1.08); } 78% { opacity: 1; transform: translate(calc(-50% + var(--bx, 0px)), calc(-50% - var(--rise, 52px))) scale(1.45); } 100% { opacity: 0; transform: translate(calc(-50% + var(--bx, 0px)), calc(-50% - var(--rise, 52px))) scale(0.15); } }
@@ -2783,36 +2783,36 @@
     })(typeof window !== 'undefined' ? window : this);
     </script>
     <script src="events.js"></script>
-    <script src="js/soft-events.js?v=build-252"></script>
-    <script src="js/gx.js?v=build-252"></script>
-    <script src="js/visual-theme.js?v=build-252"></script>
-    <script src="js/decor.js?v=build-252"></script>
-    <script src="js/quests.js?v=build-252"></script>
-    <script src="js/achievements.js?v=build-252"></script>
-    <script src="js/soup-menu.js?v=build-252"></script>
-    <script src="js/weekly-challenges.js?v=build-252"></script>
-    <script src="js/helper-team.js?v=build-252"></script>
-    <script src="js/chef-mood.js?v=build-252"></script>
-    <script src="js/farm.js?v=build-252"></script>
-    <script src="js/ambient.js?v=build-252"></script>
-    <script src="js/music.js?v=build-252"></script>
-    <script src="js/creator.js?v=build-252"></script>
-    <script src="js/prix.js?v=build-252"></script>
-    <script src="js/soup-skirmish.js?v=build-252"></script>
-    <script src="js/objective.js?v=build-252"></script>
-    <script src="js/angel-tree.js?v=build-252"></script>
-    <script src="js/tutorial.js?v=build-252"></script>
-    <script src="js/quality.js?v=build-252"></script>
-    <script src="js/fullscreen.js?v=build-252"></script>
-    <script src="js/home.js?v=build-252"></script>
-    <script src="js/pause-menu.js?v=build-252"></script>
-    <script src="js/guide.js?v=build-252"></script>
-    <script src="js/hud-chips.js?v=build-252"></script>
-    <script src="js/item-bonus.js?v=build-252"></script>
+    <script src="js/soft-events.js?v=build-265"></script>
+    <script src="js/gx.js?v=build-265"></script>
+    <script src="js/visual-theme.js?v=build-265"></script>
+    <script src="js/decor.js?v=build-265"></script>
+    <script src="js/quests.js?v=build-265"></script>
+    <script src="js/achievements.js?v=build-265"></script>
+    <script src="js/soup-menu.js?v=build-265"></script>
+    <script src="js/weekly-challenges.js?v=build-265"></script>
+    <script src="js/helper-team.js?v=build-265"></script>
+    <script src="js/chef-mood.js?v=build-265"></script>
+    <script src="js/farm.js?v=build-265"></script>
+    <script src="js/ambient.js?v=build-265"></script>
+    <script src="js/music.js?v=build-265"></script>
+    <script src="js/creator.js?v=build-265"></script>
+    <script src="js/prix.js?v=build-265"></script>
+    <script src="js/soup-skirmish.js?v=build-265"></script>
+    <script src="js/objective.js?v=build-265"></script>
+    <script src="js/angel-tree.js?v=build-265"></script>
+    <script src="js/tutorial.js?v=build-265"></script>
+    <script src="js/quality.js?v=build-265"></script>
+    <script src="js/fullscreen.js?v=build-265"></script>
+    <script src="js/home.js?v=build-265"></script>
+    <script src="js/pause-menu.js?v=build-265"></script>
+    <script src="js/guide.js?v=build-265"></script>
+    <script src="js/hud-chips.js?v=build-265"></script>
+    <script src="js/item-bonus.js?v=build-265"></script>
     <!-- Cache-bust catalog on every deploy (SW must not serve a stale charm list). -->
-    <script src="assets/skins/catalog.js?v=build-252"></script>
-    <script src="assets/atlas_manifest.js?v=build-252"></script>
-    <script src="js/atlas.js?v=build-252"></script>
+    <script src="assets/skins/catalog.js?v=build-265"></script>
+    <script src="assets/atlas_manifest.js?v=build-265"></script>
+    <script src="js/atlas.js?v=build-265"></script>
     <!-- ====================================================================
          === EMBEDDED LEADERBOARD MODULE (from leaderboard/leaderboard-client.js)
          === Self-contained global `leaderboard` object. Single-file game, so the
@@ -3292,7 +3292,7 @@
 
     })(typeof window !== 'undefined' ? window : this);
     </script>
-    <script src="js/lb-ui.js?v=build-252"></script>
+    <script src="js/lb-ui.js?v=build-265"></script>
     <!-- ==================== END EMBEDDED LEADERBOARD MODULE ==================== -->
     <script>
         // === AUTO-UPDATE / ANTI-STALE-CACHE ===========================================
@@ -3306,7 +3306,7 @@
         // while still retrying if a reload didn't actually land the new build. Fully
         // defensive: any error is silent and never blocks the game. Parent bumps BOTH
         // version.json and BUILD_V on every future deploy.
-        const BUILD_V = "build-252";
+        const BUILD_V = "build-265";
         function paintBuildTag() {
             try {
                 var prod = (typeof PRODUCTION_BUILD !== 'undefined' && PRODUCTION_BUILD)
@@ -4183,6 +4183,7 @@
                     const arr = this.flat[keys[ki]];
                     if (arr && arr[0]) try { this._primeOne(arr[0]); } catch (e) {}
                 }
+                try { this._waLoadSrc('audio/stir1.mp3'); this._waLoadSrc('audio/stir2.mp3'); } catch (e) {}
             },
             _waEnsure() {
                 try {
@@ -4323,6 +4324,17 @@
                     }
                 } catch (e) {}
             },
+            resumeAudioIfNeeded() {
+                if (!this._unlocked) return;
+                try {
+                    const wa = this._waCtx;
+                    if (wa && (wa.state === 'suspended' || wa.state === 'interrupted')) this.resumeAudio();
+                    else {
+                        const eat = this._eatCtx;
+                        if (eat && (eat.state === 'suspended' || eat.state === 'interrupted')) this.resumeAudio();
+                    }
+                } catch (e) {}
+            },
             // Full audio recovery after screen sleep / tab background. Re-primes EVERY pooled
             // voice (not just one per group) and resets the stir loop so the next click can
             // start sound again without restarting the game.
@@ -4367,6 +4379,9 @@
                             this._primeOne(this._makeAudio('audio/bubble.mp3'));
                             const sv = this._stirEnsure();
                             if (sv) for (let si = 0; si < sv.length; si++) this._primeOne(sv[si]);
+                        } else if (this._stirUseWa()) {
+                            this._primeMobileEssentials();
+                            try { this._waLoadSrc('audio/stir1.mp3'); this._waLoadSrc('audio/stir2.mp3'); } catch (e) {}
                         } else if (!this._useWebAudio()) {
                             for (const k in this.flat) {
                                 const arr = this.flat[k];
@@ -4383,7 +4398,11 @@
                         if (this._eatCtx && this._eatCtx.state === 'suspended') { try { this._eatCtx.resume(); } catch (e) {} }
                     } catch (e) {}
                 }
-                try { this.resumeAudio(); this._waLoadAll(); } catch (e) {}
+                try {
+                    if (first || this._needReprime) this.resumeAudio();
+                    else this.resumeAudioIfNeeded();
+                    if (first || this._needReprime) this._waLoadAll();
+                } catch (e) {}
             },
             save() { try { localStorage.setItem('soup_audio', JSON.stringify({ m:this.muted, v:this.volume })); } catch (e) {} },
             play(name) {
@@ -4560,26 +4579,22 @@
                 return this._playEatSynth(onEnd, fallbackMs, vol);
             },
             // === STIR LOOP (sostenido, gobernado por actividad) =================
-            // El removido es continuo: arranca en el PRIMER clic y se mantiene
-            // alternando stir1/stir2. Móvil/PWA: encadenado en 'ended' (sin solape).
-            // PC: solape corto para evitar huecos. Cada clic solo MANTIENE vivo (_stir.last).
-            _stir: { active:false, last:0, timer:null, idx:0, voices:null, cur:null, fade:null, broken:false, _handoff:null, _fadePrev:null },
+            // Móvil browser (iPhone PWA): Web Audio stir1↔stir2, una voz a la vez,
+            // encadenado por onended (sin setTimeout), buffers recortados (padding MP3).
+            // PC + Capacitor nativo: HTML gapless build-251 — no tocar.
+            _stir: { active:false, last:0, timer:null, idx:0, voices:null, cur:null, fade:null, broken:false, _handoff:null, _fadePrev:null, _waCur:null, _waPrevNode:null, _waStirGain:null, _waStirHi:null, _waStirFilt:null, _waSources:null },
             _stirVol() { return Math.min(1, Math.max(0, (this.vols.stir != null ? this.vols.stir : 0.3) * this.volume)); },
-            // Desktop: wider overlap for gapless loop. Native: short handoff (~60ms) with
-            // ducking — avoids the muddy double-stir AND the audible gap from ended-only.
+            _stirUseWa() {
+                try {
+                    const ua = navigator.userAgent || '';
+                    return /iPhone|iPad|iPod|Android/i.test(ua);
+                } catch (e) { return false; }
+            },
             _stirNative() {
                 try { if (this._isNativeCap()) return true; } catch (e) {}
                 try {
                     const b = (typeof window !== 'undefined' && window.BUILD_TARGET) || '';
                     if (b === 'ios' || b === 'android') return true;
-                } catch (e) {}
-                return false;
-            },
-            /* Mobile/PWA + native: stir1/stir2 must NOT overlap (phone speakers beat/metallic). */
-            _stirSequential() {
-                try {
-                    if (this._useWebAudio()) return true;
-                    if (this._stirNative()) return true;
                 } catch (e) {}
                 return false;
             },
@@ -4599,6 +4614,152 @@
                 } catch (e) { S.broken = true; S.voices = null; }
                 return S.voices;
             },
+            _stirPauseHtmlVoices() {
+                const S = this._stir;
+                const voices = S.voices || this._stirEnsure();
+                if (!voices) return;
+                const vol = this._stirVol();
+                voices.forEach(v => {
+                    try { v.onended = null; v.loop = false; v.pause(); v.currentTime = 0; v.volume = vol; } catch (e) {}
+                });
+                S.cur = null;
+            },
+            _stirWaStop() {
+                const S = this._stir;
+                if (S._waSources) {
+                    S._waSources.forEach(n => {
+                        try {
+                            const src = n.src || n;
+                            src.onended = null;
+                            src.stop();
+                            src.disconnect();
+                            if (n.gain) n.gain.disconnect();
+                        } catch (e) {}
+                    });
+                    S._waSources = null;
+                }
+                S._waCur = null;
+                S._waPrevNode = null;
+            },
+            _stirWaVol() { return this._stirVol(); },
+            _stirWaTrim(buf) {
+                if (!buf || !Number.isFinite(buf.duration)) return { start: 0, dur: buf ? buf.duration : 0 };
+                const start = 0.048;
+                const endPad = 0.072;
+                const dur = Math.max(0.12, buf.duration - start - endPad);
+                return { start, dur };
+            },
+            _stirWaEnsureBus() {
+                const ctx = this._waEnsure();
+                const S = this._stir;
+                if (!ctx || S._waStirGain) return ctx;
+                try {
+                    const hi = ctx.createBiquadFilter();
+                    hi.type = 'highpass';
+                    hi.frequency.value = 95;
+                    hi.Q.value = 0.707;
+                    const lo = ctx.createBiquadFilter();
+                    lo.type = 'lowpass';
+                    lo.frequency.value = 2500;
+                    lo.Q.value = 0.45;
+                    const g = ctx.createGain();
+                    g.gain.value = this._stirVol();
+                    hi.connect(lo);
+                    lo.connect(g);
+                    g.connect(ctx.destination);
+                    S._waStirHi = hi;
+                    S._waStirFilt = lo;
+                    S._waStirGain = g;
+                } catch (e) {}
+                return ctx;
+            },
+            _stirWaPreload() {
+                const paths = this.defs.stir || [];
+                for (let i = 0; i < paths.length; i++) { try { this._waLoadSrc(paths[i]); } catch (e) {} }
+            },
+            _stirWaBegin() {
+                const S = this._stir;
+                S.active = true;
+                S.idx = 0;
+                this._stirWaPreload();
+                const paths = this.defs.stir || [];
+                Promise.all(paths.map(p => { try { return this._waLoadSrc(p); } catch (e) { return Promise.resolve(null); } }))
+                    .then(() => { if (S.active) this._stirWaPlayNext(); });
+            },
+            _stirWaCrossfadeOut(prevNode, startAt) {
+                if (!prevNode || !prevNode.gain) return;
+                try {
+                    const pg = prevNode.gain.gain;
+                    pg.cancelScheduledValues(startAt);
+                    pg.setValueAtTime(typeof pg.value === 'number' ? pg.value : 0, startAt);
+                    pg.linearRampToValueAtTime(0, startAt + 0.016);
+                } catch (e) {}
+                try { if (prevNode.src) { prevNode.src.onended = null; prevNode.src.stop(startAt + 0.018); } } catch (e) {}
+            },
+            _stirWaPlayNext() {
+                const S = this._stir;
+                if (!S.active) return;
+                const paths = this.defs.stir || [];
+                if (!paths.length) { this._stirStopNow(); return; }
+                const ctx = this._stirWaEnsureBus();
+                if (!ctx) { this._stirPlayNext(); return; }
+                const path = paths[S.idx % paths.length];
+                S.idx = (S.idx + 1) % paths.length;
+                const url = this._mediaUrl(path);
+                const buf = this._waBuf[url];
+                if (!buf) {
+                    try {
+                        this._stirWaPreload();
+                        this._waLoadSrc(path).then(b => {
+                            if (!S.active) return;
+                            if (b) this._stirWaPlayNext();
+                            else this._stirPlayNext();
+                        });
+                    } catch (e) { this._stirPlayNext(); }
+                    return;
+                }
+                this._stirPauseHtmlVoices();
+                try {
+                    const trim = this._stirWaTrim(buf);
+                    const src = ctx.createBufferSource();
+                    src.buffer = buf;
+                    src.playbackRate.value = 1;
+                    const vol = this._stirWaVol();
+                    if (S._waStirGain) S._waStirGain.gain.value = vol;
+                    const clipGain = ctx.createGain();
+                    src.connect(clipGain);
+                    clipGain.connect(S._waStirHi || S._waStirFilt || S._waStirGain);
+                    const startAt = ctx.currentTime + 0.002;
+                    const fadeIn = 0.032;
+                    const fadeOut = 0.045;
+                    const playDur = trim.dur;
+                    const endAt = startAt + playDur;
+                    this._stirWaCrossfadeOut(S._waPrevNode, startAt);
+                    clipGain.gain.setValueAtTime(0, startAt);
+                    clipGain.gain.linearRampToValueAtTime(1, startAt + fadeIn);
+                    if (playDur > fadeIn + fadeOut + 0.06) {
+                        clipGain.gain.setValueAtTime(1, endAt - fadeOut);
+                        clipGain.gain.linearRampToValueAtTime(0, endAt);
+                    }
+                    src.start(startAt, trim.start, playDur);
+                    try { src.stop(endAt + 0.004); } catch (e) {}
+                    if (!S._waSources) S._waSources = [];
+                    const node = { src, gain: clipGain };
+                    S._waSources.push(node);
+                    S._waCur = src;
+                    S._waPrevNode = node;
+                    src.onended = () => {
+                        try { src.disconnect(); clipGain.disconnect(); } catch (e) {}
+                        if (S._waSources) {
+                            const i = S._waSources.indexOf(node);
+                            if (i >= 0) S._waSources.splice(i, 1);
+                        }
+                        if (S._waCur === src) S._waCur = null;
+                        if (S._waPrevNode === node) S._waPrevNode = null;
+                        if (S.active) this._stirWaPlayNext();
+                    };
+                } catch (e) { this._stirPlayNext(); }
+            },
             _stirPlayNext() {
                 const S = this._stir;
                 if (!S.active) return;
@@ -4606,7 +4767,7 @@
                 if (!voices || !voices.length) { this._stirStopNow(); return; }
                 if (S._handoff) { clearTimeout(S._handoff); S._handoff = null; }
                 if (S._fadePrev) { clearTimeout(S._fadePrev); S._fadePrev = null; }
-                const sequential = this._stirSequential();
+                const native = this._stirNative();
                 const prev = S.cur;
                 const a = voices[S.idx % voices.length];
                 S.idx = (S.idx + 1) % voices.length;
@@ -4616,54 +4777,60 @@
                 try {
                     a.onended = null;
                     a.volume = this._stirVol();
+                    a.playbackRate = native ? 1 : Math.min(2, Math.max(0.5, 1 + (Math.random() * 2 - 1) * 0.03));
                     a.currentTime = 0;
-                    if (sequential) {
-                        if (prev && prev !== a && !prev.paused) {
-                            try { prev.onended = null; prev.pause(); prev.currentTime = 0; prev.volume = this._stirVol(); } catch (e) {}
-                        }
-                        a.playbackRate = 1;
-                        a.onended = advance;
-                        const p = a.play(); if (p && p.catch) p.catch(() => {});
-                    } else {
-                        a.playbackRate = Math.min(2, Math.max(0.5, 1 + (Math.random() * 2 - 1) * 0.03));
-                        a.onended = advance;
-                        const p = a.play(); if (p && p.catch) p.catch(() => {});
-                        const arm = () => {
-                            const dur = a.duration;
-                            if (!Number.isFinite(dur) || dur <= 0) return;
-                            const lead = Math.min(0.14, dur * 0.16);
-                            const ms = Math.max(16, ((dur - lead) * 1000) / (a.playbackRate || 1));
-                            if (S._handoff) clearTimeout(S._handoff);
-                            S._handoff = setTimeout(advance, ms);
-                        };
-                        if (Number.isFinite(a.duration) && a.duration > 0) arm();
-                        else a.addEventListener('loadedmetadata', arm, { once: true });
-                        if (prev && prev !== a && !prev.paused) {
-                            try {
-                                const vol = this._stirVol();
-                                prev.volume = vol * 0.35;
-                                S._fadePrev = setTimeout(() => {
-                                    try {
-                                        if (prev !== S.cur) { prev.onended = null; prev.pause(); prev.currentTime = 0; prev.volume = vol; }
-                                    } catch (e) {}
-                                    S._fadePrev = null;
-                                }, 120);
-                            } catch (e) {}
-                        }
+                    a.onended = advance;
+                    const p = a.play(); if (p && p.catch) p.catch(() => {});
+                    const arm = () => {
+                        const dur = a.duration;
+                        if (!Number.isFinite(dur) || dur <= 0) return;
+                        const lead = native ? Math.min(0.065, Math.max(0.03, dur * 0.07)) : Math.min(0.14, dur * 0.16);
+                        const ms = Math.max(16, ((dur - lead) * 1000) / (a.playbackRate || 1));
+                        if (S._handoff) clearTimeout(S._handoff);
+                        S._handoff = setTimeout(advance, ms);
+                    };
+                    if (Number.isFinite(a.duration) && a.duration > 0) arm();
+                    else a.addEventListener('loadedmetadata', arm, { once: true });
+                    if (prev && prev !== a && !prev.paused) {
+                        try {
+                            const vol = this._stirVol();
+                            prev.volume = vol * (native ? 0.12 : 0.35);
+                            S._fadePrev = setTimeout(() => {
+                                try {
+                                    if (prev !== S.cur) { prev.onended = null; prev.pause(); prev.currentTime = 0; prev.volume = vol; }
+                                } catch (e) {}
+                                S._fadePrev = null;
+                            }, native ? 85 : 120);
+                        } catch (e) {}
                     }
                 } catch (e) { this._stirStopNow(); }
             },
             stirPulse() {
                 if (this.muted || this.volume <= 0) return;
-                this.unlock();
                 const S = this._stir;
                 if (S.broken) return;
-                const voices = this._stirEnsure();
-                if (!voices) return;
                 const now = (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now();
                 S.last = now;
-                // Si estábamos en fade-out y el jugador vuelve a remover, cancelamos
-                // el fade y restauramos el volumen de la voz actual (sin retrigger).
+                if (this._stirUseWa()) {
+                    if (!this._unlocked) this.unlock();
+                    else this.resumeAudioIfNeeded();
+                    const voices = this._stirEnsure();
+                    if (!voices) return;
+                    if (S.fade) {
+                        clearInterval(S.fade); S.fade = null;
+                        if (S._waStirGain) { try { S._waStirGain.gain.value = this._stirWaVol(); } catch (e) {} }
+                    }
+                    if (S._waStirGain && S.active) { try { S._waStirGain.gain.value = this._stirWaVol(); } catch (e) {} }
+                    if (!S.active) {
+                        this._stirWaBegin();
+                        if (!S.timer) S.timer = setInterval(() => this._stirWatch(), 130);
+                    }
+                    return;
+                }
+                // PC + Capacitor nativo: camino HTML build-251 (stir1↔stir2 gapless) — no tocar.
+                this.unlock();
+                const voices = this._stirEnsure();
+                if (!voices) return;
                 if (S.fade) { clearInterval(S.fade); S.fade = null; if (S.cur) { try { S.cur.volume = this._stirVol(); } catch (e) {} } }
                 if (!S.active) {
                     S.active = true; S.idx = 0;
@@ -4682,6 +4849,18 @@
             },
             _stirFadeOut() {
                 const S = this._stir;
+                if (S._waStirGain) {
+                    const g = S._waStirGain;
+                    const start = (typeof g.gain.value === 'number') ? g.gain.value : this._stirVol();
+                    const steps = 9; let i = 0;
+                    if (S.fade) clearInterval(S.fade);
+                    S.fade = setInterval(() => {
+                        i++;
+                        try { g.gain.value = Math.max(0, start * (1 - i / steps)); } catch (e) {}
+                        if (i >= steps) { clearInterval(S.fade); S.fade = null; this._stirStopNow(); }
+                    }, 20);
+                    return;
+                }
                 const a = S.cur;
                 if (!a) { this._stirStopNow(); return; }
                 const start = (typeof a.volume === 'number') ? a.volume : this._stirVol();
@@ -4700,6 +4879,7 @@
                 if (S.fade) { clearInterval(S.fade); S.fade = null; }
                 if (S._handoff) { clearTimeout(S._handoff); S._handoff = null; }
                 if (S._fadePrev) { clearTimeout(S._fadePrev); S._fadePrev = null; }
+                this._stirWaStop();
                 const voices = S.voices;
                 if (voices) voices.forEach(a => { try { a.onended = null; a.pause(); a.currentTime = 0; a.volume = this._stirVol(); } catch (e) {} });
                 S.cur = null; S.idx = 0;
@@ -4772,7 +4952,10 @@
                 const F = this._farmAmb;
                 if (F.audio && F.active) { try { F.audio.volume = this._farmAmbVol(); } catch (e) {} }
                 const S = this._stir;
-                if (S.active && S.cur) { try { S.cur.volume = this._stirVol(); } catch (e) {} }
+                if (S.active) {
+                    if (S.cur) { try { S.cur.volume = this._stirVol(); } catch (e) {} }
+                    if (S._waStirGain) { try { S._waStirGain.gain.value = this._stirUseWa() ? this._stirWaVol() : this._stirVol(); } catch (e) {} }
+                }
                 try { if (typeof ambient !== 'undefined' && ambient._applyAllVols) ambient._applyAllVols(); } catch (e) {}
                 try { if (typeof music !== 'undefined' && music._applyVol) music._applyVol(); } catch (e) {}
                 this.save(); this.updateUi();
@@ -6800,7 +6983,10 @@
                 if (_now - this._clickGate < 33) return;
                 this._clickGate = _now;
                 try { if (ev && ev.pointerType === 'mouse' && ev.button !== 0) return; } catch (e) {}
-                try { sound.unlock(); sound.resumeAudio(); } catch (e) {}
+                try {
+                    if (!sound._unlocked) sound.unlock();
+                    else sound.resumeAudioIfNeeded();
+                } catch (e) {}
                 const m = Number.isFinite(this.m) ? Math.min(Math.max(this.m, 1), 6) : 1;
                 const exp = Math.min(this.cp[1].lv * this.champMult(this.cp[1].ch) * 0.5, 24);
                 let gain = m * Math.pow(1.33, exp) * (1 + this.s * 0.5);
@@ -7307,8 +7493,10 @@
                                     if (soupHits % 4 === 0) this.spawnRipple(hitX, soupY, dropTint);
                                     if (!midBubbles && soupHits >= Math.ceil(count * 0.26)) {
                                         midBubbles = true;
-                                        this.spawnSoupColoredBubbles(fxA);
-                                        if (fxB !== fxA) this.spawnSoupColoredBubbles(fxB);
+                                        if (!this._soupFxTouch()) {
+                                            this.spawnSoupColoredBubbles(fxA);
+                                            if (fxB !== fxA) this.spawnSoupColoredBubbles(fxB);
+                                        }
                                     }
                                 }, hitTime * 1000);
                             }
@@ -7316,7 +7504,7 @@
                         setTimeout(() => {
                             finished++;
                             if (el.parentNode) el.remove();
-                            if (!dry && finished >= count) setTimeout(() => this.soupIngredientHit(primaryCfg, 'bubblePop'), 90);
+                            if (!dry && finished >= count) setTimeout(() => this.soupIngredientHit(primaryCfg, 'bubblePop', { rainLite: true }), 90);
                         }, Math.ceil(fallDur * 1000) + 480);
                     }, delay);
                 }
@@ -7575,9 +7763,29 @@
                 if (this.particles.length >= MAX) return;
                 this.particles.push({ x, y, t: 'ingredient', vx: (Math.random() - 0.5) * 10, vy: (Math.random() - 0.5) * 10 - 5, life: 1, size: Math.random() * 8 + 4, color: color || '#fde047' });
             },
+            spawnSoupCanvasBubbles(cx, cy, colors, count) {
+                const MAX = quality.params.maxParts;
+                const n = Math.max(1, Math.min(count || 10, 16));
+                const room = MAX - this.particles.length;
+                if (room <= 0) return;
+                const spawn = Math.min(n, room);
+                for (let i = 0; i < spawn; i++) {
+                    this.particles.push({
+                        x: cx + (Math.random() - 0.5) * 56,
+                        y: cy + (Math.random() - 0.5) * 24,
+                        t: 'soupBubble',
+                        vx: (Math.random() - 0.5) * 0.7,
+                        vy: -(Math.random() * 1.1 + 0.65),
+                        life: 0.78 + Math.random() * 0.22,
+                        size: 3.5 + Math.random() * 6.5,
+                        color: colors[Math.floor(Math.random() * colors.length)] || '#fde047'
+                    });
+                }
+            },
             _soupFxBurst() { return document.getElementById('soup-fx-burst'); },
             _kickSoupFxAnim(el) {
                 if (!el || !el.parentNode) return;
+                if (this._soupFxTouch && this._soupFxTouch()) return;
                 if (this._mProdMobile && this._mProdMobile()) return;
                 requestAnimationFrame(() => {
                     if (!el.parentNode) return;
@@ -7592,16 +7800,9 @@
                 const cleanup = () => {
                     if (!el.parentNode || el.dataset.fxDone === '1') return;
                     el.dataset.fxDone = '1';
-                    try {
-                        (el.getAnimations ? el.getAnimations() : []).forEach(a => { try { a.cancel(); } catch (e) {} });
-                    } catch (e) {}
-                    el.style.animation = 'none';
-                    el.style.opacity = '0';
-                    el.style.visibility = 'hidden';
-                    requestAnimationFrame(() => { try { if (el.parentNode) el.remove(); } catch (e) {} });
+                    try { el.remove(); } catch (e) {}
                 };
-                el.addEventListener('animationend', (ev) => { if (ev.target === el) cleanup(); }, { once: true });
-                setTimeout(cleanup, ms + 180);
+                setTimeout(cleanup, ms + 60);
             },
             _soupFxClearBurst(burst) {
                 if (!burst) return;
@@ -7609,21 +7810,26 @@
                     burst.querySelectorAll('.sfx-k-bubble, .sfx-part, .sfx-k-pop-ring').forEach(el => {
                         if (el.dataset.fxDone === '1') return;
                         el.dataset.fxDone = '1';
-                        el.style.animation = 'none';
-                        el.style.opacity = '0';
-                        el.style.visibility = 'hidden';
+                        try { el.remove(); } catch (e) {}
                     });
-                    requestAnimationFrame(() => {
-                        requestAnimationFrame(() => { try { burst.innerHTML = ''; } catch (e) {} });
-                    });
-                } catch (e) { try { burst.innerHTML = ''; } catch (e2) {} }
+                } catch (e) { try { burst.textContent = ''; } catch (e2) {} }
+            },
+            _soupFxTouch() {
+                try {
+                    if (this._mSheet && this._mSheet()) return true;
+                    return window.matchMedia('(pointer: coarse)').matches;
+                } catch (e) { return false; }
             },
             _soupBubbleRisePx(area) {
-                const lite = this._mProdMobile && this._mProdMobile();
+                const touch = this._soupFxTouch();
                 const h = Math.max(48, area && area.h ? area.h : 120);
-                const lo = lite ? 0.07 : 0.11;
-                const span = lite ? 0.11 : 0.17;
-                return Math.max(12, Math.round(h * (lo + Math.random() * span)));
+                const liquidH = h * 0.28;
+                if (touch) {
+                    const rise = liquidH * (0.08 + Math.random() * 0.06);
+                    return Math.max(5, Math.min(18, Math.round(rise)));
+                }
+                const rise = liquidH * (0.14 + Math.random() * 0.10);
+                return Math.max(8, Math.min(32, Math.round(rise)));
             },
             _soupFxEl(tag, className, opts) {
                 const burst = this._soupFxBurst();
@@ -7667,51 +7873,60 @@
                 if (roll < 0.72) return smin + (smax - smin) * 0.28 + Math.random() * (smax - smin) * 0.32;
                 return smin + (smax - smin) * 0.58 + Math.random() * (smax - smin) * 0.42;
             },
-            spawnSoupColoredBubbles(fxId) {
+            spawnSoupColoredBubbles(fxId, opts) {
+                opts = opts || {};
                 const spec = this.SOUP_FX_BUBBLES[fxId] || this.SOUP_FX_BUBBLES.banana;
                 const colors = spec.colors;
-                const motion = spec.motion || 'rise';
+                const touch = this._soupFxTouch();
+                const motion = touch ? 'rise' : (spec.motion || 'rise');
                 const area = this._soupLiquidSpawnRect();
                 const areaFactor = Math.min(1.15, Math.max(0.9, (area.w * area.h) / 420000));
-                const lite = this._mProdMobile && this._mProdMobile();
+                const rainLite = !!opts.rainLite;
                 const base = spec.count || 42;
-                const maxN = lite ? 26 : (this.SOUP_FX_BUBBLE_MAX || 58);
-                const n = Math.min(Math.round(base * areaFactor * (lite ? 0.72 : 1)), maxN);
-                const spawnWindowMs = lite ? (560 + Math.floor(Math.random() * 240)) : (820 + Math.floor(Math.random() * 360));
-                const waves = 5;
+                const maxN = touch ? (rainLite ? 14 : 18) : (this.SOUP_FX_BUBBLE_MAX || 58);
+                const n = Math.min(Math.round(base * areaFactor * (touch ? (rainLite ? 0.42 : 0.52) : 1)), maxN);
+                const spawnWindowMs = touch ? (380 + Math.floor(Math.random() * 160)) : (820 + Math.floor(Math.random() * 360));
+                const waves = touch ? 4 : 5;
                 const perWave = Math.ceil(n / waves);
                 let spawned = 0;
                 const spawnOne = (waveIdx, idxInWave) => {
                     if (spawned >= n) return;
                     spawned++;
                     const c = colors[Math.floor(Math.random() * colors.length)];
-                    const sz = Math.round(this._pickBubbleSize(spec));
+                    const szRaw = Math.round(this._pickBubbleSize(spec));
+                    const sz = touch ? Math.max(6, Math.round(szRaw * (rainLite ? 0.58 : 0.66))) : szRaw;
                     const left = (area.padL + Math.random() * (area.padR - area.padL)).toFixed(2) + '%';
                     const top = (area.padT + Math.random() * (area.padB - area.padT)).toFixed(2) + '%';
                     const rise = this._soupBubbleRisePx(area);
-                    const bx = Math.round((Math.random() - 0.5) * (lite ? 24 : 36));
+                    const rise2off = touch ? 3 : 14;
+                    const bx = Math.round((Math.random() - 0.5) * (touch ? 16 : 36));
                     const waveDelay = (waveIdx / waves) * spawnWindowMs;
-                    const jitter = idxInWave * (lite ? 12 : 18) + Math.random() * (lite ? 38 : 55);
+                    const jitter = idxInWave * (touch ? 9 : 18) + Math.random() * (touch ? 28 : 55);
                     const delay = ((waveDelay + jitter) / 1000).toFixed(3);
-                    const dur = (lite ? (0.92 + Math.random() * 0.28) : (1.55 + Math.random() * 0.65)).toFixed(2);
+                    const dur = (touch ? (0.52 + Math.random() * 0.18) : (1.55 + Math.random() * 0.65)).toFixed(2);
+                    const sizeCss = touch
+                        ? { width: sz + 'px', height: sz + 'px' }
+                        : {
+                            width: 'clamp(' + Math.round(sz * 0.65) + 'px, ' + (sz * 0.22).toFixed(1) + 'vw, ' + sz + 'px)',
+                            height: 'clamp(' + Math.round(sz * 0.65) + 'px, ' + (sz * 0.22).toFixed(1) + 'vw, ' + sz + 'px)'
+                        };
                     this._soupFxEl('div', 'sfx-k-bubble ' + motion, {
                         left, top, delay: parseFloat(delay),
-                        css: {
+                        css: Object.assign({
                             '--bd': dur + 's',
+                            '--be': touch ? 'linear' : 'ease-out',
                             '--rise': rise + 'px',
-                            '--rise2': (rise + 14) + 'px',
+                            '--rise2': (rise + rise2off) + 'px',
                             '--bx': bx + 'px',
-                            '--bx2': (bx + Math.round((Math.random() - 0.5) * 22)) + 'px',
+                            '--bx2': (bx + Math.round((Math.random() - 0.5) * (touch ? 12 : 22))) + 'px',
                             '--sw': Math.round(280 + Math.random() * 200) + 'deg',
                             '--sr': Math.round(18 + Math.random() * 28) + 'px',
                             '--bb-glow': c,
-                            width: 'clamp(' + Math.round(sz * 0.65) + 'px, ' + (sz * 0.22).toFixed(1) + 'vw, ' + sz + 'px)',
-                            height: 'clamp(' + Math.round(sz * 0.65) + 'px, ' + (sz * 0.22).toFixed(1) + 'vw, ' + sz + 'px)',
                             background: this._bubbleGradient(c)
-                        },
+                        }, sizeCss),
                         lifeMs: parseFloat(dur) * 1000 + parseFloat(delay) * 1000 + 500
                     });
-                    if (motion === 'rise-pop' || motion === 'bounce') {
+                    if (!touch && (motion === 'rise-pop' || motion === 'bounce')) {
                         if (Math.random() > 0.5) {
                             setTimeout(() => {
                                 this._soupFxEl('div', 'sfx-k-pop-ring', {
@@ -7744,12 +7959,16 @@
             },
             _soupFxShrimp() {
                 const area = this._soupLiquidSpawnRect();
-                for (let i = 0; i < 14; i++) {
+                const touch = this._soupFxTouch();
+                const n = touch ? 8 : 14;
+                const dur = touch ? '0.72s' : '';
+                for (let i = 0; i < n; i++) {
                     const rise = this._soupBubbleRisePx(area);
                     const col = ['#fb7185', '#fda4af', '#fecdd3'][i % 3];
                     this._soupFxEl('div', 'sfx-part sfx-shrimp-bubble', {
                         left: (36 + Math.random() * 28) + '%', top: (48 + Math.random() * 10) + '%',
-                        delay: i * 0.05,
+                        delay: i * (touch ? 0.04 : 0.05),
+                        style: dur ? { animationDuration: dur } : undefined,
                         css: { '--rise': rise + 'px', background: this._bubbleGradient(col) }
                     });
                 }
@@ -7912,13 +8131,25 @@
             },
             _finishSoupIngredientSplash(wrap, fxId) {
                 if (!wrap) return;
+                const touchFx = this._soupFxTouch && this._soupFxTouch();
                 wrap.classList.remove('ingredient-splash-active', 'ing-fx-' + fxId);
                 wrap.classList.remove('ing-fx-ink', 'ing-fx-shrimp', 'ing-fx-carrot', 'ing-fx-lettuce', 'ing-fx-corn', 'ing-fx-yolk', 'ing-fx-honey', 'ing-fx-berries', 'ing-fx-banana', 'ing-fx-coconut');
                 wrap.style.removeProperty('--ing-filter');
-                this._resetSoupLiquidMotion();
+                if (!touchFx) this._resetSoupLiquidMotion();
                 if (this._soupIngFxTimer) { clearTimeout(this._soupIngFxTimer); this._soupIngFxTimer = null; }
             },
-            soupIngredientHit(cfg, sfx) {
+            soupIngredientHit(cfg, sfx, opts) {
+                opts = opts || {};
+                const touchFx = this._soupFxTouch && this._soupFxTouch();
+                if (touchFx) {
+                    const o = this.soupPartOrigin();
+                    const colors = cfg.particleColors || ['#fde047', '#facc15'];
+                    const n = opts.rainLite ? 8 : 12;
+                    this.spawnSoupCanvasBubbles(o.x, o.y, colors, n);
+                    if (cfg.rippleTint) this.spawnRipple(o.x, o.y, cfg.rippleTint);
+                    try { sound.play(sfx || 'bubble'); } catch (e) {}
+                    return;
+                }
                 const fxMs = this.SOUP_ING_FX_MS || 2600;
                 const wrap = document.getElementById('soup-liquid');
                 const sl = this._soupLiquidEl || (this._soupLiquidEl = document.getElementById('asset-soup-liquid'));
@@ -7929,7 +8160,7 @@
                     wrap.classList.remove('ingredient-splash-active');
                     wrap.classList.remove('ing-fx-ink', 'ing-fx-shrimp', 'ing-fx-carrot', 'ing-fx-lettuce', 'ing-fx-corn', 'ing-fx-yolk', 'ing-fx-honey', 'ing-fx-berries', 'ing-fx-banana', 'ing-fx-coconut');
                     this._resetSoupLiquidMotion();
-                    void wrap.offsetWidth;
+                    if (!touchFx) void wrap.offsetWidth;
                     wrap.classList.add('ing-fx-' + fxId, 'ingredient-splash-active');
                     if (cfg.soupFilter) wrap.style.setProperty('--ing-filter', cfg.soupFilter);
                     const finish = () => this._finishSoupIngredientSplash(wrap, fxId);
@@ -7943,7 +8174,7 @@
                 if (burst) this._soupFxClearBurst(burst);
                 const o = this.soupPartOrigin();
                 const colors = cfg.particleColors || ['#fde047', '#facc15'];
-                const n = cfg.particleCount || 16;
+                const n = touchFx ? Math.min(cfg.particleCount || 16, 8) : (cfg.particleCount || 16);
                 for (let i = 0; i < n; i++) {
                     this.emitSplashParticle(o.x + (Math.random() - 0.5) * 80, o.y + (Math.random() - 0.5) * 40, colors[Math.floor(Math.random() * colors.length)]);
                 }
@@ -7952,8 +8183,12 @@
                 for (let i = 0; i < rippleN; i++) {
                     this.spawnRipple(o.x + (Math.random() - 0.5) * 36, o.y + (Math.random() - 0.5) * 20, tint);
                 }
-                this.spawnSoupColoredBubbles(fxId);
-                this._runSoupFxUnique(fxId);
+                const spawnBubbles = () => {
+                    this.spawnSoupColoredBubbles(fxId, opts.rainLite ? { rainLite: true } : null);
+                    if (!touchFx) this._runSoupFxUnique(fxId);
+                };
+                if (touchFx) requestAnimationFrame(spawnBubbles);
+                else spawnBubbles();
                 try { sound.play(sfx || 'bubble'); } catch (e) {}
             },
             summon(c, btn, feedMode, testLevel, rainOnLand) {
@@ -8012,7 +8247,7 @@
                     if (throwDone) return;
                     throwDone = true;
                     const pose = this.summonPoseOrigin();
-                    if (!(this._mProdMobile && this._mProdMobile())) this.part(pose.x, pose.y, 'magic');
+                    if (!(this._mProdMobile && this._mProdMobile()) && !(this._soupFxTouch && this._soupFxTouch())) this.part(pose.x, pose.y, 'magic');
                     const skipCost = testLevel != null && creator.isDev();
                     if (skipCost || farm.consumeThrow(c.id, lv, feed)) {
                         this.summonIngredientThrow(c.id, pose.x, pose.y, lv, landClone, feed, false);
@@ -8836,13 +9071,27 @@
                         }
                     } else if (p.t === 'steam') { p.vx *= 0.985; p.vy -= 0.015; }
                     else if (p.t === 'ingredient') { p.vy += 0.06; p.vx *= 0.98; p.life -= 0.022; }
+                    else if (p.t === 'soupBubble') { p.vy -= 0.035; p.vx *= 0.985; p.life -= 0.017; }
                     p.x += p.vx; p.y += p.vy;
-                    if (p.t !== 'ingredient') p.life -= p.t === 'steam' ? 0.011 : 0.015;
-                    ctx.fillStyle = p.color;
-                    ctx.globalAlpha = p.t === 'steam' ? p.life * 1.05 : p.life;
-                    ctx.beginPath();
-                    ctx.arc(p.x, p.y, p.size * (p.t === 'steam' ? 0.6 + p.life * 0.5 : 1), 0, Math.PI * 2);
-                    ctx.fill();
+                    if (p.t === 'soupBubble') {
+                        const r = p.size * (0.55 + p.life * 0.45);
+                        ctx.globalAlpha = Math.min(0.92, p.life * 1.05);
+                        ctx.fillStyle = p.color;
+                        ctx.beginPath();
+                        ctx.arc(p.x, p.y, r, 0, Math.PI * 2);
+                        ctx.fill();
+                        ctx.fillStyle = 'rgba(255,255,255,' + Math.min(0.55, p.life * 0.5) + ')';
+                        ctx.beginPath();
+                        ctx.arc(p.x - r * 0.28, p.y - r * 0.28, Math.max(0.8, r * 0.32), 0, Math.PI * 2);
+                        ctx.fill();
+                    } else if (p.t !== 'ingredient') p.life -= p.t === 'steam' ? 0.011 : 0.015;
+                    if (p.t !== 'soupBubble') {
+                        ctx.fillStyle = p.color;
+                        ctx.globalAlpha = p.t === 'steam' ? p.life * 1.05 : p.life;
+                        ctx.beginPath();
+                        ctx.arc(p.x, p.y, p.size * (p.t === 'steam' ? 0.6 + p.life * 0.5 : 1), 0, Math.PI * 2);
+                        ctx.fill();
+                    }
                     if (p.life > 0) parts[w++] = p;
                 }
                 if (w !== parts.length) parts.length = w;
