@@ -204,6 +204,13 @@
             transform: translateZ(0);
         }
         #chef-rig.chef-face-glow::after { animation: chefFaceGlowPulse 2.5s ease forwards; }
+        #chef-rig.chef-face-glow-mobile::after { animation: chefFaceGlowPulseMobile 2.5s ease forwards; mix-blend-mode: soft-light; }
+        @keyframes chefFaceGlowPulseMobile {
+            0% { opacity: 0; transform: scale(0.92); filter: blur(5px); box-shadow: 0 0 0 transparent; }
+            12%, 36% { opacity: 1; transform: scale(1.12); filter: blur(9px) brightness(1.42); box-shadow: 0 0 44px var(--chef-glow-color, rgba(255, 200, 100, 0.7)), 0 0 76px var(--chef-glow-color, rgba(255, 200, 100, 0.38)); }
+            58% { opacity: 0.72; transform: scale(1.04); filter: blur(7px); box-shadow: 0 0 28px var(--chef-glow-color, transparent); }
+            100% { opacity: 0; transform: scale(1); filter: blur(3px); box-shadow: 0 0 0 transparent; }
+        }
         @keyframes chefFaceGlowPulse {
             0% { opacity: 0; transform: scale(0.94); filter: blur(4px); box-shadow: 0 0 0 transparent; }
             10%, 34% { opacity: 1; transform: scale(1.1); filter: blur(10px) brightness(1.35); box-shadow: 0 0 40px var(--chef-glow-color, rgba(255, 200, 100, 0.65)), 0 0 72px var(--chef-glow-color, rgba(255, 200, 100, 0.35)); }
@@ -2783,36 +2790,36 @@
     })(typeof window !== 'undefined' ? window : this);
     </script>
     <script src="events.js"></script>
-    <script src="js/soft-events.js?v=build-266"></script>
-    <script src="js/gx.js?v=build-266"></script>
-    <script src="js/visual-theme.js?v=build-266"></script>
-    <script src="js/decor.js?v=build-266"></script>
-    <script src="js/quests.js?v=build-266"></script>
-    <script src="js/achievements.js?v=build-266"></script>
-    <script src="js/soup-menu.js?v=build-266"></script>
-    <script src="js/weekly-challenges.js?v=build-266"></script>
-    <script src="js/helper-team.js?v=build-266"></script>
-    <script src="js/chef-mood.js?v=build-266"></script>
-    <script src="js/farm.js?v=build-266"></script>
-    <script src="js/ambient.js?v=build-266"></script>
-    <script src="js/music.js?v=build-266"></script>
-    <script src="js/creator.js?v=build-266"></script>
-    <script src="js/prix.js?v=build-266"></script>
-    <script src="js/soup-skirmish.js?v=build-266"></script>
-    <script src="js/objective.js?v=build-266"></script>
-    <script src="js/angel-tree.js?v=build-266"></script>
-    <script src="js/tutorial.js?v=build-266"></script>
-    <script src="js/quality.js?v=build-266"></script>
-    <script src="js/fullscreen.js?v=build-266"></script>
-    <script src="js/home.js?v=build-266"></script>
-    <script src="js/pause-menu.js?v=build-266"></script>
-    <script src="js/guide.js?v=build-266"></script>
-    <script src="js/hud-chips.js?v=build-266"></script>
-    <script src="js/item-bonus.js?v=build-266"></script>
+    <script src="js/soft-events.js?v=build-267"></script>
+    <script src="js/gx.js?v=build-267"></script>
+    <script src="js/visual-theme.js?v=build-267"></script>
+    <script src="js/decor.js?v=build-267"></script>
+    <script src="js/quests.js?v=build-267"></script>
+    <script src="js/achievements.js?v=build-267"></script>
+    <script src="js/soup-menu.js?v=build-267"></script>
+    <script src="js/weekly-challenges.js?v=build-267"></script>
+    <script src="js/helper-team.js?v=build-267"></script>
+    <script src="js/chef-mood.js?v=build-267"></script>
+    <script src="js/farm.js?v=build-267"></script>
+    <script src="js/ambient.js?v=build-267"></script>
+    <script src="js/music.js?v=build-267"></script>
+    <script src="js/creator.js?v=build-267"></script>
+    <script src="js/prix.js?v=build-267"></script>
+    <script src="js/soup-skirmish.js?v=build-267"></script>
+    <script src="js/objective.js?v=build-267"></script>
+    <script src="js/angel-tree.js?v=build-267"></script>
+    <script src="js/tutorial.js?v=build-267"></script>
+    <script src="js/quality.js?v=build-267"></script>
+    <script src="js/fullscreen.js?v=build-267"></script>
+    <script src="js/home.js?v=build-267"></script>
+    <script src="js/pause-menu.js?v=build-267"></script>
+    <script src="js/guide.js?v=build-267"></script>
+    <script src="js/hud-chips.js?v=build-267"></script>
+    <script src="js/item-bonus.js?v=build-267"></script>
     <!-- Cache-bust catalog on every deploy (SW must not serve a stale charm list). -->
-    <script src="assets/skins/catalog.js?v=build-266"></script>
-    <script src="assets/atlas_manifest.js?v=build-266"></script>
-    <script src="js/atlas.js?v=build-266"></script>
+    <script src="assets/skins/catalog.js?v=build-267"></script>
+    <script src="assets/atlas_manifest.js?v=build-267"></script>
+    <script src="js/atlas.js?v=build-267"></script>
     <!-- ====================================================================
          === EMBEDDED LEADERBOARD MODULE (from leaderboard/leaderboard-client.js)
          === Self-contained global `leaderboard` object. Single-file game, so the
@@ -3292,7 +3299,7 @@
 
     })(typeof window !== 'undefined' ? window : this);
     </script>
-    <script src="js/lb-ui.js?v=build-266"></script>
+    <script src="js/lb-ui.js?v=build-267"></script>
     <!-- ==================== END EMBEDDED LEADERBOARD MODULE ==================== -->
     <script>
         // === AUTO-UPDATE / ANTI-STALE-CACHE ===========================================
@@ -3306,7 +3313,7 @@
         // while still retrying if a reload didn't actually land the new build. Fully
         // defensive: any error is silent and never blocks the game. Parent bumps BOTH
         // version.json and BUILD_V on every future deploy.
-        const BUILD_V = "build-266";
+        const BUILD_V = "build-267";
         function paintBuildTag() {
             try {
                 var prod = (typeof PRODUCTION_BUILD !== 'undefined' && PRODUCTION_BUILD)
@@ -5813,9 +5820,10 @@
                 this._chefMouthStopChewLoop();
                 this._chefMouthChewActive = true;
                 this._setChefEating(true, true);
-                this._chefMouthVisual = null;
                 this._chefMouthOpenState = true;
                 this._chefMouthShowOpen();
+                if (this._mProdMobile && this._mProdMobile()) return;
+                this._chefMouthVisual = null;
                 const sliceMs = sliceOverride || this.CHEW_SLICE_MS || 500;
                 this._chefMouthAnimTimer = setInterval(() => {
                     if (!this._chefMouthChewActive) return;
@@ -6254,7 +6262,7 @@
                     }
                     const rig = this._chefRigEl();
                     if (rig) {
-                        rig.classList.remove('chef-face-glow');
+                        rig.classList.remove('chef-face-glow', 'chef-face-glow-mobile');
                         rig.style.removeProperty('--chef-glow-color');
                         rig.style.removeProperty('--chef-glow-core');
                         rig.style.removeProperty('--chef-glow-mid');
@@ -7531,41 +7539,46 @@
                 return { ...pick, glow: this.hexA(pick.core, 0.55) };
             },
             _applyChefFaceTint() {
+                const glowOnly = !!(this._mProdMobile && this._mProdMobile());
                 const tint = this._pickChefFeedFaceTint();
                 const filter = tint.filter;
                 const glowColor = tint.glow;
                 const coreHex = tint.core;
                 const midHex = tint.mid;
                 const faceFilter = this._chefFaceTintFilter(tint);
-                const els = [document.getElementById('asset-chef')];
+                const els = glowOnly ? [] : [document.getElementById('asset-chef')];
                 const rig = this._chefRigEl();
                 if (this._chefTintTimer) clearTimeout(this._chefTintTimer);
                 if (rig) {
-                    rig.classList.remove('chef-face-glow');
+                    rig.classList.remove('chef-face-glow', 'chef-face-glow-mobile');
                     rig.style.setProperty('--chef-glow-color', glowColor);
-                    rig.style.setProperty('--chef-glow-core', this.hexA(coreHex, 0.82));
-                    rig.style.setProperty('--chef-glow-mid', this.hexA(midHex, 0.48));
+                    rig.style.setProperty('--chef-glow-core', this.hexA(coreHex, glowOnly ? 0.94 : 0.82));
+                    rig.style.setProperty('--chef-glow-mid', this.hexA(midHex, glowOnly ? 0.62 : 0.48));
                     void rig.offsetWidth;
-                    rig.classList.add('chef-face-glow');
+                    rig.classList.add(glowOnly ? 'chef-face-glow-mobile' : 'chef-face-glow');
                 }
-                els.forEach(el => {
-                    if (!el) return;
-                    el.classList.remove('chef-face-tint', 'chef-face-tint-fade');
-                    el.style.setProperty('--chef-tint-filter', filter);
-                    el.style.setProperty('--chef-face-filter', faceFilter);
-                    void el.offsetWidth;
-                    el.classList.add('chef-face-tint', 'chef-face-tint-fade');
-                });
-                this._chefTintTimer = setTimeout(() => {
+                if (!glowOnly) {
                     els.forEach(el => {
                         if (!el) return;
                         el.classList.remove('chef-face-tint', 'chef-face-tint-fade');
-                        el.style.removeProperty('--chef-tint-filter');
-                        el.style.removeProperty('--chef-face-filter');
-                        el.style.removeProperty('filter');
+                        el.style.setProperty('--chef-tint-filter', filter);
+                        el.style.setProperty('--chef-face-filter', faceFilter);
+                        void el.offsetWidth;
+                        el.classList.add('chef-face-tint', 'chef-face-tint-fade');
                     });
+                }
+                this._chefTintTimer = setTimeout(() => {
+                    if (!glowOnly) {
+                        els.forEach(el => {
+                            if (!el) return;
+                            el.classList.remove('chef-face-tint', 'chef-face-tint-fade');
+                            el.style.removeProperty('--chef-tint-filter');
+                            el.style.removeProperty('--chef-face-filter');
+                            el.style.removeProperty('filter');
+                        });
+                    }
                     if (rig) {
-                        rig.classList.remove('chef-face-glow');
+                        rig.classList.remove('chef-face-glow', 'chef-face-glow-mobile');
                         rig.style.removeProperty('--chef-glow-color');
                         rig.style.removeProperty('--chef-glow-core');
                         rig.style.removeProperty('--chef-glow-mid');
@@ -7589,6 +7602,9 @@
                 this._setChefEating(true, true);
                 try { this.applySpoonVisual(); } catch (e) {}
                 this._chefMouthShowOpen();
+                if (this._mProdMobile && this._mProdMobile()) {
+                    try { this._applyChefFaceTint(); } catch (e) {}
+                }
                 const seq = this._chefFeedSeq;
                 this._chefFeedPendingTimer = setTimeout(() => {
                     if (seq !== this._chefFeedSeq || this._chefMouthChewActive) return;
@@ -7611,7 +7627,7 @@
             },
             chefFeedHit(cfg) {
                 try { chefMood.bump(6, 'feed'); } catch (e) {}
-                this._applyChefFaceTint();
+                if (!(this._mProdMobile && this._mProdMobile())) this._applyChefFaceTint();
                 if (this._mProdMobile && this._mProdMobile()) return;
                 const mouth = this.chefMouthOrigin();
                 const colors = (cfg && cfg.particleColors) || ['#fde047', '#facc15'];
