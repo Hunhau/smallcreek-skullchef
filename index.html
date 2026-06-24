@@ -2790,36 +2790,36 @@
     })(typeof window !== 'undefined' ? window : this);
     </script>
     <script src="events.js"></script>
-    <script src="js/soft-events.js?v=build-275"></script>
-    <script src="js/gx.js?v=build-275"></script>
-    <script src="js/visual-theme.js?v=build-275"></script>
-    <script src="js/decor.js?v=build-275"></script>
-    <script src="js/quests.js?v=build-275"></script>
-    <script src="js/achievements.js?v=build-275"></script>
-    <script src="js/soup-menu.js?v=build-275"></script>
-    <script src="js/weekly-challenges.js?v=build-275"></script>
-    <script src="js/helper-team.js?v=build-275"></script>
-    <script src="js/chef-mood.js?v=build-275"></script>
-    <script src="js/farm.js?v=build-275"></script>
-    <script src="js/ambient.js?v=build-275"></script>
-    <script src="js/music.js?v=build-275"></script>
-    <script src="js/creator.js?v=build-275"></script>
-    <script src="js/prix.js?v=build-275"></script>
-    <script src="js/soup-skirmish.js?v=build-275"></script>
-    <script src="js/objective.js?v=build-275"></script>
-    <script src="js/angel-tree.js?v=build-275"></script>
-    <script src="js/tutorial.js?v=build-275"></script>
-    <script src="js/quality.js?v=build-275"></script>
-    <script src="js/fullscreen.js?v=build-275"></script>
-    <script src="js/home.js?v=build-275"></script>
-    <script src="js/pause-menu.js?v=build-275"></script>
-    <script src="js/guide.js?v=build-275"></script>
-    <script src="js/hud-chips.js?v=build-275"></script>
-    <script src="js/item-bonus.js?v=build-275"></script>
+    <script src="js/soft-events.js?v=build-276"></script>
+    <script src="js/gx.js?v=build-276"></script>
+    <script src="js/visual-theme.js?v=build-276"></script>
+    <script src="js/decor.js?v=build-276"></script>
+    <script src="js/quests.js?v=build-276"></script>
+    <script src="js/achievements.js?v=build-276"></script>
+    <script src="js/soup-menu.js?v=build-276"></script>
+    <script src="js/weekly-challenges.js?v=build-276"></script>
+    <script src="js/helper-team.js?v=build-276"></script>
+    <script src="js/chef-mood.js?v=build-276"></script>
+    <script src="js/farm.js?v=build-276"></script>
+    <script src="js/ambient.js?v=build-276"></script>
+    <script src="js/music.js?v=build-276"></script>
+    <script src="js/creator.js?v=build-276"></script>
+    <script src="js/prix.js?v=build-276"></script>
+    <script src="js/soup-skirmish.js?v=build-276"></script>
+    <script src="js/objective.js?v=build-276"></script>
+    <script src="js/angel-tree.js?v=build-276"></script>
+    <script src="js/tutorial.js?v=build-276"></script>
+    <script src="js/quality.js?v=build-276"></script>
+    <script src="js/fullscreen.js?v=build-276"></script>
+    <script src="js/home.js?v=build-276"></script>
+    <script src="js/pause-menu.js?v=build-276"></script>
+    <script src="js/guide.js?v=build-276"></script>
+    <script src="js/hud-chips.js?v=build-276"></script>
+    <script src="js/item-bonus.js?v=build-276"></script>
     <!-- Cache-bust catalog on every deploy (SW must not serve a stale charm list). -->
-    <script src="assets/skins/catalog.js?v=build-275"></script>
-    <script src="assets/atlas_manifest.js?v=build-275"></script>
-    <script src="js/atlas.js?v=build-275"></script>
+    <script src="assets/skins/catalog.js?v=build-276"></script>
+    <script src="assets/atlas_manifest.js?v=build-276"></script>
+    <script src="js/atlas.js?v=build-276"></script>
     <!-- ====================================================================
          === EMBEDDED LEADERBOARD MODULE (from leaderboard/leaderboard-client.js)
          === Self-contained global `leaderboard` object. Single-file game, so the
@@ -3299,7 +3299,7 @@
 
     })(typeof window !== 'undefined' ? window : this);
     </script>
-    <script src="js/lb-ui.js?v=build-275"></script>
+    <script src="js/lb-ui.js?v=build-276"></script>
     <!-- ==================== END EMBEDDED LEADERBOARD MODULE ==================== -->
     <script>
         // === AUTO-UPDATE / ANTI-STALE-CACHE ===========================================
@@ -3313,7 +3313,7 @@
         // while still retrying if a reload didn't actually land the new build. Fully
         // defensive: any error is silent and never blocks the game. Parent bumps BOTH
         // version.json and BUILD_V on every future deploy.
-        const BUILD_V = "build-275";
+        const BUILD_V = "build-276";
         function paintBuildTag() {
             try {
                 var prod = (typeof PRODUCTION_BUILD !== 'undefined' && PRODUCTION_BUILD)
@@ -10265,7 +10265,6 @@
                 const AdMob = self._plugin();
                 if (!AdMob || !self._adUnitId) { onFail(); return; }
                 if (!self._canRequestAds) { onFail(); return; }
-                try { gx.toast(t('ad_loading')); } catch (e) {}
                 const units = [self._adUnitId];
                 const fallback = self._fillFallbackUnit();
                 if (fallback && fallback !== self._adUnitId) units.push(fallback);
@@ -10286,7 +10285,11 @@
                         return tryUnit(idx + 1);
                     });
                 };
-                tryUnit(0).catch(function () { onFail(); });
+                const startRealAd = function () {
+                    tryUnit(0).catch(function () { onFail(); });
+                };
+                // Same 3-2-1 + hint as web sim, then real AdMob rewarded (Apple review flow).
+                adOverlay.playThen(3, startRealAd, onFail);
             }
         };
 
@@ -10351,6 +10354,10 @@
         const adOverlay = {
             _node: null, _timer: null,
             play(seconds, onReward, onFail) {
+                this.playThen(seconds, onReward, onFail);
+            },
+            // Countdown overlay — web sim uses as the ad; native uses before real AdMob plays.
+            playThen(seconds, onDone, onFail) {
                 if (this._node) this._close();
                 let left = Math.max(1, Math.floor(seconds) || 3);
                 const ov = document.createElement('div');
@@ -10368,7 +10375,7 @@
                     left--;
                     if (left > 0) { if (countEl) countEl.textContent = left; return; }
                     self._close();
-                    if (typeof onReward === 'function') onReward();
+                    if (typeof onDone === 'function') onDone();
                 }, 1000);
             },
             _close() {

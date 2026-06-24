@@ -21,6 +21,7 @@ const testIds=['3940256099942544'];
 const id=(c.ios&&c.ios.appId)||'';
 const unit=(c.ios&&c.ios.rewardedAdUnitId)||'';
 if(c.isTesting!==false) { console.error('isTesting must be false'); process.exit(1); }
+if(c.bundleId!=='com.smallcreek.skullchef') { console.error('bundleId must be com.smallcreek.skullchef'); process.exit(1); }
 if(!id||!unit) { console.error('ios appId/rewardedAdUnitId required'); process.exit(1); }
 if(testIds.some(t=>id.includes(t)||unit.includes(t))) { console.error('Google TEST ids detected'); process.exit(1); }
 " && ok "admob.config.json (production)" || fail "admob.config.json not ready for production"
@@ -64,6 +65,15 @@ else
   fail "ios/App/App/Info.plist not found — run tools/setup-ios-mac.sh"
 fi
 
+DELEGATE="$ROOT/ios/App/App/AppDelegate.swift"
+if [ -f "$DELEGATE" ]; then
+  if grep -qE 'startGoogleMobileAds|MobileAds\.shared\.start|GADMobileAds\.sharedInstance\(\)\.start' "$DELEGATE"; then
+    ok "AppDelegate Google Mobile Ads start()"
+  else
+    fail "AppDelegate missing MobileAds.start — run tools/patch-ios-admob-start.sh"
+  fi
+fi
+
 if [ ! -f "$ROOT/www/admob.config.json" ]; then
   fail "www/admob.config.json missing — run tools/sync-www.sh"
 else
@@ -78,11 +88,13 @@ fi
 
 WWW_INDEX="$ROOT/www/index.html"
 if [ -f "$WWW_INDEX" ]; then
-  if grep -q 'const BUILD_V = "build-49"' "$WWW_INDEX" 2>/dev/null; then
-    ok "www/index.html BUILD_V build-49 (store-ready code)"
-  elif grep -q 'const BUILD_V = "build-' "$WWW_INDEX" 2>/dev/null; then
-    BV="$(grep -o 'const BUILD_V = "build-[0-9]*"' "$WWW_INDEX" | head -1)"
-    fail "www/index.html is $BV — re-run sync-www.sh; Archive must include build-49+"
+  if grep -q 'const BUILD_V = "build-' "$WWW_INDEX" 2>/dev/null; then
+    BV="$(grep -o 'const BUILD_V = "build-[0-9]*"' "$WWW_INDEX" | head -1 | grep -o '[0-9]*' | head -1)"
+    if [ -n "$BV" ] && [ "$BV" -ge 270 ] 2>/dev/null; then
+      ok "www/index.html BUILD_V build-$BV"
+    else
+      fail "www/index.html BUILD_V too old (need build-270+) — run bash tools/sync-www.sh"
+    fi
   else
     fail "www/index.html missing BUILD_V"
   fi

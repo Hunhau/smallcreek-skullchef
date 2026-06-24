@@ -6,6 +6,16 @@ $outDir = Join-Path $root 'dist-mac'
 $stage = Join-Path $outDir 'stage'
 $zip = Join-Path $outDir 'skullchef-mac.zip'
 
+Write-Host "==> Sync www/ for Capacitor..."
+& (Join-Path $PSScriptRoot 'sync-www.ps1')
+
+$icon1024 = Join-Path $root 'ios-app-icon\AppIcon.appiconset\icon-1024.png'
+if (-not (Test-Path $icon1024)) {
+    Write-Host "==> Generating App Store icons (ios-app-icon/)..."
+    py -3 (Join-Path $PSScriptRoot 'generate-app-icon.py')
+    if (-not (Test-Path $icon1024)) { throw 'icon-1024.png missing after generate-app-icon.py — install: pip install pillow' }
+}
+
 if (Test-Path $outDir) { Remove-Item $outDir -Recurse -Force }
 New-Item -ItemType Directory -Path $stage | Out-Null
 
