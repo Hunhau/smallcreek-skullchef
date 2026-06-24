@@ -1,0 +1,13 @@
+{
+  "generated": "2026-06-20T22:29:00.713Z",
+  "achievementCount": 9,
+  "itemDefCount": 409,
+  "marketableCount": 110,
+  "nextSteps": [
+    "Create app in Steamworks and set steam/steam_appid.txt",
+    "Import achievements.json names into Stats & Achievements",
+    "Import itemdefs into Steam Inventory / Item Definitions (Phase 2)",
+    "Wire steamworks.js native module in steam/preload.js",
+    "Rebuild with .\\tools\\build-steam.ps1"
+  ]
+}

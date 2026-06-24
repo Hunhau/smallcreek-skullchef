@@ -47,8 +47,10 @@
         },
         exit() {
             try {
-                // HOOK NATIVO (stub): Steam/Electron quit
-                // HOOK PLAYABLES (stub): YouTube Playables
+                if (window.electronAPI && typeof window.electronAPI.quitApp === 'function') {
+                    window.electronAPI.quitApp();
+                    return;
+                }
             } catch (e) {}
             this.toHome();
         }

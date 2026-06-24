@@ -2790,36 +2790,36 @@
     })(typeof window !== 'undefined' ? window : this);
     </script>
     <script src="events.js"></script>
-    <script src="js/soft-events.js?v=build-276"></script>
-    <script src="js/gx.js?v=build-276"></script>
-    <script src="js/visual-theme.js?v=build-276"></script>
-    <script src="js/decor.js?v=build-276"></script>
-    <script src="js/quests.js?v=build-276"></script>
-    <script src="js/achievements.js?v=build-276"></script>
-    <script src="js/soup-menu.js?v=build-276"></script>
-    <script src="js/weekly-challenges.js?v=build-276"></script>
-    <script src="js/helper-team.js?v=build-276"></script>
-    <script src="js/chef-mood.js?v=build-276"></script>
-    <script src="js/farm.js?v=build-276"></script>
-    <script src="js/ambient.js?v=build-276"></script>
-    <script src="js/music.js?v=build-276"></script>
-    <script src="js/creator.js?v=build-276"></script>
-    <script src="js/prix.js?v=build-276"></script>
-    <script src="js/soup-skirmish.js?v=build-276"></script>
-    <script src="js/objective.js?v=build-276"></script>
-    <script src="js/angel-tree.js?v=build-276"></script>
-    <script src="js/tutorial.js?v=build-276"></script>
-    <script src="js/quality.js?v=build-276"></script>
-    <script src="js/fullscreen.js?v=build-276"></script>
-    <script src="js/home.js?v=build-276"></script>
-    <script src="js/pause-menu.js?v=build-276"></script>
-    <script src="js/guide.js?v=build-276"></script>
-    <script src="js/hud-chips.js?v=build-276"></script>
-    <script src="js/item-bonus.js?v=build-276"></script>
+    <script src="js/soft-events.js?v=build-277"></script>
+    <script src="js/gx.js?v=build-277"></script>
+    <script src="js/visual-theme.js?v=build-277"></script>
+    <script src="js/decor.js?v=build-277"></script>
+    <script src="js/quests.js?v=build-277"></script>
+    <script src="js/achievements.js?v=build-277"></script>
+    <script src="js/soup-menu.js?v=build-277"></script>
+    <script src="js/weekly-challenges.js?v=build-277"></script>
+    <script src="js/helper-team.js?v=build-277"></script>
+    <script src="js/chef-mood.js?v=build-277"></script>
+    <script src="js/farm.js?v=build-277"></script>
+    <script src="js/ambient.js?v=build-277"></script>
+    <script src="js/music.js?v=build-277"></script>
+    <script src="js/creator.js?v=build-277"></script>
+    <script src="js/prix.js?v=build-277"></script>
+    <script src="js/soup-skirmish.js?v=build-277"></script>
+    <script src="js/objective.js?v=build-277"></script>
+    <script src="js/angel-tree.js?v=build-277"></script>
+    <script src="js/tutorial.js?v=build-277"></script>
+    <script src="js/quality.js?v=build-277"></script>
+    <script src="js/fullscreen.js?v=build-277"></script>
+    <script src="js/home.js?v=build-277"></script>
+    <script src="js/pause-menu.js?v=build-277"></script>
+    <script src="js/guide.js?v=build-277"></script>
+    <script src="js/hud-chips.js?v=build-277"></script>
+    <script src="js/item-bonus.js?v=build-277"></script>
     <!-- Cache-bust catalog on every deploy (SW must not serve a stale charm list). -->
-    <script src="assets/skins/catalog.js?v=build-276"></script>
-    <script src="assets/atlas_manifest.js?v=build-276"></script>
-    <script src="js/atlas.js?v=build-276"></script>
+    <script src="assets/skins/catalog.js?v=build-277"></script>
+    <script src="assets/atlas_manifest.js?v=build-277"></script>
+    <script src="js/atlas.js?v=build-277"></script>
     <!-- ====================================================================
          === EMBEDDED LEADERBOARD MODULE (from leaderboard/leaderboard-client.js)
          === Self-contained global `leaderboard` object. Single-file game, so the
@@ -3299,7 +3299,7 @@
 
     })(typeof window !== 'undefined' ? window : this);
     </script>
-    <script src="js/lb-ui.js?v=build-276"></script>
+    <script src="js/lb-ui.js?v=build-277"></script>
     <!-- ==================== END EMBEDDED LEADERBOARD MODULE ==================== -->
     <script>
         // === AUTO-UPDATE / ANTI-STALE-CACHE ===========================================
@@ -3313,7 +3313,7 @@
         // while still retrying if a reload didn't actually land the new build. Fully
         // defensive: any error is silent and never blocks the game. Parent bumps BOTH
         // version.json and BUILD_V on every future deploy.
-        const BUILD_V = "build-276";
+        const BUILD_V = "build-277";
         function paintBuildTag() {
             try {
                 var prod = (typeof PRODUCTION_BUILD !== 'undefined' && PRODUCTION_BUILD)
@@ -4173,7 +4173,7 @@
             // Mobile web (iOS/Android browser): one-shot SFX via Web Audio so sounds triggered
             // from timers/async (farm ready, ingredient rain, eat) work without a user gesture.
             // Stir keeps its dedicated HTMLAudio loop (already gesture-started on tap).
-            _waCtx: null, _waBuf: {}, _waLoading: {}, _waAmb: null, _waAmbGain: null,
+            _waCtx: null, _waBuf: {}, _waLoading: {}, _waAmb: null, _waAmbGain: null, _waBuyPlaying: false,
             _useWebAudio() {
                 try {
                     if (this._isNativeCap()) return false;
@@ -4273,7 +4273,7 @@
                     if (arr) arr.forEach(u => { try { this._waLoadSrc(u); } catch (e) {} });
                 }
             },
-            _waPlayBuffer(buf, vol, rate) {
+            _waPlayBuffer(buf, vol, rate, onEnded) {
                 const ctx = this._waEnsure();
                 if (!ctx || !buf) return false;
                 try {
@@ -4283,6 +4283,9 @@
                     const g = ctx.createGain();
                     g.gain.value = Math.min(1, Math.max(0, vol));
                     src.connect(g); g.connect(ctx.destination);
+                    if (typeof onEnded === 'function') {
+                        src.onended = () => { try { onEnded(); } catch (e) {} };
+                    }
                     src.start(0);
                     return true;
                 } catch (e) { return false; }
@@ -4293,8 +4296,13 @@
                 if (!grp || !grp.length) return false;
                 const cfg = this.cfg[name] || this.cfg._default;
                 const now = (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now();
-                const minGap = name === 'buy' ? 400 : (cfg.minGap || 0);
-                if (minGap > 0 && (now - (this._last[name] || 0)) < minGap) return true;
+                if (name === 'buy') {
+                    if (this._waBuyPlaying) return true;
+                    if ((now - (this._last[name] || 0)) < 650) return true;
+                } else {
+                    const minGap = cfg.minGap || 0;
+                    if (minGap > 0 && (now - (this._last[name] || 0)) < minGap) return true;
+                }
                 this._last[name] = now;
                 const srcPath = grp.length > 1 ? grp[Math.floor(Math.random() * grp.length)] : grp[0];
                 const url = this._mediaUrl(srcPath);
@@ -4303,7 +4311,12 @@
                 const vol = Math.min(1, Math.max(0, (this.vols[name] != null ? this.vols[name] : 0.5) * this.volume));
                 const pitch = cfg.pitch || 0;
                 const rate = (name === 'buy' || pitch <= 0) ? 1 : Math.min(2, Math.max(0.5, 1 + (Math.random() * 2 - 1) * pitch));
-                return this._waPlayBuffer(buf, vol, rate);
+                const self = this;
+                const onEnded = (name === 'buy') ? function () { self._waBuyPlaying = false; } : null;
+                if (name === 'buy') this._waBuyPlaying = true;
+                const ok = this._waPlayBuffer(buf, vol, rate, onEnded);
+                if (name === 'buy' && !ok) this._waBuyPlaying = false;
+                return ok;
             },
             init() {
                 if (this._inited) return; this._inited = true;
@@ -8327,6 +8340,7 @@
                 try { sound.play(sfx || 'bubble'); } catch (e) {}
             },
             summon(c, btn, feedMode, testLevel, rainOnLand) {
+                try { sound.play('buy'); } catch (e) {}
                 if (!btn || typeof btn.getBoundingClientRect !== 'function') {
                     const cards = document.querySelectorAll('#companion-list .companion-card');
                     btn = cards[c.id] || document.getElementById('companion-column') || document.body;
@@ -8458,7 +8472,7 @@
                 else return;
                 const cards = document.querySelectorAll('#companion-list .companion-card');
                 const btn = cards[helperId] || document.getElementById('helpers-toggle') || document.body;
-                try { sound.unlock(); sound.play('buy'); } catch (e) {}
+                try { sound.unlock(); } catch (e) {}
                 this.summon(c, btn, feedOverride, testLv);
             },
             buy(i, ev) {
@@ -8478,7 +8492,6 @@
                 let cost = c.cs;
                 for (let j = 0; j < n; j++) cost = Math.floor(cost * 1.15);
                 c.cs = cost;
-                sound.play('buy');
                 this.track('levels', n);
                 try { chefMood.bump(Math.min(4, 1 + n * 0.4), 'buy'); } catch (e) {}
                 if ([10, 25, 50, 100].some(th => prevLv < th && c.lv >= th) && !this._skipSummonSparkles()) { this.part(window.innerWidth / 2, window.innerHeight * 0.5, 'magic'); sound.play('bubble'); gx.toast(t(this.milestoneMsg[i] || 'milestone_generic')); }
@@ -10611,7 +10624,11 @@
             } catch (e) {}
             return localCollectionProvider;
         }
-        const collectionProvider = pickCollectionProvider();
+        const collectionProvider = {
+            grantDrop(item) { return pickCollectionProvider().grantDrop(item); },
+            getInventory() { return pickCollectionProvider().getInventory(); },
+            equip(e) { return pickCollectionProvider().equip(e); }
+        };
         // === Skin asset manager (LRU, dual-resolution, platform-aware) ===
         // Never decodes the full catalog at boot — scales to 1000+ skins.
         const SkinAssetManager = (function () {
@@ -13020,7 +13037,10 @@
             try { if (BUILD === 'steam' && window.steamworks && window.steamworks.available !== false) return steamAchievementsProvider; } catch (e) {}
             return localAchievementsProvider;
         }
-        const achievementsProvider = pickAchievementsProvider();
+        const achievementsProvider = {
+            unlock(id) { return pickAchievementsProvider().unlock(id); },
+            setStat(k, v) { return pickAchievementsProvider().setStat(k, v); }
+        };
         const achievementsUI = {
             open() { this.render(); document.getElementById('ach-modal').classList.add('open'); },
             close() { document.getElementById('ach-modal').classList.remove('open'); },
@@ -13426,6 +13446,11 @@
             try { game.init(); } catch (e) {
                 try { if (typeof window.__scBootSplashFail === 'function') window.__scBootSplashFail('Game init failed.\nReload the page or try Wi‑Fi option 2.'); } catch (e2) {}
             }
+            try {
+                if (BUILD === 'steam' && window.steamworks && window.steamworks.syncAfterLoad && game.ach) {
+                    window.steamworks.syncAfterLoad(game.ach);
+                }
+            } catch (e) {}
             try { hudChips.init(); } catch (e) {}
             // Leaderboard identity: ensures UUID + display name exist (own localStorage
             // key 'soup_lb_identity'; never touches the integrity-wrapped 'soup_p_v17').

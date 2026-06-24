@@ -1,0 +1,46 @@
+{
+  "name": "skullchef",
+  "productName": "Skullchef",
+  "version": "1.0.0",
+  "description": "Skullchef — The Wooden Soup (Steam desktop build by SmallCreek)",
+  "main": "main.js",
+  "author": "SmallCreek",
+  "license": "UNLICENSED",
+  "private": true,
+  "scripts": {
+    "start": "electron .",
+    "pack": "electron-builder --dir",
+    "dist": "electron-builder --win"
+  },
+  "build": {
+    "appId": "com.smallcreek.skullchef",
+    "productName": "Skullchef",
+    "directories": {
+      "output": "out"
+    },
+    "files": [
+      "**/*",
+      "!out/**",
+      "!tools/**",
+      "!.git/**"
+    ],
+    "win": {
+      "target": [
+        "portable",
+        "nsis"
+      ],
+      "icon": "assets/icons/icon-512.png"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
+    }
+  },
+  "dependencies": {
+    "steamworks.js": "^0.4.0"
+  },
+  "devDependencies": {
+    "electron": "^33.2.0",
+    "electron-builder": "^25.1.8"
+  }
+}

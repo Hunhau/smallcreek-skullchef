@@ -1,0 +1,4 @@
+# Replace with your real Steam App ID from Steamworks before testing achievements.
+# Copy this file to dist-steam/app/steam_appid.txt when using Steamworks SDK.
+# Example test App ID used by Valve samples: 480
+480

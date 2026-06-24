@@ -1,0 +1,74 @@
+[
+  {
+    "apiName": "ACH_FIRSTCLICK",
+    "gameKey": "firstClick",
+    "displayName_en": "First Stir",
+    "displayName_es": "Primer removido",
+    "hidden": false,
+    "notes": "Create matching achievement in Steamworks → Stats & Achievements"
+  },
+  {
+    "apiName": "ACH_FIRSTPRES",
+    "gameKey": "firstPres",
+    "displayName_en": "First Prestige",
+    "displayName_es": "Primer prestigio",
+    "hidden": false,
+    "notes": "Create matching achievement in Steamworks → Stats & Achievements"
+  },
+  {
+    "apiName": "ACH_FIRSTCHAMP",
+    "gameKey": "firstChamp",
+    "displayName_en": "Grand Prix Champion",
+    "displayName_es": "Campeón del Grand Prix",
+    "hidden": false,
+    "notes": "Create matching achievement in Steamworks → Stats & Achievements"
+  },
+  {
+    "apiName": "ACH_FULLTEAM",
+    "gameKey": "fullTeam",
+    "displayName_en": "Full Kitchen Crew",
+    "displayName_es": "Equipo completo",
+    "hidden": false,
+    "notes": "Create matching achievement in Steamworks → Stats & Achievements"
+  },
+  {
+    "apiName": "ACH_ALLSPOONS",
+    "gameKey": "allSpoons",
+    "displayName_en": "Sacred Spoon Album",
+    "displayName_es": "Álbum de cucharas",
+    "hidden": false,
+    "notes": "Create matching achievement in Steamworks → Stats & Achievements"
+  },
+  {
+    "apiName": "ACH_CENTURION",
+    "gameKey": "centurion",
+    "displayName_en": "Centurion Chef",
+    "displayName_es": "Chef centurión",
+    "hidden": false,
+    "notes": "Create matching achievement in Steamworks → Stats & Achievements"
+  },
+  {
+    "apiName": "ACH_AWAKENED5",
+    "gameKey": "awakened5",
+    "displayName_en": "Five Awakenings",
+    "displayName_es": "Cinco despertares",
+    "hidden": false,
+    "notes": "Create matching achievement in Steamworks → Stats & Achievements"
+  },
+  {
+    "apiName": "ACH_COLLECTOR",
+    "gameKey": "collector",
+    "displayName_en": "Charm Collector",
+    "displayName_es": "Coleccionista de amuletos",
+    "hidden": false,
+    "notes": "Create matching achievement in Steamworks → Stats & Achievements"
+  },
+  {
+    "apiName": "ACH_MYTHICCHARM",
+    "gameKey": "mythicCharm",
+    "displayName_en": "Mythic Drop",
+    "displayName_es": "Amuleto mítico",
+    "hidden": true,
+    "notes": "Create matching achievement in Steamworks → Stats & Achievements"
+  }
+]
