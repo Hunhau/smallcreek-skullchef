@@ -2790,36 +2790,36 @@
     })(typeof window !== 'undefined' ? window : this);
     </script>
     <script src="events.js"></script>
-    <script src="js/soft-events.js?v=build-267"></script>
-    <script src="js/gx.js?v=build-267"></script>
-    <script src="js/visual-theme.js?v=build-267"></script>
-    <script src="js/decor.js?v=build-267"></script>
-    <script src="js/quests.js?v=build-267"></script>
-    <script src="js/achievements.js?v=build-267"></script>
-    <script src="js/soup-menu.js?v=build-267"></script>
-    <script src="js/weekly-challenges.js?v=build-267"></script>
-    <script src="js/helper-team.js?v=build-267"></script>
-    <script src="js/chef-mood.js?v=build-267"></script>
-    <script src="js/farm.js?v=build-267"></script>
-    <script src="js/ambient.js?v=build-267"></script>
-    <script src="js/music.js?v=build-267"></script>
-    <script src="js/creator.js?v=build-267"></script>
-    <script src="js/prix.js?v=build-267"></script>
-    <script src="js/soup-skirmish.js?v=build-267"></script>
-    <script src="js/objective.js?v=build-267"></script>
-    <script src="js/angel-tree.js?v=build-267"></script>
-    <script src="js/tutorial.js?v=build-267"></script>
-    <script src="js/quality.js?v=build-267"></script>
-    <script src="js/fullscreen.js?v=build-267"></script>
-    <script src="js/home.js?v=build-267"></script>
-    <script src="js/pause-menu.js?v=build-267"></script>
-    <script src="js/guide.js?v=build-267"></script>
-    <script src="js/hud-chips.js?v=build-267"></script>
-    <script src="js/item-bonus.js?v=build-267"></script>
+    <script src="js/soft-events.js?v=build-268"></script>
+    <script src="js/gx.js?v=build-268"></script>
+    <script src="js/visual-theme.js?v=build-268"></script>
+    <script src="js/decor.js?v=build-268"></script>
+    <script src="js/quests.js?v=build-268"></script>
+    <script src="js/achievements.js?v=build-268"></script>
+    <script src="js/soup-menu.js?v=build-268"></script>
+    <script src="js/weekly-challenges.js?v=build-268"></script>
+    <script src="js/helper-team.js?v=build-268"></script>
+    <script src="js/chef-mood.js?v=build-268"></script>
+    <script src="js/farm.js?v=build-268"></script>
+    <script src="js/ambient.js?v=build-268"></script>
+    <script src="js/music.js?v=build-268"></script>
+    <script src="js/creator.js?v=build-268"></script>
+    <script src="js/prix.js?v=build-268"></script>
+    <script src="js/soup-skirmish.js?v=build-268"></script>
+    <script src="js/objective.js?v=build-268"></script>
+    <script src="js/angel-tree.js?v=build-268"></script>
+    <script src="js/tutorial.js?v=build-268"></script>
+    <script src="js/quality.js?v=build-268"></script>
+    <script src="js/fullscreen.js?v=build-268"></script>
+    <script src="js/home.js?v=build-268"></script>
+    <script src="js/pause-menu.js?v=build-268"></script>
+    <script src="js/guide.js?v=build-268"></script>
+    <script src="js/hud-chips.js?v=build-268"></script>
+    <script src="js/item-bonus.js?v=build-268"></script>
     <!-- Cache-bust catalog on every deploy (SW must not serve a stale charm list). -->
-    <script src="assets/skins/catalog.js?v=build-267"></script>
-    <script src="assets/atlas_manifest.js?v=build-267"></script>
-    <script src="js/atlas.js?v=build-267"></script>
+    <script src="assets/skins/catalog.js?v=build-268"></script>
+    <script src="assets/atlas_manifest.js?v=build-268"></script>
+    <script src="js/atlas.js?v=build-268"></script>
     <!-- ====================================================================
          === EMBEDDED LEADERBOARD MODULE (from leaderboard/leaderboard-client.js)
          === Self-contained global `leaderboard` object. Single-file game, so the
@@ -3299,7 +3299,7 @@
 
     })(typeof window !== 'undefined' ? window : this);
     </script>
-    <script src="js/lb-ui.js?v=build-267"></script>
+    <script src="js/lb-ui.js?v=build-268"></script>
     <!-- ==================== END EMBEDDED LEADERBOARD MODULE ==================== -->
     <script>
         // === AUTO-UPDATE / ANTI-STALE-CACHE ===========================================
@@ -3313,7 +3313,7 @@
         // while still retrying if a reload didn't actually land the new build. Fully
         // defensive: any error is silent and never blocks the game. Parent bumps BOTH
         // version.json and BUILD_V on every future deploy.
-        const BUILD_V = "build-267";
+        const BUILD_V = "build-268";
         function paintBuildTag() {
             try {
                 var prod = (typeof PRODUCTION_BUILD !== 'undefined' && PRODUCTION_BUILD)
@@ -5816,17 +5816,21 @@
                 }
             },
             _chefMouthStopAnim() { this._chefMouthStopChewLoop(); },
-            _runChefMouthChewLoop(sliceOverride) {
+            _runChefMouthChewLoop(sliceOverride, maxToggles) {
                 this._chefMouthStopChewLoop();
                 this._chefMouthChewActive = true;
                 this._setChefEating(true, true);
                 this._chefMouthOpenState = true;
                 this._chefMouthShowOpen();
-                if (this._mProdMobile && this._mProdMobile()) return;
                 this._chefMouthVisual = null;
                 const sliceMs = sliceOverride || this.CHEW_SLICE_MS || 500;
+                let togglesLeft = (maxToggles != null) ? maxToggles : null;
                 this._chefMouthAnimTimer = setInterval(() => {
                     if (!this._chefMouthChewActive) return;
+                    if (togglesLeft !== null) {
+                        if (togglesLeft <= 0) { this._chefMouthStopChewLoop(); return; }
+                        togglesLeft--;
+                    }
                     this._chefMouthOpenState = !this._chefMouthOpenState;
                     if (this._chefMouthOpenState) this._chefMouthShowOpen();
                     else this._chefMouthShowClosed();
