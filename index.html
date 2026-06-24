@@ -2781,36 +2781,36 @@
     })(typeof window !== 'undefined' ? window : this);
     </script>
     <script src="events.js"></script>
-    <script src="js/soft-events.js?v=build-247"></script>
-    <script src="js/gx.js?v=build-247"></script>
-    <script src="js/visual-theme.js?v=build-247"></script>
-    <script src="js/decor.js?v=build-247"></script>
-    <script src="js/quests.js?v=build-247"></script>
-    <script src="js/achievements.js?v=build-247"></script>
-    <script src="js/soup-menu.js?v=build-247"></script>
-    <script src="js/weekly-challenges.js?v=build-247"></script>
-    <script src="js/helper-team.js?v=build-247"></script>
-    <script src="js/chef-mood.js?v=build-247"></script>
-    <script src="js/farm.js?v=build-247"></script>
-    <script src="js/ambient.js?v=build-247"></script>
-    <script src="js/music.js?v=build-247"></script>
-    <script src="js/creator.js?v=build-247"></script>
-    <script src="js/prix.js?v=build-247"></script>
-    <script src="js/soup-skirmish.js?v=build-247"></script>
-    <script src="js/objective.js?v=build-247"></script>
-    <script src="js/angel-tree.js?v=build-247"></script>
-    <script src="js/tutorial.js?v=build-247"></script>
-    <script src="js/quality.js?v=build-247"></script>
-    <script src="js/fullscreen.js?v=build-247"></script>
-    <script src="js/home.js?v=build-247"></script>
-    <script src="js/pause-menu.js?v=build-247"></script>
-    <script src="js/guide.js?v=build-247"></script>
-    <script src="js/hud-chips.js?v=build-247"></script>
-    <script src="js/item-bonus.js?v=build-247"></script>
+    <script src="js/soft-events.js?v=build-248"></script>
+    <script src="js/gx.js?v=build-248"></script>
+    <script src="js/visual-theme.js?v=build-248"></script>
+    <script src="js/decor.js?v=build-248"></script>
+    <script src="js/quests.js?v=build-248"></script>
+    <script src="js/achievements.js?v=build-248"></script>
+    <script src="js/soup-menu.js?v=build-248"></script>
+    <script src="js/weekly-challenges.js?v=build-248"></script>
+    <script src="js/helper-team.js?v=build-248"></script>
+    <script src="js/chef-mood.js?v=build-248"></script>
+    <script src="js/farm.js?v=build-248"></script>
+    <script src="js/ambient.js?v=build-248"></script>
+    <script src="js/music.js?v=build-248"></script>
+    <script src="js/creator.js?v=build-248"></script>
+    <script src="js/prix.js?v=build-248"></script>
+    <script src="js/soup-skirmish.js?v=build-248"></script>
+    <script src="js/objective.js?v=build-248"></script>
+    <script src="js/angel-tree.js?v=build-248"></script>
+    <script src="js/tutorial.js?v=build-248"></script>
+    <script src="js/quality.js?v=build-248"></script>
+    <script src="js/fullscreen.js?v=build-248"></script>
+    <script src="js/home.js?v=build-248"></script>
+    <script src="js/pause-menu.js?v=build-248"></script>
+    <script src="js/guide.js?v=build-248"></script>
+    <script src="js/hud-chips.js?v=build-248"></script>
+    <script src="js/item-bonus.js?v=build-248"></script>
     <!-- Cache-bust catalog on every deploy (SW must not serve a stale charm list). -->
-    <script src="assets/skins/catalog.js?v=build-247"></script>
-    <script src="assets/atlas_manifest.js?v=build-247"></script>
-    <script src="js/atlas.js?v=build-247"></script>
+    <script src="assets/skins/catalog.js?v=build-248"></script>
+    <script src="assets/atlas_manifest.js?v=build-248"></script>
+    <script src="js/atlas.js?v=build-248"></script>
     <!-- ====================================================================
          === EMBEDDED LEADERBOARD MODULE (from leaderboard/leaderboard-client.js)
          === Self-contained global `leaderboard` object. Single-file game, so the
@@ -3290,7 +3290,7 @@
 
     })(typeof window !== 'undefined' ? window : this);
     </script>
-    <script src="js/lb-ui.js?v=build-247"></script>
+    <script src="js/lb-ui.js?v=build-248"></script>
     <!-- ==================== END EMBEDDED LEADERBOARD MODULE ==================== -->
     <script>
         // === AUTO-UPDATE / ANTI-STALE-CACHE ===========================================
@@ -3304,7 +3304,7 @@
         // while still retrying if a reload didn't actually land the new build. Fully
         // defensive: any error is silent and never blocks the game. Parent bumps BOTH
         // version.json and BUILD_V on every future deploy.
-        const BUILD_V = "build-247";
+        const BUILD_V = "build-248";
         function paintBuildTag() {
             try {
                 var prod = (typeof PRODUCTION_BUILD !== 'undefined' && PRODUCTION_BUILD)
@@ -7346,6 +7346,7 @@
             },
             _chefRigEl() { return document.getElementById('chef-rig'); },
             chefFeedAnticipateOpen() {
+                if (this._chefMouthChewActive) return;
                 this._chefFeedSeq = (this._chefFeedSeq || 0) + 1;
                 if (this._chefMouthCloseTimer) {
                     clearTimeout(this._chefMouthCloseTimer);
@@ -7402,6 +7403,7 @@
                 try { sound.stopEat(); } catch (e) {}
             },
             chefFeedEatSequence() {
+                if (this._chefMouthChewActive) return;
                 if (this._chefFeedPendingTimer) {
                     clearTimeout(this._chefFeedPendingTimer);
                     this._chefFeedPendingTimer = null;
@@ -7882,7 +7884,9 @@
                 h.style.transform = 'translate(-50%,-50%) scale(0.2)';
                 document.body.appendChild(h);
                 void h.offsetWidth;
-                const lv = (testLevel != null && creator.isDev()) ? Math.max(1, Math.floor(Number(testLevel) || c.lv)) : c.lv;
+                const lv = (typeof testLevel === 'number' && testLevel > 0)
+                    ? Math.max(1, Math.floor(testLevel))
+                    : Math.max(1, Math.floor(Number(c.lv) || 1));
                 const feed = feedMode != null ? !!feedMode : this.isFeedMilestone(lv);
                 const pendingRain = Math.max(0, Math.floor(Number(rainOnLand) || 0));
                 let visualOnlyThrow = false;
@@ -8029,7 +8033,11 @@
                     if (c.lv > 0) { try { this.slot(c); this.syncCompanionLayout(); } catch (e) {} }
                     this._mScheduleRebuild();
                     this.syncMinigameButtons();
-                    this._mDeferSummonClose(() => this.summon(c, originStub, feed, null, rainOnLand));
+                    const buyLv = c.lv;
+                    const buyFeed = feed;
+                    const buyRain = rainOnLand;
+                    const buyStub = originStub;
+                    this._mDeferSummonClose(() => this.summon(c, buyStub, buyFeed, buyLv, buyRain));
                     try { if (typeof tutorial !== 'undefined' && tutorial.active) tutorial.notify('buy'); } catch (e) {}
                     return;
                 }
@@ -8220,13 +8228,16 @@
                     }, 650);
                 } catch (e) {}
             },
-            _summonBusy() {
+            _summonPipelineBusy() {
                 try {
                     if (document.querySelector('.summon-clone')) return true;
+                    if (document.querySelector('.ingredient-proj:not(.ingredient-proj-dry)')) return true;
                     if (this._chefFeedInProgress()) return true;
+                    if (this._chefMouthCloseTimer) return true;
                 } catch (e) {}
                 return false;
             },
+            _summonBusy() { return this._summonPipelineBusy(); },
             _mPumpSummonQueue() {
                 if (this._mSummonPumping) return;
                 if (!this._mSummonQueue || !this._mSummonQueue.length) {
@@ -8241,23 +8252,24 @@
                         this._mFlushPendingRebuild();
                         return;
                     }
-                    if (this._summonBusy()) {
-                        setTimeout(step, 200);
+                    if (this._summonPipelineBusy()) {
+                        setTimeout(step, 220);
                         return;
                     }
                     const job = q.shift();
-                    let started = false;
+                    let active = false;
                     const t0 = Date.now();
-                    try { job(); } catch (e) {}
+                    try { job(); } catch (e) { console.warn('summon queue job', e); }
                     const waitDone = () => {
-                        const busy = this._summonBusy();
-                        if (busy) started = true;
-                        if (started && !busy) { setTimeout(step, 120); return; }
-                        if (!started && Date.now() - t0 > 3000) { setTimeout(step, 120); return; }
-                        if (Date.now() - t0 > 18000) { setTimeout(step, 120); return; }
-                        setTimeout(waitDone, 200);
+                        if (this._summonPipelineBusy()) active = true;
+                        if (active && !this._summonPipelineBusy()) {
+                            setTimeout(step, 280);
+                            return;
+                        }
+                        if (Date.now() - t0 > 22000) { setTimeout(step, 280); return; }
+                        setTimeout(waitDone, 220);
                     };
-                    setTimeout(waitDone, 200);
+                    setTimeout(waitDone, 260);
                 };
                 step();
             },
@@ -8266,7 +8278,7 @@
                 if (this._mRebuildTimer) return;
                 const tick = () => {
                     this._mRebuildTimer = null;
-                    if (this._mSummonPumping || this._summonBusy() || (this._mSummonQueue && this._mSummonQueue.length > 0)) {
+                    if (this._mSummonPumping || this._summonPipelineBusy() || (this._mSummonQueue && this._mSummonQueue.length > 0)) {
                         this._mRebuildTimer = setTimeout(tick, 200);
                         return;
                     }
