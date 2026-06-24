@@ -2790,36 +2790,36 @@
     })(typeof window !== 'undefined' ? window : this);
     </script>
     <script src="events.js"></script>
-    <script src="js/soft-events.js?v=build-271"></script>
-    <script src="js/gx.js?v=build-271"></script>
-    <script src="js/visual-theme.js?v=build-271"></script>
-    <script src="js/decor.js?v=build-271"></script>
-    <script src="js/quests.js?v=build-271"></script>
-    <script src="js/achievements.js?v=build-271"></script>
-    <script src="js/soup-menu.js?v=build-271"></script>
-    <script src="js/weekly-challenges.js?v=build-271"></script>
-    <script src="js/helper-team.js?v=build-271"></script>
-    <script src="js/chef-mood.js?v=build-271"></script>
-    <script src="js/farm.js?v=build-271"></script>
-    <script src="js/ambient.js?v=build-271"></script>
-    <script src="js/music.js?v=build-271"></script>
-    <script src="js/creator.js?v=build-271"></script>
-    <script src="js/prix.js?v=build-271"></script>
-    <script src="js/soup-skirmish.js?v=build-271"></script>
-    <script src="js/objective.js?v=build-271"></script>
-    <script src="js/angel-tree.js?v=build-271"></script>
-    <script src="js/tutorial.js?v=build-271"></script>
-    <script src="js/quality.js?v=build-271"></script>
-    <script src="js/fullscreen.js?v=build-271"></script>
-    <script src="js/home.js?v=build-271"></script>
-    <script src="js/pause-menu.js?v=build-271"></script>
-    <script src="js/guide.js?v=build-271"></script>
-    <script src="js/hud-chips.js?v=build-271"></script>
-    <script src="js/item-bonus.js?v=build-271"></script>
+    <script src="js/soft-events.js?v=build-273"></script>
+    <script src="js/gx.js?v=build-273"></script>
+    <script src="js/visual-theme.js?v=build-273"></script>
+    <script src="js/decor.js?v=build-273"></script>
+    <script src="js/quests.js?v=build-273"></script>
+    <script src="js/achievements.js?v=build-273"></script>
+    <script src="js/soup-menu.js?v=build-273"></script>
+    <script src="js/weekly-challenges.js?v=build-273"></script>
+    <script src="js/helper-team.js?v=build-273"></script>
+    <script src="js/chef-mood.js?v=build-273"></script>
+    <script src="js/farm.js?v=build-273"></script>
+    <script src="js/ambient.js?v=build-273"></script>
+    <script src="js/music.js?v=build-273"></script>
+    <script src="js/creator.js?v=build-273"></script>
+    <script src="js/prix.js?v=build-273"></script>
+    <script src="js/soup-skirmish.js?v=build-273"></script>
+    <script src="js/objective.js?v=build-273"></script>
+    <script src="js/angel-tree.js?v=build-273"></script>
+    <script src="js/tutorial.js?v=build-273"></script>
+    <script src="js/quality.js?v=build-273"></script>
+    <script src="js/fullscreen.js?v=build-273"></script>
+    <script src="js/home.js?v=build-273"></script>
+    <script src="js/pause-menu.js?v=build-273"></script>
+    <script src="js/guide.js?v=build-273"></script>
+    <script src="js/hud-chips.js?v=build-273"></script>
+    <script src="js/item-bonus.js?v=build-273"></script>
     <!-- Cache-bust catalog on every deploy (SW must not serve a stale charm list). -->
-    <script src="assets/skins/catalog.js?v=build-271"></script>
-    <script src="assets/atlas_manifest.js?v=build-271"></script>
-    <script src="js/atlas.js?v=build-271"></script>
+    <script src="assets/skins/catalog.js?v=build-273"></script>
+    <script src="assets/atlas_manifest.js?v=build-273"></script>
+    <script src="js/atlas.js?v=build-273"></script>
     <!-- ====================================================================
          === EMBEDDED LEADERBOARD MODULE (from leaderboard/leaderboard-client.js)
          === Self-contained global `leaderboard` object. Single-file game, so the
@@ -3299,7 +3299,7 @@
 
     })(typeof window !== 'undefined' ? window : this);
     </script>
-    <script src="js/lb-ui.js?v=build-271"></script>
+    <script src="js/lb-ui.js?v=build-273"></script>
     <!-- ==================== END EMBEDDED LEADERBOARD MODULE ==================== -->
     <script>
         // === AUTO-UPDATE / ANTI-STALE-CACHE ===========================================
@@ -3313,7 +3313,7 @@
         // while still retrying if a reload didn't actually land the new build. Fully
         // defensive: any error is silent and never blocks the game. Parent bumps BOTH
         // version.json and BUILD_V on every future deploy.
-        const BUILD_V = "build-271";
+        const BUILD_V = "build-273";
         function paintBuildTag() {
             try {
                 var prod = (typeof PRODUCTION_BUILD !== 'undefined' && PRODUCTION_BUILD)
@@ -4205,6 +4205,28 @@
                     return ctx;
                 } catch (e) { return null; }
             },
+            _waKick() {
+                if (!this._unlocked) return false;
+                const ctx = this._waEnsure();
+                if (!ctx) return false;
+                try {
+                    if (ctx.state === 'suspended' || ctx.state === 'interrupted') {
+                        try { ctx.resume(); } catch (e) {}
+                    }
+                    const dur = 0.016;
+                    const frames = Math.max(1, Math.ceil(ctx.sampleRate * dur));
+                    const buf = ctx.createBuffer(1, frames, ctx.sampleRate);
+                    const src = ctx.createBufferSource();
+                    src.buffer = buf;
+                    const g = ctx.createGain();
+                    g.gain.value = 0.0001;
+                    src.connect(g);
+                    g.connect(ctx.destination);
+                    src.start(0);
+                    try { src.stop(dur); } catch (e) {}
+                    return true;
+                } catch (e) { return false; }
+            },
             _waLoadSrc(src) {
                 const url = this._mediaUrl(src);
                 if (this._waBuf[url]) return Promise.resolve(this._waBuf[url]);
@@ -4348,7 +4370,10 @@
                 try {
                     this.unlock();
                     this.resumeAudio();
-                    if (this._stirUseWa()) { try { this._stirWaPreload(); } catch (e) {} }
+                    if (this._useWebAudio()) { try { this._waKick(); } catch (e) {} }
+                    if (this._stirUseWa()) {
+                        try { this._stirWaEnsureBus(); this._stirWaPreload(); } catch (e) {}
+                    }
                     if (this._useWebAudio()) { try { this._waLoadAll(); } catch (e) {} }
                 } catch (e) {}
             },
@@ -4620,6 +4645,7 @@
             },
             _stirEnsure() {
                 const S = this._stir;
+                if (this._stirUseWa()) return null;
                 if (S.voices || S.broken) return S.voices;
                 try {
                     const srcs = this.defs.stir || [];
@@ -4634,10 +4660,25 @@
                 } catch (e) { S.broken = true; S.voices = null; }
                 return S.voices;
             },
+            _stirHtmlFallbackEnsure() {
+                const S = this._stir;
+                if (S.voices && S.voices.length) return S.voices;
+                try {
+                    const srcs = this.defs.stir || [];
+                    if (!srcs.length) return null;
+                    S.voices = srcs.map(src => {
+                        const a = this._makeAudio(src);
+                        try { a.preload = 'auto'; a.load(); } catch (e) {}
+                        return a;
+                    });
+                    if (this._unlocked) { S.voices.forEach(a => { try { this._primeOne(a); } catch (e) {} }); }
+                } catch (e) { return null; }
+                return S.voices;
+            },
             _stirPauseHtmlVoices() {
                 const S = this._stir;
-                const voices = S.voices || this._stirEnsure();
-                if (!voices) return;
+                const voices = S.voices;
+                if (!voices || !voices.length) return;
                 const vol = this._stirVol();
                 voices.forEach(v => {
                     try { v.onended = null; v.loop = false; v.pause(); v.currentTime = 0; v.volume = vol; } catch (e) {}
@@ -4733,9 +4774,13 @@
                         this._waLoadSrc(path).then(b => {
                             if (!S.active) return;
                             if (b) this._stirWaPlayNext();
-                            else this._stirPlayNext();
+                            else if (this._stirHtmlFallbackEnsure()) this._stirPlayNext();
+                            else this._stirStopNow();
                         });
-                    } catch (e) { this._stirPlayNext(); }
+                    } catch (e) {
+                        if (this._stirHtmlFallbackEnsure()) this._stirPlayNext();
+                        else this._stirStopNow();
+                    }
                     return;
                 }
                 this._stirPauseHtmlVoices();
@@ -4778,7 +4823,10 @@
                         if (S._waPrevNode === node) S._waPrevNode = null;
                         if (S.active) this._stirWaPlayNext();
                     };
-                } catch (e) { this._stirPlayNext(); }
+                } catch (e) {
+                    if (this._stirHtmlFallbackEnsure()) this._stirPlayNext();
+                    else this._stirStopNow();
+                }
             },
             _stirPlayNext() {
                 const S = this._stir;
@@ -4828,14 +4876,14 @@
             stirPulse() {
                 if (this.muted || this.volume <= 0) return;
                 const S = this._stir;
-                if (S.broken) return;
                 const now = (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now();
                 S.last = now;
                 if (this._stirUseWa()) {
                     if (!this._unlocked) this.unlock();
                     else this.resumeAudioIfNeeded();
-                    const voices = this._stirEnsure();
-                    if (!voices) return;
+                    if (S.broken) S.broken = false;
+                    try { this._waKick(); } catch (e) {}
+                    this._stirWaEnsureBus();
                     if (S.fade) {
                         clearInterval(S.fade); S.fade = null;
                         if (S._waStirGain) { try { S._waStirGain.gain.value = this._stirWaVol(); } catch (e) {} }
@@ -4847,6 +4895,7 @@
                     }
                     return;
                 }
+                if (S.broken) return;
                 // PC + Capacitor nativo: camino HTML build-251 (stir1↔stir2 gapless) — no tocar.
                 this.unlock();
                 const voices = this._stirEnsure();
@@ -7009,10 +7058,7 @@
                 if (_now - this._clickGate < 33) return;
                 this._clickGate = _now;
                 try { if (ev && ev.pointerType === 'mouse' && ev.button !== 0) return; } catch (e) {}
-                try {
-                    if (!sound._unlocked) sound.unlock();
-                    else sound.resumeAudioIfNeeded();
-                } catch (e) {}
+                try { sound.touchAudio(); } catch (e) {}
                 const m = Number.isFinite(this.m) ? Math.min(Math.max(this.m, 1), 6) : 1;
                 const exp = Math.min(this.cp[1].lv * this.champMult(this.cp[1].ch) * 0.5, 24);
                 let gain = m * Math.pow(1.33, exp) * (1 + this.s * 0.5);
@@ -7046,7 +7092,6 @@
                 const px = (ev && (ev.clientX || ev.pageX)) || (window.innerWidth * 0.5);
                 const py = (ev && (ev.clientY || ev.pageY)) || (window.innerHeight * 0.5);
                 if (lowQ) {
-                    // Mobile low: spoon + float number + lite energy orbs (1/tap) homing to score.
                     const disp = Math.floor(this.e);
                     const scoreEl = this._el('score');
                     if (scoreEl && disp !== this._uiScore) { scoreEl.innerText = disp.toLocaleString(); this._uiScore = disp; }
@@ -7054,8 +7099,20 @@
                     const spoon = this._spoonEl || (this._spoonEl = document.getElementById('asset-spoon'));
                     if (spoon) { spoon.classList.add('manual-stir'); clearTimeout(this._stirT); this._stirT = setTimeout(() => { spoon.classList.remove('manual-stir'); }, 120); }
                     this.floatNum(px, py, gain, crit ? { crit: true } : null);
-                    const o = this.soupPartOrigin();
-                    this.part(o.x + (Math.random() - 0.5) * 40, o.y + (Math.random() - 0.5) * 20, 'energy');
+                    if (!this._energyPartGate || _now - this._energyPartGate >= 220) {
+                        let ec = 0;
+                        for (let pi = 0; pi < this.particles.length; pi++) if (this.particles[pi].t === 'energy') ec++;
+                        if (ec < 2 && this.particles.length < quality.params.maxParts) {
+                            const o = this.soupPartOrigin();
+                            this.particles.push({
+                                x: o.x + (Math.random() - 0.5) * 22,
+                                y: o.y + (Math.random() - 0.5) * 10,
+                                t: 'energy', vx: (Math.random() - 0.5) * 3, vy: -1.5,
+                                life: 0.68, size: Math.random() * 2 + 2.5, color: '#a5f3fc'
+                            });
+                            this._energyPartGate = _now;
+                        }
+                    }
                 } else {
                     this._applySpoonStirNow();
                     const spoon = this._spoonEl || (this._spoonEl = document.getElementById('asset-spoon'));
@@ -9105,11 +9162,11 @@
                         if (lowQ) {
                             const dx = scoreTarget.x - p.x, dy = scoreTarget.y - p.y;
                             const dist = Math.hypot(dx, dy);
-                            if (dist < 10 || p.arrived) {
-                                if (!p.arrived) { p.arrived = true; this.pulseScore(); }
-                                p.life -= 0.32;
+                            if (dist < 8 || p.arrived) {
+                                p.arrived = true;
+                                p.life -= 0.28;
                             } else {
-                                p.x += dx * 0.24; p.y += dy * 0.24;
+                                p.x += dx * 0.12; p.y += dy * 0.12;
                             }
                         } else if (p.boost > 0) { p.boost--; p.vy += 0.18; }
                         else {
@@ -9221,7 +9278,10 @@
                     );
                 } catch (e) { this._finish(); }
             },
-            _finish() { const cb = this._onDone; this._onDone = null; if (cb) { try { cb(); } catch (e) {} } },
+            _finish() {
+                try { sound.touchAudio(); } catch (e) {}
+                const cb = this._onDone; this._onDone = null; if (cb) { try { cb(); } catch (e) {} }
+            },
             open(firstRun) {
                 const m = document.getElementById('name-modal'); if (!m) { this._finish(); return; }
                 const inp = document.getElementById('name-input');
