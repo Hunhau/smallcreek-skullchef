@@ -2790,36 +2790,36 @@
     })(typeof window !== 'undefined' ? window : this);
     </script>
     <script src="events.js"></script>
-    <script src="js/soft-events.js?v=build-270"></script>
-    <script src="js/gx.js?v=build-270"></script>
-    <script src="js/visual-theme.js?v=build-270"></script>
-    <script src="js/decor.js?v=build-270"></script>
-    <script src="js/quests.js?v=build-270"></script>
-    <script src="js/achievements.js?v=build-270"></script>
-    <script src="js/soup-menu.js?v=build-270"></script>
-    <script src="js/weekly-challenges.js?v=build-270"></script>
-    <script src="js/helper-team.js?v=build-270"></script>
-    <script src="js/chef-mood.js?v=build-270"></script>
-    <script src="js/farm.js?v=build-270"></script>
-    <script src="js/ambient.js?v=build-270"></script>
-    <script src="js/music.js?v=build-270"></script>
-    <script src="js/creator.js?v=build-270"></script>
-    <script src="js/prix.js?v=build-270"></script>
-    <script src="js/soup-skirmish.js?v=build-270"></script>
-    <script src="js/objective.js?v=build-270"></script>
-    <script src="js/angel-tree.js?v=build-270"></script>
-    <script src="js/tutorial.js?v=build-270"></script>
-    <script src="js/quality.js?v=build-270"></script>
-    <script src="js/fullscreen.js?v=build-270"></script>
-    <script src="js/home.js?v=build-270"></script>
-    <script src="js/pause-menu.js?v=build-270"></script>
-    <script src="js/guide.js?v=build-270"></script>
-    <script src="js/hud-chips.js?v=build-270"></script>
-    <script src="js/item-bonus.js?v=build-270"></script>
+    <script src="js/soft-events.js?v=build-271"></script>
+    <script src="js/gx.js?v=build-271"></script>
+    <script src="js/visual-theme.js?v=build-271"></script>
+    <script src="js/decor.js?v=build-271"></script>
+    <script src="js/quests.js?v=build-271"></script>
+    <script src="js/achievements.js?v=build-271"></script>
+    <script src="js/soup-menu.js?v=build-271"></script>
+    <script src="js/weekly-challenges.js?v=build-271"></script>
+    <script src="js/helper-team.js?v=build-271"></script>
+    <script src="js/chef-mood.js?v=build-271"></script>
+    <script src="js/farm.js?v=build-271"></script>
+    <script src="js/ambient.js?v=build-271"></script>
+    <script src="js/music.js?v=build-271"></script>
+    <script src="js/creator.js?v=build-271"></script>
+    <script src="js/prix.js?v=build-271"></script>
+    <script src="js/soup-skirmish.js?v=build-271"></script>
+    <script src="js/objective.js?v=build-271"></script>
+    <script src="js/angel-tree.js?v=build-271"></script>
+    <script src="js/tutorial.js?v=build-271"></script>
+    <script src="js/quality.js?v=build-271"></script>
+    <script src="js/fullscreen.js?v=build-271"></script>
+    <script src="js/home.js?v=build-271"></script>
+    <script src="js/pause-menu.js?v=build-271"></script>
+    <script src="js/guide.js?v=build-271"></script>
+    <script src="js/hud-chips.js?v=build-271"></script>
+    <script src="js/item-bonus.js?v=build-271"></script>
     <!-- Cache-bust catalog on every deploy (SW must not serve a stale charm list). -->
-    <script src="assets/skins/catalog.js?v=build-270"></script>
-    <script src="assets/atlas_manifest.js?v=build-270"></script>
-    <script src="js/atlas.js?v=build-270"></script>
+    <script src="assets/skins/catalog.js?v=build-271"></script>
+    <script src="assets/atlas_manifest.js?v=build-271"></script>
+    <script src="js/atlas.js?v=build-271"></script>
     <!-- ====================================================================
          === EMBEDDED LEADERBOARD MODULE (from leaderboard/leaderboard-client.js)
          === Self-contained global `leaderboard` object. Single-file game, so the
@@ -3299,7 +3299,7 @@
 
     })(typeof window !== 'undefined' ? window : this);
     </script>
-    <script src="js/lb-ui.js?v=build-270"></script>
+    <script src="js/lb-ui.js?v=build-271"></script>
     <!-- ==================== END EMBEDDED LEADERBOARD MODULE ==================== -->
     <script>
         // === AUTO-UPDATE / ANTI-STALE-CACHE ===========================================
@@ -3313,7 +3313,7 @@
         // while still retrying if a reload didn't actually land the new build. Fully
         // defensive: any error is silent and never blocks the game. Parent bumps BOTH
         // version.json and BUILD_V on every future deploy.
-        const BUILD_V = "build-270";
+        const BUILD_V = "build-271";
         function paintBuildTag() {
             try {
                 var prod = (typeof PRODUCTION_BUILD !== 'undefined' && PRODUCTION_BUILD)
@@ -4335,11 +4335,21 @@
                 if (!this._unlocked) return;
                 try {
                     const wa = this._waCtx;
-                    if (wa && (wa.state === 'suspended' || wa.state === 'interrupted')) this.resumeAudio();
-                    else {
+                    if (wa && (wa.state === 'suspended' || wa.state === 'interrupted')) {
+                        try { const p = wa.resume(); if (p && p.catch) p.catch(() => {}); } catch (e) {}
+                    } else {
                         const eat = this._eatCtx;
                         if (eat && (eat.state === 'suspended' || eat.state === 'interrupted')) this.resumeAudio();
                     }
+                } catch (e) {}
+            },
+            // Re-arm audio after Play / privacy / name modals (iOS needs a fresh gesture chain).
+            touchAudio() {
+                try {
+                    this.unlock();
+                    this.resumeAudio();
+                    if (this._stirUseWa()) { try { this._stirWaPreload(); } catch (e) {} }
+                    if (this._useWebAudio()) { try { this._waLoadAll(); } catch (e) {} }
                 } catch (e) {}
             },
             // Full audio recovery after screen sleep / tab background. Re-primes EVERY pooled
@@ -4348,7 +4358,10 @@
             recoverFromBackground() {
                 if (!this._inited || this.muted || this.volume <= 0) return;
                 this.resumeAudio();
-                if (this._useWebAudio()) return;
+                if (this._useWebAudio()) {
+                    try { this._waLoadAll(); if (this._stirUseWa()) this._stirWaPreload(); } catch (e) {}
+                    return;
+                }
                 // SYNC prime (mirrors unlock()): never leave a voice muted via an async
                 // callback, and never pause/reset a voice that is actively playing — that was
                 // silencing real SFX on mobile (the async mute window + done() clobber).
@@ -7033,16 +7046,16 @@
                 const px = (ev && (ev.clientX || ev.pageX)) || (window.innerWidth * 0.5);
                 const py = (ev && (ev.clientY || ev.pageY)) || (window.innerHeight * 0.5);
                 if (lowQ) {
-                    // Mobile low: keep the tactile feedback that is CHEAP — the spoon wiggle
-                    // (one CSS class toggle) + a throttled floating number — but skip the
-                    // heavier per-click canvas particles + ripple so rapid tapping stays smooth.
+                    // Mobile low: spoon + float number + lite energy orbs (1/tap) homing to score.
                     const disp = Math.floor(this.e);
                     const scoreEl = this._el('score');
                     if (scoreEl && disp !== this._uiScore) { scoreEl.innerText = disp.toLocaleString(); this._uiScore = disp; }
                     this._applySpoonStirNow();
                     const spoon = this._spoonEl || (this._spoonEl = document.getElementById('asset-spoon'));
                     if (spoon) { spoon.classList.add('manual-stir'); clearTimeout(this._stirT); this._stirT = setTimeout(() => { spoon.classList.remove('manual-stir'); }, 120); }
-                    this.floatNum(px, py, gain, crit ? { crit: true } : null); // floatNum self-throttles to ~1/100ms on low
+                    this.floatNum(px, py, gain, crit ? { crit: true } : null);
+                    const o = this.soupPartOrigin();
+                    this.part(o.x + (Math.random() - 0.5) * 40, o.y + (Math.random() - 0.5) * 20, 'energy');
                 } else {
                     this._applySpoonStirNow();
                     const spoon = this._spoonEl || (this._spoonEl = document.getElementById('asset-spoon'));
@@ -8267,7 +8280,7 @@
                     if (throwDone) return;
                     throwDone = true;
                     const pose = this.summonPoseOrigin();
-                    if (!(this._mProdMobile && this._mProdMobile()) && !(this._soupFxTouch && this._soupFxTouch())) this.part(pose.x, pose.y, 'magic');
+                    if (!this._skipSummonSparkles()) this.part(pose.x, pose.y, 'magic');
                     const skipCost = testLevel != null && creator.isDev();
                     if (skipCost || farm.consumeThrow(c.id, lv, feed)) {
                         this.summonIngredientThrow(c.id, pose.x, pose.y, lv, landClone, feed, false);
@@ -8366,7 +8379,7 @@
                 sound.play('buy');
                 this.track('levels', n);
                 try { chefMood.bump(Math.min(4, 1 + n * 0.4), 'buy'); } catch (e) {}
-                if ([10, 25, 50, 100].some(th => prevLv < th && c.lv >= th)) { this.part(window.innerWidth / 2, window.innerHeight * 0.5, 'magic'); sound.play('bubble'); gx.toast(t(this.milestoneMsg[i] || 'milestone_generic')); }
+                if ([10, 25, 50, 100].some(th => prevLv < th && c.lv >= th) && !this._skipSummonSparkles()) { this.part(window.innerWidth / 2, window.innerHeight * 0.5, 'magic'); sound.play('bubble'); gx.toast(t(this.milestoneMsg[i] || 'milestone_generic')); }
                 ach.check();
                 const feed = this.isFeedMilestone(c.lv);
                 let originStub = ev && ev.currentTarget;
@@ -8548,6 +8561,9 @@
             },
             /* Store / GitHub Pages PWA on a real phone (not LAN localhost tunnel). Heavier FX
                are trimmed here — local dev keeps full feed for tuning. */
+            _skipSummonSparkles() {
+                return !!((this._mProdMobile && this._mProdMobile()) || (this._soupFxTouch && this._soupFxTouch()));
+            },
             _mProdMobile() {
                 try {
                     if (typeof SC_LOCAL_DEV !== 'undefined' && SC_LOCAL_DEV) return false;
@@ -9074,7 +9090,7 @@
                 }
                 ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
                 this._canvasDirty = true;
-                const scoreTarget = lowQ ? null : this.scorePartTarget();
+                const scoreTarget = this.scorePartTarget();
                 // Compactación in-place: recorremos una sola vez y vamos guardando las
                 // partículas vivas al frente del array. Evita el splice(i,1) dentro de un
                 // forEach (que es O(n²) por el desplazamiento y, además, se salta elementos
@@ -9085,11 +9101,16 @@
                 for (let i = 0; i < parts.length; i++) {
                     const p = parts[i];
                     if (p.t === 'energy') {
-                        if (p.boost === undefined) p.boost = 9;
+                        if (p.boost === undefined) p.boost = lowQ ? 4 : 9;
                         if (lowQ) {
-                            // No homing-to-score on low: gentle upward drift + fade, so no
-                            // per-arrival pulseScore()/scorePartTarget() work in the rAF loop.
-                            p.vy += 0.06;
+                            const dx = scoreTarget.x - p.x, dy = scoreTarget.y - p.y;
+                            const dist = Math.hypot(dx, dy);
+                            if (dist < 10 || p.arrived) {
+                                if (!p.arrived) { p.arrived = true; this.pulseScore(); }
+                                p.life -= 0.32;
+                            } else {
+                                p.x += dx * 0.24; p.y += dy * 0.24;
+                            }
                         } else if (p.boost > 0) { p.boost--; p.vy += 0.18; }
                         else {
                             const dx = scoreTarget.x - p.x, dy = scoreTarget.y - p.y;
@@ -9163,11 +9184,13 @@
             },
             _close() { try { const m = document.getElementById('privacy-consent-modal'); if (m) m.classList.remove('open'); } catch (e) {} },
             agree() {
+                try { sound.touchAudio(); } catch (e) {}
                 this._store(); this._close();
                 const cb = this._onAgree; this._onAgree = null; this._onDecline = null;
                 if (cb) { try { cb(); } catch (e) {} }
             },
             decline() {
+                try { sound.touchAudio(); } catch (e) {}
                 this._sessionDeferred = true; this._close();
                 const cb = this._onDecline; this._onDecline = null; this._onAgree = null;
                 if (cb) { try { cb(); } catch (e) {} }
@@ -9241,6 +9264,7 @@
             },
             confirm() {
                 if (this._busy) return;
+                try { sound.touchAudio(); } catch (e) {}
                 const inp = document.getElementById('name-input'); if (!inp) return;
                 const raw = inp.value;
                 const btn = document.getElementById('name-confirm');
