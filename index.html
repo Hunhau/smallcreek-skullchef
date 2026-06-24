@@ -3323,7 +3323,7 @@
         // while still retrying if a reload didn't actually land the new build. Fully
         // defensive: any error is silent and never blocks the game. Parent bumps BOTH
         // version.json and BUILD_V on every future deploy.
-        const BUILD_V = "build-282";
+        const BUILD_V = "build-283";
         function paintBuildTag() {
             try {
                 var prod = (typeof PRODUCTION_BUILD !== 'undefined' && PRODUCTION_BUILD)
@@ -11314,23 +11314,31 @@
                 this._placeCache = o;
             },
             // Dual-resolution paths: WebP primary, PNG fallback via imgFail().
+            _skinUrl(path) {
+                if (!path) return null;
+                try {
+                    const v = (typeof BUILD_V !== 'undefined' && BUILD_V) ? BUILD_V : '';
+                    if (v) return path + (path.indexOf('?') >= 0 ? '&' : '?') + 'v=' + encodeURIComponent(v);
+                } catch (e) {}
+                return path;
+            },
             srcFull(skin) {
                 if (!skin || !skin.img) return null;
-                if (skin.rarity === 'anomaly') return skin.img;
-                if (/\.webp$/i.test(skin.img)) return skin.img;
-                return skin.img.replace(/\.png$/i, '.webp');
+                if (skin.rarity === 'anomaly') return this._skinUrl(skin.img);
+                if (/\.webp$/i.test(skin.img)) return this._skinUrl(skin.img);
+                return this._skinUrl(skin.img.replace(/\.png$/i, '.webp'));
             },
             srcThumb(skin) {
                 if (!skin) return null;
-                if (skin.thumb) return skin.thumb;
-                if (skin.id) return 'assets/skins/thumbs/' + skin.id + '.webp';
-                if (skin.img) return skin.img.replace(/\.png$/i, '.webp');
+                if (skin.thumb) return this._skinUrl(skin.thumb);
+                if (skin.id) return this._skinUrl('assets/skins/thumbs/' + skin.id + '.webp');
+                if (skin.img) return this._skinUrl(skin.img.replace(/\.png$/i, '.webp'));
                 return null;
             },
             // Anomaly thumbs: PNG primary (large art, reliable on file:// and mobile).
             srcThumbDisplay(skin) {
                 if (!skin) return null;
-                if (skin.rarity === 'anomaly' && skin.img) return skin.img;
+                if (skin.rarity === 'anomaly' && skin.img) return this._skinUrl(skin.img);
                 return this.srcThumb(skin);
             },
             sceneImgForHelper(idx, loadoutKey) {
