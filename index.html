@@ -2790,36 +2790,36 @@
     })(typeof window !== 'undefined' ? window : this);
     </script>
     <script src="events.js"></script>
-    <script src="js/soft-events.js?v=build-269"></script>
-    <script src="js/gx.js?v=build-269"></script>
-    <script src="js/visual-theme.js?v=build-269"></script>
-    <script src="js/decor.js?v=build-269"></script>
-    <script src="js/quests.js?v=build-269"></script>
-    <script src="js/achievements.js?v=build-269"></script>
-    <script src="js/soup-menu.js?v=build-269"></script>
-    <script src="js/weekly-challenges.js?v=build-269"></script>
-    <script src="js/helper-team.js?v=build-269"></script>
-    <script src="js/chef-mood.js?v=build-269"></script>
-    <script src="js/farm.js?v=build-269"></script>
-    <script src="js/ambient.js?v=build-269"></script>
-    <script src="js/music.js?v=build-269"></script>
-    <script src="js/creator.js?v=build-269"></script>
-    <script src="js/prix.js?v=build-269"></script>
-    <script src="js/soup-skirmish.js?v=build-269"></script>
-    <script src="js/objective.js?v=build-269"></script>
-    <script src="js/angel-tree.js?v=build-269"></script>
-    <script src="js/tutorial.js?v=build-269"></script>
-    <script src="js/quality.js?v=build-269"></script>
-    <script src="js/fullscreen.js?v=build-269"></script>
-    <script src="js/home.js?v=build-269"></script>
-    <script src="js/pause-menu.js?v=build-269"></script>
-    <script src="js/guide.js?v=build-269"></script>
-    <script src="js/hud-chips.js?v=build-269"></script>
-    <script src="js/item-bonus.js?v=build-269"></script>
+    <script src="js/soft-events.js?v=build-270"></script>
+    <script src="js/gx.js?v=build-270"></script>
+    <script src="js/visual-theme.js?v=build-270"></script>
+    <script src="js/decor.js?v=build-270"></script>
+    <script src="js/quests.js?v=build-270"></script>
+    <script src="js/achievements.js?v=build-270"></script>
+    <script src="js/soup-menu.js?v=build-270"></script>
+    <script src="js/weekly-challenges.js?v=build-270"></script>
+    <script src="js/helper-team.js?v=build-270"></script>
+    <script src="js/chef-mood.js?v=build-270"></script>
+    <script src="js/farm.js?v=build-270"></script>
+    <script src="js/ambient.js?v=build-270"></script>
+    <script src="js/music.js?v=build-270"></script>
+    <script src="js/creator.js?v=build-270"></script>
+    <script src="js/prix.js?v=build-270"></script>
+    <script src="js/soup-skirmish.js?v=build-270"></script>
+    <script src="js/objective.js?v=build-270"></script>
+    <script src="js/angel-tree.js?v=build-270"></script>
+    <script src="js/tutorial.js?v=build-270"></script>
+    <script src="js/quality.js?v=build-270"></script>
+    <script src="js/fullscreen.js?v=build-270"></script>
+    <script src="js/home.js?v=build-270"></script>
+    <script src="js/pause-menu.js?v=build-270"></script>
+    <script src="js/guide.js?v=build-270"></script>
+    <script src="js/hud-chips.js?v=build-270"></script>
+    <script src="js/item-bonus.js?v=build-270"></script>
     <!-- Cache-bust catalog on every deploy (SW must not serve a stale charm list). -->
-    <script src="assets/skins/catalog.js?v=build-269"></script>
-    <script src="assets/atlas_manifest.js?v=build-269"></script>
-    <script src="js/atlas.js?v=build-269"></script>
+    <script src="assets/skins/catalog.js?v=build-270"></script>
+    <script src="assets/atlas_manifest.js?v=build-270"></script>
+    <script src="js/atlas.js?v=build-270"></script>
     <!-- ====================================================================
          === EMBEDDED LEADERBOARD MODULE (from leaderboard/leaderboard-client.js)
          === Self-contained global `leaderboard` object. Single-file game, so the
@@ -3299,7 +3299,7 @@
 
     })(typeof window !== 'undefined' ? window : this);
     </script>
-    <script src="js/lb-ui.js?v=build-269"></script>
+    <script src="js/lb-ui.js?v=build-270"></script>
     <!-- ==================== END EMBEDDED LEADERBOARD MODULE ==================== -->
     <script>
         // === AUTO-UPDATE / ANTI-STALE-CACHE ===========================================
@@ -3313,7 +3313,7 @@
         // while still retrying if a reload didn't actually land the new build. Fully
         // defensive: any error is silent and never blocks the game. Parent bumps BOTH
         // version.json and BUILD_V on every future deploy.
-        const BUILD_V = "build-269";
+        const BUILD_V = "build-270";
         function paintBuildTag() {
             try {
                 var prod = (typeof PRODUCTION_BUILD !== 'undefined' && PRODUCTION_BUILD)
@@ -7784,7 +7784,6 @@
                 this.particles.push({ x, y, t: 'ingredient', vx: (Math.random() - 0.5) * 10, vy: (Math.random() - 0.5) * 10 - 5, life: 1, size: Math.random() * 8 + 4, color: color || '#fde047' });
             },
             spawnSoupCanvasBubbles(cx, cy, colors, count) {
-                if (this._mProdMobile && this._mProdMobile()) return;
                 const MAX = quality.params.maxParts;
                 const n = Math.max(1, Math.min(count || 10, 16));
                 const room = MAX - this.particles.length;
@@ -7895,7 +7894,6 @@
                 return smin + (smax - smin) * 0.58 + Math.random() * (smax - smin) * 0.42;
             },
             spawnSoupColoredBubbles(fxId, opts) {
-                if (this._mProdMobile && this._mProdMobile()) return;
                 opts = opts || {};
                 const spec = this.SOUP_FX_BUBBLES[fxId] || this.SOUP_FX_BUBBLES.banana;
                 const colors = spec.colors;
@@ -8269,7 +8267,7 @@
                     if (throwDone) return;
                     throwDone = true;
                     const pose = this.summonPoseOrigin();
-                    if (!(this._mProdMobile && this._mProdMobile()) && !(this._soupFxTouch && this._soupFxTouch())) this.part(pose.x, pose.y, 'magic');
+                    if (!this._skipSummonSparkles()) this.part(pose.x, pose.y, 'magic');
                     const skipCost = testLevel != null && creator.isDev();
                     if (skipCost || farm.consumeThrow(c.id, lv, feed)) {
                         this.summonIngredientThrow(c.id, pose.x, pose.y, lv, landClone, feed, false);
@@ -8368,7 +8366,7 @@
                 sound.play('buy');
                 this.track('levels', n);
                 try { chefMood.bump(Math.min(4, 1 + n * 0.4), 'buy'); } catch (e) {}
-                if ([10, 25, 50, 100].some(th => prevLv < th && c.lv >= th)) { this.part(window.innerWidth / 2, window.innerHeight * 0.5, 'magic'); sound.play('bubble'); gx.toast(t(this.milestoneMsg[i] || 'milestone_generic')); }
+                if ([10, 25, 50, 100].some(th => prevLv < th && c.lv >= th) && !this._skipSummonSparkles()) { this.part(window.innerWidth / 2, window.innerHeight * 0.5, 'magic'); sound.play('bubble'); gx.toast(t(this.milestoneMsg[i] || 'milestone_generic')); }
                 ach.check();
                 const feed = this.isFeedMilestone(c.lv);
                 let originStub = ev && ev.currentTarget;
@@ -8550,6 +8548,9 @@
             },
             /* Store / GitHub Pages PWA on a real phone (not LAN localhost tunnel). Heavier FX
                are trimmed here — local dev keeps full feed for tuning. */
+            _skipSummonSparkles() {
+                return !!((this._mProdMobile && this._mProdMobile()) || (this._soupFxTouch && this._soupFxTouch()));
+            },
             _mProdMobile() {
                 try {
                     if (typeof SC_LOCAL_DEV !== 'undefined' && SC_LOCAL_DEV) return false;
@@ -8788,6 +8789,10 @@
                 const feedActive = this._chefFeedInProgress();
                 const pipeBusy = feedActive || this._summonPipelineBusy() || this._mSummonPumping;
                 if (this._mProdMobile && this._mProdMobile() && pipeBusy && (this._frame % 4 !== 0)) {
+                    if (this.particles.length > 0) {
+                        this.draw();
+                        this._flushScorePulse();
+                    }
                     if (!document.hidden) requestAnimationFrame(() => this.loop());
                     return;
                 }
@@ -9063,8 +9068,15 @@
             draw() {
                 const ctx = this.ctx;
                 const lowQ = quality.effMode() === 'low';
+                if (lowQ && this.particles.length === 0) {
+                    if (this._canvasDirty) {
+                        ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+                        this._canvasDirty = false;
+                    }
+                    return;
+                }
                 ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-                if (lowQ && this.particles.length === 0) return;
+                this._canvasDirty = true;
                 const scoreTarget = lowQ ? null : this.scorePartTarget();
                 // Compactación in-place: recorremos una sola vez y vamos guardando las
                 // partículas vivas al frente del array. Evita el splice(i,1) dentro de un
