@@ -16,6 +16,13 @@ const DECOR_CHEF_SLOTS = ['chefHat', 'chefFace'];
             isSummerLive() {
                 try { return typeof softEvents !== 'undefined' && softEvents.hasDecorPack('summer'); } catch (e) { return false; }
             },
+            effectiveBackgroundId() {
+                this.ensure();
+                const slot = game.decor.slots.background;
+                if (slot) return slot;
+                if (this.isSummerLive() && !game.decor.summerKitchenPref) return 'summer_beach';
+                return null;
+            },
             ensure() {
                 if (!game.decor || typeof game.decor !== 'object') game.decor = { slots: {}, owned: [] };
                 if (!game.decor.slots || typeof game.decor.slots !== 'object') game.decor.slots = {};
@@ -111,6 +118,7 @@ const DECOR_CHEF_SLOTS = ['chefHat', 'chefFace'];
                 this.ensure();
                 if (id && !this.isUnlocked(id)) { try { gx.toast(t('decor_locked')); } catch (e) {} return; }
                 game.decor.slots.background = id || null;
+                game.decor.summerKitchenPref = !id && this.isSummerLive();
                 game.save(); this.applyVisual(); this.render();
             },
             toggleChefSlot(slotKey, itemId) {
@@ -123,20 +131,25 @@ const DECOR_CHEF_SLOTS = ['chefHat', 'chefFace'];
             },
             applyBackground() {
                 this.ensure();
-                const bgId = game.decor.slots.background;
+                const bgId = this.effectiveBackgroundId();
                 const useSummer = bgId === 'summer_beach';
                 document.body.classList.remove('decor-bg-summer-fallback');
                 const bgUrl = visualTheme.resolveBackground(bgId);
-                if (!useSummer) {
-                    document.body.style.setProperty('background', `url('${bgUrl}') center/cover no-repeat`, 'important');
+                const paint = (url) => {
+                    document.body.style.setProperty('background', `url('${url}') center/cover no-repeat`, 'important');
+                    const home = document.getElementById('home-overlay');
+                    if (home) home.style.background = `url('${url}') center/cover no-repeat`;
                     try { if (typeof mobileUI !== 'undefined') mobileUI.fitScene(); } catch (e) {}
+                };
+                if (!useSummer) {
+                    paint(bgUrl);
                     return;
                 }
                 visualTheme.probe(bgUrl).then(ok => {
-                    if (game.decor.slots.background !== 'summer_beach') return;
+                    if (this.effectiveBackgroundId() !== 'summer_beach') return;
                     if (ok) {
                         document.body.classList.remove('decor-bg-summer-fallback');
-                        document.body.style.setProperty('background', `url('${bgUrl}') center/cover no-repeat`, 'important');
+                        paint(bgUrl);
                     } else {
                         document.body.style.removeProperty('background');
                         document.body.classList.add('decor-bg-summer-fallback');
@@ -178,10 +191,10 @@ const DECOR_CHEF_SLOTS = ['chefHat', 'chefFace'];
                 const bgEl = document.getElementById('decor-bg-options');
                 const chefEl = document.getElementById('decor-chef-options');
                 if (bgEl) {
-                    const curBg = game.decor.slots.background;
+                    const curBg = this.effectiveBackgroundId();
                     const beachEq = curBg === 'summer_beach';
                     const beachOk = this.isUnlocked('summer_beach');
-                    bgEl.innerHTML = this.renderToggleRow('🏠', t('decor_bg_default'), !curBg, false, !curBg ? t('decor_equipped') : t('decor_equip'), 'decor.setBackground(null)')
+                    bgEl.innerHTML = this.renderToggleRow('🏠', t('decor_bg_default'), !beachEq, false, !beachEq ? t('decor_equipped') : t('decor_equip'), 'decor.setBackground(null)')
                         + this.renderToggleRow('🏖️', t('decor_summer_beach'), beachEq, !beachOk, beachEq ? t('decor_unequip') : t('decor_equip'), beachEq ? 'decor.setBackground(null)' : "decor.setBackground('summer_beach')");
                 }
                 if (chefEl) {
