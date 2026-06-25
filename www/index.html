@@ -3323,7 +3323,7 @@
         // while still retrying if a reload didn't actually land the new build. Fully
         // defensive: any error is silent and never blocks the game. Parent bumps BOTH
         // version.json and BUILD_V on every future deploy.
-        const BUILD_V = "build-284";
+        const BUILD_V = "build-286";
         function paintBuildTag() {
             try {
                 var prod = (typeof PRODUCTION_BUILD !== 'undefined' && PRODUCTION_BUILD)
@@ -5805,7 +5805,7 @@
             hatCatalog(h) { return (h && h.skinId) ? collection.skinById(h.skinId) : null; },
             spoonCardImg(s) { const sk = this.spoonCatalog(s); return sk ? collection.srcThumb(sk) : (s.cardImg || ''); },
             hatCardImg(h) { const sk = this.hatCatalog(h); return sk ? collection.srcThumb(sk) : (h.cardImg || ''); },
-            spoonSceneImg(s) { const sk = this.spoonCatalog(s); return sk ? (sk.img || this.defaultSpoonImg) : (s.spoonImg || this.defaultSpoonImg); },
+            spoonSceneImg(s) { const sk = this.spoonCatalog(s); return sk ? (collection.srcFull(sk) || sk.img || this.defaultSpoonImg) : (s.spoonImg || this.defaultSpoonImg); },
             _applyShopSpoonVisual(el, rig, s) {
                 const sk = this.spoonCatalog(s);
                 if (!sk || !sk.img) return false;
@@ -11313,7 +11313,7 @@
                 try { localStorage.setItem(this.PLACE_KEY, JSON.stringify(o)); } catch (e) {}
                 this._placeCache = o;
             },
-            // Dual-resolution paths: WebP primary, PNG fallback via imgFail().
+            // Canonical skin URLs: WebP primary everywhere; PNG fallback only via imgFail().
             _skinUrl(path) {
                 if (!path) return null;
                 try {
@@ -11345,7 +11345,7 @@
                 const fam = this.HELPER_FAM_BY_IDX[idx];
                 const eqId = fam ? this.equippedInForContext(fam, loadoutKey) : null;
                 const skin = eqId ? this.skinResolve(eqId) : null;
-                if (skin && skin.img && !this._playablesBlocksFull()) return skin.img;
+                if (skin && skin.img && !this._playablesBlocksFull()) return this.srcFull(skin) || skin.img;
                 return this.HELPER_DEFAULT_IMG[idx];
             },
             sceneImgFallbackForHelper(idx, loadoutKey) {
@@ -11423,14 +11423,10 @@
                 delete el.dataset.phDone;
                 el.style.display = '';
                 el.style.visibility = '';
-                el.src = png;
-                this.img(png, 'full');
-                if (webp && webp !== png) {
-                    const probe = new Image();
-                    probe.decoding = 'async';
-                    probe.onload = function () { try { if (el.isConnected) el.src = webp; } catch (e) {} };
-                    probe.src = webp;
-                }
+                const primary = (webp && webp !== png) ? webp : png;
+                el.src = primary;
+                this.img(primary, 'full');
+                if (webp && webp !== png && primary === webp) this.img(png, 'full');
             },
             prefetchSkin(skin, tier) {
                 if (!skin) return;
