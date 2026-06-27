@@ -168,6 +168,13 @@ else boot();
         if (window.Capacitor && typeof window.Capacitor.isNativePlatform === 'function' && window.Capacitor.isNativePlatform()) return;
         var host = location.hostname;
         if (location.protocol !== 'https:' && host !== 'localhost' && host !== '127.0.0.1') return;
+        var standalone = false;
+        try {
+            standalone = (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches)
+                || window.navigator.standalone === true;
+        } catch (e) {}
+        /* Browser tabs: no SW (head script purges legacy cache). PWA only. */
+        if (!standalone) return;
         window.addEventListener('load', function () {
             var swUrl = './sw.js?v=' + (typeof BUILD_V !== 'undefined' ? BUILD_V : String(Date.now()));
             var reloaded = false;

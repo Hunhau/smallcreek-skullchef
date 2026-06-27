@@ -15,6 +15,55 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Skullchef">
     <meta name="color-scheme" content="dark">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <script>
+    (function () {
+        try {
+            var p = location.protocol, h = location.hostname || '';
+            if (p === 'file:' || h === 'localhost' || h === '127.0.0.1') return;
+            if (/^(10\.|192\.168\.|172\.(1[6-9]|2\d|3[01])\.)/.test(h)) return;
+            var standalone = (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches)
+                || window.navigator.standalone === true;
+            function purgeSw() {
+                if (!('serviceWorker' in navigator)) return Promise.resolve();
+                return navigator.serviceWorker.getRegistrations().then(function (rs) {
+                    return Promise.all(rs.map(function (r) { return r.unregister(); }));
+                }).catch(function () {});
+            }
+            function purgeCaches() {
+                if (!window.caches) return Promise.resolve();
+                return caches.keys().then(function (ks) {
+                    return Promise.all(ks.filter(function (k) {
+                        return k.indexOf('skullchef-shell-') === 0;
+                    }).map(function (k) { return caches.delete(k); }));
+                }).catch(function () {});
+            }
+            fetch('version.json?t=' + Date.now(), { cache: 'no-store' }).then(function (r) { return r.json(); }).then(function (d) {
+                var live = d && d.v;
+                if (!live) return;
+                var prev = localStorage.getItem('sc_shell_v');
+                var reloadOnce = function () {
+                    var rk = 'sc_reloaded_' + live;
+                    if (sessionStorage.getItem(rk)) {
+                        localStorage.setItem('sc_shell_v', live);
+                        return;
+                    }
+                    sessionStorage.setItem(rk, '1');
+                    Promise.all([purgeSw(), purgeCaches()]).then(function () {
+                        localStorage.setItem('sc_shell_v', live);
+                        location.replace(location.pathname + '?_sv=' + encodeURIComponent(live) + '_' + Date.now());
+                    });
+                };
+                if (prev && prev !== live) { reloadOnce(); return; }
+                localStorage.setItem('sc_shell_v', live);
+                if (!standalone) Promise.all([purgeSw(), purgeCaches()]);
+            }).catch(function () {
+                if (!standalone) Promise.all([purgeSw(), purgeCaches()]);
+            });
+        } catch (e) {}
+    })();
+    </script>
     <meta name="format-detection" content="telephone=no">
     <link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="192x192" href="assets/icons/icon-192.png">
@@ -22,7 +71,7 @@
          de imágenes/audio se cargan de forma diferida para no bloquear el render inicial. -->
     <link rel="preload" as="image" href="assets/img/angel.png" fetchpriority="high">
     <!-- YouTube Playables SDK: lazy-loaded by ytPlayables.init() — never block first paint. -->
-    <link rel="stylesheet" href="css/game.css?v=build-338">
+    <link rel="stylesheet" href="css/game.css?v=build-339">
 </head>
 <body>
     <div id="boot-splash" style="position:fixed;inset:0;z-index:500000;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#1a1030;color:#fde68a;font-family:system-ui,sans-serif;text-align:center;padding:24px;box-sizing:border-box">
@@ -531,9 +580,9 @@
     <script src="js/angel-tree.js?v=build-277"></script>
     <script src="js/tutorial.js?v=build-277"></script>
     <script src="js/quality.js?v=build-277"></script>
-    <script src="js/fullscreen.js?v=build-338"></script>
+    <script src="js/fullscreen.js?v=build-339"></script>
     <script src="js/landscape-gate.js?v=build-299"></script>
-    <script src="js/mobile-ui.js?v=build-338"></script>
+    <script src="js/mobile-ui.js?v=build-339"></script>
     <script src="js/helpers-box.js?v=build-300"></script>
     <script src="js/home.js?v=build-328"></script>
     <script src="js/pause-menu.js?v=build-277"></script>
@@ -547,13 +596,13 @@
     <script src="js/collection.js?v=build-324"></script>
     <script src="js/place-tool.js?v=build-306"></script>
     <script src="js/soup-evolution.js?v=build-324"></script>
-    <script src="js/game.js?v=build-338"></script>
+    <script src="js/game.js?v=build-339"></script>
     <!-- === leaderboard -> js/leaderboard-client.js (build-313) ========== -->
     <script src="js/leaderboard-client.js?v=build-313"></script>
     <script src="js/lb-ui.js?v=build-313"></script>
     <script src="js/rewards-ui.js?v=build-302"></script>
     <!-- === build-tag -> js/build-tag.js (build-320) ====================== -->
-    <script src="js/build-tag.js?v=build-338"></script>
-    <script src="js/boot.js?v=build-338"></script>
+    <script src="js/build-tag.js?v=build-339"></script>
+    <script src="js/boot.js?v=build-339"></script>
 </body>
 </html>
