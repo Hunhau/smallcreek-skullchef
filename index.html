@@ -20,7 +20,7 @@
     <script>
     (function () {
         try {
-            var DOC_V = 'build-359';
+            var DOC_V = 'build-360';
             var p = location.protocol, h = location.hostname || '';
             if (p === 'file:' || h === 'localhost' || h === '127.0.0.1') return;
             if (/^(10\.|192\.168\.|172\.(1[6-9]|2\d|3[01])\.)/.test(h)) return;
@@ -139,7 +139,7 @@
          de imágenes/audio se cargan de forma diferida para no bloquear el render inicial. -->
     <link rel="preload" as="image" href="assets/img/angel.png" fetchpriority="high">
     <!-- YouTube Playables SDK: lazy-loaded by ytPlayables.init() — never block first paint. -->
-    <link rel="stylesheet" href="css/game.css?v=build-359">
+    <link rel="stylesheet" href="css/game.css?v=build-360">
 </head>
 <body>
     <div id="boot-splash" style="position:fixed;inset:0;z-index:500000;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#1a1030;color:#fde68a;font-family:system-ui,sans-serif;text-align:center;padding:24px;box-sizing:border-box">
@@ -148,7 +148,7 @@
         <div id="boot-splash-hint" style="font-size:0.72rem;opacity:0.55;margin-top:12px;line-height:1.4;max-width:300px;display:none"></div>
         <div id="boot-splash-err" style="display:none;font-size:0.78rem;color:#fca5a5;margin-top:14px;line-height:1.45;max-width:320px;white-space:pre-wrap"></div>
     </div>
-    <script src="js/boot-splash.js?v=build-359"></script>
+    <script src="js/boot-splash.js?v=build-360"></script>
     <div id="home-overlay">
         <div id="home-hero" aria-hidden="true">
             <img id="hero-chef" src="assets/img/chef.png" alt="" decoding="async">
@@ -562,13 +562,13 @@
                 <button class="music-btn" type="button" id="music-prev" onclick="music.prev()" data-i18n-title="music_prev">⏮</button>
                 <button class="music-btn music-play" type="button" id="music-play" onclick="music.toggle()" data-i18n-title="music_play">▶</button>
                 <button class="music-btn" type="button" id="music-next" onclick="music.next()" data-i18n-title="music_next">⏭</button>
-                <input id="music-vol" class="amb-slider" type="range" min="0" max="100" value="60">
+                <input id="music-vol" class="amb-slider" type="range" min="0" max="100" value="60" oninput="music.setVol(this.value/100)" onchange="music.setVol(this.value/100)">
             </div>
             <div id="music-none" class="amb-unavail" style="display:none" data-i18n="music_none">No music yet</div>
         </div>
         <p class="amb-hint" data-i18n="ambient_hint">Layer relaxing loops while you cook.</p>
         <div id="ambient-list"></div>
-        <div class="home-row" style="margin-top:6px"><span class="home-row-label" data-i18n="ambient_master">Master ambient volume</span><div class="home-ctrl"><input id="ambient-master" type="range" min="0" max="100" value="60"></div></div>
+        <div class="home-row" style="margin-top:6px"><span class="home-row-label" data-i18n="ambient_master">Master ambient volume</span><div class="home-ctrl"><input id="ambient-master" type="range" min="0" max="100" value="60" oninput="ambient.setMaster(this.value/100)" onchange="ambient.setMaster(this.value/100)"></div></div>
         <button class="gx-btn" style="margin-top:12px" onclick="ambient.close()" data-i18n="close">Close</button>
         </div></div></div>
     <div id="creator-modal" class="gx-modal"><div class="gx-box panel-layout"><div class="gx-panel-head"><h2 data-i18n="creator_title">Creator</h2><button class="cp-close" type="button" onclick="creator.close()" aria-label="Close">✕</button></div><div class="gx-panel-body"><p class="amb-hint" data-i18n="creator_hint">Follow the SmallCreek kitchen.</p><div id="creator-links"></div><button class="gx-btn" style="margin-top:12px" onclick="creator.close()" data-i18n="close">Close</button></div></div></div>
@@ -605,6 +605,6 @@
         <button id="privacy-decline" class="gx-btn gx-btn-ghost" style="display:block;width:100%;margin:8px 0 0" type="button" onclick="privacyConsent.decline()" data-i18n="privacy_consent_decline">Play offline</button>
     </div></div>
     <!-- Game scripts loaded by app-loader.js AFTER SW/cache purge on browser tabs -->
-    <script src="js/app-loader.js?v=build-359"></script>
+    <script src="js/app-loader.js?v=build-360"></script>
 </body>
 </html>

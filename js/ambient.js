@@ -257,7 +257,13 @@
 
                 const v = this._effVol(tr);
 
-                if (tr._gain) {
+                let htmlOnly = false;
+
+                try { htmlOnly = !!(typeof sound !== 'undefined' && sound._loopUseHtmlOnly && sound._loopUseHtmlOnly()); } catch (e) {}
+
+                if (htmlOnly) tr._gain = null;
+
+                if (tr._gain && !htmlOnly) {
 
                     try { tr._gain.gain.value = v; } catch (e) {}
 
@@ -481,7 +487,7 @@
 
                         + `<button class="amb-toggle" type="button" ${dis} onclick="ambient.toggle('${def.id}')">${(typeof scCauldronIcon !== 'undefined' ? scCauldronIcon.ambIcon(def) : def.icon)} <span>${t('amb_' + def.id)}</span><span class="amb-state">${on ? '❚❚' : '▶'}</span></button>`
 
-                        + `<input class="amb-slider" type="range" min="0" max="100" value="${Math.round(tr.vol * 100)}" data-track="${def.id}" ${dis}>`
+                        + `<input class="amb-slider" type="range" min="0" max="100" value="${Math.round(tr.vol * 100)}" data-track="${def.id}" ${dis} oninput="ambient.setTrackVol('${def.id}', this.value/100)" onchange="ambient.setTrackVol('${def.id}', this.value/100)">`
 
                         + unavail + `</div>`;
 

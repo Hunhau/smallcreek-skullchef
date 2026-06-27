@@ -179,7 +179,13 @@
 
                 const v = this._outVol();
 
-                if (this._gain) {
+                let htmlOnly = false;
+
+                try { htmlOnly = !!(typeof sound !== 'undefined' && sound._loopUseHtmlOnly && sound._loopUseHtmlOnly()); } catch (e) {}
+
+                if (htmlOnly) this._gain = null;
+
+                if (this._gain && !htmlOnly) {
 
                     try { this._gain.gain.value = v; } catch (e) {}
 
