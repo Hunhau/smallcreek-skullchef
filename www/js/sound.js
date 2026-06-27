@@ -252,7 +252,7 @@ const sound = {
         const v = document.getElementById('audio-vol'); if (v) v.value = String(Math.round(this.volume * 100));
         this.updateUi();
         const evs = ['pointerdown', 'touchstart', 'keydown'];
-        const handler = () => { this.unlock(); evs.forEach(ev => document.removeEventListener(ev, handler)); };
+        const handler = () => { this.unlockLight(); evs.forEach(ev => document.removeEventListener(ev, handler)); };
         evs.forEach(ev => document.addEventListener(ev, handler, { once: true, passive: true }));
         try {
             const wake = () => { try { this.recoverFromBackground(); } catch (e) {} };
@@ -263,16 +263,12 @@ const sound = {
             window.addEventListener('pagehide', () => { try { this.suspendAll(); } catch (e) {} }, { passive: true });
             window.addEventListener('focus', () => { if (this._unlocked) { this._needReprime = true; wake(); } }, { passive: true });
             window.addEventListener('pageshow', () => { if (this._unlocked) { this._needReprime = true; wake(); } }, { passive: true });
-            // The visibility/focus/pageshow handlers above already recover on return.
-            // The gesture must NOT re-run recovery (it bubbles AFTER tap-driven SFX and
-            // would re-mute/pause the pooled voices); just resume the AudioContext.
             const gestureWake = () => {
-                try { this.unlock(); this.resumeAudio(); } catch (e) {}
+                try { this.unlockLight(); } catch (e) {}
                 if (this._unlocked && this._needReprime) {
                     this._needReprime = false;
-                    try { this.recoverFromBackground(); } catch (e) {}
+                    setTimeout(() => { try { this.recoverFromBackground(); } catch (e) {} }, 100);
                 }
-                /* Do NOT _syncBgAudio here — runs on every tap and reloads all loops (mobile freeze). */
             };
             ['pointerdown', 'touchstart'].forEach(ev => document.addEventListener(ev, gestureWake, { passive: true }));
         } catch (e) {}
@@ -341,8 +337,50 @@ const sound = {
                 this.updateUi();
             }
         } catch (e) {}
-        try { this.unlock(); } catch (e) {}
+        try { this.unlockLight(); } catch (e) {}
+    },
+    unlockLight() {
+        if (!this._unlocked) this._unlocked = true;
         try { this.resumeAudioIfNeeded(); } catch (e) {}
+        try {
+            if (this._eatCtx && (this._eatCtx.state === 'suspended' || this._eatCtx.state === 'interrupted')) {
+                const p = this._eatCtx.resume(); if (p && p.catch) p.catch(() => {});
+            }
+        } catch (e) {}
+    },
+    _runFirstUnlockPrime() {
+        try {
+            if (this._isNativeCap()) {
+                this._primeOne(this._makeAudio('audio/bubble.mp3'));
+                const sv = this._stirEnsure();
+                if (sv) for (let si = 0; si < sv.length; si++) this._primeOne(sv[si]);
+            } else if (this._stirUseWa()) {
+                this._primeMobileEssentials();
+                try { this._waLoadSrc('audio/stir1.mp3'); this._waLoadSrc('audio/stir2.mp3'); } catch (e) {}
+            } else if (!this._useWebAudio()) {
+                for (const k in this.flat) {
+                    const arr = this.flat[k];
+                    if (arr) for (let i = 0; i < arr.length; i++) this._primeOne(arr[i]);
+                }
+                this._primeOne(this._eatPreload);
+                const sv = this._stir.voices;
+                if (sv) for (let i = 0; i < sv.length; i++) this._primeOne(sv[i]);
+            } else {
+                this._primeMobileEssentials();
+                const sv = this._stirEnsure();
+                if (sv) for (let si = 0; si < sv.length; si++) this._primeOne(sv[si]);
+            }
+            if (this._eatCtx && this._eatCtx.state === 'suspended') { try { this._eatCtx.resume(); } catch (e) {} }
+        } catch (e) {}
+    },
+    _deferMobilePrime() {
+        if (this._mobilePrimeTimer) return;
+        const self = this;
+        this._mobilePrimeTimer = setTimeout(function () {
+            self._mobilePrimeTimer = null;
+            try { self._runFirstUnlockPrime(); } catch (e) {}
+            try { if (self._useWebAudio()) self._waLoadAll(); } catch (e) {}
+        }, 150);
     },
     // Re-arm audio after Play / privacy / name modals (iOS needs a fresh gesture chain).
     touchAudio() {
@@ -396,38 +434,24 @@ const sound = {
     },
     unlock() {
         const first = !this._unlocked;
+        this.unlockLight();
+        const mobileWa = !this._isNativeCap() && this._useWebAudio();
         if (first) {
-            this._unlocked = true;
+            if (mobileWa) this._deferMobilePrime();
+            else {
+                try { this._runFirstUnlockPrime(); } catch (e) {}
+                try { if (this._useWebAudio()) this._waLoadAll(); } catch (e) {}
+            }
+        } else if (this._needReprime) {
+            this._needReprime = false;
             try {
-                // iOS WKWebView rejects mass-priming dozens of voices in one gesture.
-                if (this._isNativeCap()) {
-                    this._primeOne(this._makeAudio('audio/bubble.mp3'));
-                    const sv = this._stirEnsure();
-                    if (sv) for (let si = 0; si < sv.length; si++) this._primeOne(sv[si]);
-                } else if (this._stirUseWa()) {
-                    this._primeMobileEssentials();
-                    try { this._waLoadSrc('audio/stir1.mp3'); this._waLoadSrc('audio/stir2.mp3'); } catch (e) {}
-                } else if (!this._useWebAudio()) {
-                    for (const k in this.flat) {
-                        const arr = this.flat[k];
-                        if (arr) for (let i = 0; i < arr.length; i++) this._primeOne(arr[i]);
-                    }
-                    this._primeOne(this._eatPreload);
-                    const sv = this._stir.voices;
-                    if (sv) for (let i = 0; i < sv.length; i++) this._primeOne(sv[i]);
-                } else {
-                    this._primeMobileEssentials();
-                    const sv = this._stirEnsure();
-                    if (sv) for (let si = 0; si < sv.length; si++) this._primeOne(sv[si]);
-                }
-                if (this._eatCtx && this._eatCtx.state === 'suspended') { try { this._eatCtx.resume(); } catch (e) {} }
+                this.resumeAudio();
+                if (this._useWebAudio()) {
+                    if (mobileWa) this._deferMobilePrime();
+                    else this._waLoadAll();
+                } else this.recoverFromBackground();
             } catch (e) {}
         }
-        try {
-            if (first || this._needReprime) this.resumeAudio();
-            else this.resumeAudioIfNeeded();
-            if (first || this._needReprime) this._waLoadAll();
-        } catch (e) {}
     },
     _syncBgAudio() {
         try { if (typeof ambient !== 'undefined' && ambient._inited) ambient.syncPlayback(); } catch (e) {}

@@ -197,6 +197,12 @@
 
                 a.loop = true;
 
+                try {
+                    if (typeof sound !== 'undefined' && sound._loopUseHtmlOnly && sound._loopUseHtmlOnly()) {
+                        a.preload = 'metadata';
+                    }
+                } catch (e) {}
+
                 a.addEventListener('error', () => {
 
                     tr.avail = false; tr.on = false;
@@ -219,15 +225,39 @@
 
             _playLoop(a) {
                 if (!a) return;
+                if (!a.paused && !a.ended && a.currentTime > 0) return;
+                const start = () => {
+                    try {
+                        const p = a.play();
+                        if (p && typeof p.catch === 'function') p.catch(() => {});
+                    } catch (e) {}
+                };
+                if (a.readyState >= 2) { start(); return; }
+                if (a._scBgLoad) return;
+                a._scBgLoad = true;
+                const done = () => { a._scBgLoad = false; start(); };
+                a.addEventListener('canplay', done, { once: true });
+                a.addEventListener('error', () => { a._scBgLoad = false; }, { once: true });
+                try { a.load(); } catch (e) { a._scBgLoad = false; start(); }
+            },
+
+            _canPlayBg() {
                 try {
-                    if (a.readyState < 2) { try { a.load(); } catch (e) {} }
-                    const p = a.play();
-                    if (p && typeof p.then === 'function') {
-                        p.catch(() => {
-                            a.addEventListener('canplaythrough', () => { try { a.play(); } catch (e2) {} }, { once: true });
-                        });
+                    if (typeof sound !== 'undefined') {
+                        if (sound.muted || sound.volume <= 0) return false;
                     }
                 } catch (e) {}
+                if (typeof document !== 'undefined' && document.hidden) return false;
+                try { if (typeof farm !== 'undefined' && farm._bgSuppressed) return false; } catch (e) {}
+                return this._gameVol() > 0;
+            },
+
+            _startTrack(id) {
+                const tr = this.tracks[id];
+                if (!tr || !tr.on || !tr.avail || !this._canPlayBg()) return;
+                const a = this.ensureAudio(tr);
+                this._applyVol(tr);
+                this._playLoop(a);
             },
 
             _modalOpen() {
@@ -300,15 +330,19 @@
                 if (turningOn) {
                     try {
                         if (typeof mobileUI !== 'undefined' && mobileUI.isPhone && mobileUI.isPhone()) {
-                            for (const oid in this.tracks) { if (oid !== id) this.tracks[oid].on = false; }
+                            for (const oid in this.tracks) {
+                                if (oid !== id && this.tracks[oid].on) {
+                                    this.tracks[oid].on = false;
+                                    if (this.tracks[oid].audio) { try { this.tracks[oid].audio.pause(); } catch (e) {} }
+                                }
+                            }
                         }
                     } catch (e) {}
                     this._gestureUnmute();
+                    requestAnimationFrame(() => { try { this._startTrack(id); } catch (e) {} });
+                } else {
+                    if (tr.audio) { try { tr.audio.pause(); } catch (e) {} }
                 }
-
-                else { try { if (typeof sound !== 'undefined' && sound.unlock) sound.unlock(); } catch (e) {} }
-
-                this.syncPlayback();
 
                 this.save();
 

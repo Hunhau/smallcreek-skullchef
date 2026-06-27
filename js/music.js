@@ -193,6 +193,12 @@
 
                 a.addEventListener('playing', () => { this._applyVol(); }, { passive: true });
 
+                try {
+                    if (typeof sound !== 'undefined' && sound._loopUseHtmlOnly && sound._loopUseHtmlOnly()) {
+                        a.preload = 'metadata';
+                    }
+                } catch (e) {}
+
                 this.audio = a;
 
                 this._applySrc();
@@ -267,6 +273,27 @@
 
             },
 
+            _playLoop(a) {
+                if (!a) return;
+                if (!a.paused && !a.ended && a.currentTime > 0) return;
+                const start = () => {
+                    try {
+                        const p = a.play();
+                        if (p && typeof p.catch === 'function') {
+                            p.then(() => { this._applyVol(); });
+                            p.catch(() => {});
+                        }
+                    } catch (e) {}
+                };
+                if (a.readyState >= 2) { start(); return; }
+                if (a._scBgLoad) return;
+                a._scBgLoad = true;
+                const done = () => { a._scBgLoad = false; start(); };
+                a.addEventListener('canplay', done, { once: true });
+                a.addEventListener('error', () => { a._scBgLoad = false; }, { once: true });
+                try { a.load(); } catch (e) { a._scBgLoad = false; start(); }
+            },
+
             syncPlayback() {
                 try {
                     if (typeof sound !== 'undefined' && sound._unlocked && sound.resumeAudioIfNeeded) {
@@ -291,16 +318,7 @@
 
                     this._applyVol();
 
-                    try {
-                        if (a.readyState < 2) { try { a.load(); } catch (e) {} }
-                        const p = a.play();
-                        if (p && typeof p.then === 'function') {
-                            p.then(() => { this._applyVol(); });
-                            p.catch(() => {
-                                a.addEventListener('canplaythrough', () => { try { a.play(); } catch (e2) {} }, { once: true });
-                            });
-                        }
-                    } catch (e) {}
+                    this._playLoop(a);
 
                 } else if (this.audio) {
 
@@ -334,11 +352,12 @@
 
                 this.on = !this.on;
 
-                if (turningOn) this._gestureUnmute();
-
-                else { try { if (typeof sound !== 'undefined' && sound.unlock) sound.unlock(); } catch (e) {} }
-
-                this.syncPlayback();
+                if (turningOn) {
+                    this._gestureUnmute();
+                    requestAnimationFrame(() => { try { this.syncPlayback(); } catch (e) {} });
+                } else {
+                    if (this.audio) { try { this.audio.pause(); } catch (e) {} }
+                }
 
                 this.save(); this._render();
 
