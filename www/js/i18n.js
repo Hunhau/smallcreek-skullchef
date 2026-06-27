@@ -348,7 +348,7 @@ const I18N = {
         place_hud_help:"Arrows ±1px · Shift+Arrows ±10px · +/- size · [ ] rotate · Tab swap",
         place_tool_step:"Step size (x1 / x10)", place_tt_move:"Move", place_tt_bigger:"Bigger", place_tt_smaller:"Smaller",
         place_tt_rotate_l:"Rotate left", place_tt_rotate_r:"Rotate right", place_tt_target:"Switch target (spoon / hat)", place_tt_close:"Close tool",
-        m_menu_title:"Menu", m_shop_btn:"🛒 Shop", helpers_toggle_title:"Helpers",
+        m_menu_title:"Menu", m_shop_btn:"🛒 Shop", m_minigame_title:"Minigames", m_minigame_btn:"🎮 Minis", m_minigame_lead:"Pick a minigame", helpers_toggle_title:"Helpers",
         /* ===== CREATOR UNLOCK GESTURE i18n — KEEP (creator-only) ===== */
         creator_mode_on:"Creator mode ON", creator_mode_off:"Creator mode OFF",
         /* ===== CREATOR FX TEST i18n — KEEP (creator-only) ===== */
@@ -702,7 +702,7 @@ const I18N = {
         place_hud_help:"Flechas ±1px · Mayús+Flechas ±10px · +/- tamaño · [ ] rotar · Tab cambia",
         place_tool_step:"Tamaño de paso (x1 / x10)", place_tt_move:"Mover", place_tt_bigger:"Más grande", place_tt_smaller:"Más pequeño",
         place_tt_rotate_l:"Girar a la izquierda", place_tt_rotate_r:"Girar a la derecha", place_tt_target:"Cambiar objetivo (cuchara / gorro)", place_tt_close:"Cerrar herramienta",
-        m_menu_title:"Menú", m_shop_btn:"🛒 Tienda", helpers_toggle_title:"Ayudantes",
+        m_menu_title:"Menú", m_shop_btn:"🛒 Tienda", m_minigame_title:"Minijuegos", m_minigame_btn:"🎮 Minis", m_minigame_lead:"Elige un minijuego", helpers_toggle_title:"Ayudantes",
         /* ===== CREATOR UNLOCK GESTURE i18n — KEEP (creator-only) ===== */
         creator_mode_on:"Modo creador ACTIVADO", creator_mode_off:"Modo creador DESACTIVADO",
         /* ===== CREATOR FX TEST i18n — KEEP (creator-only) ===== */

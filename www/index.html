@@ -254,6 +254,13 @@
     <div id="m-launch">
         <button id="m-menu-btn" type="button" onclick="mobileUI.toggleMenu()" aria-label="Menu" data-i18n-title="m_menu_title" title="Menu">☰</button>
         <button id="m-shop-btn" type="button" onclick="mobileUI.toggleShop()" aria-label="Shop"><span data-i18n="m_shop_btn">🛒 Shop</span></button>
+        <button id="m-minigame-btn" type="button" style="display:none" onclick="mobileUI.toggleMinigames()" aria-label="Minigames" data-i18n-title="m_minigame_title" title="Minigames"><span data-i18n="m_minigame_btn">🎮 Minis</span></button>
+    </div>
+    <div id="m-minigame-sheet" aria-label="Minigames">
+        <button id="m-minigame-close" type="button" onclick="mobileUI.closeAll()" aria-label="Close" title="Close">✕</button>
+        <p class="m-minigame-lead" data-i18n="m_minigame_lead">Pick a minigame</p>
+        <button id="m-prix-btn" type="button" class="m-minigame-row"><span class="m-minigame-label" data-i18n="enter_prix">Enter Grand Prix</span></button>
+        <button id="m-skirmish-btn" type="button" class="m-minigame-row"><span class="m-minigame-label" data-i18n="skirmish_btn">🥊 Soup Skirmish</span></button>
     </div>
     <div id="m-scrim" onclick="mobileUI.closeAll()"></div>
     <div id="build-tag" aria-hidden="true"></div>

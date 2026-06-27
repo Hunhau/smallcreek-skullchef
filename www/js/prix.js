@@ -211,6 +211,7 @@
                     el.addEventListener('pointerup', run, { passive: false });
                 };
                 bind(document.getElementById('prix-fab'));
+                bind(document.getElementById('m-prix-btn'));
             }
         };
 

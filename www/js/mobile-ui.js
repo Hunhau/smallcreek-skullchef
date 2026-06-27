@@ -25,6 +25,7 @@
         },
         toggleMenu() { this._toggle('side-buttons'); },
         toggleShop() { this._toggle('side-shop'); },
+        toggleMinigames() { this._toggle('m-minigame-sheet'); },
         _setBadge(id, on) {
             try { const b = document.getElementById(id); if (b && b.classList.contains('has-badge') !== !!on) b.classList.toggle('has-badge', !!on); } catch (e) {}
         },
@@ -199,8 +200,53 @@
         },
         closeAll() {
             try {
-                ['side-buttons', 'side-shop'].forEach(id => { const el = document.getElementById(id); if (el) el.classList.remove('m-open'); });
+                ['side-buttons', 'side-shop', 'm-minigame-sheet'].forEach(id => { const el = document.getElementById(id); if (el) el.classList.remove('m-open'); });
                 const s = document.getElementById('m-scrim'); if (s) s.classList.remove('show');
+            } catch (e) {}
+        },
+        syncMinigameLauncher() {
+            try {
+                const btn = document.getElementById('m-minigame-btn');
+                if (!btn) return;
+                const phone = this.isPhone();
+                const unlocked = typeof game !== 'undefined' && game.minigameUnlocked && game.minigameUnlocked();
+                btn.style.display = (phone && unlocked) ? 'flex' : 'none';
+                if (!phone || !unlocked) {
+                    const sheet = document.getElementById('m-minigame-sheet');
+                    if (sheet) sheet.classList.remove('m-open');
+                    return;
+                }
+                const prixBtn = document.getElementById('m-prix-btn');
+                const skBtn = document.getElementById('m-skirmish-btn');
+                const prixLab = prixBtn && prixBtn.querySelector('.m-minigame-label');
+                const skLab = skBtn && skBtn.querySelector('.m-minigame-label');
+                if (prixBtn && prixLab) {
+                    if (game.cd > 0) {
+                        const mm = String(Math.floor(game.cd / 60)).padStart(2, '0');
+                        const ss = String(game.cd % 60).padStart(2, '0');
+                        prixLab.textContent = t('prix_cd', { mm: mm, ss: ss });
+                        prixBtn.disabled = true;
+                        prixBtn.style.opacity = '0.55';
+                    } else {
+                        prixLab.textContent = t('enter_prix');
+                        prixBtn.disabled = false;
+                        prixBtn.style.opacity = '1';
+                    }
+                }
+                if (skBtn && skLab) {
+                    if (game.scd > 0) {
+                        const mm = String(Math.floor(game.scd / 60)).padStart(2, '0');
+                        const ss = String(game.scd % 60).padStart(2, '0');
+                        skLab.textContent = t('skirmish_cd', { mm: mm, ss: ss });
+                        skBtn.disabled = true;
+                        skBtn.style.opacity = '0.55';
+                    } else {
+                        skLab.textContent = t('skirmish_btn');
+                        skBtn.disabled = false;
+                        skBtn.style.opacity = '1';
+                    }
+                }
+                this._setBadge('m-minigame-btn', game.cd <= 0 || game.scd <= 0);
             } catch (e) {}
         },
         fitScene() {
@@ -282,6 +328,24 @@
                         this.closeAll();
                     } catch (er) {}
                 });
+                const skSheet = document.getElementById('m-minigame-sheet');
+                if (skSheet) skSheet.addEventListener('click', (e) => {
+                    try {
+                        const row = e.target && e.target.closest && e.target.closest('.m-minigame-row');
+                        if (!row || row.disabled) return;
+                        setTimeout(() => this.closeAll(), 0);
+                    } catch (er) {}
+                });
+                const skBtn = document.getElementById('m-skirmish-btn');
+                if (skBtn && !skBtn._skBound) {
+                    skBtn._skBound = true;
+                    skBtn.addEventListener('pointerup', (e) => {
+                        if (skBtn.disabled) return;
+                        e.preventDefault();
+                        e.stopPropagation();
+                        try { skirmish.open(); } catch (err) {}
+                    }, { passive: false });
+                }
                 run();
                 setTimeout(run, 300);
                 setTimeout(() => this.maybeBrowserLandscapeHint(), 800);

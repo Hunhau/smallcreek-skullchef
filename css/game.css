@@ -77,6 +77,45 @@
             #lore-scroll.lore-has-action #lore-text { display: block; overflow: visible; max-height: none; -webkit-line-clamp: unset; font-size: 0.58rem; line-height: 1.25; }
             #lore-scroll.lore-has-action #lore-title { display: block; font-size: 0.55rem; margin-bottom: 3px; }
         }
+        /* Mobile minigame launcher — bottom sheet above ☰ / 🛒 */
+        @media (pointer: coarse) and (orientation: landscape) and (max-height: 600px),
+               (orientation: portrait) and (max-width: 768px) {
+            #m-minigame-sheet {
+                display: flex; flex-direction: column; gap: 8px;
+                position: fixed; z-index: 9450;
+                left: max(10px, env(safe-area-inset-left));
+                right: max(10px, env(safe-area-inset-right));
+                bottom: calc(max(10px, env(safe-area-inset-bottom)) + 58px);
+                padding: 28px 12px 10px;
+                border-radius: 16px;
+                background: var(--glass-strong);
+                backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur);
+                border: 1px solid var(--glass-bd-go);
+                box-shadow: 0 -10px 36px rgba(0, 0, 0, 0.48);
+                transform: translateY(calc(100% + 90px));
+                opacity: 0; pointer-events: none;
+                transition: transform 0.28s ease, opacity 0.2s ease;
+            }
+            #m-minigame-sheet.m-open { transform: translateY(0); opacity: 1; pointer-events: auto; }
+            .m-minigame-lead { margin: 0 0 2px; font-size: 0.72rem; text-align: center; opacity: 0.85; color: #cbd5e1; }
+            .m-minigame-row {
+                min-height: 48px; padding: 12px 14px; border-radius: 14px;
+                border: 1px solid var(--glass-bd-go); background: rgba(0, 0, 0, 0.22);
+                color: #fff; font-size: 0.86rem; font-weight: bold; text-transform: uppercase;
+                letter-spacing: 0.04em; touch-action: manipulation; -webkit-tap-highlight-color: transparent;
+            }
+            .m-minigame-row:disabled { cursor: not-allowed; }
+            .m-minigame-row:active:not(:disabled) { filter: brightness(1.12); }
+            #m-minigame-close {
+                position: absolute; top: 6px; right: 8px; width: 36px; height: 36px;
+                border-radius: 10px; border: 1px solid var(--glass-bd-go);
+                background: rgba(15, 23, 42, 0.75); color: var(--gold-soft);
+                font-size: 1.1rem; line-height: 1; cursor: pointer;
+            }
+        }
+        @media (orientation: portrait) and (max-width: 768px) {
+            #m-minigame-sheet { bottom: calc(max(12px, env(safe-area-inset-bottom)) + 64px); }
+        }
         #set-celebrate { position: fixed; inset: 0; z-index: 75000; pointer-events: none; display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.35s ease; }
         #set-celebrate.show { opacity: 1; }
         #set-celebrate-card { text-align: center; padding: 22px 28px; border-radius: 18px; background: linear-gradient(145deg, rgba(30,27,75,0.96), rgba(15,8,40,0.98)); border: 2px solid rgba(251,191,36,0.65); box-shadow: 0 0 48px rgba(251,191,36,0.35), 0 16px 40px rgba(0,0,0,0.55); transform: scale(0.82); animation: setCelebratePop 0.55s cubic-bezier(0.22, 1.15, 0.36, 1) forwards; max-width: min(92vw, 360px); }
@@ -602,6 +641,7 @@
         body.coronation-active #companion-column,
         body.coronation-active #helpers-toggle,
         body.coronation-active #m-launch { visibility: hidden !important; pointer-events: none !important; }
+        body.coronation-active #m-minigame-sheet { visibility: hidden !important; pointer-events: none !important; opacity: 0 !important; }
         body.coronation-active #side-shop,
         body.coronation-active #side-buttons { visibility: hidden !important; pointer-events: none !important; opacity: 0 !important; }
         body.coronation-active #m-scrim { display: none !important; }
@@ -1154,6 +1194,7 @@
            desktop layout stays byte-for-byte unchanged. */
         #m-launch { display: none; }
         #m-scrim { display: none; }
+        #m-minigame-sheet { display: none; }
         #helpers-toggle { display: none; }
         #shop-close-m { display: none; }
         /* Availability dot on CLOSED launcher buttons + owned-helpers count chip. The host

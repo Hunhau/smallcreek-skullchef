@@ -1401,6 +1401,7 @@ const game = {
                 }
             }
         } catch (e) {}
+        try { if (typeof mobileUI !== 'undefined') mobileUI.syncMinigameLauncher(); } catch (e2) {}
     },
     ui() {
         // PERF: cache refs + only write to the DOM when a value actually changed, to
