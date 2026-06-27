@@ -64,6 +64,7 @@ const sound = {
         try {
             const ua = navigator.userAgent || '';
             if (/iPhone|iPad|iPod|Android/i.test(ua)) return true;
+            if (window.matchMedia && window.matchMedia('(pointer: coarse)').matches) return true;
         } catch (e) {}
         return false;
     },

@@ -138,16 +138,34 @@
 
             },
 
+            _htmlLoops() {
+                try { return !!(typeof sound !== 'undefined' && sound._loopUseHtmlOnly && sound._loopUseHtmlOnly()); } catch (e) { return false; }
+            },
+
+            _healLoopAudio() {
+                if (!this._htmlLoops()) return;
+                if (this._waRouted === 'html' && !this._gain) return;
+                const wasPlaying = this.audio && !this.audio.paused;
+                try { if (this.audio) { this.audio.pause(); this.audio.removeAttribute('src'); this.audio.load(); } } catch (e) {}
+                this.audio = null;
+                this._gain = null;
+                this._waRouted = 'html';
+                if (wasPlaying && this.on) {
+                    const a = this.ensureAudio();
+                    this._applyVol();
+                    this._playLoop(a);
+                }
+            },
+
             _wireGain(a) {
 
-                if (this._gain || this._waRouted === false) return;
+                if (this._htmlLoops()) {
+                    this._gain = null;
+                    this._waRouted = 'html';
+                    return;
+                }
 
-                try {
-                    if (typeof sound !== 'undefined' && sound._loopUseHtmlOnly && sound._loopUseHtmlOnly()) {
-                        this._waRouted = false;
-                        return;
-                    }
-                } catch (e) {}
+                if (this._gain || this._waRouted === 'html') return;
 
                 const ctx = this._waCtx();
 
@@ -179,13 +197,7 @@
 
                 const v = this._outVol();
 
-                let htmlOnly = false;
-
-                try { htmlOnly = !!(typeof sound !== 'undefined' && sound._loopUseHtmlOnly && sound._loopUseHtmlOnly()); } catch (e) {}
-
-                if (htmlOnly) this._gain = null;
-
-                if (this._gain && !htmlOnly) {
+                if (this._gain) {
 
                     try { this._gain.gain.value = v; } catch (e) {}
 
@@ -231,7 +243,14 @@
 
                 this._applySrc();
 
-                this._wireGain(a);
+                if (this._htmlLoops()) {
+                    this._gain = null;
+                    this._waRouted = 'html';
+                } else {
+                    this._wireGain(a);
+                }
+
+                this._applyVol();
 
                 return a;
 
@@ -407,13 +426,21 @@
 
                 this.vol = this._c(v);
 
-                try { if (typeof sound !== 'undefined' && sound._unlocked && sound.resumeAudioIfNeeded) sound.resumeAudioIfNeeded(); } catch (e) {}
-
-                if (this.audio) this._wireGain(this.audio);
+                if (this._htmlLoops()) this._healLoopAudio();
 
                 this._applyVol();
 
+                const mv = document.getElementById('music-vol');
+
+                if (mv && document.activeElement !== mv) mv.value = String(Math.round(this.vol * 100));
+
                 this.save();
+
+            },
+
+            bumpVol(delta) {
+
+                this.setVol(this.vol + Number(delta));
 
             },
 

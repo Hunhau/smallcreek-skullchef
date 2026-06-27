@@ -214,16 +214,38 @@
 
             _effVol(tr) { return this._c(this.master * tr.vol * this._gameVol()); },
 
+            _htmlLoops() {
+                try { return !!(typeof sound !== 'undefined' && sound._loopUseHtmlOnly && sound._loopUseHtmlOnly()); } catch (e) { return false; }
+            },
+
+            _healLoopAudio(tr) {
+                if (!tr || !this._htmlLoops()) return;
+                if (tr._waRouted === 'html' && !tr._gain) return;
+                const wasPlaying = tr.audio && !tr.audio.paused;
+                try { if (tr.audio) { tr.audio.pause(); tr.audio.removeAttribute('src'); tr.audio.load(); } } catch (e) {}
+                tr.audio = null;
+                tr._gain = null;
+                tr._waRouted = 'html';
+                if (wasPlaying && tr.on) {
+                    const a = this.ensureAudio(tr);
+                    this._applyVol(tr);
+                    this._playLoop(a);
+                }
+            },
+
+            _healAllLoopAudio() {
+                for (const id in this.tracks) this._healLoopAudio(this.tracks[id]);
+            },
+
             _wireGain(tr, a) {
 
-                if (tr._gain || tr._waRouted === false) return;
+                if (this._htmlLoops()) {
+                    tr._gain = null;
+                    tr._waRouted = 'html';
+                    return;
+                }
 
-                try {
-                    if (typeof sound !== 'undefined' && sound._loopUseHtmlOnly && sound._loopUseHtmlOnly()) {
-                        tr._waRouted = false;
-                        return;
-                    }
-                } catch (e) {}
+                if (tr._gain || tr._waRouted === 'html') return;
 
                 const ctx = this._waCtx();
 
@@ -257,13 +279,7 @@
 
                 const v = this._effVol(tr);
 
-                let htmlOnly = false;
-
-                try { htmlOnly = !!(typeof sound !== 'undefined' && sound._loopUseHtmlOnly && sound._loopUseHtmlOnly()); } catch (e) {}
-
-                if (htmlOnly) tr._gain = null;
-
-                if (tr._gain && !htmlOnly) {
+                if (tr._gain) {
 
                     try { tr._gain.gain.value = v; } catch (e) {}
 
@@ -315,7 +331,14 @@
 
                 tr.audio = a;
 
-                this._wireGain(tr, a);
+                if (this._htmlLoops()) {
+                    tr._gain = null;
+                    tr._waRouted = 'html';
+                } else {
+                    this._wireGain(tr, a);
+                }
+
+                this._applyVol(tr);
 
                 return a;
 
@@ -443,13 +466,31 @@
 
                 tr.vol = this._c(v);
 
-                try { if (typeof sound !== 'undefined' && sound._unlocked && sound.resumeAudioIfNeeded) sound.resumeAudioIfNeeded(); } catch (e) {}
-
-                if (tr.audio) this._wireGain(tr, tr.audio);
+                if (this._htmlLoops()) this._healLoopAudio(tr);
 
                 this._applyVol(tr);
 
+                this._syncTrackSlider(id);
+
                 this.save();
+
+            },
+
+            bumpTrackVol(id, delta) {
+
+                const tr = this.tracks[id]; if (!tr) return;
+
+                this.setTrackVol(id, tr.vol + Number(delta));
+
+            },
+
+            _syncTrackSlider(id) {
+
+                const tr = this.tracks[id]; if (!tr) return;
+
+                const sl = document.querySelector('#ambient-list .amb-slider[data-track="' + id + '"]');
+
+                if (sl && document.activeElement !== sl) sl.value = String(Math.round(tr.vol * 100));
 
             },
 
@@ -459,11 +500,21 @@
 
                 this.master = this._c(v);
 
-                try { if (typeof sound !== 'undefined' && sound._unlocked && sound.resumeAudioIfNeeded) sound.resumeAudioIfNeeded(); } catch (e) {}
+                if (this._htmlLoops()) this._healAllLoopAudio();
 
                 this._applyAllVols();
 
+                const mv = document.getElementById('ambient-master');
+
+                if (mv && document.activeElement !== mv) mv.value = String(Math.round(this.master * 100));
+
                 this.save();
+
+            },
+
+            bumpMaster(delta) {
+
+                this.setMaster(this.master + Number(delta));
 
             },
 
@@ -487,7 +538,11 @@
 
                         + `<button class="amb-toggle" type="button" ${dis} onclick="ambient.toggle('${def.id}')">${(typeof scCauldronIcon !== 'undefined' ? scCauldronIcon.ambIcon(def) : def.icon)} <span>${t('amb_' + def.id)}</span><span class="amb-state">${on ? '❚❚' : '▶'}</span></button>`
 
-                        + `<input class="amb-slider" type="range" min="0" max="100" value="${Math.round(tr.vol * 100)}" data-track="${def.id}" ${dis} oninput="ambient.setTrackVol('${def.id}', this.value/100)" onchange="ambient.setTrackVol('${def.id}', this.value/100)">`
+                        + `<div class="amb-vol-row"><button type="button" class="vol-step" ${dis} onclick="ambient.bumpTrackVol('${def.id}',-0.05)">−</button>`
+
+                        + `<input class="amb-slider" type="range" min="0" max="100" value="${Math.round(tr.vol * 100)}" data-track="${def.id}" ${dis} oninput="ambient.setTrackVol('${def.id}', Number(this.value)/100)" onchange="ambient.setTrackVol('${def.id}', Number(this.value)/100)">`
+
+                        + `<button type="button" class="vol-step" ${dis} onclick="ambient.bumpTrackVol('${def.id}',0.05)">+</button></div>`
 
                         + unavail + `</div>`;
 
@@ -511,11 +566,13 @@
                     if (typeof sound !== 'undefined' && sound.unlockForBgLoops) sound.unlockForBgLoops();
                 } catch (e) {}
                 if (md) md.classList.add('open');
+                this._healAllLoopAudio();
                 this._bindUi();
                 this._render();
                 try {
                     if (typeof music !== 'undefined') {
                         if (!music._inited) music.init();
+                        music._healLoopAudio();
                         music._render();
                     }
                 } catch (e) {}

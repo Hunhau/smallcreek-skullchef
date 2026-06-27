@@ -1054,7 +1054,11 @@
         .amb-row.on { border-color: var(--go); }
         .amb-toggle { flex: 1; min-width: 120px; display: flex; align-items: center; gap: 8px; background: transparent; border: none; color: #fff; font-size: 0.85rem; font-weight: bold; cursor: pointer; text-align: left; padding: 4px 0; }
         .amb-toggle .amb-state { margin-left: auto; color: var(--go); font-size: 0.8rem; }
-        .amb-slider { flex: 1; min-width: 90px; width: min(120px, 28vw); height: 5px; accent-color: var(--go); cursor: pointer; touch-action: pan-x; -webkit-tap-highlight-color: transparent; padding: 14px 0; margin: -14px 0; box-sizing: content-box; background: transparent; }
+        input[type="range"] { touch-action: pan-x !important; cursor: pointer; -webkit-user-select: auto; user-select: auto; }
+        .amb-vol-row { display: flex; align-items: center; gap: 6px; flex: 1; min-width: 0; justify-content: flex-end; }
+        .vol-step { width: 36px; height: 36px; min-width: 36px; padding: 0; border-radius: 8px; border: 1px solid var(--glass-bd-go); background: rgba(255,255,255,0.1); color: #fff; font-size: 1.15rem; line-height: 1; cursor: pointer; touch-action: manipulation; flex-shrink: 0; }
+        .vol-step:disabled { opacity: 0.4; cursor: not-allowed; }
+        .amb-slider { flex: 1; min-width: 70px; width: auto; max-width: 120px; height: 5px; accent-color: var(--go); cursor: pointer; touch-action: pan-x; -webkit-tap-highlight-color: transparent; background: transparent; margin: 0; padding: 0; }
         input[type="range"], #audio-vol, #home-vol, #pause-vol, #ambient-master, #music-vol { touch-action: pan-x; pointer-events: auto; }
         #ambient-modal .gx-panel-body { -webkit-overflow-scrolling: touch; }
         #ambient-modal input[type="range"] { touch-action: pan-x !important; pointer-events: auto; }
