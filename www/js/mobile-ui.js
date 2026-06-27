@@ -4,17 +4,33 @@
 
     global.mobileUI = {
         isPhone() {
-            try { return this._portraitPhone() || this._landscapePhone() || this._standalonePhone(); } catch (e) { return false; }
+            try {
+                if (this._isDesktopLike()) return false;
+                return this._portraitPhone() || this._landscapePhone() || this._standalonePhone();
+            } catch (e) { return false; }
+        },
+        _isDesktopLike() {
+            try {
+                return window.matchMedia('(pointer: fine) and (hover: hover)').matches && window.innerWidth >= 960;
+            } catch (e) { return false; }
         },
         _isStandalone() {
             try { return typeof fullscreen !== 'undefined' && fullscreen.isStandalone && fullscreen.isStandalone(); } catch (e) { return false; }
         },
         _standalonePhone() {
             try {
-                if (!this._isStandalone()) return false;
+                if (this._isDesktopLike() || !this._isStandalone()) return false;
                 const w = window.innerWidth;
                 const h = window.innerHeight;
-                return w <= 900 || h <= 520;
+                if (w <= 768) return true;
+                return h <= 520 && w <= 980;
+            } catch (e) { return false; }
+        },
+        _portraitLayout() {
+            try {
+                if (this._isDesktopLike()) return false;
+                if (this._portraitPhone()) return true;
+                return this._standalonePhone() && window.matchMedia('(orientation: portrait)').matches;
             } catch (e) { return false; }
         },
         _toggle(id) {
@@ -82,13 +98,29 @@
         reflow() {
             try {
                 const html = document.documentElement;
-                html.classList.toggle('sc-pwa', this._standalonePhone());
-                html.classList.toggle('portrait-mode', window.matchMedia('(orientation: portrait)').matches);
+                const pwa = this._standalonePhone();
+                html.classList.toggle('sc-pwa', pwa);
+                html.classList.toggle('portrait-mode', pwa && window.matchMedia('(orientation: portrait)').matches);
+                if (this._isDesktopLike()) {
+                    html.classList.remove('sc-pwa', 'portrait-mode', 'vv-browser');
+                    ['--vv-h', '--vv-w'].forEach(function (p) { html.style.removeProperty(p); });
+                }
                 this.syncVisualViewport();
                 this.fitScene();
                 this.syncLandscapeLeftHud();
                 this.syncPortraitHudAnchors();
-                try { if (typeof game !== 'undefined') game.syncMinigameButtons(); } catch (e) {}
+                try {
+                    if (typeof game !== 'undefined') {
+                        game.syncCompanionLayout();
+                        game.syncMinigameButtons();
+                    }
+                } catch (e) {}
+            } catch (e) {}
+        },
+        _reflowSoon() {
+            try {
+                clearTimeout(this._reflowT);
+                this._reflowT = setTimeout(() => this.reflow(), 100);
             } catch (e) {}
         },
         maybeBrowserLandscapeHint() {
@@ -128,7 +160,7 @@
             try {
                 const col = document.getElementById('companion-column');
                 const toggle = document.getElementById('helpers-toggle');
-                if (!this._portraitPhone()) {
+                if (!this._portraitLayout()) {
                     if (col) { col.style.top = ''; delete col.__portraitTop; }
                     if (toggle) { toggle.style.top = ''; delete toggle.__portraitTop; }
                     return;
@@ -163,7 +195,7 @@
                     }
                     return;
                 }
-                if (this._portraitPhone()) {
+                if (this._portraitLayout()) {
                     const anchorTop = this._portraitAnchorBelowChips();
                     if (anchorTop == null) return;
                     if (altar.__hudBelowTop !== anchorTop) {
@@ -282,7 +314,7 @@
                 let s = Math.min((r.width * FIT_W) / DW, (r.height * FIT_H) / DH);
                 if (!isFinite(s) || s <= 0) return;
                 s = Math.max(0.22, Math.min(s, 1));
-                const portrait = window.matchMedia('(orientation: portrait)').matches && this.isPhone();
+                const portrait = this._portraitLayout();
                 if (portrait) {
                     sc.style.left = '50%';
                     sc.style.top = '68%';
@@ -304,9 +336,9 @@
         },
         init() {
             try {
-                const run = () => { this.reflow(); };
-                window.addEventListener('pageshow', run);
-                document.addEventListener('visibilitychange', () => { if (!document.hidden) run(); });
+                const run = () => { this._reflowSoon(); };
+                window.addEventListener('pageshow', () => { this.reflow(); });
+                document.addEventListener('visibilitychange', () => { if (!document.hidden) this._reflowSoon(); });
                 window.addEventListener('resize', run);
                 window.addEventListener('load', run);
                 window.addEventListener('orientationchange', () => {
@@ -360,7 +392,8 @@
                     }, { passive: false });
                 }
                 run();
-                setTimeout(run, 300);
+                this.reflow();
+                setTimeout(() => this.reflow(), 300);
                 setTimeout(() => this.maybeBrowserLandscapeHint(), 800);
             } catch (e) {}
         }

@@ -3,7 +3,7 @@
     'use strict';
 
     // MUST equal version.json "v" in this commit (so no reload happens now).
-    var BUILD_V = 'build-335';
+    var BUILD_V = 'build-336';
     global.BUILD_V = BUILD_V;
 
     function paintBuildTag() {

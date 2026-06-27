@@ -1109,6 +1109,7 @@ const game = {
     HELPER_GRID_POS: { 0: [1, 1], 1: [1, 2], 2: [1, 3], 3: [2, 1], 4: [2, 2] },
     _usesDesktopHelperGrid() {
         try {
+            if (window.matchMedia('(pointer: fine) and (hover: hover)').matches && window.innerWidth >= 960) return true;
             if (window.matchMedia('(orientation: portrait) and (max-width: 768px)').matches) return false;
             if (window.matchMedia('(pointer: coarse) and (orientation: landscape) and (max-height: 600px)').matches) return false;
             return true;
