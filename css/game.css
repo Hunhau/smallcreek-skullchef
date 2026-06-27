@@ -1200,13 +1200,41 @@
         #m-launch button.has-badge::after { content: ''; position: absolute; top: -3px; right: -3px; width: 12px; height: 12px; border-radius: 50%; background: #ef4444; border: 2px solid #1e1b4b; box-shadow: 0 0 8px rgba(239, 68, 68, 0.85); }
         .helpers-count { background: var(--go); color: #1e1b4b; border-radius: 9px; padding: 0 5px; font-size: 0.62rem; font-weight: bold; margin-left: 2px; }
         #build-tag { position: fixed; left: 50%; bottom: max(1px, env(safe-area-inset-bottom)); transform: translateX(-50%); font: 700 9px/1 monospace; letter-spacing: 0.5px; color: rgba(255,255,255,0.55); background: rgba(0,0,0,0.32); padding: 1px 6px; border-radius: 6px; z-index: 100000; pointer-events: none; }
-        /* PWA (Add to Home Screen): media queries alone miss launchers on some iOS/Android builds */
-        html.sc-pwa #m-launch {
+        /* Desktop shell — overrides mobile media queries on PC (touch laptops included) */
+        html.sc-desktop #companion-column {
+            position: absolute !important; left: 20px !important; bottom: auto !important; right: auto !important;
+            width: max-content !important; max-width: none !important;
+            display: grid !important; grid-template-columns: repeat(3, 82px) !important;
+            grid-template-rows: repeat(2, 82px) !important;
+            flex-flow: unset !important; flex-direction: unset !important;
+            gap: 8px !important; overflow: visible !important;
+        }
+        html.sc-desktop #helpers-toggle,
+        html.sc-desktop #m-launch,
+        html.sc-desktop #m-minigame-sheet,
+        html.sc-desktop #shop-close-m { display: none !important; }
+        html.sc-desktop #side-shop {
+            position: static !important; transform: none !important; opacity: 1 !important;
+            visibility: visible !important; pointer-events: auto !important;
+            width: 380px !important; height: auto !important; max-height: none !important;
+            top: auto !important; left: auto !important; right: auto !important;
+            border-radius: 0 !important; box-shadow: none !important;
+        }
+        html.sc-desktop #main-stage {
+            position: relative !important; inset: auto !important;
+            width: auto !important; height: auto !important; flex: 1 1 auto !important;
+        }
+        html.sc-desktop #main-stage #sticky-center {
+            top: 50% !important; left: 50% !important; bottom: auto !important;
+            transform: translate(-50%, -50%) !important; transform-origin: center center;
+        }
+        /* Mobile browser + PWA + fullscreen — launchers when isPhone() (JS class) */
+        html.sc-mobile-shell #m-launch {
             display: flex !important; position: fixed; z-index: 9000;
             left: max(12px, env(safe-area-inset-left));
             bottom: max(12px, env(safe-area-inset-bottom)); gap: 12px;
         }
-        html.sc-pwa #m-launch button {
+        html.sc-mobile-shell #m-launch button {
             min-height: 52px; min-width: 56px; padding: 12px 18px;
             background: var(--glass-strong);
             backdrop-filter: var(--glass-blur-sm); -webkit-backdrop-filter: var(--glass-blur-sm);
@@ -1215,8 +1243,8 @@
             touch-action: manipulation; -webkit-tap-highlight-color: transparent;
             display: inline-flex; align-items: center; justify-content: center;
         }
-        html.sc-pwa #m-minigame-sheet { display: none; }
-        html.sc-pwa #m-minigame-sheet.m-open {
+        html.sc-mobile-shell #m-minigame-sheet { display: none; }
+        html.sc-mobile-shell #m-minigame-sheet.m-open {
             display: flex; flex-direction: column; gap: 8px;
             position: fixed; z-index: 9450;
             left: max(10px, env(safe-area-inset-left));
@@ -1228,12 +1256,13 @@
             border: 1px solid var(--glass-bd-go);
             box-shadow: 0 -10px 36px rgba(0, 0, 0, 0.48);
         }
-        html.sc-pwa.portrait-mode #main-stage #sticky-center {
-            top: 68% !important;
-            left: 50% !important;
+        html.sc-mobile-shell.portrait-mode #main-stage #sticky-center {
+            top: 68% !important; left: 50% !important;
             transform: translate(-50%, -50%) scale(clamp(0.22, calc(78vw / 1350), 0.38)) !important;
             transform-origin: center center;
         }
+        /* PWA alias — keep if shell class lags one frame on install */
+        html.sc-pwa #m-launch { display: flex !important; }
         @media (pointer: coarse) and (orientation: landscape) and (max-height: 600px) {
             body { overflow: hidden; }
             /* The scene is the star: main stage fills the width (shop is a slide-in now). */

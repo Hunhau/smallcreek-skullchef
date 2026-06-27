@@ -1109,6 +1109,11 @@ const game = {
     HELPER_GRID_POS: { 0: [1, 1], 1: [1, 2], 2: [1, 3], 3: [2, 1], 4: [2, 2] },
     _usesDesktopHelperGrid() {
         try {
+            if (typeof mobileUI !== 'undefined') {
+                if (mobileUI._isDesktopLike && mobileUI._isDesktopLike()) return true;
+                if (mobileUI.isPhone && mobileUI.isPhone()) return false;
+            }
+            if (window.innerWidth >= 1024 && window.innerHeight >= 640) return true;
             if (window.matchMedia('(pointer: fine) and (hover: hover)').matches && window.innerWidth >= 960) return true;
             if (window.matchMedia('(orientation: portrait) and (max-width: 768px)').matches) return false;
             if (window.matchMedia('(pointer: coarse) and (orientation: landscape) and (max-height: 600px)').matches) return false;
@@ -3086,7 +3091,7 @@ const game = {
     _mProdMobile() {
         try {
             if (typeof SC_LOCAL_DEV !== 'undefined' && SC_LOCAL_DEV) return false;
-            return this._mSheet() || window.matchMedia('(pointer: coarse)').matches;
+            return this._mSheet();
         } catch (e) { return false; }
     },
     /* Phone (portrait OR landscape): after a successful purchase, slide the shop sheet

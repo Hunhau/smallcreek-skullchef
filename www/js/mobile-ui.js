@@ -11,7 +11,10 @@
         },
         _isDesktopLike() {
             try {
-                return window.matchMedia('(pointer: fine) and (hover: hover)').matches && window.innerWidth >= 960;
+                const w = window.innerWidth;
+                const h = window.innerHeight;
+                if (w >= 1024 && h >= 640) return true;
+                return window.matchMedia('(pointer: fine) and (hover: hover)').matches && w >= 960;
             } catch (e) { return false; }
         },
         _isStandalone() {
@@ -74,7 +77,15 @@
             } catch (e) {}
         },
         _landscapePhone() {
-            try { return window.matchMedia('(pointer: coarse) and (orientation: landscape) and (max-height: 600px)').matches; } catch (e) { return false; }
+            try {
+                if (this._isDesktopLike()) return false;
+                if (!window.matchMedia('(pointer: coarse) and (orientation: landscape)').matches) return false;
+                const h = window.innerHeight;
+                const w = window.innerWidth;
+                if (w > 980) return false;
+                const fsActive = typeof fullscreen !== 'undefined' && fullscreen.isActive && fullscreen.isActive();
+                return h <= (fsActive ? 680 : 600);
+            } catch (e) { return false; }
         },
         _portraitPhone() {
             try { return window.matchMedia('(orientation: portrait) and (max-width: 768px)').matches; } catch (e) { return false; }
@@ -98,12 +109,34 @@
         reflow() {
             try {
                 const html = document.documentElement;
-                const pwa = this._standalonePhone();
-                html.classList.toggle('sc-pwa', pwa);
-                html.classList.toggle('portrait-mode', pwa && window.matchMedia('(orientation: portrait)').matches);
-                if (this._isDesktopLike()) {
+                const desktop = this._isDesktopLike();
+                const mobile = !desktop && this.isPhone();
+                html.classList.toggle('sc-desktop', desktop);
+                html.classList.toggle('sc-mobile-shell', mobile);
+                html.classList.toggle('sc-pwa', this._standalonePhone());
+                html.classList.toggle('portrait-mode', mobile && this._portraitLayout());
+                if (desktop) {
                     html.classList.remove('sc-pwa', 'portrait-mode', 'vv-browser');
                     ['--vv-h', '--vv-w'].forEach(function (p) { html.style.removeProperty(p); });
+                    const col = document.getElementById('companion-column');
+                    if (col) {
+                        col.style.top = col.style.left = col.style.bottom = col.style.right = '';
+                        col.style.maxWidth = col.style.width = '';
+                    }
+                    const sc = document.getElementById('sticky-center');
+                    if (sc) {
+                        sc.style.left = sc.style.top = sc.style.bottom = '';
+                        sc.style.transform = sc.style.transformOrigin = '';
+                    }
+                    this.fitScene();
+                    try {
+                        if (typeof game !== 'undefined') {
+                            game.syncCompanionLayout();
+                            game.ensureReservedHelperSlot();
+                            game.syncMinigameButtons();
+                        }
+                    } catch (e) {}
+                    return;
                 }
                 this.syncVisualViewport();
                 this.fitScene();
