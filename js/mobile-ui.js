@@ -4,7 +4,18 @@
 
     global.mobileUI = {
         isPhone() {
-            try { return this._portraitPhone() || this._landscapePhone(); } catch (e) { return false; }
+            try { return this._portraitPhone() || this._landscapePhone() || this._standalonePhone(); } catch (e) { return false; }
+        },
+        _isStandalone() {
+            try { return typeof fullscreen !== 'undefined' && fullscreen.isStandalone && fullscreen.isStandalone(); } catch (e) { return false; }
+        },
+        _standalonePhone() {
+            try {
+                if (!this._isStandalone()) return false;
+                const w = window.innerWidth;
+                const h = window.innerHeight;
+                return w <= 900 || h <= 520;
+            } catch (e) { return false; }
         },
         _toggle(id) {
             try {
@@ -70,6 +81,9 @@
         },
         reflow() {
             try {
+                const html = document.documentElement;
+                html.classList.toggle('sc-pwa', this._standalonePhone());
+                html.classList.toggle('portrait-mode', window.matchMedia('(orientation: portrait)').matches);
                 this.syncVisualViewport();
                 this.fitScene();
                 this.syncLandscapeLeftHud();
@@ -268,7 +282,7 @@
                 let s = Math.min((r.width * FIT_W) / DW, (r.height * FIT_H) / DH);
                 if (!isFinite(s) || s <= 0) return;
                 s = Math.max(0.22, Math.min(s, 1));
-                const portrait = window.matchMedia('(orientation: portrait) and (max-width: 768px)').matches;
+                const portrait = window.matchMedia('(orientation: portrait)').matches && this.isPhone();
                 if (portrait) {
                     sc.style.left = '50%';
                     sc.style.top = '68%';
@@ -291,6 +305,8 @@
         init() {
             try {
                 const run = () => { this.reflow(); };
+                window.addEventListener('pageshow', run);
+                document.addEventListener('visibilitychange', () => { if (!document.hidden) run(); });
                 window.addEventListener('resize', run);
                 window.addEventListener('load', run);
                 window.addEventListener('orientationchange', () => {
