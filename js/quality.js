@@ -27,20 +27,7 @@
                 try { const c = navigator.hardwareConcurrency; if (Number.isFinite(c) && c > 0 && c <= 4) return 'low'; } catch (e) {}
                 return 'high';
             },
-            _mobBrowserTab() {
-                try {
-                    if (typeof fullscreen !== 'undefined' && fullscreen.isStandalone && fullscreen.isStandalone()) return false;
-                    if (window.matchMedia && window.matchMedia('(pointer: coarse)').matches) {
-                        const w = window.innerWidth || 0, h = window.innerHeight || 0;
-                        if (Math.min(w, h) <= 980) return true;
-                    }
-                } catch (e) {}
-                return false;
-            },
-            effMode() {
-                if (this._mobBrowserTab()) return 'low';
-                return this.mode === 'auto' ? this.detectAuto() : this.mode;
-            },
+            effMode() { return this.mode === 'auto' ? this.detectAuto() : this.mode; },
             apply() {
                 const m = this.effMode();
                 const p = this.presets[m] || this.presets.high;

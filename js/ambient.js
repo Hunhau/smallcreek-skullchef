@@ -260,6 +260,8 @@
 
                 const tr = this.tracks[id]; if (!tr || !tr.avail) return;
 
+                try { if (typeof sound !== 'undefined' && sound.unlock) sound.unlock(); } catch (e) {}
+
                 tr.on = !tr.on;
 
                 this.syncPlayback();
@@ -335,9 +337,7 @@
             open() {
                 if (!this._inited) this.init();
                 const md = document.getElementById('ambient-modal');
-                const showModal = () => { if (md) md.classList.add('open'); };
-                const heavy = () => { this._render(); };
-                const heavyWithMusic = () => {
+                const finish = () => {
                     this._render();
                     try {
                         if (typeof music !== 'undefined') {
@@ -346,23 +346,30 @@
                         }
                     } catch (e) {}
                 };
+                const showModal = () => {
+                    try { if (typeof sound !== 'undefined' && sound.unlock) sound.unlock(); } catch (e) {}
+                    if (md) md.classList.add('open');
+                };
                 try {
                     if (typeof mobileUI !== 'undefined' && mobileUI.isPhone && mobileUI.isPhone()) {
                         try { mobileUI.closeAll(); } catch (e) {}
                         showModal();
-                        const mobBrowser = typeof quality !== 'undefined' && quality._mobBrowserTab && quality._mobBrowserTab();
-                        const finish = mobBrowser ? heavy : heavyWithMusic;
-                        const waitIdle = () => {
+                        const waitIdle = (since) => {
+                            since = since || Date.now();
                             let busy = false;
                             try { busy = !!(typeof game !== 'undefined' && game._mobileSummonHot && game._mobileSummonHot()); } catch (e) {}
-                            if (busy) { setTimeout(waitIdle, 220); return; }
+                            if (busy && Date.now() - since < 6000) {
+                                setTimeout(() => waitIdle(since), 220);
+                                return;
+                            }
                             requestAnimationFrame(() => requestAnimationFrame(finish));
                         };
                         waitIdle();
                         return;
                     }
                 } catch (e) {}
-                requestAnimationFrame(() => requestAnimationFrame(() => { heavyWithMusic(); showModal(); }));
+                try { if (typeof sound !== 'undefined' && sound.unlock) sound.unlock(); } catch (e) {}
+                requestAnimationFrame(() => requestAnimationFrame(() => { finish(); if (md) md.classList.add('open'); }));
             },
 
             close() {

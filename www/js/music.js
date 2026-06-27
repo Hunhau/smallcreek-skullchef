@@ -306,6 +306,8 @@
 
                 if (!this.avail) return;
 
+                try { if (typeof sound !== 'undefined' && sound.unlock) sound.unlock(); } catch (e) {}
+
                 this.on = !this.on;
 
                 this.syncPlayback();

@@ -2,7 +2,7 @@
 (function (global) {
     'use strict';
 
-    var BUILD = 'build-351';
+    var BUILD = 'build-352';
 
     var SCRIPTS = [
         'js/build-target.js',
@@ -97,6 +97,10 @@
         return false;
     }
 
+    function isFastBoot() {
+        return isMobileBrowser() || isStandalone() || isLocal();
+    }
+
     function purgeSw() {
         if (!('serviceWorker' in navigator)) return Promise.resolve();
         return navigator.serviceWorker.getRegistrations().then(function (rs) {
@@ -115,6 +119,15 @@
 
     function purgeAll() { return Promise.all([purgeSw(), purgeCaches()]); }
 
+    function reportProgress(i, total) {
+        try {
+            var msg = document.getElementById('boot-splash-msg');
+            if (!msg) return;
+            var pct = Math.min(99, Math.round((100 * i) / Math.max(1, total)));
+            msg.textContent = 'Loading… ' + pct + '%';
+        } catch (e) {}
+    }
+
     function loadScript(src) {
         return new Promise(function (resolve) {
             var s = document.createElement('script');
@@ -127,16 +140,24 @@
 
     function loadSequential() {
         var i = 0;
+        var total = SCRIPTS.length;
+        reportProgress(0, total);
         function next() {
-            if (i >= SCRIPTS.length) return;
-            loadScript(SCRIPTS[i++]).then(next);
+            if (i >= total) {
+                reportProgress(total, total);
+                return;
+            }
+            var idx = i++;
+            loadScript(SCRIPTS[idx]).then(function () {
+                reportProgress(idx + 1, total);
+                next();
+            });
         }
         next();
     }
 
     function run() {
-        /* Phone browser + PWA + LAN: same sequential boot (no purge). Version sync in boot.js. */
-        if (isMobileBrowser() || isStandalone() || isLocal()) {
+        if (isFastBoot()) {
             loadSequential();
             return;
         }
