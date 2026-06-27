@@ -120,6 +120,13 @@
 
                 if (this._gain || this._waRouted === false) return;
 
+                try {
+                    if (typeof sound !== 'undefined' && sound._loopUseHtmlOnly && sound._loopUseHtmlOnly()) {
+                        this._waRouted = false;
+                        return;
+                    }
+                } catch (e) {}
+
                 const ctx = this._waCtx();
 
                 if (!ctx || !a) return;
@@ -173,8 +180,6 @@
                 }
 
                 const a = (typeof sound !== 'undefined' && sound._makeAudio) ? sound._makeAudio() : new Audio();
-
-                try { a.preload = 'none'; } catch (e) {}
 
                 a.addEventListener('ended', () => { this.next(); }, { passive: true });
 
@@ -283,13 +288,14 @@
                     this._applyVol();
 
                     try {
-
+                        if (a.readyState < 2) { try { a.load(); } catch (e) {} }
                         const p = a.play();
-
-                        if (p && typeof p.then === 'function') p.then(() => { this._applyVol(); });
-
-                        else if (p && p.catch) p.catch(() => {});
-
+                        if (p && typeof p.then === 'function') {
+                            p.then(() => { this._applyVol(); });
+                            p.catch(() => {
+                                a.addEventListener('canplaythrough', () => { try { a.play(); } catch (e2) {} }, { once: true });
+                            });
+                        }
                     } catch (e) {}
 
                 } else if (this.audio) {
@@ -300,15 +306,37 @@
 
             },
 
+            _gestureUnmute() {
+
+                try {
+
+                    if (typeof sound === 'undefined') return;
+
+                    if (sound.muted) sound.setMuted(false);
+
+                    else if (sound.volume <= 0) sound.setVolume(1);
+
+                    else if (sound.unlock) sound.unlock();
+
+                    if (sound.touchAudio) sound.touchAudio();
+
+                } catch (e) {}
+
+            },
+
             toggle() {
 
                 if (!this._inited) this.init();
 
                 if (!this.avail) return;
 
-                try { if (typeof sound !== 'undefined' && sound.unlock) sound.unlock(); } catch (e) {}
+                const turningOn = !this.on;
 
                 this.on = !this.on;
+
+                if (turningOn) this._gestureUnmute();
+
+                else { try { if (typeof sound !== 'undefined' && sound.unlock) sound.unlock(); } catch (e) {} }
 
                 this.syncPlayback();
 

@@ -60,6 +60,13 @@ const sound = {
     // from timers/async (farm ready, ingredient rain, eat) work without a user gesture.
     // Stir keeps its dedicated HTMLAudio loop (already gesture-started on tap).
     _waCtx: null, _waBuf: {}, _waLoading: {}, _waAmb: null, _waAmbGain: null, _waBuyPlaying: false,
+    _loopUseHtmlOnly() {
+        try {
+            const ua = navigator.userAgent || '';
+            if (/iPhone|iPad|iPod|Android/i.test(ua)) return true;
+        } catch (e) {}
+        return false;
+    },
     _useWebAudio() {
         try {
             if (this._isNativeCap()) return false;

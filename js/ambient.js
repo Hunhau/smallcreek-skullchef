@@ -126,6 +126,13 @@
 
                 if (tr._gain || tr._waRouted === false) return;
 
+                try {
+                    if (typeof sound !== 'undefined' && sound._loopUseHtmlOnly && sound._loopUseHtmlOnly()) {
+                        tr._waRouted = false;
+                        return;
+                    }
+                } catch (e) {}
+
                 const ctx = this._waCtx();
 
                 if (!ctx) return;
@@ -190,8 +197,6 @@
 
                 a.loop = true;
 
-                try { a.preload = 'none'; } catch (e) {}
-
                 a.addEventListener('error', () => {
 
                     tr.avail = false; tr.on = false;
@@ -210,6 +215,19 @@
 
                 return a;
 
+            },
+
+            _playLoop(a) {
+                if (!a) return;
+                try {
+                    if (a.readyState < 2) { try { a.load(); } catch (e) {} }
+                    const p = a.play();
+                    if (p && typeof p.then === 'function') {
+                        p.catch(() => {
+                            a.addEventListener('canplaythrough', () => { try { a.play(); } catch (e2) {} }, { once: true });
+                        });
+                    }
+                } catch (e) {}
             },
 
             syncPlayback() {
@@ -234,15 +252,7 @@
 
                         this._applyVol(tr);
 
-                        try {
-
-                            const p = a.play();
-
-                            if (p && typeof p.then === 'function') p.then(() => { this._applyVol(tr); });
-
-                            else if (p && p.catch) p.catch(() => {});
-
-                        } catch (e) {}
+                        this._playLoop(a);
 
                     } else if (tr.audio) {
 
@@ -254,15 +264,37 @@
 
             },
 
+            _gestureUnmute() {
+
+                try {
+
+                    if (typeof sound === 'undefined') return;
+
+                    if (sound.muted) sound.setMuted(false);
+
+                    else if (sound.volume <= 0) sound.setVolume(1);
+
+                    else if (sound.unlock) sound.unlock();
+
+                    if (sound.touchAudio) sound.touchAudio();
+
+                } catch (e) {}
+
+            },
+
             toggle(id) {
 
                 if (!this._inited) this.init();
 
                 const tr = this.tracks[id]; if (!tr || !tr.avail) return;
 
-                try { if (typeof sound !== 'undefined' && sound.unlock) sound.unlock(); } catch (e) {}
+                const turningOn = !tr.on;
 
                 tr.on = !tr.on;
+
+                if (turningOn) this._gestureUnmute();
+
+                else { try { if (typeof sound !== 'undefined' && sound.unlock) sound.unlock(); } catch (e) {} }
 
                 this.syncPlayback();
 
