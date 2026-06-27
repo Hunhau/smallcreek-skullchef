@@ -18,10 +18,7 @@ const DECOR_CHEF_SLOTS = ['chefHat', 'chefFace'];
             },
             effectiveBackgroundId() {
                 this.ensure();
-                const slot = game.decor.slots.background;
-                if (slot) return slot;
-                if (this.isSummerLive() && !game.decor.summerKitchenPref) return 'summer_beach';
-                return null;
+                return game.decor.slots.background || null;
             },
             ensure() {
                 if (!game.decor || typeof game.decor !== 'object') game.decor = { slots: {}, owned: [] };
@@ -118,7 +115,6 @@ const DECOR_CHEF_SLOTS = ['chefHat', 'chefFace'];
                 this.ensure();
                 if (id && !this.isUnlocked(id)) { try { gx.toast(t('decor_locked')); } catch (e) {} return; }
                 game.decor.slots.background = id || null;
-                game.decor.summerKitchenPref = !id && this.isSummerLive();
                 game.save(); this.applyVisual(); this.render();
             },
             toggleChefSlot(slotKey, itemId) {
