@@ -12,6 +12,7 @@
 //   thumb    : (opcional) miniatura WebP 128×128; si falta → assets/skins/thumbs/{id}.webp
 //   name_en  : nombre mostrado en inglés
 //   dropLive : (optional) false = staged on server — no random drops; hidden from player album until owned or released
+//   storeOnly: (optional) true = full game on Steam / iOS / Android only; web demo hides from drops/album (owned kept)
 //
 // Pesos de drop (definidos en el motor): common 55 / uncommon 28 / rare 12 /
 //   epic 4 / legendary 0.7 / superleg 0.3 / anomaly 0.04  → Anomalía = ultra-raro.
