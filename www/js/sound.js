@@ -272,9 +272,9 @@ const sound = {
                     this._needReprime = false;
                     try { this.recoverFromBackground(); } catch (e) {}
                 }
-                try { this._syncBgAudio(); } catch (e) {}
+                /* Do NOT _syncBgAudio here — runs on every tap and reloads all loops (mobile freeze). */
             };
-            ['pointerdown', 'touchstart', 'click'].forEach(ev => document.addEventListener(ev, gestureWake, { passive: true }));
+            ['pointerdown', 'touchstart'].forEach(ev => document.addEventListener(ev, gestureWake, { passive: true }));
         } catch (e) {}
     },
     // Resume any Web Audio context (eat synth) if the OS suspended/interrupted it.

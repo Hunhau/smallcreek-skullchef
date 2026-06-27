@@ -3194,10 +3194,6 @@ const game = {
                 this._mFlushPendingRebuild();
                 return;
             }
-            if (this._uiModalBlocking()) {
-                setTimeout(step, 320);
-                return;
-            }
             if (this._summonPipelineBusy()) {
                 setTimeout(step, 240);
                 return;
@@ -3377,8 +3373,7 @@ const game = {
         const nativeCap = (() => { try { const c = window.Capacitor; return !!(c && c.isNativePlatform && c.isNativePlatform()); } catch (e) { return false; } })();
         const feedActive = this._chefFeedInProgress();
         const pipeBusy = feedActive || this._summonPipelineBusy() || this._mSummonPumping;
-        const ambOpen = this._uiModalBlocking && this._uiModalBlocking();
-        if (this._mProdMobile && this._mProdMobile() && (pipeBusy || ambOpen) && (this._frame % 4 !== 0)) {
+        if (this._mProdMobile && this._mProdMobile() && pipeBusy && (this._frame % 4 !== 0)) {
             if (this.particles.length > 0) {
                 this.draw();
                 this._flushScorePulse();

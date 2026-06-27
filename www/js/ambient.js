@@ -402,7 +402,11 @@
 
             close() {
                 const md = document.getElementById('ambient-modal'); if (md) md.classList.remove('open');
-                try { if (typeof game !== 'undefined' && game._mPumpSummonQueue) game._mPumpSummonQueue(); } catch (e) {}
+                try {
+                    if (typeof game !== 'undefined' && game._mSummonQueue && game._mSummonQueue.length > 0) {
+                        requestAnimationFrame(() => { try { game._mPumpSummonQueue(); } catch (e) {} });
+                    }
+                } catch (e) {}
             }
 
         };
