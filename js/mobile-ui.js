@@ -98,23 +98,10 @@
         syncVisualViewport() {
             try {
                 const html = document.documentElement;
-                const standalone = this._isStandalone();
-                const vv = window.visualViewport;
-                if (!this.isPhone() || standalone || !vv) {
-                    html.classList.remove('vv-browser');
-                    this._vvKey = '';
-                    ['--vv-h', '--vv-w', '--vv-top', '--vv-left'].forEach(function (p) { html.style.removeProperty(p); });
-                    return;
-                }
-                const key = Math.round(vv.height) + '|' + Math.round(vv.width) + '|' + Math.round(vv.offsetTop);
-                if (this._vvKey === key) return;
-                this._vvKey = key;
-                html.classList.add('vv-browser');
-                html.style.setProperty('--vv-h', vv.height + 'px');
-                html.style.setProperty('--vv-w', vv.width + 'px');
-                html.style.setProperty('--vv-top', vv.offsetTop + 'px');
-                html.style.setProperty('--vv-left', vv.offsetLeft + 'px');
-                if (vv.offsetTop > 1) { try { window.scrollTo(0, 0); } catch (e) {} }
+                /* vv-browser disabled: shrinks layout wrong on iOS Safari tabs. PWA uses full viewport. */
+                html.classList.remove('vv-browser');
+                this._vvKey = '';
+                ['--vv-h', '--vv-w', '--vv-top', '--vv-left'].forEach(function (p) { html.style.removeProperty(p); });
             } catch (e) {}
         },
         reflow() {
@@ -388,7 +375,6 @@
                     const vv = window.visualViewport;
                     if (vv) {
                         vv.addEventListener('resize', scheduleReflow);
-                        vv.addEventListener('scroll', scheduleReflow);
                     }
                 } catch (e) {}
                 try {
