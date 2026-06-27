@@ -2,7 +2,7 @@
 (function (global) {
     'use strict';
 
-    var BUILD = 'build-343';
+    var BUILD = 'build-344';
 
     var SCRIPTS = [
         'js/build-target.js',

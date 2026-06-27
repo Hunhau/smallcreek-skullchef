@@ -403,12 +403,7 @@ const game = {
                 if (!this.cp[i] || !x || typeof x !== 'object') return;
                 this.cp[i].lv = Math.max(0, Math.floor(Number(x.lv) || 0));
                 this.cp[i].ch = Math.max(0, Math.floor(Number(x.ch) || 0));
-                /* load-cs-v343 — always recompute next-buy cost from base + level (ignore stale save cs). */
-                const base = (Array.isArray(this.cpBaseCost) && this.cpBaseCost[i] != null)
-                    ? this.cpBaseCost[i] : (this.cp[i].cs || 1);
-                this.cp[i].cs = base;
-                const cm = this.compCostMult();
-                for (let j = 0; j < this.cp[i].lv; j++) this.cp[i].cs = Math.floor(this.cp[i].cs * cm);
+                this.recomputeCompanionCost(this.cp[i]);
             });
             if (d.sp && Array.isArray(d.sp)) d.sp.forEach((item, i) => {
                 if (!this.spoons[i]) return;
@@ -499,7 +494,23 @@ const game = {
         try { if (typeof STORE_TIER !== 'undefined') STORE_TIER.applyAfterLoad(this); } catch (e) {}
     },
     compCostMult() { try { return balanceCompCostMult(); } catch (e) { return 1.14; } },
-    calcBulkCost(c, n) { let total = 0, cost = c.cs; const disc = this.hatCompanionDisc(); const cm = this.compCostMult(); for (let i = 0; i < n; i++) { total += Math.floor(cost * disc); cost = Math.floor(cost * cm); } return total; },
+    companionNextCost(c) {
+        const i = c.id;
+        const base = (Array.isArray(this.cpBaseCost) && this.cpBaseCost[i] != null)
+            ? this.cpBaseCost[i] : (c.cs || 1);
+        const cm = this.compCostMult();
+        if (c.lv <= 0) return base;
+        return Math.floor(base * Math.pow(cm, c.lv));
+    },
+    recomputeCompanionCost(c) { if (c) c.cs = this.companionNextCost(c); },
+    calcBulkCost(c, n) {
+        const base = this.cpBaseCost[c.id] ?? c.cs;
+        const cm = this.compCostMult();
+        const disc = this.hatCompanionDisc();
+        let total = 0;
+        for (let i = 0; i < n; i++) total += Math.floor(Math.floor(base * Math.pow(cm, c.lv + i)) * disc);
+        return total;
+    },
     maxAffordableLevels(c, energy) {
         if (energy < Math.floor(c.cs * this.hatCompanionDisc())) return 0;
         let lo = 0, hi = 1;
@@ -1471,9 +1482,16 @@ const game = {
         this.updateLore();
         this.updateBuyModeBtn();
         document.querySelectorAll('.companion-card').forEach((card, i) => {
-            const pd = this.cardPriceDisplay(this.cp[i]);
+            const c = this.cp[i];
+            if (!c) return;
+            const pd = this.cardPriceDisplay(c);
             const cls = `companion-card ${pd.affordable ? 'affordable' : ''}`;
             if (card.className !== cls) card.className = cls;
+            const nameEl = card.querySelector('b');
+            if (nameEl) {
+                const want = `${t(c.nk)} (${c.lv})`;
+                if (nameEl.textContent !== want) nameEl.textContent = want;
+            }
             const priceEl = card.querySelector('.card-price');
             if (priceEl) {
                 if (priceEl.innerText !== pd.text) priceEl.innerText = pd.text;
@@ -2900,9 +2918,7 @@ const game = {
         for (let lv = prevLv + 1; lv <= c.lv; lv++) {
             if (this.isExtraIngredientRainMilestone(lv)) { rainOnLand = lv; break; }
         }
-        let cost = c.cs;
-        for (let j = 0; j < n; j++) cost = Math.floor(cost * this.compCostMult());
-        c.cs = cost;
+        this.recomputeCompanionCost(c);
         this.track('levels', n);
         try { chefMood.bump(Math.min(4, 1 + n * 0.4), 'buy'); } catch (e) {}
         if ([5, 10, 25, 50, 100].some(th => prevLv < th && c.lv >= th) && !this._skipSummonSparkles()) { this.part(window.innerWidth / 2, window.innerHeight * 0.5, 'magic'); sound.play('bubble'); gx.toast(t(this.milestoneMsg[i] || 'milestone_generic')); }
@@ -3257,7 +3273,7 @@ const game = {
                 try { if (typeof isPlayablesEnv !== 'function' || !isPlayablesEnv()) leaderboard.submit({ prestige: this.s, score: this.te }); } catch (e) {}
                 ach.grant('firstPres');
                 const eco = ecoLv;
-                this.e = 0; this.l = 0; this.cp.forEach(c => { const base = this.cpBaseCost[c.id] || this.cpBaseCost[this.cpBaseCost.length - 1]; c.lv = eco; c.ch = 0; c.cs = base; const cm = this.compCostMult(); for (let j = 0; j < eco; j++) c.cs = Math.floor(c.cs * cm); });
+                this.e = 0; this.l = 0; this.cp.forEach(c => { c.lv = eco; c.ch = 0; this.recomputeCompanionCost(c); });
                 try { farm.resetForPrestige(); } catch (e) {}
                 try { this.resetShopForPrestige(); } catch (e) {}
                 this.rebuild(); this.render(); this.save();
