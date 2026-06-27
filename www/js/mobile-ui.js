@@ -3,37 +3,23 @@
     'use strict';
 
     global.mobileUI = {
-        isPhone() {
-            try {
-                if (this._isDesktopLike()) return false;
-                return this._portraitPhone() || this._landscapePhone() || this._standalonePhone();
-            } catch (e) { return false; }
-        },
-        _isDesktopLike() {
-            try {
-                const w = window.innerWidth;
-                const h = window.innerHeight;
-                if (w >= 1024 && h >= 640) return true;
-                return window.matchMedia('(pointer: fine) and (hover: hover)').matches && w >= 960;
-            } catch (e) { return false; }
-        },
         _isStandalone() {
             try { return typeof fullscreen !== 'undefined' && fullscreen.isStandalone && fullscreen.isStandalone(); } catch (e) { return false; }
         },
-        _standalonePhone() {
+        isPhone() {
             try {
-                if (this._isDesktopLike() || !this._isStandalone()) return false;
                 const w = window.innerWidth;
                 const h = window.innerHeight;
-                if (w <= 768) return true;
-                return h <= 520 && w <= 980;
-            } catch (e) { return false; }
-        },
-        _portraitLayout() {
-            try {
-                if (this._isDesktopLike()) return false;
-                if (this._portraitPhone()) return true;
-                return this._standalonePhone() && window.matchMedia('(orientation: portrait)').matches;
+                if (w >= 1024 && h >= 640) return false;
+                if (window.matchMedia('(pointer: fine) and (hover: hover)').matches && w >= 960) return false;
+                if (window.matchMedia('(orientation: portrait) and (max-width: 768px)').matches) return true;
+                if (this._isStandalone()) {
+                    if (w <= 768) return true;
+                    if (w <= 980 && h <= 680) return true;
+                }
+                if (!window.matchMedia('(pointer: coarse)').matches) return false;
+                if (this._landscapePhone()) return true;
+                return false;
             } catch (e) { return false; }
         },
         _toggle(id) {
@@ -78,13 +64,15 @@
         },
         _landscapePhone() {
             try {
-                if (this._isDesktopLike()) return false;
-                if (!window.matchMedia('(pointer: coarse) and (orientation: landscape)').matches) return false;
+                if (!window.matchMedia('(orientation: landscape)').matches) return false;
                 const h = window.innerHeight;
                 const w = window.innerWidth;
                 if (w > 980) return false;
                 const fsActive = typeof fullscreen !== 'undefined' && fullscreen.isActive && fullscreen.isActive();
-                return h <= (fsActive ? 680 : 600);
+                const maxH = fsActive ? 680 : 600;
+                if (window.matchMedia('(pointer: coarse)').matches && h <= maxH) return true;
+                if (this._isStandalone() && h <= 680) return true;
+                return false;
             } catch (e) { return false; }
         },
         _portraitPhone() {
@@ -93,42 +81,32 @@
         syncVisualViewport() {
             try {
                 const html = document.documentElement;
-                const standalone = typeof fullscreen !== 'undefined' && fullscreen.isStandalone && fullscreen.isStandalone();
+                const standalone = this._isStandalone();
                 const vv = window.visualViewport;
                 if (!this.isPhone() || standalone || !vv) {
                     html.classList.remove('vv-browser');
-                    ['--vv-h', '--vv-w'].forEach(function (p) { html.style.removeProperty(p); });
+                    ['--vv-h', '--vv-w', '--vv-top', '--vv-left'].forEach(function (p) { html.style.removeProperty(p); });
                     return;
                 }
                 html.classList.add('vv-browser');
                 html.style.setProperty('--vv-h', vv.height + 'px');
                 html.style.setProperty('--vv-w', vv.width + 'px');
+                html.style.setProperty('--vv-top', vv.offsetTop + 'px');
+                html.style.setProperty('--vv-left', vv.offsetLeft + 'px');
                 try { window.scrollTo(0, 0); } catch (e) {}
             } catch (e) {}
         },
         reflow() {
             try {
-                const html = document.documentElement;
-                const desktop = this._isDesktopLike();
-                const mobile = !desktop && this.isPhone();
-                html.classList.toggle('sc-desktop', desktop);
-                html.classList.toggle('sc-mobile-shell', mobile);
-                html.classList.toggle('sc-pwa', this._standalonePhone());
-                html.classList.toggle('portrait-mode', mobile && this._portraitLayout());
-                if (desktop) {
-                    html.classList.remove('sc-pwa', 'portrait-mode', 'vv-browser');
-                    ['--vv-h', '--vv-w'].forEach(function (p) { html.style.removeProperty(p); });
-                    const col = document.getElementById('companion-column');
-                    if (col) {
-                        col.style.top = col.style.left = col.style.bottom = col.style.right = '';
-                        col.style.maxWidth = col.style.width = '';
-                    }
+                if (!this.isPhone()) {
+                    const html = document.documentElement;
+                    html.classList.remove('portrait-mode', 'vv-browser');
+                    ['--vv-h', '--vv-w', '--vv-top', '--vv-left'].forEach(function (p) { html.style.removeProperty(p); });
                     const sc = document.getElementById('sticky-center');
                     if (sc) {
                         sc.style.left = sc.style.top = sc.style.bottom = '';
                         sc.style.transform = sc.style.transformOrigin = '';
                     }
-                    this.fitScene();
                     try {
                         if (typeof game !== 'undefined') {
                             game.syncCompanionLayout();
@@ -138,6 +116,8 @@
                     } catch (e) {}
                     return;
                 }
+                const html = document.documentElement;
+                html.classList.toggle('portrait-mode', this._portraitPhone());
                 this.syncVisualViewport();
                 this.fitScene();
                 this.syncLandscapeLeftHud();
@@ -150,16 +130,10 @@
                 } catch (e) {}
             } catch (e) {}
         },
-        _reflowSoon() {
-            try {
-                clearTimeout(this._reflowT);
-                this._reflowT = setTimeout(() => this.reflow(), 100);
-            } catch (e) {}
-        },
         maybeBrowserLandscapeHint() {
             try {
                 if (!this._landscapePhone()) return;
-                if (typeof fullscreen !== 'undefined' && fullscreen.isStandalone && fullscreen.isStandalone()) return;
+                if (this._isStandalone()) return;
                 if (sessionStorage.getItem('sc_vv_hint')) return;
                 sessionStorage.setItem('sc_vv_hint', '1');
                 if (typeof gx !== 'undefined') gx.toast(t('mobile_browser_landscape_hint'));
@@ -193,7 +167,7 @@
             try {
                 const col = document.getElementById('companion-column');
                 const toggle = document.getElementById('helpers-toggle');
-                if (!this._portraitLayout()) {
+                if (!this._portraitPhone()) {
                     if (col) { col.style.top = ''; delete col.__portraitTop; }
                     if (toggle) { toggle.style.top = ''; delete toggle.__portraitTop; }
                     return;
@@ -228,7 +202,7 @@
                     }
                     return;
                 }
-                if (this._portraitLayout()) {
+                if (this._portraitPhone()) {
                     const anchorTop = this._portraitAnchorBelowChips();
                     if (anchorTop == null) return;
                     if (altar.__hudBelowTop !== anchorTop) {
@@ -347,7 +321,7 @@
                 let s = Math.min((r.width * FIT_W) / DW, (r.height * FIT_H) / DH);
                 if (!isFinite(s) || s <= 0) return;
                 s = Math.max(0.22, Math.min(s, 1));
-                const portrait = this._portraitLayout();
+                const portrait = this._portraitPhone();
                 if (portrait) {
                     sc.style.left = '50%';
                     sc.style.top = '68%';
@@ -369,9 +343,9 @@
         },
         init() {
             try {
-                const run = () => { this._reflowSoon(); };
-                window.addEventListener('pageshow', () => { this.reflow(); });
-                document.addEventListener('visibilitychange', () => { if (!document.hidden) this._reflowSoon(); });
+                const run = () => { this.reflow(); };
+                window.addEventListener('pageshow', run);
+                document.addEventListener('visibilitychange', () => { if (!document.hidden) run(); });
                 window.addEventListener('resize', run);
                 window.addEventListener('load', run);
                 window.addEventListener('orientationchange', () => {
@@ -425,8 +399,7 @@
                     }, { passive: false });
                 }
                 run();
-                this.reflow();
-                setTimeout(() => this.reflow(), 300);
+                setTimeout(run, 300);
                 setTimeout(() => this.maybeBrowserLandscapeHint(), 800);
             } catch (e) {}
         }

@@ -177,14 +177,6 @@ else boot();
         if (!standalone) return;
         window.addEventListener('load', function () {
             var swUrl = './sw.js?v=' + (typeof BUILD_V !== 'undefined' ? BUILD_V : String(Date.now()));
-            var reloaded = false;
-            try {
-                navigator.serviceWorker.addEventListener('controllerchange', function () {
-                    if (reloaded) return;
-                    reloaded = true;
-                    location.reload();
-                });
-            } catch (e) {}
             navigator.serviceWorker.register(swUrl, { scope: './' }).then(function (reg) {
                 try { reg.update(); } catch (e) {}
             }).catch(function () {});

@@ -1,9 +1,8 @@
-/* BUILD_V tag + PWA auto-update (build-319). Bump with version.json + sw.js. */
+/* BUILD_V tag — bump with version.json + sw.js. Update check lives in index.html head. */
 (function (global) {
     'use strict';
 
-    // MUST equal version.json "v" in this commit (so no reload happens now).
-    var BUILD_V = 'build-339';
+    var BUILD_V = 'build-340';
     global.BUILD_V = BUILD_V;
 
     function paintBuildTag() {
@@ -24,65 +23,9 @@
         } catch (e) {}
     }
 
-    function hardReloadTo(v) {
-        try {
-            var key = 'sc_upd_' + v;
-            var n = parseInt(sessionStorage.getItem(key) || '0', 10) || 0;
-            if (n >= 2) return;
-            sessionStorage.setItem(key, String(n + 1));
-            var go = function () {
-                location.replace(location.pathname + '?v=' + encodeURIComponent(v) + '_' + Date.now());
-            };
-            if (navigator.serviceWorker && caches) {
-                Promise.all([
-                    navigator.serviceWorker.getRegistrations().then(function (regs) {
-                        return Promise.all(regs.map(function (r) { return r.update(); }));
-                    }).catch(function () {}),
-                    caches.keys().then(function (keys) {
-                        return Promise.all(keys.filter(function (k) {
-                            return k.indexOf('skullchef-shell-') === 0;
-                        }).map(function (k) { return caches.delete(k); }));
-                    }).catch(function () {})
-                ]).then(go).catch(go);
-                return;
-            }
-            go();
-        } catch (e) {}
-    }
-
-    function checkForUpdate() {
-        try {
-            if (location.protocol === 'file:') return;
-            if (typeof SC_LOCAL_DEV !== 'undefined' && SC_LOCAL_DEV) return;
-            fetch('version.json?ts=' + Date.now(), { cache: 'no-store' })
-                .then(function (r) { return r.json(); })
-                .then(function (data) {
-                    if (data && data.v && data.v !== BUILD_V) {
-                        try {
-                            if (navigator.serviceWorker) {
-                                navigator.serviceWorker.getRegistration().then(function (reg) {
-                                    if (reg) reg.update();
-                                }).catch(function () {});
-                            }
-                        } catch (e) {}
-                        hardReloadTo(data.v);
-                    }
-                })
-                .catch(function () {});
-        } catch (e) {}
-    }
-
-    checkForUpdate();
     paintBuildTag();
     try {
         if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', paintBuildTag);
         else paintBuildTag();
-    } catch (e) {}
-    try {
-        document.addEventListener('visibilitychange', function () {
-            if (document.visibilityState === 'visible') checkForUpdate();
-        });
-        global.addEventListener('focus', checkForUpdate);
-        global.addEventListener('pageshow', function (e) { if (e && e.persisted) checkForUpdate(); });
     } catch (e) {}
 })(typeof window !== 'undefined' ? window : this);

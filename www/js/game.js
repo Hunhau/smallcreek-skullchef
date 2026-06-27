@@ -1109,10 +1109,7 @@ const game = {
     HELPER_GRID_POS: { 0: [1, 1], 1: [1, 2], 2: [1, 3], 3: [2, 1], 4: [2, 2] },
     _usesDesktopHelperGrid() {
         try {
-            if (typeof mobileUI !== 'undefined') {
-                if (mobileUI._isDesktopLike && mobileUI._isDesktopLike()) return true;
-                if (mobileUI.isPhone && mobileUI.isPhone()) return false;
-            }
+            if (typeof mobileUI !== 'undefined' && mobileUI.isPhone && mobileUI.isPhone()) return false;
             if (window.innerWidth >= 1024 && window.innerHeight >= 640) return true;
             if (window.matchMedia('(pointer: fine) and (hover: hover)').matches && window.innerWidth >= 960) return true;
             if (window.matchMedia('(orientation: portrait) and (max-width: 768px)').matches) return false;
