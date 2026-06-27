@@ -2,7 +2,7 @@
 (function (global) {
     'use strict';
 
-    var BUILD_V = 'build-358';
+    var BUILD_V = 'build-359';
     global.BUILD_V = BUILD_V;
 
     function isMobileBrowserTab() {

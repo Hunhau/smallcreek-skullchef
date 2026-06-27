@@ -144,6 +144,16 @@
 
                     list.addEventListener('change', onSl, { passive: true });
 
+                    const busyOn = () => { this._sliderBusy = true; };
+
+                    const busyOff = () => { this._sliderBusy = false; };
+
+                    list.addEventListener('touchstart', busyOn, { passive: true, capture: true });
+
+                    list.addEventListener('touchend', busyOff, { passive: true, capture: true });
+
+                    list.addEventListener('touchcancel', busyOff, { passive: true, capture: true });
+
                 }
 
                 const mv = document.getElementById('ambient-master');
@@ -155,6 +165,30 @@
                     mv.addEventListener('input', onM, { passive: true });
 
                     mv.addEventListener('change', onM, { passive: true });
+
+                }
+
+            },
+
+            _refreshI18n() {
+
+                for (const def of this.manifest) {
+
+                    const row = document.querySelector('#ambient-list .amb-row[data-id="' + def.id + '"]');
+
+                    if (!row) continue;
+
+                    const label = row.querySelector('.amb-toggle span');
+
+                    if (label) label.textContent = t('amb_' + def.id);
+
+                    const st = row.querySelector('.amb-state');
+
+                    const tr = this.tracks[def.id];
+
+                    const on = tr && tr.on && tr.avail;
+
+                    if (st) st.textContent = on ? '❚❚' : '▶';
 
                 }
 
@@ -429,6 +463,8 @@
 
             _render() {
 
+                if (this._sliderBusy) return;
+
                 const list = document.getElementById('ambient-list'); if (!list) return;
 
                 list.innerHTML = this.manifest.map(def => {
@@ -467,7 +503,6 @@
                 } catch (e) {}
                 try {
                     if (typeof sound !== 'undefined' && sound.unlockForBgLoops) sound.unlockForBgLoops();
-                    else if (typeof sound !== 'undefined' && sound.unlock) sound.unlock();
                 } catch (e) {}
                 if (md) md.classList.add('open');
                 this._bindUi();

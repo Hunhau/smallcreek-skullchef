@@ -1052,19 +1052,10 @@
         .amb-row.on { border-color: var(--go); }
         .amb-toggle { flex: 1; min-width: 120px; display: flex; align-items: center; gap: 8px; background: transparent; border: none; color: #fff; font-size: 0.85rem; font-weight: bold; cursor: pointer; text-align: left; padding: 4px 0; }
         .amb-toggle .amb-state { margin-left: auto; color: var(--go); font-size: 0.8rem; }
-        .amb-slider { width: 96px; height: 4px; accent-color: var(--go); cursor: pointer; touch-action: pan-x; }
-        input[type="range"], #audio-vol, #home-vol, #pause-vol, #ambient-master { touch-action: pan-x; }
-        #ambient-modal .gx-panel-body { touch-action: pan-y; -webkit-overflow-scrolling: touch; }
-        #ambient-modal input[type="range"] {
-            touch-action: pan-x !important;
-            -webkit-appearance: none;
-            appearance: none;
-            min-height: 28px;
-            height: 28px;
-            width: min(120px, 28vw);
-            flex: 1;
-            min-width: 90px;
-        }
+        .amb-slider { flex: 1; min-width: 90px; width: min(120px, 28vw); height: 5px; accent-color: var(--go); cursor: pointer; touch-action: pan-x; -webkit-tap-highlight-color: transparent; padding: 14px 0; margin: -14px 0; box-sizing: content-box; background: transparent; }
+        input[type="range"], #audio-vol, #home-vol, #pause-vol, #ambient-master, #music-vol { touch-action: pan-x; pointer-events: auto; }
+        #ambient-modal .gx-panel-body { -webkit-overflow-scrolling: touch; }
+        #ambient-modal input[type="range"] { touch-action: pan-x !important; pointer-events: auto; }
         .amb-toggle:disabled, .amb-slider:disabled { opacity: 0.4; cursor: not-allowed; }
         .amb-unavail { width: 100%; font-size: 0.62rem; color: #fca5a5; letter-spacing: 0.3px; }
         .music-sec { background: rgba(168,85,247,0.10); border: 1px solid var(--ac); border-radius: 12px; padding: 10px 12px; margin-bottom: 14px; text-align: left; }
