@@ -232,7 +232,12 @@ const game = {
         if (this.saveTick) clearInterval(this.saveTick);
         if (this.minigameUiTick) clearInterval(this.minigameUiTick);
         this.logicTick = setInterval(()=>!this.p && this.logic(), 1000);
-        this.uiTick = setInterval(()=>!this.p && this.ui(), (typeof quality !== 'undefined' && quality.effMode() === 'low') ? 500 : 250);
+        let uiMs = 250;
+        try {
+            if (typeof quality !== 'undefined' && quality.effMode() === 'low') uiMs = 500;
+            if (this._mBrowserTab && this._mBrowserTab()) uiMs = 900;
+        } catch (e) {}
+        this.uiTick = setInterval(()=>!this.p && this.ui(), uiMs);
         this.minigameUiTick = setInterval(() => this.syncMinigameButtons(), 500);
         this.saveTick = setInterval(()=>this.save(), 5000);
         if (!this._visBound) {
@@ -1507,7 +1512,10 @@ const game = {
         ach.check();
         quests.updateBadge();
         if (typeof rewardSystem !== 'undefined') rewardSystem.renderButton();
-        try { if (typeof mobileUI !== 'undefined') mobileUI.updateLauncherBadges(); } catch (e) {}
+        const uiHot = this._mBrowserTab && this._mBrowserTab() && this._mobileSummonHot && this._mobileSummonHot();
+        if (!uiHot) {
+            try { if (typeof mobileUI !== 'undefined') mobileUI.updateLauncherBadges(); } catch (e) {}
+        }
         try { if (typeof objective !== 'undefined') objective.sync(); } catch (e) {}
         try { chefMood.syncUi(); } catch (e) {}
         try { soupMenu.syncUi(); } catch (e0d) {}
@@ -1517,16 +1525,18 @@ const game = {
         try { collection.syncDropAccelChip(); } catch (e0e3) {}
         try { soupBoss.syncUi(); } catch (e0f) {}
         try { collection.syncSynergyChip(); } catch (e) {}
-        try { this.syncCompanionLayout(); } catch (e) {}
-        try {
-            if (typeof mobileUI !== 'undefined') {
-                const _n = performance.now();
-                if (!this._altarHudSyncT || _n - this._altarHudSyncT > 350) {
-                    mobileUI.syncPortraitHudAnchors();
-                    this._altarHudSyncT = _n;
+        if (!uiHot) {
+            try { this.syncCompanionLayout(); } catch (e) {}
+            try {
+                if (typeof mobileUI !== 'undefined') {
+                    const _n = performance.now();
+                    if (!this._altarHudSyncT || _n - this._altarHudSyncT > 350) {
+                        mobileUI.syncPortraitHudAnchors();
+                        this._altarHudSyncT = _n;
+                    }
                 }
-            }
-        } catch (e) {}
+            } catch (e) {}
+        }
         try { const fm = document.getElementById('farm-modal'); if (fm && fm.classList.contains('open')) farm.render(); } catch (e) {}
     },
     click(ev) {
@@ -2227,11 +2237,13 @@ const game = {
         const liteFeed = this._mProdMobile && this._mProdMobile();
         let chewMs = this.CHEF_FALLBACK_EAT_MS || 2000;
         try {
-            sound.unlock();
-            sound.stopEat();
-            if (!sound.muted && sound.volume > 0) {
-                const dur = sound.playEat();
-                if (dur) chewMs = Math.max(chewMs, dur);
+            if (typeof sound !== 'undefined') {
+                if (!sound._unlocked && sound.unlock) sound.unlock();
+                sound.stopEat();
+                if (!sound.muted && sound.volume > 0) {
+                    const dur = sound.playEat();
+                    if (dur) chewMs = Math.max(chewMs, dur);
+                }
             }
         } catch (e) {}
         if (liteFeed) chewMs = Math.max(1500, Math.min(chewMs, 2200));
@@ -2268,10 +2280,14 @@ const game = {
         const glyphs = cfg.glyphs || ['✨'];
         let count = cfg.count || 5;
         let stagger = cfg.stagger || 110;
-        try {
+            try {
             if (toChef && typeof game !== 'undefined' && game._mProdMobile && game._mProdMobile()) {
-                count = Math.min(2, count);
-                stagger = Math.min(stagger, 85);
+                count = Math.min(1, count);
+                stagger = Math.min(stagger, 70);
+            }
+            if (toChef && typeof game !== 'undefined' && game._mBrowserTab && game._mBrowserTab()) {
+                count = 1;
+                stagger = 60;
             }
         } catch (e) {}
         const spread = toChef ? Math.min(cfg.spread || 32, 16) : (cfg.spread || 32);
@@ -2905,7 +2921,12 @@ const game = {
         this.summon(c, btn, feedOverride, testLv);
     },
     buy(i, ev) {
-        try { sound.unlock(); } catch (e) {}
+        try {
+            if (typeof sound !== 'undefined') {
+                if (sound._unlocked && sound.resumeAudioIfNeeded) sound.resumeAudioIfNeeded();
+                else if (sound.unlock) sound.unlock();
+            }
+        } catch (e) {}
         const c = this.cp[i];
         let n = this.buyMode === 1 ? 1 : (this.buyMode === 10 ? Math.min(10, this.maxAffordableLevels(c, this.e)) : this.maxAffordableLevels(c, this.e));
         if (n <= 0) return;
@@ -3106,6 +3127,13 @@ const game = {
     _skipSummonSparkles() {
         return !!((this._mProdMobile && this._mProdMobile()) || (this._soupFxTouch && this._soupFxTouch()));
     },
+    _mBrowserTab() {
+        try {
+            if (typeof SC_LOCAL_DEV !== 'undefined' && SC_LOCAL_DEV) return false;
+            if (typeof fullscreen !== 'undefined' && fullscreen.isStandalone && fullscreen.isStandalone()) return false;
+            return typeof mobileUI !== 'undefined' && mobileUI.isPhone && mobileUI.isPhone();
+        } catch (e) { return false; }
+    },
     _mProdMobile() {
         try {
             if (typeof SC_LOCAL_DEV !== 'undefined' && SC_LOCAL_DEV) return false;
@@ -3201,7 +3229,7 @@ const game = {
             try { job(); } catch (e) { console.warn('summon queue job', e); }
             const finishJob = () => {
                 this._summonPipeSlot = false;
-                const gap = this._mProdMobile() ? 920 : 240;
+                const gap = this._mBrowserTab() ? 1200 : (this._mProdMobile() ? 920 : 240);
                 setTimeout(step, gap);
             };
             const waitDone = () => {
@@ -3371,11 +3399,19 @@ const game = {
         const feedActive = this._chefFeedInProgress();
         const pipeBusy = feedActive || this._summonPipelineBusy() || this._mSummonPumping;
         const ambOpen = this._uiModalBlocking && this._uiModalBlocking();
-        if (this._mProdMobile && this._mProdMobile() && (pipeBusy || ambOpen) && (this._frame % 4 !== 0)) {
-            if (this.particles.length > 0) {
-                this.draw();
-                this._flushScorePulse();
+        const browserTab = this._mBrowserTab && this._mBrowserTab();
+        if (this._mProdMobile && this._mProdMobile() && (pipeBusy || ambOpen)) {
+            const skipN = browserTab ? 8 : 4;
+            if (this._frame % skipN !== 0) {
+                if (this.particles.length > 0) {
+                    this.draw();
+                    this._flushScorePulse();
+                }
+                if (!document.hidden) requestAnimationFrame(() => this.loop());
+                return;
             }
+        }
+        if (browserTab && !this.p && !pipeBusy && !clickStir && this.particles.length === 0 && (this._frame % 2 === 1)) {
             if (!document.hidden) requestAnimationFrame(() => this.loop());
             return;
         }

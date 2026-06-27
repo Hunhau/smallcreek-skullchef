@@ -336,7 +336,8 @@
                 if (!this._inited) this.init();
                 const md = document.getElementById('ambient-modal');
                 const showModal = () => { if (md) md.classList.add('open'); };
-                const heavy = () => {
+                const heavy = () => { this._render(); };
+                const heavyWithMusic = () => {
                     this._render();
                     try {
                         if (typeof music !== 'undefined') {
@@ -349,17 +350,19 @@
                     if (typeof mobileUI !== 'undefined' && mobileUI.isPhone && mobileUI.isPhone()) {
                         try { mobileUI.closeAll(); } catch (e) {}
                         showModal();
+                        const mobBrowser = typeof quality !== 'undefined' && quality._mobBrowserTab && quality._mobBrowserTab();
+                        const finish = mobBrowser ? heavy : heavyWithMusic;
                         const waitIdle = () => {
                             let busy = false;
                             try { busy = !!(typeof game !== 'undefined' && game._mobileSummonHot && game._mobileSummonHot()); } catch (e) {}
                             if (busy) { setTimeout(waitIdle, 220); return; }
-                            requestAnimationFrame(() => requestAnimationFrame(heavy));
+                            requestAnimationFrame(() => requestAnimationFrame(finish));
                         };
                         waitIdle();
                         return;
                     }
                 } catch (e) {}
-                requestAnimationFrame(() => requestAnimationFrame(() => { heavy(); showModal(); }));
+                requestAnimationFrame(() => requestAnimationFrame(() => { heavyWithMusic(); showModal(); }));
             },
 
             close() {
