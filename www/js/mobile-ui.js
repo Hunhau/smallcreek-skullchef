@@ -101,15 +101,19 @@
                 const vv = window.visualViewport;
                 if (!this.isPhone() || standalone || !vv) {
                     html.classList.remove('vv-browser');
+                    this._vvKey = '';
                     ['--vv-h', '--vv-w', '--vv-top', '--vv-left'].forEach(function (p) { html.style.removeProperty(p); });
                     return;
                 }
+                const key = Math.round(vv.height) + '|' + Math.round(vv.width) + '|' + Math.round(vv.offsetTop);
+                if (this._vvKey === key) return;
+                this._vvKey = key;
                 html.classList.add('vv-browser');
                 html.style.setProperty('--vv-h', vv.height + 'px');
                 html.style.setProperty('--vv-w', vv.width + 'px');
                 html.style.setProperty('--vv-top', vv.offsetTop + 'px');
                 html.style.setProperty('--vv-left', vv.offsetLeft + 'px');
-                try { window.scrollTo(0, 0); } catch (e) {}
+                if (vv.offsetTop > 1) { try { window.scrollTo(0, 0); } catch (e) {} }
             } catch (e) {}
         },
         reflow() {
@@ -362,21 +366,28 @@
         },
         init() {
             try {
-                const run = () => { this.reflow(); };
-                window.addEventListener('pageshow', run);
-                document.addEventListener('visibilitychange', () => { if (!document.hidden) run(); });
-                window.addEventListener('resize', run);
-                window.addEventListener('load', run);
+                let reflowPending = null;
+                const scheduleReflow = () => {
+                    if (reflowPending != null) return;
+                    reflowPending = requestAnimationFrame(() => {
+                        reflowPending = null;
+                        try { mobileUI.reflow(); } catch (e) {}
+                    });
+                };
+                window.addEventListener('pageshow', scheduleReflow);
+                document.addEventListener('visibilitychange', () => { if (!document.hidden) scheduleReflow(); });
+                window.addEventListener('resize', scheduleReflow);
+                window.addEventListener('load', scheduleReflow);
                 window.addEventListener('orientationchange', () => {
-                    setTimeout(run, 60);
-                    setTimeout(run, 280);
+                    setTimeout(scheduleReflow, 60);
+                    setTimeout(scheduleReflow, 280);
                     setTimeout(() => this.maybeBrowserLandscapeHint(), 400);
                 });
                 try {
                     const vv = window.visualViewport;
                     if (vv) {
-                        vv.addEventListener('resize', run);
-                        vv.addEventListener('scroll', run);
+                        vv.addEventListener('resize', scheduleReflow);
+                        vv.addEventListener('scroll', scheduleReflow);
                     }
                 } catch (e) {}
                 try {
@@ -417,8 +428,8 @@
                         try { skirmish.open(); } catch (err) {}
                     }, { passive: false });
                 }
-                run();
-                setTimeout(run, 300);
+                scheduleReflow();
+                setTimeout(scheduleReflow, 300);
                 setTimeout(() => this.maybeBrowserLandscapeHint(), 800);
             } catch (e) {}
         }

@@ -250,9 +250,10 @@ const sound = {
         try {
             const wake = () => { try { this.recoverFromBackground(); } catch (e) {} };
             document.addEventListener('visibilitychange', () => {
-                if (document.hidden) { try { this._stirStopNow(); } catch (e) {} }
+                if (document.hidden) { try { this.suspendAll(); } catch (e) {} }
                 else { this._needReprime = true; wake(); }
             }, { passive: true });
+            window.addEventListener('pagehide', () => { try { this.suspendAll(); } catch (e) {} }, { passive: true });
             window.addEventListener('focus', () => { if (this._unlocked) { this._needReprime = true; wake(); } }, { passive: true });
             window.addEventListener('pageshow', () => { if (this._unlocked) { this._needReprime = true; wake(); } }, { passive: true });
             // The visibility/focus/pageshow handlers above already recover on return.
@@ -290,6 +291,29 @@ const sound = {
                 const eat = this._eatCtx;
                 if (eat && (eat.state === 'suspended' || eat.state === 'interrupted')) this.resumeAudio();
             }
+        } catch (e) {}
+    },
+    /* Pause loops/SFX when app backgrounded or PWA swiped away (iOS ghost audio). */
+    suspendAll() {
+        if (!this._inited) return;
+        try { this._stirStopNow(); } catch (e) {}
+        try { this.stopEat(); } catch (e) {}
+        try { this.farmAmbStop(); } catch (e) {}
+        try {
+            [this._waCtx, this._eatCtx].forEach(function (ctx) {
+                if (ctx && ctx.state === 'running') { try { ctx.suspend(); } catch (e) {} }
+            });
+        } catch (e) {}
+        try {
+            if (typeof ambient !== 'undefined' && ambient.tracks) {
+                for (const id in ambient.tracks) {
+                    const tr = ambient.tracks[id];
+                    if (tr && tr.audio) { try { tr.audio.pause(); } catch (e) {} }
+                }
+            }
+        } catch (e) {}
+        try {
+            if (typeof music !== 'undefined' && music.audio) { try { music.audio.pause(); } catch (e) {} }
         } catch (e) {}
     },
     touchAudioIfOn() {

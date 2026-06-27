@@ -263,26 +263,20 @@
             },
 
             syncPlayback() {
-
                 try {
-
-                    if (typeof sound !== 'undefined') {
-
-                        if (sound._unlocked && sound.resumeAudioIfNeeded) sound.resumeAudioIfNeeded();
-
-                        else if (sound.unlock) sound.unlock();
-
+                    if (typeof sound !== 'undefined' && sound._unlocked && sound.resumeAudioIfNeeded) {
+                        sound.resumeAudioIfNeeded();
                     }
-
                 } catch (e) {}
-
                 const muted = (typeof sound !== 'undefined' && sound.muted);
-
                 const hidden = (typeof document !== 'undefined' && document.hidden);
-
                 const farmBg = (typeof farm !== 'undefined' && farm._bgSuppressed);
-
-                if (this.on && this.avail && !muted && !hidden && !farmBg && this._gameVol() > 0) {
+                let deferPlay = false;
+                try {
+                    deferPlay = !!(typeof game !== 'undefined' && game._summonPipelineBusy && game._summonPipelineBusy()
+                        && typeof mobileUI !== 'undefined' && mobileUI.isPhone && mobileUI.isPhone());
+                } catch (e) {}
+                if (this.on && this.avail && !muted && !hidden && !farmBg && !deferPlay && this._gameVol() > 0) {
 
                     const a = this.ensureAudio();
 

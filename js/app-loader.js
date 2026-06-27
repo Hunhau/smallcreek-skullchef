@@ -2,7 +2,7 @@
 (function (global) {
     'use strict';
 
-    var BUILD = 'build-344';
+    var BUILD = 'build-346';
 
     var SCRIPTS = [
         'js/build-target.js',
@@ -115,7 +115,30 @@
         });
     }
 
+    function isMobileBrowser() {
+        try {
+            if (isStandalone() || isLocal()) return false;
+            var w = global.innerWidth || 9999;
+            if (global.matchMedia && global.matchMedia('(pointer: coarse)').matches && w <= 980) return true;
+            if (global.matchMedia && global.matchMedia('(orientation: portrait) and (max-width: 768px)').matches) return true;
+        } catch (e) {}
+        return false;
+    }
+
+    function injectScriptsOrdered() {
+        SCRIPTS.forEach(function (src) {
+            var s = document.createElement('script');
+            s.src = src + '?v=' + encodeURIComponent(BUILD);
+            s.onerror = function () {};
+            document.body.appendChild(s);
+        });
+    }
+
     function run() {
+        if (isMobileBrowser()) {
+            injectScriptsOrdered();
+            return;
+        }
         var chain = Promise.resolve();
         if (!isLocal() && !isStandalone()) {
             chain = purgeAll().then(function () { return purgeAll(); });

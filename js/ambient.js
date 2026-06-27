@@ -213,30 +213,22 @@
             },
 
             syncPlayback() {
-
                 try {
-
-                    if (typeof sound !== 'undefined') {
-
-                        if (sound._unlocked && sound.resumeAudioIfNeeded) sound.resumeAudioIfNeeded();
-
-                        else if (sound.unlock) sound.unlock();
-
+                    if (typeof sound !== 'undefined' && sound._unlocked && sound.resumeAudioIfNeeded) {
+                        sound.resumeAudioIfNeeded();
                     }
-
                 } catch (e) {}
-
                 const muted = (typeof sound !== 'undefined' && sound.muted);
-
                 const hidden = (typeof document !== 'undefined' && document.hidden);
-
                 const farmBg = (typeof farm !== 'undefined' && farm._bgSuppressed);
-
+                let deferPlay = false;
+                try {
+                    deferPlay = !!(typeof game !== 'undefined' && game._summonPipelineBusy && game._summonPipelineBusy()
+                        && typeof mobileUI !== 'undefined' && mobileUI.isPhone && mobileUI.isPhone());
+                } catch (e) {}
                 for (const id in this.tracks) {
-
                     const tr = this.tracks[id];
-
-                    if (tr.on && tr.avail && !muted && !hidden && !farmBg && this._gameVol() > 0) {
+                    if (tr.on && tr.avail && !muted && !hidden && !farmBg && !deferPlay && this._gameVol() > 0) {
 
                         const a = this.ensureAudio(tr);
 
@@ -341,15 +333,22 @@
             },
 
             open() {
-
                 if (!this._inited) this.init();
-
-                this._render();
-
-                try { if (typeof music !== 'undefined') { if (!music._inited) music.init(); music._render(); } } catch (e) {}
-
-                const md = document.getElementById('ambient-modal'); if (md) md.classList.add('open');
-
+                const finish = () => {
+                    this._render();
+                    try { if (typeof music !== 'undefined') { if (!music._inited) music.init(); music._render(); } } catch (e) {}
+                    const md = document.getElementById('ambient-modal'); if (md) md.classList.add('open');
+                };
+                try {
+                    if (typeof mobileUI !== 'undefined' && mobileUI.isPhone && mobileUI.isPhone()) {
+                        try { mobileUI.closeAll(); } catch (e) {}
+                        if (typeof game !== 'undefined' && game._summonPipelineBusy && game._summonPipelineBusy()) {
+                            setTimeout(finish, 480);
+                            return;
+                        }
+                    }
+                } catch (e) {}
+                requestAnimationFrame(() => requestAnimationFrame(finish));
             },
 
             close() { const md = document.getElementById('ambient-modal'); if (md) md.classList.remove('open'); }
