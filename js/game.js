@@ -3372,7 +3372,7 @@ const game = {
         const clickStir = performance.now() - this._lastClick < 1500;
         const nativeCap = (() => { try { const c = window.Capacitor; return !!(c && c.isNativePlatform && c.isNativePlatform()); } catch (e) { return false; } })();
         const feedActive = this._chefFeedInProgress();
-        const pipeBusy = feedActive || this._summonPipelineBusy() || this._mSummonPumping;
+        const pipeBusy = feedActive || this._summonAnimBusy();
         if (this._mProdMobile && this._mProdMobile() && pipeBusy && (this._frame % 4 !== 0)) {
             if (this.particles.length > 0) {
                 this.draw();

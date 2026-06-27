@@ -114,6 +114,28 @@
 
                 }
 
+                this._bindUi();
+
+            },
+
+            _bindUi() {
+
+                if (this._uiBound) return;
+
+                this._uiBound = true;
+
+                const mv = document.getElementById('music-vol');
+
+                if (mv) {
+
+                    const onV = () => this.setVol(Number(mv.value) / 100);
+
+                    mv.addEventListener('input', onV, { passive: true });
+
+                    mv.addEventListener('change', onV, { passive: true });
+
+                }
+
             },
 
             _wireGain(a) {
@@ -312,18 +334,15 @@
                             && typeof mobileUI !== 'undefined' && mobileUI.isPhone && mobileUI.isPhone());
                     }
                 } catch (e) {}
-                if (this.on && this.avail && !muted && !hidden && !farmBg && !deferPlay && this._gameVol() > 0) {
-
+                const want = this.on && this.avail && !muted && !hidden && !farmBg && this._gameVol() > 0;
+                if (want && !deferPlay) {
                     const a = this.ensureAudio();
-
                     this._applyVol();
-
                     this._playLoop(a);
-
+                } else if (want && deferPlay) {
+                    if (this.audio && !this.audio.paused) this._applyVol();
                 } else if (this.audio) {
-
                     try { this.audio.pause(); } catch (e) {}
-
                 }
 
             },

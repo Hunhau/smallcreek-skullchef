@@ -118,6 +118,64 @@
 
                 evs.forEach(ev => document.addEventListener(ev, h, { once: true, passive: true }));
 
+                this._bindUi();
+
+            },
+
+            _bindUi() {
+
+                if (this._uiBound) return;
+
+                this._uiBound = true;
+
+                const list = document.getElementById('ambient-list');
+
+                if (list) {
+
+                    const onSl = (e) => {
+
+                        const sl = e.target.closest('.amb-slider[data-track]');
+
+                        if (sl) this.setTrackVol(sl.dataset.track, Number(sl.value) / 100);
+
+                    };
+
+                    list.addEventListener('input', onSl, { passive: true });
+
+                    list.addEventListener('change', onSl, { passive: true });
+
+                }
+
+                const mv = document.getElementById('ambient-master');
+
+                if (mv) {
+
+                    const onM = () => this.setMaster(Number(mv.value) / 100);
+
+                    mv.addEventListener('input', onM, { passive: true });
+
+                    mv.addEventListener('change', onM, { passive: true });
+
+                }
+
+            },
+
+            _patchRow(id) {
+
+                const tr = this.tracks[id]; if (!tr) return;
+
+                const row = document.querySelector('#ambient-list .amb-row[data-id="' + id + '"]');
+
+                if (!row) { this._render(); return; }
+
+                const on = tr.on && tr.avail;
+
+                row.classList.toggle('on', !!on);
+
+                const st = row.querySelector('.amb-state');
+
+                if (st) st.textContent = on ? '❚❚' : '▶';
+
             },
 
             _effVol(tr) { return this._c(this.master * tr.vol * this._gameVol()); },
@@ -285,20 +343,16 @@
                 } catch (e) {}
                 for (const id in this.tracks) {
                     const tr = this.tracks[id];
-                    if (tr.on && tr.avail && !muted && !hidden && !farmBg && !deferPlay && this._gameVol() > 0) {
-
+                    const want = tr.on && tr.avail && !muted && !hidden && !farmBg && this._gameVol() > 0;
+                    if (want && !deferPlay) {
                         const a = this.ensureAudio(tr);
-
                         this._applyVol(tr);
-
                         this._playLoop(a);
-
+                    } else if (want && deferPlay) {
+                        if (tr.audio && !tr.audio.paused) this._applyVol(tr);
                     } else if (tr.audio) {
-
                         try { tr.audio.pause(); } catch (e) {}
-
                     }
-
                 }
 
             },
@@ -346,7 +400,7 @@
 
                 this.save();
 
-                this._render();
+                this._patchRow(id);
 
             },
 
@@ -396,11 +450,11 @@
 
                     const unavail = tr.avail ? '' : `<div class="amb-unavail">${t('ambient_unavailable')}</div>`;
 
-                    return `<div class="amb-row ${on ? 'on' : ''}">`
+                    return `<div class="amb-row ${on ? 'on' : ''}" data-id="${def.id}">`
 
                         + `<button class="amb-toggle" type="button" ${dis} onclick="ambient.toggle('${def.id}')">${(typeof scCauldronIcon !== 'undefined' ? scCauldronIcon.ambIcon(def) : def.icon)} <span>${t('amb_' + def.id)}</span><span class="amb-state">${on ? '❚❚' : '▶'}</span></button>`
 
-                        + `<input class="amb-slider" type="range" min="0" max="100" value="${Math.round(tr.vol * 100)}" ${dis} oninput="ambient.setTrackVol('${def.id}', this.value/100)" onchange="ambient.setTrackVol('${def.id}', this.value/100)">`
+                        + `<input class="amb-slider" type="range" min="0" max="100" value="${Math.round(tr.vol * 100)}" data-track="${def.id}" ${dis}>`
 
                         + unavail + `</div>`;
 
@@ -425,6 +479,7 @@
                     else if (typeof sound !== 'undefined' && sound.unlock) sound.unlock();
                 } catch (e) {}
                 if (md) md.classList.add('open');
+                this._bindUi();
                 this._render();
                 try {
                     if (typeof music !== 'undefined') {
