@@ -2,7 +2,7 @@
 (function (global) {
     'use strict';
 
-    var BUILD_V = 'build-346';
+    var BUILD_V = 'build-347';
     global.BUILD_V = BUILD_V;
 
     function paintBuildTag() {

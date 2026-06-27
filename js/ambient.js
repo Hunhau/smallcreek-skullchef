@@ -223,7 +223,7 @@
                 const farmBg = (typeof farm !== 'undefined' && farm._bgSuppressed);
                 let deferPlay = false;
                 try {
-                    deferPlay = !!(typeof game !== 'undefined' && game._summonPipelineBusy && game._summonPipelineBusy()
+                    deferPlay = !!(typeof game !== 'undefined' && game._mobileSummonHot && game._mobileSummonHot()
                         && typeof mobileUI !== 'undefined' && mobileUI.isPhone && mobileUI.isPhone());
                 } catch (e) {}
                 for (const id in this.tracks) {
@@ -278,7 +278,7 @@
 
                 tr.vol = this._c(v);
 
-                try { if (typeof sound !== 'undefined' && sound.unlock) sound.unlock(); } catch (e) {}
+                try { if (typeof sound !== 'undefined' && sound._unlocked && sound.resumeAudioIfNeeded) sound.resumeAudioIfNeeded(); } catch (e) {}
 
                 if (tr.audio) this._wireGain(tr, tr.audio);
 
@@ -294,7 +294,7 @@
 
                 this.master = this._c(v);
 
-                try { if (typeof sound !== 'undefined' && sound.unlock) sound.unlock(); } catch (e) {}
+                try { if (typeof sound !== 'undefined' && sound._unlocked && sound.resumeAudioIfNeeded) sound.resumeAudioIfNeeded(); } catch (e) {}
 
                 this._applyAllVols();
 
@@ -334,24 +334,38 @@
 
             open() {
                 if (!this._inited) this.init();
-                const finish = () => {
+                const md = document.getElementById('ambient-modal');
+                const showModal = () => { if (md) md.classList.add('open'); };
+                const heavy = () => {
                     this._render();
-                    try { if (typeof music !== 'undefined') { if (!music._inited) music.init(); music._render(); } } catch (e) {}
-                    const md = document.getElementById('ambient-modal'); if (md) md.classList.add('open');
+                    try {
+                        if (typeof music !== 'undefined') {
+                            if (!music._inited) music.init();
+                            music._render();
+                        }
+                    } catch (e) {}
                 };
                 try {
                     if (typeof mobileUI !== 'undefined' && mobileUI.isPhone && mobileUI.isPhone()) {
                         try { mobileUI.closeAll(); } catch (e) {}
-                        if (typeof game !== 'undefined' && game._summonPipelineBusy && game._summonPipelineBusy()) {
-                            setTimeout(finish, 480);
-                            return;
-                        }
+                        showModal();
+                        const waitIdle = () => {
+                            let busy = false;
+                            try { busy = !!(typeof game !== 'undefined' && game._mobileSummonHot && game._mobileSummonHot()); } catch (e) {}
+                            if (busy) { setTimeout(waitIdle, 220); return; }
+                            requestAnimationFrame(() => requestAnimationFrame(heavy));
+                        };
+                        waitIdle();
+                        return;
                     }
                 } catch (e) {}
-                requestAnimationFrame(() => requestAnimationFrame(finish));
+                requestAnimationFrame(() => requestAnimationFrame(() => { heavy(); showModal(); }));
             },
 
-            close() { const md = document.getElementById('ambient-modal'); if (md) md.classList.remove('open'); }
+            close() {
+                const md = document.getElementById('ambient-modal'); if (md) md.classList.remove('open');
+                try { if (typeof game !== 'undefined' && game._mPumpSummonQueue) game._mPumpSummonQueue(); } catch (e) {}
+            }
 
         };
 

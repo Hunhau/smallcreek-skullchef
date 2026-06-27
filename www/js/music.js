@@ -273,7 +273,7 @@
                 const farmBg = (typeof farm !== 'undefined' && farm._bgSuppressed);
                 let deferPlay = false;
                 try {
-                    deferPlay = !!(typeof game !== 'undefined' && game._summonPipelineBusy && game._summonPipelineBusy()
+                    deferPlay = !!(typeof game !== 'undefined' && game._mobileSummonHot && game._mobileSummonHot()
                         && typeof mobileUI !== 'undefined' && mobileUI.isPhone && mobileUI.isPhone());
                 } catch (e) {}
                 if (this.on && this.avail && !muted && !hidden && !farmBg && !deferPlay && this._gameVol() > 0) {
@@ -344,7 +344,7 @@
 
                 this.vol = this._c(v);
 
-                try { if (typeof sound !== 'undefined' && sound.unlock) sound.unlock(); } catch (e) {}
+                try { if (typeof sound !== 'undefined' && sound._unlocked && sound.resumeAudioIfNeeded) sound.resumeAudioIfNeeded(); } catch (e) {}
 
                 if (this.audio) this._wireGain(this.audio);
 

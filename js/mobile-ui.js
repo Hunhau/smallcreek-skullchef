@@ -88,6 +88,22 @@
                 const phone = this.isPhone();
                 const launch = document.getElementById('m-launch');
                 if (launch) launch.style.display = phone ? 'flex' : 'none';
+                if (phone && !this._isStandalone()) {
+                    let tag = document.getElementById('sc-mob-build');
+                    if (!tag && launch) {
+                        tag = document.createElement('span');
+                        tag.id = 'sc-mob-build';
+                        tag.style.cssText = 'font-size:9px;opacity:0.42;align-self:center;margin-left:2px;pointer-events:none';
+                        launch.appendChild(tag);
+                    }
+                    if (tag) {
+                        const b = (typeof global !== 'undefined' && global.__SC_APP_BUILD) || (typeof BUILD_V !== 'undefined' ? BUILD_V : '');
+                        if (b) tag.textContent = b;
+                    }
+                } else {
+                    const tag = document.getElementById('sc-mob-build');
+                    if (tag) tag.textContent = '';
+                }
                 const toggle = document.getElementById('helpers-toggle');
                 if (toggle) toggle.style.display = phone ? 'flex' : 'none';
                 const scm = document.getElementById('shop-close-m');

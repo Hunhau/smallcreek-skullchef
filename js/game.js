@@ -3156,6 +3156,21 @@ const game = {
         if (this._summonPipeSlot) return true;
         return this._summonAnimBusy();
     },
+    _mobileSummonHot() {
+        try {
+            if (this._mSummonPumping) return true;
+            if (this._summonPipelineBusy()) return true;
+            if (this._mSummonQueue && this._mSummonQueue.length > 0) return true;
+        } catch (e) {}
+        return false;
+    },
+    _uiModalBlocking() {
+        try {
+            const am = document.getElementById('ambient-modal');
+            if (am && am.classList.contains('open')) return true;
+        } catch (e) {}
+        return false;
+    },
     _summonBusy() { return this._summonPipelineBusy(); },
     _mPumpSummonQueue() {
         if (this._mSummonPumping) return;
@@ -3170,6 +3185,10 @@ const game = {
                 this._mSummonPumping = false;
                 this._summonPipeSlot = false;
                 this._mFlushPendingRebuild();
+                return;
+            }
+            if (this._uiModalBlocking()) {
+                setTimeout(step, 320);
                 return;
             }
             if (this._summonPipelineBusy()) {
@@ -3351,7 +3370,8 @@ const game = {
         const nativeCap = (() => { try { const c = window.Capacitor; return !!(c && c.isNativePlatform && c.isNativePlatform()); } catch (e) { return false; } })();
         const feedActive = this._chefFeedInProgress();
         const pipeBusy = feedActive || this._summonPipelineBusy() || this._mSummonPumping;
-        if (this._mProdMobile && this._mProdMobile() && pipeBusy && (this._frame % 4 !== 0)) {
+        const ambOpen = this._uiModalBlocking && this._uiModalBlocking();
+        if (this._mProdMobile && this._mProdMobile() && (pipeBusy || ambOpen) && (this._frame % 4 !== 0)) {
             if (this.particles.length > 0) {
                 this.draw();
                 this._flushScorePulse();
