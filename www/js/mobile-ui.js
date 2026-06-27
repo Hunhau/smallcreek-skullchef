@@ -1,4 +1,4 @@
-/* Mobile landscape/portrait UI — scene fit, shop tray, HUD anchors. */
+/* Mobile landscape/portrait UI — sc-shell-v2 */
 (function (global) {
     'use strict';
 
@@ -76,7 +76,23 @@
             } catch (e) { return false; }
         },
         _portraitPhone() {
-            try { return window.matchMedia('(orientation: portrait) and (max-width: 768px)').matches; } catch (e) { return false; }
+            try {
+                const w = window.innerWidth;
+                const h = window.innerHeight;
+                if (w <= 768 && h > w) return true;
+                return window.matchMedia('(orientation: portrait) and (max-width: 768px)').matches;
+            } catch (e) { return false; }
+        },
+        syncMobileLaunchers() {
+            try {
+                const phone = this.isPhone();
+                const launch = document.getElementById('m-launch');
+                if (launch) launch.style.display = phone ? 'flex' : 'none';
+                const toggle = document.getElementById('helpers-toggle');
+                if (toggle) toggle.style.display = phone ? 'flex' : 'none';
+                const scm = document.getElementById('shop-close-m');
+                if (scm) scm.style.display = phone ? 'flex' : 'none';
+            } catch (e) {}
         },
         syncVisualViewport() {
             try {
@@ -114,10 +130,12 @@
                             game.syncMinigameButtons();
                         }
                     } catch (e) {}
+                    this.syncMobileLaunchers();
                     return;
                 }
                 const html = document.documentElement;
                 html.classList.toggle('portrait-mode', this._portraitPhone());
+                this.syncMobileLaunchers();
                 this.syncVisualViewport();
                 this.fitScene();
                 this.syncLandscapeLeftHud();
@@ -261,6 +279,7 @@
         },
         syncMinigameLauncher() {
             try {
+                this.syncMobileLaunchers();
                 const btn = document.getElementById('m-minigame-btn');
                 if (!btn) return;
                 const phone = this.isPhone();
