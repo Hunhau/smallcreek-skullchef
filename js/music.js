@@ -278,8 +278,12 @@
                 const farmBg = (typeof farm !== 'undefined' && farm._bgSuppressed);
                 let deferPlay = false;
                 try {
-                    deferPlay = !!(typeof game !== 'undefined' && game._mobileSummonHot && game._mobileSummonHot()
-                        && typeof mobileUI !== 'undefined' && mobileUI.isPhone && mobileUI.isPhone());
+                    const md = document.getElementById('ambient-modal');
+                    const ambOpen = !!(md && md.classList.contains('open'));
+                    if (!ambOpen) {
+                        deferPlay = !!(typeof game !== 'undefined' && game._mobileSummonHot && game._mobileSummonHot()
+                            && typeof mobileUI !== 'undefined' && mobileUI.isPhone && mobileUI.isPhone());
+                    }
                 } catch (e) {}
                 if (this.on && this.avail && !muted && !hidden && !farmBg && !deferPlay && this._gameVol() > 0) {
 
@@ -312,13 +316,9 @@
 
                     if (typeof sound === 'undefined') return;
 
-                    if (sound.muted) sound.setMuted(false);
-
-                    else if (sound.volume <= 0) sound.setVolume(1);
+                    if (sound.unlockForBgLoops) sound.unlockForBgLoops();
 
                     else if (sound.unlock) sound.unlock();
-
-                    if (sound.touchAudio) sound.touchAudio();
 
                 } catch (e) {}
 

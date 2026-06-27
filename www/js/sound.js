@@ -327,6 +327,23 @@ const sound = {
         if (this.muted || this.volume <= 0) return;
         this.touchAudio();
     },
+    /* Ambient/music toggles: unlock + resume only — never _waLoadAll (freezes mobile). */
+    unlockForBgLoops() {
+        try {
+            if (this.muted) {
+                this.muted = false;
+                this.save();
+                this.updateUi();
+            }
+            if (this.volume <= 0) {
+                this.volume = 1;
+                this.save();
+                this.updateUi();
+            }
+        } catch (e) {}
+        try { this.unlock(); } catch (e) {}
+        try { this.resumeAudioIfNeeded(); } catch (e) {}
+    },
     // Re-arm audio after Play / privacy / name modals (iOS needs a fresh gesture chain).
     touchAudio() {
         try {

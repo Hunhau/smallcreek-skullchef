@@ -230,6 +230,13 @@
                 } catch (e) {}
             },
 
+            _modalOpen() {
+                try {
+                    const md = document.getElementById('ambient-modal');
+                    return !!(md && md.classList.contains('open'));
+                } catch (e) { return false; }
+            },
+
             syncPlayback() {
                 try {
                     if (typeof sound !== 'undefined' && sound._unlocked && sound.resumeAudioIfNeeded) {
@@ -241,8 +248,10 @@
                 const farmBg = (typeof farm !== 'undefined' && farm._bgSuppressed);
                 let deferPlay = false;
                 try {
-                    deferPlay = !!(typeof game !== 'undefined' && game._mobileSummonHot && game._mobileSummonHot()
-                        && typeof mobileUI !== 'undefined' && mobileUI.isPhone && mobileUI.isPhone());
+                    if (!this._modalOpen()) {
+                        deferPlay = !!(typeof game !== 'undefined' && game._mobileSummonHot && game._mobileSummonHot()
+                            && typeof mobileUI !== 'undefined' && mobileUI.isPhone && mobileUI.isPhone());
+                    }
                 } catch (e) {}
                 for (const id in this.tracks) {
                     const tr = this.tracks[id];
@@ -270,13 +279,9 @@
 
                     if (typeof sound === 'undefined') return;
 
-                    if (sound.muted) sound.setMuted(false);
-
-                    else if (sound.volume <= 0) sound.setVolume(1);
+                    if (sound.unlockForBgLoops) sound.unlockForBgLoops();
 
                     else if (sound.unlock) sound.unlock();
-
-                    if (sound.touchAudio) sound.touchAudio();
 
                 } catch (e) {}
 
@@ -292,7 +297,14 @@
 
                 tr.on = !tr.on;
 
-                if (turningOn) this._gestureUnmute();
+                if (turningOn) {
+                    try {
+                        if (typeof mobileUI !== 'undefined' && mobileUI.isPhone && mobileUI.isPhone()) {
+                            for (const oid in this.tracks) { if (oid !== id) this.tracks[oid].on = false; }
+                        }
+                    } catch (e) {}
+                    this._gestureUnmute();
+                }
 
                 else { try { if (typeof sound !== 'undefined' && sound.unlock) sound.unlock(); } catch (e) {} }
 
@@ -369,39 +381,23 @@
             open() {
                 if (!this._inited) this.init();
                 const md = document.getElementById('ambient-modal');
-                const finish = () => {
-                    this._render();
-                    try {
-                        if (typeof music !== 'undefined') {
-                            if (!music._inited) music.init();
-                            music._render();
-                        }
-                    } catch (e) {}
-                };
-                const showModal = () => {
-                    try { if (typeof sound !== 'undefined' && sound.unlock) sound.unlock(); } catch (e) {}
-                    if (md) md.classList.add('open');
-                };
                 try {
                     if (typeof mobileUI !== 'undefined' && mobileUI.isPhone && mobileUI.isPhone()) {
                         try { mobileUI.closeAll(); } catch (e) {}
-                        showModal();
-                        const waitIdle = (since) => {
-                            since = since || Date.now();
-                            let busy = false;
-                            try { busy = !!(typeof game !== 'undefined' && game._mobileSummonHot && game._mobileSummonHot()); } catch (e) {}
-                            if (busy && Date.now() - since < 6000) {
-                                setTimeout(() => waitIdle(since), 220);
-                                return;
-                            }
-                            requestAnimationFrame(() => requestAnimationFrame(finish));
-                        };
-                        waitIdle();
-                        return;
                     }
                 } catch (e) {}
-                try { if (typeof sound !== 'undefined' && sound.unlock) sound.unlock(); } catch (e) {}
-                requestAnimationFrame(() => requestAnimationFrame(() => { finish(); if (md) md.classList.add('open'); }));
+                try {
+                    if (typeof sound !== 'undefined' && sound.unlockForBgLoops) sound.unlockForBgLoops();
+                    else if (typeof sound !== 'undefined' && sound.unlock) sound.unlock();
+                } catch (e) {}
+                if (md) md.classList.add('open');
+                this._render();
+                try {
+                    if (typeof music !== 'undefined') {
+                        if (!music._inited) music.init();
+                        music._render();
+                    }
+                } catch (e) {}
             },
 
             close() {
