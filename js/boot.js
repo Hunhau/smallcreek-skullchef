@@ -169,7 +169,18 @@ else boot();
         var host = location.hostname;
         if (location.protocol !== 'https:' && host !== 'localhost' && host !== '127.0.0.1') return;
         window.addEventListener('load', function () {
-            navigator.serviceWorker.register('./sw.js', { scope: './' }).catch(function () {});
+            var swUrl = './sw.js?v=' + (typeof BUILD_V !== 'undefined' ? BUILD_V : String(Date.now()));
+            var reloaded = false;
+            try {
+                navigator.serviceWorker.addEventListener('controllerchange', function () {
+                    if (reloaded) return;
+                    reloaded = true;
+                    location.reload();
+                });
+            } catch (e) {}
+            navigator.serviceWorker.register(swUrl, { scope: './' }).then(function (reg) {
+                try { reg.update(); } catch (e) {}
+            }).catch(function () {});
         }, { once: true });
     } catch (e) {}
 })();

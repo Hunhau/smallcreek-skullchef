@@ -3,7 +3,7 @@
     'use strict';
 
     // MUST equal version.json "v" in this commit (so no reload happens now).
-    var BUILD_V = 'build-337';
+    var BUILD_V = 'build-338';
     global.BUILD_V = BUILD_V;
 
     function paintBuildTag() {
@@ -30,7 +30,23 @@
             var n = parseInt(sessionStorage.getItem(key) || '0', 10) || 0;
             if (n >= 2) return;
             sessionStorage.setItem(key, String(n + 1));
-            location.replace(location.pathname + '?v=' + encodeURIComponent(v) + '_' + Date.now());
+            var go = function () {
+                location.replace(location.pathname + '?v=' + encodeURIComponent(v) + '_' + Date.now());
+            };
+            if (navigator.serviceWorker && caches) {
+                Promise.all([
+                    navigator.serviceWorker.getRegistrations().then(function (regs) {
+                        return Promise.all(regs.map(function (r) { return r.update(); }));
+                    }).catch(function () {}),
+                    caches.keys().then(function (keys) {
+                        return Promise.all(keys.filter(function (k) {
+                            return k.indexOf('skullchef-shell-') === 0;
+                        }).map(function (k) { return caches.delete(k); }));
+                    }).catch(function () {})
+                ]).then(go).catch(go);
+                return;
+            }
+            go();
         } catch (e) {}
     }
 
