@@ -4,12 +4,7 @@
 
     global.mobileUI = {
         isPhone() {
-            try {
-                if (window.matchMedia('(orientation: portrait) and (max-width: 768px)').matches) return true;
-                if (!window.matchMedia('(pointer: coarse)').matches) return false;
-                if (window.matchMedia('(orientation: landscape) and (max-height: 600px)').matches) return true;
-                return false;
-            } catch (e) { return false; }
+            try { return this._portraitPhone() || this._landscapePhone(); } catch (e) { return false; }
         },
         _toggle(id) {
             try {
@@ -64,15 +59,22 @@
                 const vv = window.visualViewport;
                 if (!this.isPhone() || standalone || !vv) {
                     html.classList.remove('vv-browser');
-                    ['--vv-h', '--vv-w', '--vv-top', '--vv-left'].forEach(function (p) { html.style.removeProperty(p); });
+                    ['--vv-h', '--vv-w'].forEach(function (p) { html.style.removeProperty(p); });
                     return;
                 }
                 html.classList.add('vv-browser');
                 html.style.setProperty('--vv-h', vv.height + 'px');
                 html.style.setProperty('--vv-w', vv.width + 'px');
-                html.style.setProperty('--vv-top', vv.offsetTop + 'px');
-                html.style.setProperty('--vv-left', vv.offsetLeft + 'px');
                 try { window.scrollTo(0, 0); } catch (e) {}
+            } catch (e) {}
+        },
+        reflow() {
+            try {
+                this.syncVisualViewport();
+                this.fitScene();
+                this.syncLandscapeLeftHud();
+                this.syncPortraitHudAnchors();
+                try { if (typeof game !== 'undefined') game.syncMinigameButtons(); } catch (e) {}
             } catch (e) {}
         },
         maybeBrowserLandscapeHint() {
@@ -288,12 +290,7 @@
         },
         init() {
             try {
-                const run = () => {
-                    this.syncVisualViewport();
-                    this.fitScene();
-                    this.syncLandscapeLeftHud();
-                    this.syncPortraitHudAnchors();
-                };
+                const run = () => { this.reflow(); };
                 window.addEventListener('resize', run);
                 window.addEventListener('load', run);
                 window.addEventListener('orientationchange', () => {
