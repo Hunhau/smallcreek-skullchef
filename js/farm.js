@@ -53,7 +53,9 @@ const FARM_TYPE_IDS = ['ink','shrimp','carrot','lettuce','corn','yolk','honey','
                 return n;
             },
             brothPct() {
-                return Math.min(8, Math.floor(this.totalStock() / 8));
+                const per = (typeof balanceGet === 'function' ? balanceGet('farmBrothPctPerStock', 0.125) : 0.125);
+                const cap = (typeof balanceGet === 'function' ? balanceGet('farmBrothCapPct', 10) : 10);
+                return Math.min(cap, Math.floor(this.totalStock() * per));
             },
             brothMult() { return 1 + this.brothPct() / 100; },
             syncBrothLine() {
@@ -148,11 +150,20 @@ const FARM_TYPE_IDS = ['ink','shrimp','carrot','lettuce','corn','yolk','honey','
             },
             growMs(type) {
                 let ms = (FARM_GROW_SEC[type] || 45) * 1000;
-                try { if (game.farm && game.farm.wagon != null) ms = Math.floor(ms / 1.35); } catch (e) {}
+                try {
+                    if (game.farm && game.farm.wagon != null) {
+                        const sp = (typeof balanceGet === 'function' ? balanceGet('farmWagonGrowSpeedMult', 1.38) : 1.38);
+                        ms = Math.floor(ms / sp);
+                    }
+                } catch (e) {}
                 return ms;
             },
             wagonCpsMult() {
-                try { if (game.farm && game.farm.wagon != null) return 0.92; } catch (e) {}
+                try {
+                    if (game.farm && game.farm.wagon != null) {
+                        return (typeof balanceGet === 'function' ? balanceGet('farmWagonCpsMult', 0.93) : 0.93);
+                    }
+                } catch (e) {}
                 return 1;
             },
             setWagon(helperId) {

@@ -1,5 +1,4 @@
-/* Seasonal / limited-time soft events (client-side dates).
-   Boot calls events.applyTheme(); game reads events.getActive() for bonuses. */
+/* Seasonal / limited-time soft events (build-318). Boot: events.applyTheme(). */
 (function (global) {
   'use strict';
 

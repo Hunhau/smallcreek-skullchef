@@ -113,7 +113,8 @@
             const b = this.activeBonus();
             if (b.pct > 0 && b.dish) {
                 const txt = t('menu_chip', { dish: b.dish, pct: b.pct });
-                if (el.textContent !== txt) el.textContent = txt;
+                const html = (typeof scCauldronIcon !== 'undefined' ? scCauldronIcon.prefixText(txt) : txt);
+                if (el.innerHTML !== html) el.innerHTML = html;
                 if (el.style.display !== 'block') el.style.display = 'block';
             } else if (el.style.display !== 'none') el.style.display = 'none';
         },

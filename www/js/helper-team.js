@@ -112,7 +112,7 @@
                     const token = String(sk.id || '').split('_')[0];
                     const hid = map[token];
                     if (hid == null) continue;
-                    bonus += this.level(hb[hid]) * 0.008;
+                    bonus += this.level(hb[hid]) * (typeof balanceGet === 'function' ? balanceGet('helperBondCpsPctPerLv', 0.009) : 0.009);
                 }
             } catch (e) {}
             return 1 + bonus;
@@ -175,10 +175,11 @@
         active() {
             const cp = game.cp;
             if (!cp || cp.length < 5) return [];
+            const d = (typeof balanceGet === 'function' ? balanceGet('helperDuoBonuses', {}) : {});
             const out = [];
-            if (cp[0].lv > 0 && cp[1].lv > 0) out.push({ key: 'duo_coco_bunny', clickPct: 4 });
-            if (cp[2].lv > 0 && cp[3].lv > 0) out.push({ key: 'duo_pio_ivan', cpsPct: 4 });
-            if (cp[4].lv > 0 && cp.some(c => (c.ch || 0) > 0)) out.push({ key: 'duo_bongo_champ', cpsPct: 5, clickPct: 5 });
+            if (cp[0].lv > 0 && cp[1].lv > 0) out.push({ key: 'duo_coco_bunny', clickPct: d.cocoBunnyClick || 5 });
+            if (cp[2].lv > 0 && cp[3].lv > 0) out.push({ key: 'duo_pio_ivan', cpsPct: d.pioIvanCps || 5 });
+            if (cp[4].lv > 0 && cp.some(c => (c.ch || 0) > 0)) out.push({ key: 'duo_bongo_champ', cpsPct: d.bongoChampCps || 5, clickPct: d.bongoChampClick || 5 });
             return out;
         },
         clickMult() {

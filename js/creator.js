@@ -141,7 +141,7 @@
             preparePrestigeDemo() {
                 if (!this.isOwnerDevice()) return;
                 try {
-                    const g = 1e6 * Math.pow(5, game.s);
+                    const g = balancePrestigeGoal(game.s);
                     game.e = g;
                     game.te = Math.max(game.te || 0, g);
                     game.render();

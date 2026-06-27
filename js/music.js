@@ -264,7 +264,17 @@
 
             syncPlayback() {
 
-                try { if (typeof sound !== 'undefined' && sound.unlock) sound.unlock(); } catch (e) {}
+                try {
+
+                    if (typeof sound !== 'undefined') {
+
+                        if (sound._unlocked && sound.resumeAudioIfNeeded) sound.resumeAudioIfNeeded();
+
+                        else if (sound.unlock) sound.unlock();
+
+                    }
+
+                } catch (e) {}
 
                 const muted = (typeof sound !== 'undefined' && sound.muted);
 

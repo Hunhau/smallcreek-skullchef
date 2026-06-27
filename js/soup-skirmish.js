@@ -68,7 +68,7 @@
             var end = document.getElementById('skirmish-end');
             var conf = document.getElementById('skirmish-confetti-layer');
             if (box) box.classList.remove('defeat');
-            if (icon) icon.textContent = '🍲';
+            if (icon) scCauldronIcon.apply(icon, true);
             if (end) end.classList.remove('skirmish-end-win', 'skirmish-end-loss', 'ceremony-playing', 'ceremony-done', 'emblem-drop');
             if (conf) {
                 conf.innerHTML = '';
@@ -917,9 +917,8 @@
             }
 
             ctx.globalAlpha = 0.1 + Math.sin(phase * 1.2) * 0.04;
-            ctx.font = Math.round(w * 0.11) + 'px serif';
             ctx.textAlign = 'center';
-            ctx.fillText('🍲', w * 0.5, h * 0.5);
+            try { scCauldronIcon.draw(ctx, w * 0.5, h * 0.5, w * 0.14); } catch (e) {}
             ctx.globalAlpha = 1;
         },
 
@@ -1280,7 +1279,10 @@
             var box = document.getElementById('skirmish-reward-box');
             var icon = document.getElementById('skirmish-reward-icon');
             if (box) box.classList.toggle('defeat', !won);
-            if (icon) icon.textContent = won ? '🍲' : '🥄';
+            if (icon) {
+                if (won) scCauldronIcon.apply(icon, true);
+                else icon.textContent = '🥄';
+            }
             var mult = 1 + game.s * 0.35;
             var eb = Math.floor((won ? 6000 : 2000) * mult);
             if (won) {
