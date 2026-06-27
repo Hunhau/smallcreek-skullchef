@@ -466,7 +466,7 @@
 
                 tr.vol = this._c(v);
 
-                if (this._htmlLoops()) this._healLoopAudio(tr);
+                if (this._htmlLoops() && tr._gain) this._healLoopAudio(tr);
 
                 this._applyVol(tr);
 
@@ -499,8 +499,6 @@
                 if (!this._inited) this.init();
 
                 this.master = this._c(v);
-
-                if (this._htmlLoops()) this._healAllLoopAudio();
 
                 this._applyAllVols();
 

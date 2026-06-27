@@ -426,7 +426,7 @@
 
                 this.vol = this._c(v);
 
-                if (this._htmlLoops()) this._healLoopAudio();
+                if (this._htmlLoops() && this._gain) this._healLoopAudio();
 
                 this._applyVol();
 
