@@ -4,6 +4,16 @@
 
 async function boot() {
     try {
+    try {
+        if (location.protocol !== 'file:' && (typeof SC_LOCAL_DEV === 'undefined' || !SC_LOCAL_DEV)) {
+            const vr = await fetch('version.json?t=' + Date.now(), { cache: 'no-store' });
+            const vd = await vr.json();
+            if (vd && vd.v && typeof BUILD_V !== 'undefined' && vd.v !== BUILD_V) {
+                location.replace(location.pathname + '?_sv=' + encodeURIComponent(vd.v) + '&_t=' + Date.now());
+                return;
+            }
+        }
+    } catch (e) {}
     try { const sl = localStorage.getItem('soup_lang'); if (sl === 'es' || sl === 'en') setLang(sl); } catch (e) {}
     syncHtmlLang();
     applyRotateDismissOnBoot();

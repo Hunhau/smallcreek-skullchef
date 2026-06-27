@@ -1,6 +1,6 @@
 /* Smallcreek Skullchef — offline shell cache (PWA / Add to Home Screen).
    Bump CACHE_VERSION when deploying so stale shells refresh. */
-const CACHE_VERSION = 'build-342';
+const CACHE_VERSION = 'build-343';
 const CACHE_NAME = 'skullchef-shell-' + CACHE_VERSION;
 
 const PRECACHE = [
@@ -10,6 +10,7 @@ const PRECACHE = [
   './manifest.webmanifest',
   './version.json',
   './privacy.html',
+  './js/app-loader.js',
   './js/events.js',
   './assets/skins/catalog.js',
   './assets/icons/icon-192.png',

@@ -20,7 +20,7 @@
     <script>
     (function () {
         try {
-            var DOC_V = 'build-342';
+            var DOC_V = 'build-343';
             var p = location.protocol, h = location.hostname || '';
             if (p === 'file:' || h === 'localhost' || h === '127.0.0.1') return;
             if (/^(10\.|192\.168\.|172\.(1[6-9]|2\d|3[01])\.)/.test(h)) return;
@@ -79,8 +79,9 @@
             try { live = JSON.parse(fetchSync('version.json?t=' + Date.now())).v || live; } catch (e) {}
             var need = DOC_V !== live;
             if (!need) need = !tagOk(live, fetchSync('js/build-tag.js?v=' + live + '&t=' + Date.now()));
-            if (!need) need = !jsOk(fetchSync('js/mobile-ui.js?v=' + live + '&t=' + Date.now()), 'sc-shell-v2');
-            if (!need) need = !jsOk(fetchSync('js/game.js?v=' + live + '&t=' + Date.now()), 'syncCompanionLayout');
+            if (!need) need = !jsOk(fetchSync('js/mobile-ui.js?v=' + live + '&t=' + Date.now()), 'sc-shell-v3');
+            if (!need) need = !jsOk(fetchSync('js/game.js?v=' + live + '&t=' + Date.now()), 'load-cs-v343');
+            if (!need) need = !jsOk(fetchSync('js/app-loader.js?v=' + live + '&t=' + Date.now()), 'sc-shell-v3');
             var ub = urlBuild();
             if (ub && ub !== live) need = true;
             if (need) hardReload(live);
@@ -100,7 +101,7 @@
          de imágenes/audio se cargan de forma diferida para no bloquear el render inicial. -->
     <link rel="preload" as="image" href="assets/img/angel.png" fetchpriority="high">
     <!-- YouTube Playables SDK: lazy-loaded by ytPlayables.init() — never block first paint. -->
-    <link rel="stylesheet" href="css/game.css?v=build-342">
+    <link rel="stylesheet" href="css/game.css?v=build-343">
 </head>
 <body>
     <div id="boot-splash" style="position:fixed;inset:0;z-index:500000;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#1a1030;color:#fde68a;font-family:system-ui,sans-serif;text-align:center;padding:24px;box-sizing:border-box">
@@ -109,7 +110,7 @@
         <div id="boot-splash-hint" style="font-size:0.72rem;opacity:0.55;margin-top:12px;line-height:1.4;max-width:300px;display:none"></div>
         <div id="boot-splash-err" style="display:none;font-size:0.78rem;color:#fca5a5;margin-top:14px;line-height:1.45;max-width:320px;white-space:pre-wrap"></div>
     </div>
-    <script src="js/boot-splash.js?v=build-342"></script>
+    <script src="js/boot-splash.js?v=build-343"></script>
     <div id="home-overlay">
         <div id="home-hero" aria-hidden="true">
             <img id="hero-chef" src="assets/img/chef.png" alt="" decoding="async">
@@ -565,73 +566,7 @@
         <button id="privacy-agree" class="gx-btn" style="display:block;width:100%;margin:2px 0 0" type="button" onclick="privacyConsent.agree()" data-i18n="privacy_consent_agree">Agree &amp; continue</button>
         <button id="privacy-decline" class="gx-btn gx-btn-ghost" style="display:block;width:100%;margin:8px 0 0" type="button" onclick="privacyConsent.decline()" data-i18n="privacy_consent_decline">Play offline</button>
     </div></div>
-    <!-- === build-target -> js/build-target.js (build-314) ========== -->
-    <script src="js/build-target.js?v=build-342"></script>
-    <script src="js/balance-config.js?v=build-342"></script>
-    <script src="js/visitors.js?v=build-342"></script>
-    <script src="js/shop-pc.js?v=build-342"></script>
-    <script src="js/events.js?v=build-342"></script>
-    <script src="js/soft-events.js?v=build-342"></script>
-    <script src="js/bubble.js?v=build-342"></script>
-    <script src="js/cauldron-icon.js?v=build-342"></script>
-    <script src="js/coll-origin.js?v=build-342"></script>
-    <script src="js/yt-playables.js?v=build-342"></script>
-    <script src="js/cloud-save.js?v=build-342"></script>
-    <script src="js/ad-overlay.js?v=build-342"></script>
-    <script src="js/rewards.js?v=build-342"></script>
-    <script src="js/i18n.js?v=build-342"></script>
-    <script src="js/save-migrate.js?v=build-342"></script>
-    <script src="js/gx.js?v=build-342"></script>
-    <script src="js/privacy-gate.js?v=build-342"></script>
-    <script src="js/cloud-sync.js?v=build-342"></script>
-    <script src="js/backup.js?v=build-342"></script>
-    <script src="js/store-tier.js?v=build-342"></script>
-    <script src="js/founder-beta.js?v=build-342"></script>
-    <script src="js/visual-theme.js?v=build-342"></script>
-    <script src="js/decor.js?v=build-342"></script>
-    <script src="js/quests.js?v=build-342"></script>
-    <script src="js/achievements.js?v=build-342"></script>
-    <script src="js/achievements-providers.js?v=build-342"></script>
-    <script src="js/soup-menu.js?v=build-342"></script>
-    <script src="js/weekly-challenges.js?v=build-342"></script>
-    <script src="js/helper-team.js?v=build-342"></script>
-    <script src="js/chef-mood.js?v=build-342"></script>
-    <script src="js/login-streak.js?v=build-342"></script>
-    <script src="js/offline.js?v=build-342"></script>
-    <script src="js/farm.js?v=build-342"></script>
-    <script src="js/sound.js?v=build-342"></script>
-    <script src="js/ambient.js?v=build-342"></script>
-    <script src="js/music.js?v=build-342"></script>
-    <script src="js/creator.js?v=build-342"></script>
-    <script src="js/prix.js?v=build-342"></script>
-    <script src="js/soup-skirmish.js?v=build-342"></script>
-    <script src="js/objective.js?v=build-342"></script>
-    <script src="js/angel-tree.js?v=build-342"></script>
-    <script src="js/tutorial.js?v=build-342"></script>
-    <script src="js/quality.js?v=build-342"></script>
-    <script src="js/fullscreen.js?v=build-342"></script>
-    <script src="js/landscape-gate.js?v=build-342"></script>
-    <script src="js/mobile-ui.js?v=build-342"></script>
-    <script src="js/helpers-box.js?v=build-342"></script>
-    <script src="js/home.js?v=build-342"></script>
-    <script src="js/pause-menu.js?v=build-342"></script>
-    <script src="js/guide.js?v=build-342"></script>
-    <script src="js/hud-chips.js?v=build-342"></script>
-    <script src="js/item-bonus.js?v=build-342"></script>
-    <!-- Cache-bust catalog on every deploy (SW must not serve a stale charm list). -->
-    <script src="assets/skins/catalog.js?v=build-342"></script>
-    <script src="assets/atlas_manifest.js?v=build-342"></script>
-    <script src="js/atlas.js?v=build-342"></script>
-    <script src="js/collection.js?v=build-342"></script>
-    <script src="js/place-tool.js?v=build-342"></script>
-    <script src="js/soup-evolution.js?v=build-342"></script>
-    <script src="js/game.js?v=build-342"></script>
-    <!-- === leaderboard -> js/leaderboard-client.js (build-313) ========== -->
-    <script src="js/leaderboard-client.js?v=build-342"></script>
-    <script src="js/lb-ui.js?v=build-342"></script>
-    <script src="js/rewards-ui.js?v=build-342"></script>
-    <!-- === build-tag -> js/build-tag.js (build-320) ====================== -->
-    <script src="js/build-tag.js?v=build-342"></script>
-    <script src="js/boot.js?v=build-342"></script>
+    <!-- Game scripts loaded by app-loader.js AFTER SW/cache purge on browser tabs -->
+    <script src="js/app-loader.js?v=build-343"></script>
 </body>
 </html>

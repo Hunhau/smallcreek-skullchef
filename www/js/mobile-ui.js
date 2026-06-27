@@ -1,4 +1,4 @@
-/* Mobile landscape/portrait UI — sc-shell-v2 */
+/* Mobile landscape/portrait UI — sc-shell-v3 */
 (function (global) {
     'use strict';
 

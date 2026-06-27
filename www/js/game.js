@@ -403,7 +403,12 @@ const game = {
                 if (!this.cp[i] || !x || typeof x !== 'object') return;
                 this.cp[i].lv = Math.max(0, Math.floor(Number(x.lv) || 0));
                 this.cp[i].ch = Math.max(0, Math.floor(Number(x.ch) || 0));
-                for (let j = 0; j < this.cp[i].lv; j++) this.cp[i].cs = Math.floor(this.cp[i].cs * this.compCostMult());
+                /* load-cs-v343 — always recompute next-buy cost from base + level (ignore stale save cs). */
+                const base = (Array.isArray(this.cpBaseCost) && this.cpBaseCost[i] != null)
+                    ? this.cpBaseCost[i] : (this.cp[i].cs || 1);
+                this.cp[i].cs = base;
+                const cm = this.compCostMult();
+                for (let j = 0; j < this.cp[i].lv; j++) this.cp[i].cs = Math.floor(this.cp[i].cs * cm);
             });
             if (d.sp && Array.isArray(d.sp)) d.sp.forEach((item, i) => {
                 if (!this.spoons[i]) return;
