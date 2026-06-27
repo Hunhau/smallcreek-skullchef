@@ -143,7 +143,11 @@ async function boot() {
         }
     } catch (e3) {}
     try { game._warmHelperSprites(); } catch (e) {}
-    try { if (typeof sound._syncBgAudio === 'function') sound._syncBgAudio(); } catch (e) {}
+    try {
+        requestAnimationFrame(function () {
+            try { if (typeof sound._syncBgAudio === 'function') sound._syncBgAudio(); } catch (e) {}
+        });
+    } catch (e) {}
     try { creator.render(); creator.syncLive(); creator.startLivePolling(); } catch (e) {}
     try { mobileUI.init(); } catch (e) {}
     try { backup.maybeMobileDevHint(); } catch (e) {}
@@ -185,6 +189,14 @@ else boot();
         } catch (e) {}
         /* Browser tabs: no SW (head script purges legacy cache). PWA only. */
         if (!standalone) return;
+        var swRefreshing = false;
+        try {
+            navigator.serviceWorker.addEventListener('controllerchange', function () {
+                if (swRefreshing) return;
+                swRefreshing = true;
+                location.reload();
+            });
+        } catch (e) {}
         window.addEventListener('load', function () {
             var swUrl = './sw.js?v=' + (typeof BUILD_V !== 'undefined' ? BUILD_V : String(Date.now()));
             navigator.serviceWorker.register(swUrl, { scope: './' }).then(function (reg) {

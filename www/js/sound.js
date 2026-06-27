@@ -385,13 +385,11 @@ const sound = {
     // Re-arm audio after Play / privacy / name modals (iOS needs a fresh gesture chain).
     touchAudio() {
         try {
-            this.unlock();
-            this.resumeAudio();
-            if (this._useWebAudio()) { try { this._waKick(); } catch (e) {} }
-            if (this._stirUseWa()) {
-                try { this._stirWaEnsureBus(); this._stirWaPreload(); } catch (e) {}
+            if (!this._unlocked) this.unlock();
+            else {
+                this.unlockLight();
+                this.resumeAudioIfNeeded();
             }
-            if (this._useWebAudio()) { try { this._waLoadAll(); } catch (e) {} }
         } catch (e) {}
         this._syncBgAudio();
     },
@@ -460,7 +458,8 @@ const sound = {
     save() { try { localStorage.setItem('soup_audio', JSON.stringify({ m:this.muted, v:this.volume })); } catch (e) {} },
     play(name) {
         if (this.muted || this.volume <= 0) return;
-        this.unlock();
+        if (!this._unlocked) this.unlock();
+        else try { this.unlockLight(); this.resumeAudioIfNeeded(); } catch (e) {}
         if (name !== 'stir' && this._useWebAudio() && this._waPlaySfx(name)) return;
         const grp = this.voices[name]; if (!grp || !grp.length) return;
         const cfg = this.cfg[name] || this.cfg._default;

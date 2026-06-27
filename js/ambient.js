@@ -334,22 +334,13 @@
                 const muted = (typeof sound !== 'undefined' && sound.muted);
                 const hidden = (typeof document !== 'undefined' && document.hidden);
                 const farmBg = (typeof farm !== 'undefined' && farm._bgSuppressed);
-                let deferPlay = false;
-                try {
-                    if (!this._modalOpen()) {
-                        deferPlay = !!(typeof game !== 'undefined' && game._mobileSummonHot && game._mobileSummonHot()
-                            && typeof mobileUI !== 'undefined' && mobileUI.isPhone && mobileUI.isPhone());
-                    }
-                } catch (e) {}
                 for (const id in this.tracks) {
                     const tr = this.tracks[id];
                     const want = tr.on && tr.avail && !muted && !hidden && !farmBg && this._gameVol() > 0;
-                    if (want && !deferPlay) {
+                    if (want) {
                         const a = this.ensureAudio(tr);
                         this._applyVol(tr);
                         this._playLoop(a);
-                    } else if (want && deferPlay) {
-                        if (tr.audio && !tr.audio.paused) this._applyVol(tr);
                     } else if (tr.audio) {
                         try { tr.audio.pause(); } catch (e) {}
                     }

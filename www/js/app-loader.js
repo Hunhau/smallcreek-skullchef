@@ -2,7 +2,7 @@
 (function (global) {
     'use strict';
 
-    var BUILD = 'build-357';
+    var BUILD = 'build-358';
 
     var SCRIPTS = [
         'js/build-target.js',
@@ -157,12 +157,24 @@
     }
 
     function run() {
-        if (isFastBoot()) {
+        if (isLocal()) {
             loadSequential();
             return;
         }
-        var chain = purgeAll().then(function () { return purgeAll(); });
-        chain.then(loadSequential).catch(loadSequential);
+        fetch('version.json?t=' + Date.now(), { cache: 'no-store' })
+            .then(function (r) { return r.json(); })
+            .catch(function () { return null; })
+            .then(function (vd) {
+                if (vd && vd.v && vd.v !== BUILD) {
+                    location.replace((location.pathname || '/') + '?_sv=' + encodeURIComponent(vd.v) + '&_t=' + Date.now());
+                    return;
+                }
+                var chain = Promise.resolve();
+                if (!isFastBoot()) {
+                    chain = purgeAll().then(function () { return purgeAll(); });
+                }
+                chain.then(loadSequential).catch(loadSequential);
+            });
     }
 
     global.__SC_APP_BUILD = BUILD;

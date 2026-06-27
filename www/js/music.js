@@ -325,22 +325,11 @@
                 const muted = (typeof sound !== 'undefined' && sound.muted);
                 const hidden = (typeof document !== 'undefined' && document.hidden);
                 const farmBg = (typeof farm !== 'undefined' && farm._bgSuppressed);
-                let deferPlay = false;
-                try {
-                    const md = document.getElementById('ambient-modal');
-                    const ambOpen = !!(md && md.classList.contains('open'));
-                    if (!ambOpen) {
-                        deferPlay = !!(typeof game !== 'undefined' && game._mobileSummonHot && game._mobileSummonHot()
-                            && typeof mobileUI !== 'undefined' && mobileUI.isPhone && mobileUI.isPhone());
-                    }
-                } catch (e) {}
                 const want = this.on && this.avail && !muted && !hidden && !farmBg && this._gameVol() > 0;
-                if (want && !deferPlay) {
+                if (want) {
                     const a = this.ensureAudio();
                     this._applyVol();
                     this._playLoop(a);
-                } else if (want && deferPlay) {
-                    if (this.audio && !this.audio.paused) this._applyVol();
                 } else if (this.audio) {
                     try { this.audio.pause(); } catch (e) {}
                 }
