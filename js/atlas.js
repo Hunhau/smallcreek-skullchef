@@ -146,14 +146,14 @@
             },
             setBonusMult() {
                 const n = this.completedPackCount();
-                const pct = this.bonusPctPerSet();
-                const cap = 15;
+                const pct = (typeof balanceGet === 'function' ? balanceGet('atlasSetBonusPct', 1) : 1);
+                const cap = (typeof balanceGet === 'function' ? balanceGet('atlasSetBonusCap', 15) : 15);
                 return 1 + (Math.min(cap, n * pct) / 100);
             },
             setBonusPctDisplay() {
                 const n = this.completedPackCount();
-                const pct = this.bonusPctPerSet();
-                const cap = 15;
+                const pct = (typeof balanceGet === 'function' ? balanceGet('atlasSetBonusPct', 1) : 1);
+                const cap = (typeof balanceGet === 'function' ? balanceGet('atlasSetBonusCap', 15) : 15);
                 return Math.min(cap, n * pct);
             },
             chronicleSnippet() {
@@ -287,7 +287,7 @@
                     const sets = this.pathCompleteSets(p.id);
                     const cls = (cur === p.id) ? 'path-choice active' : 'path-choice';
                     const pid = String(p.id).replace(/'/g, "\\'");
-                    html += `<button type="button" class="${cls}" onclick="atlas.pickPath('${pid}')"><div class="path-choice-hd">${p.emoji || '🗺️'} ${title}</div><div class="path-choice-sub">${tag}</div><div class="path-choice-meta">${packs.length ? (sets + '/' + packs.length + ' sets') : (LANG === 'es' ? 'Próximamente' : 'Coming soon')}</div></button>`;
+                    html += `<button type="button" class="${cls}" onclick="atlas.pickPath('${pid}')"><div class="path-choice-hd">${(typeof scCauldronIcon !== 'undefined' ? scCauldronIcon.pathIcon(p) : (p.emoji || '🗺️'))} ${title}</div><div class="path-choice-sub">${tag}</div><div class="path-choice-meta">${packs.length ? (sets + '/' + packs.length + ' sets') : (LANG === 'es' ? 'Próximamente' : 'Coming soon')}</div></button>`;
                 }
                 host.innerHTML = html;
             },
@@ -303,7 +303,7 @@
                 const p = this.pathDef(pid);
                 const chapters = this.unlockedChapters(pid);
                 const totalCh = (p && p.chapters) ? p.chapters.length : 0;
-                return `<div class="atlas-path-card"><div class="atlas-path-card-hd">${p.emoji || '🗺️'} ${t('path_current', { name: this.pathTitle(pid) })}</div><div class="atlas-path-card-sub">${(LANG === 'es') ? (p.tagline_es || p.tagline_en) : (p.tagline_en || p.tagline_es)} · ${t('path_drop_bias')}</div><div class="atlas-path-chapters">${t('path_chapters', { n: chapters.length, total: totalCh })}</div><div class="atlas-path-actions"><button type="button" class="gx-btn sm" onclick="atlas.openChronicleModal()">${t('chronicle_modal_title')}</button><button type="button" class="gx-btn sm" onclick="atlas.openPathModal()">${t('path_change')}</button></div></div>`;
+                return `<div class="atlas-path-card"><div class="atlas-path-card-hd">${(typeof scCauldronIcon !== 'undefined' ? scCauldronIcon.pathIcon(p) : (p.emoji || '🗺️'))} ${t('path_current', { name: this.pathTitle(pid) })}</div><div class="atlas-path-card-sub">${(LANG === 'es') ? (p.tagline_es || p.tagline_en) : (p.tagline_en || p.tagline_es)} · ${t('path_drop_bias')}</div><div class="atlas-path-chapters">${t('path_chapters', { n: chapters.length, total: totalCh })}</div><div class="atlas-path-actions"><button type="button" class="gx-btn sm" onclick="atlas.openChronicleModal()">${t('chronicle_modal_title')}</button><button type="button" class="gx-btn sm" onclick="atlas.openPathModal()">${t('path_change')}</button></div></div>`;
             },
             openChronicleModal() {
                 const pid = this.path();
@@ -401,7 +401,7 @@
                         if (r.id === focusRegion) regionCls += ' path-focus';
                         else regionCls += ' path-dim';
                     }
-                    html += `<section class="${regionCls}"><h3 class="atlas-region-hd"><span>${r.emoji || '🗺️'}</span><span>${regionTitle}</span><span style="margin-left:auto;font-size:0.62rem;color:#94a3b8">${regionOwned}/${regionTotal}${regionComplete ? ' · ' + regionComplete + '✓' : ''}</span></h3>`;
+                    html += `<section class="${regionCls}"><h3 class="atlas-region-hd"><span>${(typeof scCauldronIcon !== 'undefined' ? scCauldronIcon.regionIcon(r) : (r.emoji || '🗺️'))}</span><span>${regionTitle}</span><span style="margin-left:auto;font-size:0.62rem;color:#94a3b8">${regionOwned}/${regionTotal}${regionComplete ? ' · ' + regionComplete + '✓' : ''}</span></h3>`;
                     if (regionChron) html += `<p class="atlas-region-sub">${regionChron}</p>`;
                     html += '<div class="atlas-pack-grid">';
                     for (let pi = 0; pi < packs.length; pi++) {
@@ -436,7 +436,7 @@
                     if (!packs.length) continue;
                     const regionTitle = (LANG === 'es') ? (r.title_es || r.title_en) : (r.title_en || r.title_es);
                     const regionChron = (LANG === 'es') ? (r.chronicle_es || r.chronicle_en) : (r.chronicle_en || r.chronicle_es);
-                    html += `<h3 class="museum-region-hd">${r.emoji || '🏛️'} ${regionTitle}</h3>`;
+                    html += `<h3 class="museum-region-hd">${(typeof scCauldronIcon !== 'undefined' && r.id === 'cauldron_core' ? scCauldronIcon.regionIcon(r) : (r.emoji || '🏛️'))} ${regionTitle}</h3>`;
                     for (let pi = 0; pi < packs.length; pi++) {
                         const packId = packs[pi];
                         const pr = this.packProgress(packId);

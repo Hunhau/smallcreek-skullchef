@@ -5,7 +5,8 @@
     global.chefMood = {
         mult() {
             const m = Number.isFinite(game.chefMood) ? game.chefMood : 55;
-            return 1 + (m / 100) * 0.10;
+            const cap = (typeof balanceGet === 'function' ? balanceGet('chefMoodMaxBonusPct', 12) : 12) / 100;
+            return 1 + (m / 100) * cap;
         },
         pctDisplay() { return Math.round((this.mult() - 1) * 100); },
         bump(amt, reason) {
@@ -22,8 +23,9 @@
         },
         tick() {
             const prev = Number.isFinite(game.chefMood) ? game.chefMood : 55;
-            if (prev <= 15) return;
-            game.chefMood = Math.max(15, prev - 0.08);
+            const floor = (typeof balanceGet === 'function' ? balanceGet('chefMoodFloor', 15) : 15);
+            if (prev <= floor) return;
+            game.chefMood = Math.max(floor, prev - 0.07);
         },
         labelKey() {
             const m = Number.isFinite(game.chefMood) ? game.chefMood : 55;

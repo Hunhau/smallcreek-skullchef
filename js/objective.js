@@ -80,7 +80,7 @@
                         }
                     }
                 } catch (eM) {}
-                const presGoal = 1e6 * Math.pow(5, game.s);
+                const presGoal = balancePrestigeGoal(game.s);
                 if (game.e >= presGoal) {
                     return { kind: 'prestige', icon: '👼', text: t('goal_prestige', { n: game.presShards() }), action: () => {
                         try { const ap = document.getElementById('altar-panel'); if (ap) { ap.classList.add('goal-pulse'); setTimeout(() => { try { ap.classList.remove('goal-pulse'); } catch (e) {} }, 1400); } } catch (e) {}
@@ -144,7 +144,7 @@
                 chip.classList.toggle('goal-chip-action', hasAction);
                 if (sig !== this._sig) {
                     this._sig = sig;
-                    if (iconEl) iconEl.textContent = g.icon || '🎯';
+                    if (iconEl) scCauldronIcon.setGoalIcon(iconEl, g.icon || '🎯');
                     textEl.textContent = g.text || '';
                 }
                 chip.style.display = 'flex';

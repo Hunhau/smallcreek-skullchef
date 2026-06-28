@@ -748,7 +748,7 @@ function setLang(l) {
     try { quality.syncUi(); fullscreen.syncUi(); } catch (e) {}
     const cm = document.getElementById('collection-modal'); if (cm && cm.classList.contains('open')) collection.render();
     const am = document.getElementById('ach-modal'); if (am && am.classList.contains('open')) achievementsUI.render();
-    try { const abm = document.getElementById('ambient-modal'); if (abm && abm.classList.contains('open')) { if (typeof ambient._refreshI18n === 'function') ambient._refreshI18n(); else ambient._render(); if (typeof music !== 'undefined') music._render(); } } catch (e) {}
+    try { const abm = document.getElementById('ambient-modal'); if (abm && abm.classList.contains('open')) { ambient._render(); if (typeof music !== 'undefined') music._render(); } } catch (e) {}
     try { const crm = document.getElementById('creator-modal'); if (crm && crm.classList.contains('open')) creator.render(); creator.syncLive(); } catch (e) {}
     try { const lbm = document.getElementById('lb-modal'); if (lbm && lbm.classList.contains('open')) lbUI.render(); } catch (e) {}
     try { const fmm = document.getElementById('farm-modal'); if (fmm && fmm.classList.contains('open')) farm.render(); } catch (e) {}

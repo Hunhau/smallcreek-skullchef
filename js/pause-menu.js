@@ -12,6 +12,7 @@
             this.showMain();
             this.renderLifetime();
             quality.syncUi(); fullscreen.syncUi(); this.syncAudio();
+            try { if (typeof STORE_TIER !== 'undefined') STORE_TIER.syncUi(); } catch (e) {}
             const md = document.getElementById('pause-modal'); if (md) md.classList.add('open');
         },
         renderLifetime() {
@@ -47,8 +48,10 @@
         },
         exit() {
             try {
-                // HOOK NATIVO (stub): Steam/Electron quit
-                // HOOK PLAYABLES (stub): YouTube Playables
+                if (window.electronAPI && typeof window.electronAPI.quitApp === 'function') {
+                    window.electronAPI.quitApp();
+                    return;
+                }
             } catch (e) {}
             this.toHome();
         }

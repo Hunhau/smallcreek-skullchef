@@ -4,16 +4,6 @@
 
 async function boot() {
     try {
-    try {
-        if (location.protocol !== 'file:' && (typeof SC_LOCAL_DEV === 'undefined' || !SC_LOCAL_DEV)) {
-            const vr = await fetch('version.json?t=' + Date.now(), { cache: 'no-store' });
-            const vd = await vr.json();
-            if (vd && vd.v && typeof BUILD_V !== 'undefined' && vd.v !== BUILD_V) {
-                location.replace(location.pathname + '?_sv=' + encodeURIComponent(vd.v) + '&_t=' + Date.now());
-                return;
-            }
-        }
-    } catch (e) {}
     try { const sl = localStorage.getItem('soup_lang'); if (sl === 'es' || sl === 'en') setLang(sl); } catch (e) {}
     syncHtmlLang();
     applyRotateDismissOnBoot();
@@ -143,11 +133,7 @@ async function boot() {
         }
     } catch (e3) {}
     try { game._warmHelperSprites(); } catch (e) {}
-    try {
-        requestAnimationFrame(function () {
-            try { if (typeof sound._syncBgAudio === 'function') sound._syncBgAudio(); } catch (e) {}
-        });
-    } catch (e) {}
+    try { if (typeof sound._syncBgAudio === 'function') sound._syncBgAudio(); } catch (e) {}
     try { creator.render(); creator.syncLive(); creator.startLivePolling(); } catch (e) {}
     try { mobileUI.init(); } catch (e) {}
     try { backup.maybeMobileDevHint(); } catch (e) {}
@@ -182,26 +168,8 @@ else boot();
         if (window.Capacitor && typeof window.Capacitor.isNativePlatform === 'function' && window.Capacitor.isNativePlatform()) return;
         var host = location.hostname;
         if (location.protocol !== 'https:' && host !== 'localhost' && host !== '127.0.0.1') return;
-        var standalone = false;
-        try {
-            standalone = (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches)
-                || window.navigator.standalone === true;
-        } catch (e) {}
-        /* Browser tabs: no SW (head script purges legacy cache). PWA only. */
-        if (!standalone) return;
-        var swRefreshing = false;
-        try {
-            navigator.serviceWorker.addEventListener('controllerchange', function () {
-                if (swRefreshing) return;
-                swRefreshing = true;
-                location.reload();
-            });
-        } catch (e) {}
         window.addEventListener('load', function () {
-            var swUrl = './sw.js?v=' + (typeof BUILD_V !== 'undefined' ? BUILD_V : String(Date.now()));
-            navigator.serviceWorker.register(swUrl, { scope: './' }).then(function (reg) {
-                try { reg.update(); } catch (e) {}
-            }).catch(function () {});
+            navigator.serviceWorker.register('./sw.js', { scope: './' }).catch(function () {});
         }, { once: true });
     } catch (e) {}
 })();

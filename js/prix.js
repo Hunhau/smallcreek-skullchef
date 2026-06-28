@@ -138,7 +138,7 @@
                     const helperName = t(this.ch.nk);
                     game.prixStreak = Math.max(1, (game.prixStreak || 0) + 1);
                     const leagueMult = this.leagueInfo().ebMult;
-                    const streakBonus = Math.floor(5000 * game.prixStreak * (1 + game.s * 0.5) * leagueMult);
+                    const streakBonus = Math.floor(5000 * game.prixStreak * balanceEraMult(game.s) * leagueMult);
                     if (streakBonus > 0) { game.e += streakBonus; game.te += streakBonus; game.track('eb', streakBonus); }
                     if (r) r.innerText = t('first_place');
                     if (box) box.classList.remove('defeat');
@@ -165,7 +165,7 @@
                 } else {
                     game.prixStreak = 0;
                     try { if (this.ch) helperBond.add(this.ch.id, 3, true); } catch (e0) {}
-                    const p = Math.floor(1e6 * Math.pow(5, game.s) * 0.01);
+                    const p = Math.floor(balancePrestigeGoal(game.s) * 0.01);
                     if (r) r.innerText = t('defeat');
                     if (box) box.classList.add('defeat');
                     if (icon) icon.textContent = '💫';
@@ -211,6 +211,7 @@
                     el.addEventListener('pointerup', run, { passive: false });
                 };
                 bind(document.getElementById('prix-fab'));
+                bind(document.getElementById('m-prix-btn'));
             }
         };
 
