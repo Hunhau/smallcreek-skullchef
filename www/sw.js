@@ -1,6 +1,6 @@
 /* Smallcreek Skullchef — offline shell cache (PWA / Add to Home Screen).
    Bump CACHE_VERSION when deploying so stale shells refresh. */
-const CACHE_VERSION = 'build-331';
+const CACHE_VERSION = 'build-358';
 const CACHE_NAME = 'skullchef-shell-' + CACHE_VERSION;
 
 const PRECACHE = [
@@ -10,6 +10,7 @@ const PRECACHE = [
   './manifest.webmanifest',
   './version.json',
   './privacy.html',
+  './js/app-loader.js',
   './js/events.js',
   './assets/skins/catalog.js',
   './assets/icons/icon-192.png',
@@ -68,6 +69,15 @@ function isNetworkFirst(url) {
   }
 }
 
+function isAppAsset(url) {
+  try {
+    const path = new URL(url).pathname;
+    return /\/js\/[^/]+\.js$/i.test(path) || /\/css\/[^/]+\.css$/i.test(path);
+  } catch (e) {
+    return false;
+  }
+}
+
 self.addEventListener('fetch', (event) => {
   const req = event.request;
   if (req.method !== 'GET') return;
@@ -93,12 +103,14 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  if (isNetworkFirst(url)) {
+  if (isNetworkFirst(url) || isAppAsset(url)) {
     event.respondWith(
-      fetch(req)
+      fetch(req, { cache: 'no-store' })
         .then((res) => {
-          const copy = res.clone();
-          caches.open(CACHE_NAME).then((c) => c.put(req, copy)).catch(() => {});
+          if (res && res.status === 200) {
+            const copy = res.clone();
+            caches.open(CACHE_NAME).then((c) => c.put(req, copy)).catch(() => {});
+          }
           return res;
         })
         .catch(() => caches.match(req))
