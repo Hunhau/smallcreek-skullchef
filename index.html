@@ -2493,10 +2493,16 @@
                 } catch (e) {}
                 return true;
             },
+            _lang: function () {
+                try { var hl = document.documentElement && document.documentElement.getAttribute('lang'); if (hl === 'es' || hl === 'en') return hl; } catch (e) {}
+                try { var s = localStorage.getItem('soup_lang'); if (s === 'es' || s === 'en') return s; } catch (e) {}
+                try { if (typeof LANG !== 'undefined') return (LANG === 'es') ? 'es' : 'en'; } catch (e) {}
+                return 'en';
+            },
             syncLangPills: function () {
                 var en = document.getElementById('founder-lang-en');
                 var es = document.getElementById('founder-lang-es');
-                var lang = (typeof global.LANG !== 'undefined') ? global.LANG : 'en';
+                var lang = this._lang();
                 if (en) en.classList.toggle('active', lang === 'en');
                 if (es) es.classList.toggle('active', lang === 'es');
             },
@@ -2511,13 +2517,27 @@
                 this.syncLangPills();
                 md.classList.add('open');
                 try { document.body.style.overflow = 'hidden'; } catch (e2) {}
+                // Anti ghost-click táctil (móvil): el mismo toque que abre el modal puede
+                // generar un 'click' sintético sobre el botón OK recién aparecido y cerrarlo
+                // al instante (saltando al name/offline gate). Bloqueamos la interacción del
+                // modal ~420ms tras abrir y no permitimos dismiss hasta estar "armado".
+                this._armed = false;
+                try { md.style.pointerEvents = 'none'; } catch (e3) {}
+                var self = this;
+                try { if (this._armT) clearTimeout(this._armT); } catch (e4) {}
+                this._armT = setTimeout(function () {
+                    self._armed = true;
+                    try { md.style.pointerEvents = ''; } catch (e5) {}
+                }, 420);
             },
             close: function () {
                 var md = document.getElementById('founder-welcome-modal');
-                if (md) md.classList.remove('open');
+                if (md) { md.classList.remove('open'); try { md.style.pointerEvents = ''; } catch (e) {} }
+                try { if (this._armT) clearTimeout(this._armT); } catch (e) {}
                 try { document.body.style.overflow = ''; } catch (e) {}
             },
             dismiss: function () {
+                if (!this._armed) return;
                 this.close();
                 var cb = this._pending;
                 this._pending = null;
@@ -3415,7 +3435,7 @@
         // while still retrying if a reload didn't actually land the new build. Fully
         // defensive: any error is silent and never blocks the game. Parent bumps BOTH
         // version.json and BUILD_V on every future deploy.
-        const BUILD_V = "build-365";
+        const BUILD_V = "build-366";
         function paintBuildTag() {
             try {
                 var prod = (typeof PRODUCTION_BUILD !== 'undefined' && PRODUCTION_BUILD)
