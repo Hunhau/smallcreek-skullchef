@@ -656,6 +656,12 @@
     { id: 'bunny_epic_mummywrap', rarity: 'epic', family: 'helper', img: 'assets/skins/bunny_epic_mummywrap.png', thumb: 'assets/skins/thumbs/bunny_epic_mummywrap.webp', name_en: 'Bunny · Mummy Wrap', name_es: 'Bunny · Vendas Momia', dropLive: false },
     { id: 'bunny_epic_nebulapuff', rarity: 'epic', family: 'helper', img: 'assets/skins/bunny_epic_nebulapuff.png', thumb: 'assets/skins/thumbs/bunny_epic_nebulapuff.webp', name_en: 'Bunny · Nebula Puff', name_es: 'Bunny · Puff Nebulosa', dropLive: false },
     { id: 'bunny_legendary_blackholeboba', rarity: 'legendary', family: 'helper', img: 'assets/skins/bunny_legendary_blackholeboba.png', thumb: 'assets/skins/thumbs/bunny_legendary_blackholeboba.webp', name_en: 'Bunny · Black Hole Boba', name_es: 'Bunny · Boba Agujero', dropLive: false },
+    // === ANOMALY (Wave 5 _otros) — aprobadas por el creador ===
+    { id: 'bongo_anomaly_grove', rarity: 'anomaly', family: 'helper', img: 'assets/skins/bongo_anomaly_grove.png', thumb: 'assets/skins/thumbs/bongo_anomaly_grove.webp', name_en: 'Bongo · Jungle Golem', name_es: 'Bongo · Gólem Selva' },
+    { id: 'bunny_anomaly_lunar', rarity: 'anomaly', family: 'helper', img: 'assets/skins/bunny_anomaly_lunar.png', thumb: 'assets/skins/thumbs/bunny_anomaly_lunar.webp', name_en: 'Bunny · Lunar Colossus', name_es: 'Bunny · Coloso Lunar' },
+    { id: 'coco_anomaly_leviathan', rarity: 'anomaly', family: 'helper', img: 'assets/skins/coco_anomaly_leviathan.png', thumb: 'assets/skins/thumbs/coco_anomaly_leviathan.webp', name_en: 'Coco · Leviathan', name_es: 'Coco · Leviatán' },
+    { id: 'ivan_anomaly_chimera', rarity: 'anomaly', family: 'helper', img: 'assets/skins/ivan_anomaly_chimera.png', thumb: 'assets/skins/thumbs/ivan_anomaly_chimera.webp', name_en: 'Ivan · Chimera Bear', name_es: 'Ivan · Oso Quimera' },
+    { id: 'pio_anomaly_serpent', rarity: 'anomaly', family: 'helper', img: 'assets/skins/pio_anomaly_serpent.png', thumb: 'assets/skins/thumbs/pio_anomaly_serpent.webp', name_en: 'Pío · Serpent Duck', name_es: 'Pío · Pato Serpiente' },
     // === WAVE 5 — Chaos Kawaii (400 skins, arte pendiente) ===
     // Manifiesto: tools/wave5_chaos_kawaii.json · Guía: tools/WAVE5_CHAOS_KAWAII.md
     // Generar JSON: python tools/generate-wave5-scaffold.py
@@ -664,3 +670,5 @@
     // === WAVE 7 — Realm Ruckus
     // --- Fairy Glade (Wave 7) ---
     
+  ];
+})();
