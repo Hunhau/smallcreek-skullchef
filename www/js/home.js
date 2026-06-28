@@ -26,6 +26,8 @@ const VERSION = 'v1.0.1';
             },
             play() {
                 const ov = document.getElementById('home-overlay'); if (!ov) return;
+                // Founder welcome (beta web, PC + móvil): se muestra una vez antes de entrar.
+                try { if (!this._founderDone && typeof founderBeta !== 'undefined' && founderBeta.maybeShow(() => { this._founderDone = true; this.play(); })) return; } catch (e) {}
                 try { if (typeof sound.touchAudioIfOn === 'function') sound.touchAudioIfOn(); else if (!sound.muted && sound.volume > 0) sound.touchAudio(); } catch (e) {}
                 const enter = () => {
                     ov.classList.add('closing');

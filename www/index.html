@@ -947,6 +947,19 @@
         #audio-ctrl.muted #audio-vol { opacity: 0.35; }
         .gx-modal { position: fixed; inset: 0; z-index: 95000; display: none; align-items: center; justify-content: center; background: rgba(12, 4, 24, 0.7); backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur); }
         .gx-modal.open { display: flex; }
+        .founder-banner { margin: 8px 0 4px; padding: 10px 12px; border-radius: 12px; text-align: center; background: linear-gradient(145deg, rgba(16,42,38,0.92), rgba(24,32,48,0.88)); border: 1px solid rgba(74,222,128,0.45); box-shadow: 0 4px 18px rgba(0,0,0,0.35); max-width: 36ch; }
+        .founder-banner-teaser { margin: 0; font-size: 0.76rem; font-weight: 700; line-height: 1.35; color: #bbf7d0; }
+        .founder-welcome-modal { z-index: 250000; padding: max(12px, env(safe-area-inset-top)) max(12px, env(safe-area-inset-right)) max(12px, env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-left)); }
+        .founder-welcome-box { max-width: min(420px, 94vw); width: 100%; padding: 22px 20px 18px; text-align: center; border: 1px solid rgba(74,222,128,0.5); background: linear-gradient(160deg, rgba(12,36,32,0.97), rgba(20,24,42,0.96)); box-shadow: 0 12px 40px rgba(0,0,0,0.55); }
+        .founder-welcome-lang { display: flex; justify-content: center; gap: 8px; margin-bottom: 14px; }
+        .founder-lang-pill { min-width: 52px; min-height: 40px; padding: 8px 14px; border-radius: 999px; border: 1px solid rgba(148,163,184,0.45); background: rgba(15,23,42,0.7); color: #cbd5e1; font-weight: 800; font-size: 0.82rem; cursor: pointer; }
+        .founder-lang-pill.active { border-color: rgba(74,222,128,0.85); background: rgba(22,101,52,0.55); color: #ecfccb; box-shadow: 0 0 0 2px rgba(74,222,128,0.25); }
+        .founder-welcome-badge { margin: 0 0 8px; font-size: 0.72rem; font-weight: 800; letter-spacing: 0.07em; text-transform: uppercase; color: #86efac; }
+        .founder-welcome-title { margin: 0 0 12px; font-size: clamp(1.35rem, 5vw, 1.75rem); line-height: 1.2; color: #fef9c3; text-shadow: 0 2px 12px rgba(0,0,0,0.45); }
+        .founder-welcome-lead { margin: 0 0 12px; font-size: clamp(0.95rem, 3.8vw, 1.08rem); font-weight: 700; line-height: 1.4; color: #ecfccb; }
+        .founder-welcome-body { margin: 0 0 12px; font-size: clamp(0.88rem, 3.4vw, 0.98rem); line-height: 1.5; color: #e2e8f0; }
+        .founder-welcome-foot { margin: 0 0 18px; font-size: 0.78rem; line-height: 1.45; color: #94a3b8; font-style: italic; }
+        .founder-welcome-ok { width: 100%; min-height: 52px; font-size: 1.05rem; font-weight: 800; margin-top: 4px; }
         /* First-run name modal must sit ABOVE the start-screen home overlay (z 200000). */
         #name-modal { z-index: 200001; }
         /* Privacy-consent gate must sit ABOVE the home overlay AND the name modal,
@@ -2285,6 +2298,9 @@
             <h1 id="home-title" data-i18n="home_title">Skullchef</h1>
             <p id="home-subtitle" data-i18n="home_subtitle">The Wooden Soup</p>
             <p id="home-tagline" data-i18n="home_tagline">A cozy ASMR soup to stir, sip and unwind.</p>
+            <div id="home-founder-banner" class="founder-banner founder-banner--teaser" style="display:none" role="note">
+                <p class="founder-banner-teaser" data-i18n="founder_beta_teaser">🌟 Founder beta — tap Play for your perks</p>
+            </div>
             <button id="home-play" type="button" onclick="home.play()" data-i18n="home_play">PLAY</button>
             <div id="home-settings">
                 <div class="home-row">
@@ -2450,6 +2466,82 @@
         <script>function toggleShopPC(){var c=document.body.classList.toggle('shop-collapsed');try{localStorage.setItem('sc_shop_collapsed',c?'1':'0');}catch(e){}}try{if(localStorage.getItem('sc_shop_collapsed')==='1')document.body.classList.add('shop-collapsed');}catch(e){}</script>
         <aside id="side-shop"><button id="shop-close-m" type="button" onclick="mobileUI.closeAll()" data-i18n-title="close" aria-label="Close" title="Close">✕</button><h1 data-i18n="shop" style="text-align:center; font-size:1.3rem;">SHOP</h1><div id="shop-companions-panel"><div id="buy-mode-toggle" onclick="game.cycleBuyMode()" data-i18n="buy_x1">Buy x1</div><div id="companion-list"></div><div id="spoons-album-section"><div id="spoons-album-title" data-i18n="spoons_album_title">SACRED SPOONS ALBUM</div><div id="spoons-album"></div></div><div id="hats-album-section"><div id="hats-album-title" data-i18n="hats_album_title">SACRED HATS ALBUM</div><div id="hats-album"></div></div></div></aside>
     </div>
+    <div id="founder-welcome-modal" class="gx-modal founder-welcome-modal" role="dialog" aria-modal="true" aria-labelledby="founder-welcome-title">
+        <div class="gx-box founder-welcome-box">
+            <div class="founder-welcome-lang" role="group" aria-label="Language">
+                <button id="founder-lang-en" type="button" class="founder-lang-pill" onclick="founderBeta.pickLang('en')">EN</button>
+                <button id="founder-lang-es" type="button" class="founder-lang-pill" onclick="founderBeta.pickLang('es')">ES</button>
+            </div>
+            <p class="founder-welcome-badge" data-i18n="founder_beta_badge">Web beta · founder account</p>
+            <h2 id="founder-welcome-title" class="founder-welcome-title" data-i18n="founder_beta_title">You're playing early</h2>
+            <p class="founder-welcome-lead" data-i18n="founder_beta_lead">Not a demo — you're playing the full game before launch.</p>
+            <p class="founder-welcome-body" data-i18n="founder_beta_body">Everything you earn stays yours: charms, prestige, your run. Export your backup code and move to Steam, iOS, or Android when you're ready.</p>
+            <p class="founder-welcome-foot" data-i18n="founder_beta_foot">After launch, new web players get a demo slice only. Founders keep the full game.</p>
+            <button type="button" class="gx-btn founder-welcome-ok" onclick="founderBeta.dismiss()" data-i18n="founder_beta_ok">Got it — let's stir!</button>
+        </div>
+    </div>
+    <script>
+    (function (global) {
+        'use strict';
+        global.founderBeta = {
+            _pending: null,
+            // Web (PC + móvil navegador/PWA) sí; Capacitor nativo (tiendas) no.
+            shouldOffer: function () {
+                try {
+                    var C = global.Capacitor;
+                    if (C && typeof C.isNativePlatform === 'function' && C.isNativePlatform()) return false;
+                } catch (e) {}
+                return true;
+            },
+            syncLangPills: function () {
+                var en = document.getElementById('founder-lang-en');
+                var es = document.getElementById('founder-lang-es');
+                var lang = (typeof global.LANG !== 'undefined') ? global.LANG : 'en';
+                if (en) en.classList.toggle('active', lang === 'en');
+                if (es) es.classList.toggle('active', lang === 'es');
+            },
+            pickLang: function (l) {
+                try { if (typeof setLang === 'function') setLang(l); } catch (e) {}
+                this.syncLangPills();
+            },
+            open: function () {
+                var md = document.getElementById('founder-welcome-modal');
+                if (!md) return;
+                try { if (typeof applyStaticI18n === 'function') applyStaticI18n(); } catch (e) {}
+                this.syncLangPills();
+                md.classList.add('open');
+                try { document.body.style.overflow = 'hidden'; } catch (e2) {}
+            },
+            close: function () {
+                var md = document.getElementById('founder-welcome-modal');
+                if (md) md.classList.remove('open');
+                try { document.body.style.overflow = ''; } catch (e) {}
+            },
+            dismiss: function () {
+                this.close();
+                var cb = this._pending;
+                this._pending = null;
+                if (typeof cb === 'function') { try { cb(); } catch (e2) {} }
+            },
+            // true si se mostró (el llamador debe esperar al callback).
+            maybeShow: function (onDone) {
+                if (!this.shouldOffer()) return false;
+                var md = document.getElementById('founder-welcome-modal');
+                if (!md) return false;
+                this._pending = onDone;
+                this.open();
+                return true;
+            }
+        };
+        // Banner teaser en el home (solo web).
+        try {
+            if (global.founderBeta.shouldOffer()) {
+                var b = document.getElementById('home-founder-banner');
+                if (b) b.style.display = '';
+            }
+        } catch (e) {}
+    })(typeof window !== 'undefined' ? window : this);
+    </script>
     <div id="audio-ctrl"><button id="audio-mute" type="button" onclick="sound.toggleMute()" data-i18n-title="audio_mute_title" title="Mute / Unmute sound">🔊</button><input id="audio-vol" type="range" min="0" max="100" value="100" oninput="sound.setVolume(this.value/100)" data-i18n-title="audio_vol_title" title="Volume"></div>
     <div id="gx-toast-wrap"></div>
     <div id="side-buttons">
@@ -3323,7 +3415,7 @@
         // while still retrying if a reload didn't actually land the new build. Fully
         // defensive: any error is silent and never blocks the game. Parent bumps BOTH
         // version.json and BUILD_V on every future deploy.
-        const BUILD_V = "build-364";
+        const BUILD_V = "build-365";
         function paintBuildTag() {
             try {
                 var prod = (typeof PRODUCTION_BUILD !== 'undefined' && PRODUCTION_BUILD)
@@ -3395,7 +3487,7 @@
                 energy_balls:"Energy Balls:", angel_shards:"Angel Shards:", chronicle:"CHRONICLE", era:"Era", locked:"LOCKED", shop:"SHOP", spoons_album_title:"SACRED SPOONS ALBUM", hats_album_title:"SACRED HATS ALBUM",
                 quests_btn:"📜 Chef's Orders", tree_btn:"🌳 Angel Tree", offline_title:"Your soup kept cooking", claim:"Claim", quests_title:"Chef's Orders", close:"Close",
                 tree_title:"Angel Awakening Tree", tree_shards_avail:"Available Angel Shards:", audio_mute_title:"Mute / Unmute sound", audio_vol_title:"Volume",
-                home_title:"Skullchef", home_subtitle:"The Wooden Soup", home_tagline:"A cozy idle clicker — stir, sip and unwind.", home_play:"Play", home_language:"Language", home_audio:"Audio", home_credits:"by SmallCreek",
+                home_title:"Skullchef", home_subtitle:"The Wooden Soup", home_tagline:"A cozy idle clicker — stir, sip and unwind.", home_play:"Play", founder_beta_badge:"Web beta · founder account", founder_beta_teaser:"🌟 Founder beta — tap Play for your perks", founder_beta_title:"You're playing early", founder_beta_lead:"Not a demo — you're playing the full game before launch.", founder_beta_body:"Everything you earn stays yours: charms, prestige, your run. Export your backup code and move to Steam, iOS, or Android when you're ready.", founder_beta_foot:"After launch, new web players get a demo slice only. Founders keep the full game.", founder_beta_ok:"Got it — let's stir!", home_language:"Language", home_audio:"Audio", home_credits:"by SmallCreek",
                 backup_label:"Backup", backup_export:"⬇ Export", backup_copy:"📋 Copy", backup_import:"📥 Paste", backup_file:"📂 File",
                 cloud_upload:"☁️ Cloud Save", cloud_restore:"☁️ Restore by Code", cloud_uploading:"Uploading to the cloud…", cloud_uploaded:"Progress saved to the cloud.", cloud_uploaded_copied:"Saved to the cloud — your code is copied!", cloud_your_code:"Your account code (copy it to move your progress to another device):", cloud_restore_prompt:"Paste your account code to restore your progress:", cloud_restoring:"Restoring from the cloud…", cloud_not_found:"No cloud save found for that code.", cloud_bad_code:"That account code is not valid.", cloud_offline:"The cloud is offline right now (leaderboard not connected).", cloud_error:"Cloud save failed. Please try again.",
                 creator_sync_label:"👑 Creator", creator_sync_upload:"👑 Upload (PC→cloud)", creator_sync_restore:"👑 Restore (cloud→here)", creator_sync_unlocked:"Creator sync unlocked.", creator_restore_confirm:"This will replace your progress on THIS device with your creator cloud save. Continue?",
@@ -3746,7 +3838,7 @@
                 energy_balls:"Bolas de Energía:", angel_shards:"Fragmentos de Ángel:", chronicle:"CRÓNICA", era:"Era", locked:"BLOQUEADO", shop:"TIENDA", spoons_album_title:"ÁLBUM DE CUCHARAS SAGRADAS", hats_album_title:"ÁLBUM DE GORROS SAGRADOS",
                 quests_btn:"📜 Pedidos del Chef", tree_btn:"🌳 Árbol del Ángel", offline_title:"Tu sopa siguió cociéndose", claim:"Reclamar", quests_title:"Pedidos del Chef", close:"Cerrar",
                 tree_title:"Árbol del Despertar del Ángel", tree_shards_avail:"Fragmentos de Ángel disponibles:", audio_mute_title:"Silenciar / Activar sonido", audio_vol_title:"Volumen",
-                home_title:"Skullchef", home_subtitle:"La Sopa de Madera", home_tagline:"Un clicker idle acogedor — remueve, saborea y relájate.", home_play:"Jugar", home_language:"Idioma", home_audio:"Audio", home_credits:"por SmallCreek",
+                home_title:"Skullchef", home_subtitle:"La Sopa de Madera", home_tagline:"Un clicker idle acogedor — remueve, saborea y relájate.", home_play:"Jugar", founder_beta_badge:"Beta web · cuenta fundadora", founder_beta_teaser:"🌟 Beta fundadora — pulsa Jugar para ver tus ventajas", founder_beta_title:"Estás jugando antes que nadie", founder_beta_lead:"No es demo — estás jugando el juego completo antes del lanzamiento.", founder_beta_body:"Todo lo que consigas (amuletos, prestigio, tu run) es tuyo. Exporta tu código de backup y llévalo a Steam, iOS o Android cuando quieras.", founder_beta_foot:"Al lanzar, la web será demo para jugadores nuevos. Los fundadores conservan el juego completo.", founder_beta_ok:"Entendido — ¡a remover!", home_language:"Idioma", home_audio:"Audio", home_credits:"por SmallCreek",
                 backup_label:"Copia", backup_export:"⬇ Exportar", backup_copy:"📋 Copiar", backup_import:"📥 Pegar", backup_file:"📂 Archivo",
                 cloud_upload:"☁️ Subir a la nube", cloud_restore:"☁️ Restaurar con código", cloud_uploading:"Subiendo a la nube…", cloud_uploaded:"Progreso guardado en la nube.", cloud_uploaded_copied:"Guardado en la nube: ¡tu código está copiado!", cloud_your_code:"Tu código de cuenta (cópialo para llevar tu progreso a otro dispositivo):", cloud_restore_prompt:"Pega tu código de cuenta para restaurar tu progreso:", cloud_restoring:"Restaurando desde la nube…", cloud_not_found:"No hay copia en la nube para ese código.", cloud_bad_code:"Ese código de cuenta no es válido.", cloud_offline:"La nube está desconectada ahora mismo (ranking no conectado).", cloud_error:"Falló el guardado en la nube. Inténtalo de nuevo.",
                 creator_sync_label:"👑 Creador", creator_sync_upload:"👑 Subir partida (PC→nube)", creator_sync_restore:"👑 Restaurar (nube→aquí)", creator_sync_unlocked:"Sincronización de creador desbloqueada.", creator_restore_confirm:"Esto sustituirá tu progreso EN ESTE dispositivo por tu partida de creador en la nube. ¿Continuar?",
