@@ -2954,7 +2954,7 @@
     <script src="js/hud-chips.js?v=build-277"></script>
     <script src="js/item-bonus.js?v=build-277"></script>
     <!-- Cache-bust catalog on every deploy (SW must not serve a stale charm list). -->
-    <script src="assets/skins/catalog.js?v=build-277"></script>
+    <script src="assets/skins/catalog.js?v=build-375"></script>
     <script src="assets/atlas_manifest.js?v=build-277"></script>
     <script src="js/atlas.js?v=build-371"></script>
     <!-- ====================================================================
@@ -3450,7 +3450,7 @@
         // while still retrying if a reload didn't actually land the new build. Fully
         // defensive: any error is silent and never blocks the game. Parent bumps BOTH
         // version.json and BUILD_V on every future deploy.
-        const BUILD_V = "build-371";
+        const BUILD_V = "build-375";
         function paintBuildTag() {
             try {
                 var prod = (typeof PRODUCTION_BUILD !== 'undefined' && PRODUCTION_BUILD)
