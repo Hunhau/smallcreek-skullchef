@@ -19,10 +19,7 @@
                     if (cap && typeof cap.isNativePlatform === 'function' && cap.isNativePlatform()) return 'low';
                 } catch (e) {}
                 try {
-                    if (window.matchMedia && window.matchMedia('(pointer: coarse)').matches) {
-                        const w = window.innerWidth || 0, h = window.innerHeight || 0;
-                        if (Math.min(w, h) <= 980) return 'low';
-                    }
+                    if (window.matchMedia && window.matchMedia('(pointer: coarse)').matches && Math.min(window.innerWidth, window.innerHeight) <= 600) return 'low';
                 } catch (e) {}
                 try { const c = navigator.hardwareConcurrency; if (Number.isFinite(c) && c > 0 && c <= 4) return 'low'; } catch (e) {}
                 return 'high';

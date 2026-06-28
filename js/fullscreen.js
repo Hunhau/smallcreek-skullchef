@@ -31,7 +31,7 @@
             },
             enter() {
                 if (this._isElectron()) {
-                    try { window.electronAPI.setFullscreen(true); this._electronActive = true; this.syncUi(); try { if (typeof mobileUI !== 'undefined') mobileUI.reflow(); } catch (e2) {} } catch (e) {}
+                    try { window.electronAPI.setFullscreen(true); this._electronActive = true; this.syncUi(); } catch (e) {}
                     return;
                 }
                 const el = document.documentElement;
@@ -40,7 +40,7 @@
             },
             exit() {
                 if (this._isElectron()) {
-                    try { window.electronAPI.setFullscreen(false); this._electronActive = false; this.syncUi(); try { if (typeof mobileUI !== 'undefined') mobileUI.reflow(); } catch (e2) {} } catch (e) {}
+                    try { window.electronAPI.setFullscreen(false); this._electronActive = false; this.syncUi(); } catch (e) {}
                     return;
                 }
                 const fn = document.exitFullscreen || document.webkitExitFullscreen;
@@ -67,20 +67,12 @@
                 } catch (e) {}
             },
             init() {
-                ['fullscreenchange', 'webkitfullscreenchange'].forEach(ev => {
-                    try {
-                        document.addEventListener(ev, () => {
-                            this.syncUi();
-                            try { if (typeof mobileUI !== 'undefined') mobileUI.reflow(); } catch (e) {}
-                        });
-                    } catch (e) {}
-                });
+                ['fullscreenchange', 'webkitfullscreenchange'].forEach(ev => { try { document.addEventListener(ev, () => this.syncUi()); } catch (e) {} });
                 if (this._isElectron()) {
                     try {
                         window.electronAPI.onFullscreenChange((active) => {
                             this._electronActive = !!active;
                             this.syncUi();
-                            try { if (typeof mobileUI !== 'undefined') mobileUI.reflow(); } catch (e) {}
                         });
                     } catch (e) {}
                 }

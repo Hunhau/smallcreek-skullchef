@@ -114,58 +114,11 @@
 
                 }
 
-                this._bindUi();
-
-            },
-
-            _bindUi() {
-
-                if (this._uiBound) return;
-
-                this._uiBound = true;
-
-                const mv = document.getElementById('music-vol');
-
-                if (mv) {
-
-                    const onV = () => this.setVol(Number(mv.value) / 100);
-
-                    mv.addEventListener('input', onV, { passive: true });
-
-                    mv.addEventListener('change', onV, { passive: true });
-
-                }
-
-            },
-
-            _htmlLoops() {
-                try { return !!(typeof sound !== 'undefined' && sound._loopUseHtmlOnly && sound._loopUseHtmlOnly()); } catch (e) { return false; }
-            },
-
-            _healLoopAudio() {
-                if (!this._htmlLoops()) return;
-                if (this._waRouted === 'html' && !this._gain) return;
-                const wasPlaying = this.audio && !this.audio.paused;
-                try { if (this.audio) { this.audio.pause(); this.audio.removeAttribute('src'); this.audio.load(); } } catch (e) {}
-                this.audio = null;
-                this._gain = null;
-                this._waRouted = 'html';
-                if (wasPlaying && this.on) {
-                    const a = this.ensureAudio();
-                    this._applyVol();
-                    this._playLoop(a);
-                }
             },
 
             _wireGain(a) {
 
-                if (this._htmlLoops()) {
-                    this._gain = null;
-                    this._waRouted = 'html';
-                    return;
-                }
-
-                if (this._gain || this._waRouted === 'html') return;
+                if (this._gain || this._waRouted === false) return;
 
                 const ctx = this._waCtx();
 
@@ -221,6 +174,8 @@
 
                 const a = (typeof sound !== 'undefined' && sound._makeAudio) ? sound._makeAudio() : new Audio();
 
+                try { a.preload = 'none'; } catch (e) {}
+
                 a.addEventListener('ended', () => { this.next(); }, { passive: true });
 
                 a.addEventListener('error', () => {
@@ -233,24 +188,11 @@
 
                 a.addEventListener('playing', () => { this._applyVol(); }, { passive: true });
 
-                try {
-                    if (typeof sound !== 'undefined' && sound._loopUseHtmlOnly && sound._loopUseHtmlOnly()) {
-                        a.preload = 'metadata';
-                    }
-                } catch (e) {}
-
                 this.audio = a;
 
                 this._applySrc();
 
-                if (this._htmlLoops()) {
-                    this._gain = null;
-                    this._waRouted = 'html';
-                } else {
-                    this._wireGain(a);
-                }
-
-                this._applyVol();
+                this._wireGain(a);
 
                 return a;
 
@@ -320,58 +262,37 @@
 
             },
 
-            _playLoop(a) {
-                if (!a) return;
-                if (!a.paused && !a.ended && a.currentTime > 0) return;
-                const start = () => {
-                    try {
-                        const p = a.play();
-                        if (p && typeof p.catch === 'function') {
-                            p.then(() => { this._applyVol(); });
-                            p.catch(() => {});
-                        }
-                    } catch (e) {}
-                };
-                if (a.readyState >= 2) { start(); return; }
-                if (a._scBgLoad) return;
-                a._scBgLoad = true;
-                const done = () => { a._scBgLoad = false; start(); };
-                a.addEventListener('canplay', done, { once: true });
-                a.addEventListener('error', () => { a._scBgLoad = false; }, { once: true });
-                try { a.load(); } catch (e) { a._scBgLoad = false; start(); }
-            },
-
             syncPlayback() {
-                try {
-                    if (typeof sound !== 'undefined' && sound._unlocked && sound.resumeAudioIfNeeded) {
-                        sound.resumeAudioIfNeeded();
-                    }
-                } catch (e) {}
+
+                try { if (typeof sound !== 'undefined' && sound.unlock) sound.unlock(); } catch (e) {}
+
                 const muted = (typeof sound !== 'undefined' && sound.muted);
+
                 const hidden = (typeof document !== 'undefined' && document.hidden);
+
                 const farmBg = (typeof farm !== 'undefined' && farm._bgSuppressed);
-                const want = this.on && this.avail && !muted && !hidden && !farmBg && this._gameVol() > 0;
-                if (want) {
+
+                if (this.on && this.avail && !muted && !hidden && !farmBg && this._gameVol() > 0) {
+
                     const a = this.ensureAudio();
+
                     this._applyVol();
-                    this._playLoop(a);
+
+                    try {
+
+                        const p = a.play();
+
+                        if (p && typeof p.then === 'function') p.then(() => { this._applyVol(); });
+
+                        else if (p && p.catch) p.catch(() => {});
+
+                    } catch (e) {}
+
                 } else if (this.audio) {
+
                     try { this.audio.pause(); } catch (e) {}
+
                 }
-
-            },
-
-            _gestureUnmute() {
-
-                try {
-
-                    if (typeof sound === 'undefined') return;
-
-                    if (sound.unlockForBgLoops) sound.unlockForBgLoops();
-
-                    else if (sound.unlock) sound.unlock();
-
-                } catch (e) {}
 
             },
 
@@ -381,16 +302,9 @@
 
                 if (!this.avail) return;
 
-                const turningOn = !this.on;
-
                 this.on = !this.on;
 
-                if (turningOn) {
-                    this._gestureUnmute();
-                    requestAnimationFrame(() => { try { this.syncPlayback(); } catch (e) {} });
-                } else {
-                    if (this.audio) { try { this.audio.pause(); } catch (e) {} }
-                }
+                this.syncPlayback();
 
                 this.save(); this._render();
 
@@ -426,21 +340,13 @@
 
                 this.vol = this._c(v);
 
-                if (this._htmlLoops() && this._gain) this._healLoopAudio();
+                try { if (typeof sound !== 'undefined' && sound.unlock) sound.unlock(); } catch (e) {}
+
+                if (this.audio) this._wireGain(this.audio);
 
                 this._applyVol();
 
-                const mv = document.getElementById('music-vol');
-
-                if (mv && document.activeElement !== mv) mv.value = String(Math.round(this.vol * 100));
-
                 this.save();
-
-            },
-
-            bumpVol(delta) {
-
-                this.setVol(this.vol + Number(delta));
 
             },
 

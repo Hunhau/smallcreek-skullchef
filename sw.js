@@ -1,32 +1,25 @@
 /* Smallcreek Skullchef — offline shell cache (PWA / Add to Home Screen).
    Bump CACHE_VERSION when deploying so stale shells refresh. */
-const CACHE_VERSION = 'build-362';
+const CACHE_VERSION = 'build-246';
 const CACHE_NAME = 'skullchef-shell-' + CACHE_VERSION;
 
 const PRECACHE = [
   './',
   './index.html',
-  './css/game.css',
   './manifest.webmanifest',
   './version.json',
   './privacy.html',
-  './js/app-loader.js',
-  './js/events.js',
+  './events.js',
   './assets/skins/catalog.js',
   './assets/icons/icon-192.png',
   './assets/icons/icon-512.png',
   './assets/icons/icon-512-maskable.png',
   './assets/icons/apple-touch-icon.png',
   './assets/img/bg.jpg',
-  './assets/img/bg_summer_beach.jpg',
-  './assets/img/decor/chef_straw_hat.png',
-  './assets/img/decor/chef_sunglasses.png',
   './assets/img/angel.png',
   './assets/img/chef.png',
   './assets/img/chef-hand.png',
   './assets/img/cauldron-legs.png',
-  './assets/img/icons/cauldron-sticker-64.png',
-  './assets/img/icons/cauldron-sticker-128.png',
   './assets/img/soup.png',
   './assets/img/spoon.png'
 ];
@@ -69,15 +62,6 @@ function isNetworkFirst(url) {
   }
 }
 
-function isAppAsset(url) {
-  try {
-    const path = new URL(url).pathname;
-    return /\/js\/[^/]+\.js$/i.test(path) || /\/css\/[^/]+\.css$/i.test(path);
-  } catch (e) {
-    return false;
-  }
-}
-
 self.addEventListener('fetch', (event) => {
   const req = event.request;
   if (req.method !== 'GET') return;
@@ -103,14 +87,12 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  if (isNetworkFirst(url) || isAppAsset(url)) {
+  if (isNetworkFirst(url)) {
     event.respondWith(
-      fetch(req, { cache: 'no-store' })
+      fetch(req)
         .then((res) => {
-          if (res && res.status === 200) {
-            const copy = res.clone();
-            caches.open(CACHE_NAME).then((c) => c.put(req, copy)).catch(() => {});
-          }
+          const copy = res.clone();
+          caches.open(CACHE_NAME).then((c) => c.put(req, copy)).catch(() => {});
           return res;
         })
         .catch(() => caches.match(req))
