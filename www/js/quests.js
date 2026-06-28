@@ -4,13 +4,13 @@
 
     global.quests = {
         pool: [
-            { type: 'clicks', goal: () => balanceGet('questDailyClicksGoal', 140), reward: () => Math.max(1500, Math.floor(game.getCps() * 150)) + 1500 },
-            { type: 'eb', goal: () => Math.max(balanceGet('questDailyEbGoalMin', 7000), Math.floor(game.getCps() * balanceGet('questDailyEbGoalCpsMult', 220))) + balanceGet('questDailyEbGoalMin', 7000), reward: () => Math.max(3000, Math.floor(game.getCps() * balanceGet('questDailyEbRewardCpsMult', 175))) + 3000 },
+            { type: 'clicks', goal: () => 150, reward: () => Math.max(1500, Math.floor(game.getCps() * 150)) + 1500 },
+            { type: 'eb', goal: () => Math.max(8000, Math.floor(game.getCps() * 240)) + 8000, reward: () => Math.max(3000, Math.floor(game.getCps() * 200)) + 3000 },
             { type: 'levels', goal: () => 15, reward: () => Math.max(2500, Math.floor(game.getCps() * 180)) + 2500 },
             { type: 'crowns', goal: () => 1, reward: () => 0, shard: true }
         ],
         weeklyPool: [
-            { type: 'eb', goal: () => Math.max(balanceGet('questWeeklyEbGoalMin', 350000), Math.floor(game.getCps() * balanceGet('questWeeklyEbGoalCpsMult', 13200))) + 100000, reward: () => Math.max(25000, Math.floor(game.getCps() * balanceGet('questWeeklyEbRewardCpsMult', 850))) + 15000 },
+            { type: 'eb', goal: () => Math.max(400000, Math.floor(game.getCps() * 14400)) + 100000, reward: () => Math.max(25000, Math.floor(game.getCps() * 900)) + 15000 },
             { type: 'levels', goal: () => 35, reward: () => Math.max(20000, Math.floor(game.getCps() * 600)) + 12000 },
             { type: 'clicks', goal: () => 2500, reward: () => Math.max(15000, Math.floor(game.getCps() * 400)) + 8000 },
             { type: 'daily_claims', goal: () => 5, reward: () => 0, shard: true },

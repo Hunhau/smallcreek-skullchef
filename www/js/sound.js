@@ -60,13 +60,6 @@ const sound = {
     // from timers/async (farm ready, ingredient rain, eat) work without a user gesture.
     // Stir keeps its dedicated HTMLAudio loop (already gesture-started on tap).
     _waCtx: null, _waBuf: {}, _waLoading: {}, _waAmb: null, _waAmbGain: null, _waBuyPlaying: false,
-    _loopUseHtmlOnly() {
-        try {
-            const ua = navigator.userAgent || '';
-            if (/iPhone|iPad|iPod|Android/i.test(ua)) return true;
-        } catch (e) {}
-        return false;
-    },
     _useWebAudio() {
         try {
             if (this._isNativeCap()) return false;
@@ -252,25 +245,28 @@ const sound = {
         const v = document.getElementById('audio-vol'); if (v) v.value = String(Math.round(this.volume * 100));
         this.updateUi();
         const evs = ['pointerdown', 'touchstart', 'keydown'];
-        const handler = () => { this.unlockLight(); evs.forEach(ev => document.removeEventListener(ev, handler)); };
+        const handler = () => { this.unlock(); evs.forEach(ev => document.removeEventListener(ev, handler)); };
         evs.forEach(ev => document.addEventListener(ev, handler, { once: true, passive: true }));
         try {
             const wake = () => { try { this.recoverFromBackground(); } catch (e) {} };
             document.addEventListener('visibilitychange', () => {
-                if (document.hidden) { try { this.suspendAll(); } catch (e) {} }
+                if (document.hidden) { try { this._stirStopNow(); } catch (e) {} }
                 else { this._needReprime = true; wake(); }
             }, { passive: true });
-            window.addEventListener('pagehide', () => { try { this.suspendAll(); } catch (e) {} }, { passive: true });
             window.addEventListener('focus', () => { if (this._unlocked) { this._needReprime = true; wake(); } }, { passive: true });
             window.addEventListener('pageshow', () => { if (this._unlocked) { this._needReprime = true; wake(); } }, { passive: true });
+            // The visibility/focus/pageshow handlers above already recover on return.
+            // The gesture must NOT re-run recovery (it bubbles AFTER tap-driven SFX and
+            // would re-mute/pause the pooled voices); just resume the AudioContext.
             const gestureWake = () => {
-                try { this.unlockLight(); } catch (e) {}
+                try { this.unlock(); this.resumeAudio(); } catch (e) {}
                 if (this._unlocked && this._needReprime) {
                     this._needReprime = false;
-                    setTimeout(() => { try { this.recoverFromBackground(); } catch (e) {} }, 100);
+                    try { this.recoverFromBackground(); } catch (e) {}
                 }
+                try { this._syncBgAudio(); } catch (e) {}
             };
-            ['pointerdown', 'touchstart'].forEach(ev => document.addEventListener(ev, gestureWake, { passive: true }));
+            ['pointerdown', 'touchstart', 'click'].forEach(ev => document.addEventListener(ev, gestureWake, { passive: true }));
         } catch (e) {}
     },
     // Resume any Web Audio context (eat synth) if the OS suspended/interrupted it.
@@ -296,100 +292,20 @@ const sound = {
             }
         } catch (e) {}
     },
-    /* Pause loops/SFX when app backgrounded or PWA swiped away (iOS ghost audio). */
-    suspendAll() {
-        if (!this._inited) return;
-        try { this._stirStopNow(); } catch (e) {}
-        try { this.stopEat(); } catch (e) {}
-        try { this.farmAmbStop(); } catch (e) {}
-        try {
-            [this._waCtx, this._eatCtx].forEach(function (ctx) {
-                if (ctx && ctx.state === 'running') { try { ctx.suspend(); } catch (e) {} }
-            });
-        } catch (e) {}
-        try {
-            if (typeof ambient !== 'undefined' && ambient.tracks) {
-                for (const id in ambient.tracks) {
-                    const tr = ambient.tracks[id];
-                    if (tr && tr.audio) { try { tr.audio.pause(); } catch (e) {} }
-                }
-            }
-        } catch (e) {}
-        try {
-            if (typeof music !== 'undefined' && music.audio) { try { music.audio.pause(); } catch (e) {} }
-        } catch (e) {}
-    },
     touchAudioIfOn() {
         if (this.muted || this.volume <= 0) return;
         this.touchAudio();
     },
-    /* Ambient/music toggles: unlock + resume only — never _waLoadAll (freezes mobile). */
-    unlockForBgLoops() {
-        try {
-            if (this.muted) {
-                this.muted = false;
-                this.save();
-                this.updateUi();
-            }
-            if (this.volume <= 0) {
-                this.volume = 1;
-                this.save();
-                this.updateUi();
-            }
-        } catch (e) {}
-        try { this.unlockLight(); } catch (e) {}
-    },
-    unlockLight() {
-        if (!this._unlocked) this._unlocked = true;
-        try { this.resumeAudioIfNeeded(); } catch (e) {}
-        try {
-            if (this._eatCtx && (this._eatCtx.state === 'suspended' || this._eatCtx.state === 'interrupted')) {
-                const p = this._eatCtx.resume(); if (p && p.catch) p.catch(() => {});
-            }
-        } catch (e) {}
-    },
-    _runFirstUnlockPrime() {
-        try {
-            if (this._isNativeCap()) {
-                this._primeOne(this._makeAudio('audio/bubble.mp3'));
-                const sv = this._stirEnsure();
-                if (sv) for (let si = 0; si < sv.length; si++) this._primeOne(sv[si]);
-            } else if (this._stirUseWa()) {
-                this._primeMobileEssentials();
-                try { this._waLoadSrc('audio/stir1.mp3'); this._waLoadSrc('audio/stir2.mp3'); } catch (e) {}
-            } else if (!this._useWebAudio()) {
-                for (const k in this.flat) {
-                    const arr = this.flat[k];
-                    if (arr) for (let i = 0; i < arr.length; i++) this._primeOne(arr[i]);
-                }
-                this._primeOne(this._eatPreload);
-                const sv = this._stir.voices;
-                if (sv) for (let i = 0; i < sv.length; i++) this._primeOne(sv[i]);
-            } else {
-                this._primeMobileEssentials();
-                const sv = this._stirEnsure();
-                if (sv) for (let si = 0; si < sv.length; si++) this._primeOne(sv[si]);
-            }
-            if (this._eatCtx && this._eatCtx.state === 'suspended') { try { this._eatCtx.resume(); } catch (e) {} }
-        } catch (e) {}
-    },
-    _deferMobilePrime() {
-        if (this._mobilePrimeTimer) return;
-        const self = this;
-        this._mobilePrimeTimer = setTimeout(function () {
-            self._mobilePrimeTimer = null;
-            try { self._runFirstUnlockPrime(); } catch (e) {}
-            try { if (self._useWebAudio()) self._waLoadAll(); } catch (e) {}
-        }, 150);
-    },
     // Re-arm audio after Play / privacy / name modals (iOS needs a fresh gesture chain).
     touchAudio() {
         try {
-            if (!this._unlocked) this.unlock();
-            else {
-                this.unlockLight();
-                this.resumeAudioIfNeeded();
+            this.unlock();
+            this.resumeAudio();
+            if (this._useWebAudio()) { try { this._waKick(); } catch (e) {} }
+            if (this._stirUseWa()) {
+                try { this._stirWaEnsureBus(); this._stirWaPreload(); } catch (e) {}
             }
+            if (this._useWebAudio()) { try { this._waLoadAll(); } catch (e) {} }
         } catch (e) {}
         this._syncBgAudio();
     },
@@ -432,24 +348,38 @@ const sound = {
     },
     unlock() {
         const first = !this._unlocked;
-        this.unlockLight();
-        const mobileWa = !this._isNativeCap() && this._useWebAudio();
         if (first) {
-            if (mobileWa) this._deferMobilePrime();
-            else {
-                try { this._runFirstUnlockPrime(); } catch (e) {}
-                try { if (this._useWebAudio()) this._waLoadAll(); } catch (e) {}
-            }
-        } else if (this._needReprime) {
-            this._needReprime = false;
+            this._unlocked = true;
             try {
-                this.resumeAudio();
-                if (this._useWebAudio()) {
-                    if (mobileWa) this._deferMobilePrime();
-                    else this._waLoadAll();
-                } else this.recoverFromBackground();
+                // iOS WKWebView rejects mass-priming dozens of voices in one gesture.
+                if (this._isNativeCap()) {
+                    this._primeOne(this._makeAudio('audio/bubble.mp3'));
+                    const sv = this._stirEnsure();
+                    if (sv) for (let si = 0; si < sv.length; si++) this._primeOne(sv[si]);
+                } else if (this._stirUseWa()) {
+                    this._primeMobileEssentials();
+                    try { this._waLoadSrc('audio/stir1.mp3'); this._waLoadSrc('audio/stir2.mp3'); } catch (e) {}
+                } else if (!this._useWebAudio()) {
+                    for (const k in this.flat) {
+                        const arr = this.flat[k];
+                        if (arr) for (let i = 0; i < arr.length; i++) this._primeOne(arr[i]);
+                    }
+                    this._primeOne(this._eatPreload);
+                    const sv = this._stir.voices;
+                    if (sv) for (let i = 0; i < sv.length; i++) this._primeOne(sv[i]);
+                } else {
+                    this._primeMobileEssentials();
+                    const sv = this._stirEnsure();
+                    if (sv) for (let si = 0; si < sv.length; si++) this._primeOne(sv[si]);
+                }
+                if (this._eatCtx && this._eatCtx.state === 'suspended') { try { this._eatCtx.resume(); } catch (e) {} }
             } catch (e) {}
         }
+        try {
+            if (first || this._needReprime) this.resumeAudio();
+            else this.resumeAudioIfNeeded();
+            if (first || this._needReprime) this._waLoadAll();
+        } catch (e) {}
     },
     _syncBgAudio() {
         try { if (typeof ambient !== 'undefined' && ambient._inited) ambient.syncPlayback(); } catch (e) {}
@@ -458,8 +388,7 @@ const sound = {
     save() { try { localStorage.setItem('soup_audio', JSON.stringify({ m:this.muted, v:this.volume })); } catch (e) {} },
     play(name) {
         if (this.muted || this.volume <= 0) return;
-        if (!this._unlocked) this.unlock();
-        else try { this.unlockLight(); this.resumeAudioIfNeeded(); } catch (e) {}
+        this.unlock();
         if (name !== 'stir' && this._useWebAudio() && this._waPlaySfx(name)) return;
         const grp = this.voices[name]; if (!grp || !grp.length) return;
         const cfg = this.cfg[name] || this.cfg._default;

@@ -403,7 +403,7 @@ const game = {
                 if (!this.cp[i] || !x || typeof x !== 'object') return;
                 this.cp[i].lv = Math.max(0, Math.floor(Number(x.lv) || 0));
                 this.cp[i].ch = Math.max(0, Math.floor(Number(x.ch) || 0));
-                this.recomputeCompanionCost(this.cp[i]);
+                for (let j = 0; j < this.cp[i].lv; j++) this.cp[i].cs = Math.floor(this.cp[i].cs * this.compCostMult());
             });
             if (d.sp && Array.isArray(d.sp)) d.sp.forEach((item, i) => {
                 if (!this.spoons[i]) return;
@@ -494,23 +494,7 @@ const game = {
         try { if (typeof STORE_TIER !== 'undefined') STORE_TIER.applyAfterLoad(this); } catch (e) {}
     },
     compCostMult() { try { return balanceCompCostMult(); } catch (e) { return 1.14; } },
-    companionNextCost(c) {
-        const i = c.id;
-        const base = (Array.isArray(this.cpBaseCost) && this.cpBaseCost[i] != null)
-            ? this.cpBaseCost[i] : (c.cs || 1);
-        const cm = this.compCostMult();
-        if (c.lv <= 0) return base;
-        return Math.floor(base * Math.pow(cm, c.lv));
-    },
-    recomputeCompanionCost(c) { if (c) c.cs = this.companionNextCost(c); },
-    calcBulkCost(c, n) {
-        const base = this.cpBaseCost[c.id] ?? c.cs;
-        const cm = this.compCostMult();
-        const disc = this.hatCompanionDisc();
-        let total = 0;
-        for (let i = 0; i < n; i++) total += Math.floor(Math.floor(base * Math.pow(cm, c.lv + i)) * disc);
-        return total;
-    },
+    calcBulkCost(c, n) { let total = 0, cost = c.cs; const disc = this.hatCompanionDisc(); const cm = this.compCostMult(); for (let i = 0; i < n; i++) { total += Math.floor(cost * disc); cost = Math.floor(cost * cm); } return total; },
     maxAffordableLevels(c, energy) {
         if (energy < Math.floor(c.cs * this.hatCompanionDisc())) return 0;
         let lo = 0, hi = 1;
@@ -1125,9 +1109,6 @@ const game = {
     HELPER_GRID_POS: { 0: [1, 1], 1: [1, 2], 2: [1, 3], 3: [2, 1], 4: [2, 2] },
     _usesDesktopHelperGrid() {
         try {
-            if (typeof mobileUI !== 'undefined' && mobileUI.isPhone && mobileUI.isPhone()) return false;
-            if (window.innerWidth >= 1024 && window.innerHeight >= 640) return true;
-            if (window.matchMedia('(pointer: fine) and (hover: hover)').matches && window.innerWidth >= 960) return true;
             if (window.matchMedia('(orientation: portrait) and (max-width: 768px)').matches) return false;
             if (window.matchMedia('(pointer: coarse) and (orientation: landscape) and (max-height: 600px)').matches) return false;
             return true;
@@ -1482,16 +1463,9 @@ const game = {
         this.updateLore();
         this.updateBuyModeBtn();
         document.querySelectorAll('.companion-card').forEach((card, i) => {
-            const c = this.cp[i];
-            if (!c) return;
-            const pd = this.cardPriceDisplay(c);
+            const pd = this.cardPriceDisplay(this.cp[i]);
             const cls = `companion-card ${pd.affordable ? 'affordable' : ''}`;
             if (card.className !== cls) card.className = cls;
-            const nameEl = card.querySelector('b');
-            if (nameEl) {
-                const want = `${t(c.nk)} (${c.lv})`;
-                if (nameEl.textContent !== want) nameEl.textContent = want;
-            }
             const priceEl = card.querySelector('.card-price');
             if (priceEl) {
                 if (priceEl.innerText !== pd.text) priceEl.innerText = pd.text;
@@ -2227,13 +2201,11 @@ const game = {
         const liteFeed = this._mProdMobile && this._mProdMobile();
         let chewMs = this.CHEF_FALLBACK_EAT_MS || 2000;
         try {
-            if (typeof sound !== 'undefined') {
-                if (!sound._unlocked && sound.unlock) sound.unlock();
-                sound.stopEat();
-                if (!sound.muted && sound.volume > 0) {
-                    const dur = sound.playEat();
-                    if (dur) chewMs = Math.max(chewMs, dur);
-                }
+            sound.unlock();
+            sound.stopEat();
+            if (!sound.muted && sound.volume > 0) {
+                const dur = sound.playEat();
+                if (dur) chewMs = Math.max(chewMs, dur);
             }
         } catch (e) {}
         if (liteFeed) chewMs = Math.max(1500, Math.min(chewMs, 2200));
@@ -2270,7 +2242,7 @@ const game = {
         const glyphs = cfg.glyphs || ['✨'];
         let count = cfg.count || 5;
         let stagger = cfg.stagger || 110;
-            try {
+        try {
             if (toChef && typeof game !== 'undefined' && game._mProdMobile && game._mProdMobile()) {
                 count = Math.min(2, count);
                 stagger = Math.min(stagger, 85);
@@ -2907,12 +2879,7 @@ const game = {
         this.summon(c, btn, feedOverride, testLv);
     },
     buy(i, ev) {
-        try {
-            if (typeof sound !== 'undefined') {
-                if (sound.unlockLight) sound.unlockLight();
-                else if (sound.resumeAudioIfNeeded) sound.resumeAudioIfNeeded();
-            }
-        } catch (e) {}
+        try { sound.unlock(); } catch (e) {}
         const c = this.cp[i];
         let n = this.buyMode === 1 ? 1 : (this.buyMode === 10 ? Math.min(10, this.maxAffordableLevels(c, this.e)) : this.maxAffordableLevels(c, this.e));
         if (n <= 0) return;
@@ -2925,7 +2892,9 @@ const game = {
         for (let lv = prevLv + 1; lv <= c.lv; lv++) {
             if (this.isExtraIngredientRainMilestone(lv)) { rainOnLand = lv; break; }
         }
-        this.recomputeCompanionCost(c);
+        let cost = c.cs;
+        for (let j = 0; j < n; j++) cost = Math.floor(cost * this.compCostMult());
+        c.cs = cost;
         this.track('levels', n);
         try { chefMood.bump(Math.min(4, 1 + n * 0.4), 'buy'); } catch (e) {}
         if ([5, 10, 25, 50, 100].some(th => prevLv < th && c.lv >= th) && !this._skipSummonSparkles()) { this.part(window.innerWidth / 2, window.innerHeight * 0.5, 'magic'); sound.play('bubble'); gx.toast(t(this.milestoneMsg[i] || 'milestone_generic')); }
@@ -3116,7 +3085,7 @@ const game = {
     _mProdMobile() {
         try {
             if (typeof SC_LOCAL_DEV !== 'undefined' && SC_LOCAL_DEV) return false;
-            return this._mSheet();
+            return this._mSheet() || window.matchMedia('(pointer: coarse)').matches;
         } catch (e) { return false; }
     },
     /* Phone (portrait OR landscape): after a successful purchase, slide the shop sheet
@@ -3162,21 +3131,6 @@ const game = {
     _summonPipelineBusy() {
         if (this._summonPipeSlot) return true;
         return this._summonAnimBusy();
-    },
-    _mobileSummonHot() {
-        try {
-            if (this._mSummonPumping) return true;
-            if (this._summonPipelineBusy()) return true;
-            if (this._mSummonQueue && this._mSummonQueue.length > 0) return true;
-        } catch (e) {}
-        return false;
-    },
-    _uiModalBlocking() {
-        try {
-            const am = document.getElementById('ambient-modal');
-            if (am && am.classList.contains('open')) return true;
-        } catch (e) {}
-        return false;
     },
     _summonBusy() { return this._summonPipelineBusy(); },
     _mPumpSummonQueue() {
@@ -3295,7 +3249,7 @@ const game = {
                 try { if (typeof isPlayablesEnv !== 'function' || !isPlayablesEnv()) leaderboard.submit({ prestige: this.s, score: this.te }); } catch (e) {}
                 ach.grant('firstPres');
                 const eco = ecoLv;
-                this.e = 0; this.l = 0; this.cp.forEach(c => { c.lv = eco; c.ch = 0; this.recomputeCompanionCost(c); });
+                this.e = 0; this.l = 0; this.cp.forEach(c => { const base = this.cpBaseCost[c.id] || this.cpBaseCost[this.cpBaseCost.length - 1]; c.lv = eco; c.ch = 0; c.cs = base; const cm = this.compCostMult(); for (let j = 0; j < eco; j++) c.cs = Math.floor(c.cs * cm); });
                 try { farm.resetForPrestige(); } catch (e) {}
                 try { this.resetShopForPrestige(); } catch (e) {}
                 this.rebuild(); this.render(); this.save();
@@ -3372,7 +3326,8 @@ const game = {
         const clickStir = performance.now() - this._lastClick < 1500;
         const nativeCap = (() => { try { const c = window.Capacitor; return !!(c && c.isNativePlatform && c.isNativePlatform()); } catch (e) { return false; } })();
         const feedActive = this._chefFeedInProgress();
-        if (this._mProdMobile && this._mProdMobile() && this._mSummonPumping && (this._frame % 3 !== 0)) {
+        const pipeBusy = feedActive || this._summonPipelineBusy() || this._mSummonPumping;
+        if (this._mProdMobile && this._mProdMobile() && pipeBusy && (this._frame % 4 !== 0)) {
             if (this.particles.length > 0) {
                 this.draw();
                 this._flushScorePulse();

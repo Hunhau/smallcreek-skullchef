@@ -14,8 +14,6 @@
             _helperBusy() {
                 try {
                     if (document.querySelector('.summon-clone')) return true;
-                    if (document.querySelector('.ingredient-proj:not(.ingredient-proj-dry)')) return true;
-                    if (typeof game !== 'undefined' && game._chefFeedInProgress && game._chefFeedInProgress()) return true;
                     const vc = document.getElementById('victory-cinema');
                     if (vc) { const d = getComputedStyle(vc).display; if (d && d !== 'none') return true; }
                 } catch (e) {}

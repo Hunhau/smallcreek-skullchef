@@ -118,64 +118,6 @@
 
                 evs.forEach(ev => document.addEventListener(ev, h, { once: true, passive: true }));
 
-                this._bindUi();
-
-            },
-
-            _bindUi() {
-
-                if (this._uiBound) return;
-
-                this._uiBound = true;
-
-                const list = document.getElementById('ambient-list');
-
-                if (list) {
-
-                    const onSl = (e) => {
-
-                        const sl = e.target.closest('.amb-slider[data-track]');
-
-                        if (sl) this.setTrackVol(sl.dataset.track, Number(sl.value) / 100);
-
-                    };
-
-                    list.addEventListener('input', onSl, { passive: true });
-
-                    list.addEventListener('change', onSl, { passive: true });
-
-                }
-
-                const mv = document.getElementById('ambient-master');
-
-                if (mv) {
-
-                    const onM = () => this.setMaster(Number(mv.value) / 100);
-
-                    mv.addEventListener('input', onM, { passive: true });
-
-                    mv.addEventListener('change', onM, { passive: true });
-
-                }
-
-            },
-
-            _patchRow(id) {
-
-                const tr = this.tracks[id]; if (!tr) return;
-
-                const row = document.querySelector('#ambient-list .amb-row[data-id="' + id + '"]');
-
-                if (!row) { this._render(); return; }
-
-                const on = tr.on && tr.avail;
-
-                row.classList.toggle('on', !!on);
-
-                const st = row.querySelector('.amb-state');
-
-                if (st) st.textContent = on ? '❚❚' : '▶';
-
             },
 
             _effVol(tr) { return this._c(this.master * tr.vol * this._gameVol()); },
@@ -183,13 +125,6 @@
             _wireGain(tr, a) {
 
                 if (tr._gain || tr._waRouted === false) return;
-
-                try {
-                    if (typeof sound !== 'undefined' && sound._loopUseHtmlOnly && sound._loopUseHtmlOnly()) {
-                        tr._waRouted = false;
-                        return;
-                    }
-                } catch (e) {}
 
                 const ctx = this._waCtx();
 
@@ -255,11 +190,7 @@
 
                 a.loop = true;
 
-                try {
-                    if (typeof sound !== 'undefined' && sound._loopUseHtmlOnly && sound._loopUseHtmlOnly()) {
-                        a.preload = 'metadata';
-                    }
-                } catch (e) {}
+                try { a.preload = 'none'; } catch (e) {}
 
                 a.addEventListener('error', () => {
 
@@ -281,84 +212,43 @@
 
             },
 
-            _playLoop(a) {
-                if (!a) return;
-                if (!a.paused && !a.ended && a.currentTime > 0) return;
-                const start = () => {
-                    try {
-                        const p = a.play();
-                        if (p && typeof p.catch === 'function') p.catch(() => {});
-                    } catch (e) {}
-                };
-                if (a.readyState >= 2) { start(); return; }
-                if (a._scBgLoad) return;
-                a._scBgLoad = true;
-                const done = () => { a._scBgLoad = false; start(); };
-                a.addEventListener('canplay', done, { once: true });
-                a.addEventListener('error', () => { a._scBgLoad = false; }, { once: true });
-                try { a.load(); } catch (e) { a._scBgLoad = false; start(); }
-            },
-
-            _canPlayBg() {
-                try {
-                    if (typeof sound !== 'undefined') {
-                        if (sound.muted || sound.volume <= 0) return false;
-                    }
-                } catch (e) {}
-                if (typeof document !== 'undefined' && document.hidden) return false;
-                try { if (typeof farm !== 'undefined' && farm._bgSuppressed) return false; } catch (e) {}
-                return this._gameVol() > 0;
-            },
-
-            _startTrack(id) {
-                const tr = this.tracks[id];
-                if (!tr || !tr.on || !tr.avail || !this._canPlayBg()) return;
-                const a = this.ensureAudio(tr);
-                this._applyVol(tr);
-                this._playLoop(a);
-            },
-
-            _modalOpen() {
-                try {
-                    const md = document.getElementById('ambient-modal');
-                    return !!(md && md.classList.contains('open'));
-                } catch (e) { return false; }
-            },
-
             syncPlayback() {
-                try {
-                    if (typeof sound !== 'undefined' && sound._unlocked && sound.resumeAudioIfNeeded) {
-                        sound.resumeAudioIfNeeded();
-                    }
-                } catch (e) {}
+
+                try { if (typeof sound !== 'undefined' && sound.unlock) sound.unlock(); } catch (e) {}
+
                 const muted = (typeof sound !== 'undefined' && sound.muted);
+
                 const hidden = (typeof document !== 'undefined' && document.hidden);
+
                 const farmBg = (typeof farm !== 'undefined' && farm._bgSuppressed);
+
                 for (const id in this.tracks) {
+
                     const tr = this.tracks[id];
-                    const want = tr.on && tr.avail && !muted && !hidden && !farmBg && this._gameVol() > 0;
-                    if (want) {
+
+                    if (tr.on && tr.avail && !muted && !hidden && !farmBg && this._gameVol() > 0) {
+
                         const a = this.ensureAudio(tr);
+
                         this._applyVol(tr);
-                        this._playLoop(a);
+
+                        try {
+
+                            const p = a.play();
+
+                            if (p && typeof p.then === 'function') p.then(() => { this._applyVol(tr); });
+
+                            else if (p && p.catch) p.catch(() => {});
+
+                        } catch (e) {}
+
                     } else if (tr.audio) {
+
                         try { tr.audio.pause(); } catch (e) {}
+
                     }
+
                 }
-
-            },
-
-            _gestureUnmute() {
-
-                try {
-
-                    if (typeof sound === 'undefined') return;
-
-                    if (sound.unlockForBgLoops) sound.unlockForBgLoops();
-
-                    else if (sound.unlock) sound.unlock();
-
-                } catch (e) {}
 
             },
 
@@ -368,30 +258,13 @@
 
                 const tr = this.tracks[id]; if (!tr || !tr.avail) return;
 
-                const turningOn = !tr.on;
-
                 tr.on = !tr.on;
 
-                if (turningOn) {
-                    try {
-                        if (typeof mobileUI !== 'undefined' && mobileUI.isPhone && mobileUI.isPhone()) {
-                            for (const oid in this.tracks) {
-                                if (oid !== id && this.tracks[oid].on) {
-                                    this.tracks[oid].on = false;
-                                    if (this.tracks[oid].audio) { try { this.tracks[oid].audio.pause(); } catch (e) {} }
-                                }
-                            }
-                        }
-                    } catch (e) {}
-                    this._gestureUnmute();
-                    requestAnimationFrame(() => { try { this._startTrack(id); } catch (e) {} });
-                } else {
-                    if (tr.audio) { try { tr.audio.pause(); } catch (e) {} }
-                }
+                this.syncPlayback();
 
                 this.save();
 
-                this._patchRow(id);
+                this._render();
 
             },
 
@@ -403,7 +276,7 @@
 
                 tr.vol = this._c(v);
 
-                try { if (typeof sound !== 'undefined' && sound._unlocked && sound.resumeAudioIfNeeded) sound.resumeAudioIfNeeded(); } catch (e) {}
+                try { if (typeof sound !== 'undefined' && sound.unlock) sound.unlock(); } catch (e) {}
 
                 if (tr.audio) this._wireGain(tr, tr.audio);
 
@@ -419,7 +292,7 @@
 
                 this.master = this._c(v);
 
-                try { if (typeof sound !== 'undefined' && sound._unlocked && sound.resumeAudioIfNeeded) sound.resumeAudioIfNeeded(); } catch (e) {}
+                try { if (typeof sound !== 'undefined' && sound.unlock) sound.unlock(); } catch (e) {}
 
                 this._applyAllVols();
 
@@ -441,11 +314,11 @@
 
                     const unavail = tr.avail ? '' : `<div class="amb-unavail">${t('ambient_unavailable')}</div>`;
 
-                    return `<div class="amb-row ${on ? 'on' : ''}" data-id="${def.id}">`
+                    return `<div class="amb-row ${on ? 'on' : ''}">`
 
-                        + `<button class="amb-toggle" type="button" ${dis} onclick="ambient.toggle('${def.id}')">${(typeof scCauldronIcon !== 'undefined' ? scCauldronIcon.ambIcon(def) : def.icon)} <span>${t('amb_' + def.id)}</span><span class="amb-state">${on ? '❚❚' : '▶'}</span></button>`
+                        + `<button class="amb-toggle" type="button" ${dis} onclick="ambient.toggle('${def.id}')">${def.icon} <span>${t('amb_' + def.id)}</span><span class="amb-state">${on ? '❚❚' : '▶'}</span></button>`
 
-                        + `<input class="amb-slider" type="range" min="0" max="100" value="${Math.round(tr.vol * 100)}" data-track="${def.id}" ${dis}>`
+                        + `<input class="amb-slider" type="range" min="0" max="100" value="${Math.round(tr.vol * 100)}" ${dis} oninput="ambient.setTrackVol('${def.id}', this.value/100)" onchange="ambient.setTrackVol('${def.id}', this.value/100)">`
 
                         + unavail + `</div>`;
 
@@ -458,36 +331,18 @@
             },
 
             open() {
+
                 if (!this._inited) this.init();
-                const md = document.getElementById('ambient-modal');
-                try {
-                    if (typeof mobileUI !== 'undefined' && mobileUI.isPhone && mobileUI.isPhone()) {
-                        try { mobileUI.closeAll(); } catch (e) {}
-                    }
-                } catch (e) {}
-                try {
-                    if (typeof sound !== 'undefined' && sound.unlockForBgLoops) sound.unlockForBgLoops();
-                    else if (typeof sound !== 'undefined' && sound.unlock) sound.unlock();
-                } catch (e) {}
-                if (md) md.classList.add('open');
-                this._bindUi();
+
                 this._render();
-                try {
-                    if (typeof music !== 'undefined') {
-                        if (!music._inited) music.init();
-                        music._render();
-                    }
-                } catch (e) {}
+
+                try { if (typeof music !== 'undefined') { if (!music._inited) music.init(); music._render(); } } catch (e) {}
+
+                const md = document.getElementById('ambient-modal'); if (md) md.classList.add('open');
+
             },
 
-            close() {
-                const md = document.getElementById('ambient-modal'); if (md) md.classList.remove('open');
-                try {
-                    if (typeof game !== 'undefined' && game._mSummonQueue && game._mSummonQueue.length > 0) {
-                        requestAnimationFrame(() => { try { game._mPumpSummonQueue(); } catch (e) {} });
-                    }
-                } catch (e) {}
-            }
+            close() { const md = document.getElementById('ambient-modal'); if (md) md.classList.remove('open'); }
 
         };
 

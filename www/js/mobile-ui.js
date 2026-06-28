@@ -1,24 +1,13 @@
-/* Mobile landscape/portrait UI — sc-shell-v3 */
+/* Mobile landscape/portrait UI — scene fit, shop tray, HUD anchors. */
 (function (global) {
     'use strict';
 
     global.mobileUI = {
-        _isStandalone() {
-            try { return typeof fullscreen !== 'undefined' && fullscreen.isStandalone && fullscreen.isStandalone(); } catch (e) { return false; }
-        },
         isPhone() {
             try {
-                const w = window.innerWidth;
-                const h = window.innerHeight;
-                if (w >= 1024 && h >= 640) return false;
-                if (window.matchMedia('(pointer: fine) and (hover: hover)').matches && w >= 960) return false;
                 if (window.matchMedia('(orientation: portrait) and (max-width: 768px)').matches) return true;
-                if (this._isStandalone()) {
-                    if (w <= 768) return true;
-                    if (w <= 980 && h <= 680) return true;
-                }
                 if (!window.matchMedia('(pointer: coarse)').matches) return false;
-                if (this._landscapePhone()) return true;
+                if (window.matchMedia('(orientation: landscape) and (max-height: 600px)').matches) return true;
                 return false;
             } catch (e) { return false; }
         },
@@ -63,87 +52,33 @@
             } catch (e) {}
         },
         _landscapePhone() {
-            try {
-                if (!window.matchMedia('(orientation: landscape)').matches) return false;
-                const h = window.innerHeight;
-                const w = window.innerWidth;
-                if (w > 980) return false;
-                const fsActive = typeof fullscreen !== 'undefined' && fullscreen.isActive && fullscreen.isActive();
-                const maxH = fsActive ? 680 : 600;
-                if (window.matchMedia('(pointer: coarse)').matches && h <= maxH) return true;
-                if (this._isStandalone() && h <= 680) return true;
-                return false;
-            } catch (e) { return false; }
+            try { return window.matchMedia('(pointer: coarse) and (orientation: landscape) and (max-height: 600px)').matches; } catch (e) { return false; }
         },
         _portraitPhone() {
-            try {
-                const w = window.innerWidth;
-                const h = window.innerHeight;
-                if (w <= 768 && h > w) return true;
-                return window.matchMedia('(orientation: portrait) and (max-width: 768px)').matches;
-            } catch (e) { return false; }
-        },
-        syncMobileLaunchers() {
-            try {
-                const phone = this.isPhone();
-                const launch = document.getElementById('m-launch');
-                if (launch) launch.style.display = phone ? 'flex' : 'none';
-                try { if (typeof __scPaintBuildTag === 'function') __scPaintBuildTag(); } catch (e) {}
-                const toggle = document.getElementById('helpers-toggle');
-                if (toggle) toggle.style.display = phone ? 'flex' : 'none';
-                const scm = document.getElementById('shop-close-m');
-                if (scm) scm.style.display = phone ? 'flex' : 'none';
-            } catch (e) {}
+            try { return window.matchMedia('(orientation: portrait) and (max-width: 768px)').matches; } catch (e) { return false; }
         },
         syncVisualViewport() {
             try {
                 const html = document.documentElement;
-                /* vv-browser disabled: shrinks layout wrong on iOS Safari tabs. PWA uses full viewport. */
-                html.classList.remove('vv-browser');
-                this._vvKey = '';
-                ['--vv-h', '--vv-w', '--vv-top', '--vv-left'].forEach(function (p) { html.style.removeProperty(p); });
-            } catch (e) {}
-        },
-        reflow() {
-            try {
-                if (!this.isPhone()) {
-                    const html = document.documentElement;
-                    html.classList.remove('portrait-mode', 'vv-browser');
+                const standalone = typeof fullscreen !== 'undefined' && fullscreen.isStandalone && fullscreen.isStandalone();
+                const vv = window.visualViewport;
+                if (!this.isPhone() || standalone || !vv) {
+                    html.classList.remove('vv-browser');
                     ['--vv-h', '--vv-w', '--vv-top', '--vv-left'].forEach(function (p) { html.style.removeProperty(p); });
-                    const sc = document.getElementById('sticky-center');
-                    if (sc) {
-                        sc.style.left = sc.style.top = sc.style.bottom = '';
-                        sc.style.transform = sc.style.transformOrigin = '';
-                    }
-                    try {
-                        if (typeof game !== 'undefined') {
-                            game.syncCompanionLayout();
-                            game.ensureReservedHelperSlot();
-                            game.syncMinigameButtons();
-                        }
-                    } catch (e) {}
-                    this.syncMobileLaunchers();
                     return;
                 }
-                const html = document.documentElement;
-                html.classList.toggle('portrait-mode', this._portraitPhone());
-                this.syncMobileLaunchers();
-                this.syncVisualViewport();
-                this.fitScene();
-                this.syncLandscapeLeftHud();
-                this.syncPortraitHudAnchors();
-                try {
-                    if (typeof game !== 'undefined') {
-                        game.syncCompanionLayout();
-                        game.syncMinigameButtons();
-                    }
-                } catch (e) {}
+                html.classList.add('vv-browser');
+                html.style.setProperty('--vv-h', vv.height + 'px');
+                html.style.setProperty('--vv-w', vv.width + 'px');
+                html.style.setProperty('--vv-top', vv.offsetTop + 'px');
+                html.style.setProperty('--vv-left', vv.offsetLeft + 'px');
+                try { window.scrollTo(0, 0); } catch (e) {}
             } catch (e) {}
         },
         maybeBrowserLandscapeHint() {
             try {
                 if (!this._landscapePhone()) return;
-                if (this._isStandalone()) return;
+                if (typeof fullscreen !== 'undefined' && fullscreen.isStandalone && fullscreen.isStandalone()) return;
                 if (sessionStorage.getItem('sc_vv_hint')) return;
                 sessionStorage.setItem('sc_vv_hint', '1');
                 if (typeof gx !== 'undefined') gx.toast(t('mobile_browser_landscape_hint'));
@@ -271,7 +206,6 @@
         },
         syncMinigameLauncher() {
             try {
-                this.syncMobileLaunchers();
                 const btn = document.getElementById('m-minigame-btn');
                 if (!btn) return;
                 const phone = this.isPhone();
@@ -332,7 +266,7 @@
                 let s = Math.min((r.width * FIT_W) / DW, (r.height * FIT_H) / DH);
                 if (!isFinite(s) || s <= 0) return;
                 s = Math.max(0.22, Math.min(s, 1));
-                const portrait = this._portraitPhone();
+                const portrait = window.matchMedia('(orientation: portrait) and (max-width: 768px)').matches;
                 if (portrait) {
                     sc.style.left = '50%';
                     sc.style.top = '68%';
@@ -354,27 +288,24 @@
         },
         init() {
             try {
-                let reflowPending = null;
-                const scheduleReflow = () => {
-                    if (reflowPending != null) return;
-                    reflowPending = requestAnimationFrame(() => {
-                        reflowPending = null;
-                        try { mobileUI.reflow(); } catch (e) {}
-                    });
+                const run = () => {
+                    this.syncVisualViewport();
+                    this.fitScene();
+                    this.syncLandscapeLeftHud();
+                    this.syncPortraitHudAnchors();
                 };
-                window.addEventListener('pageshow', scheduleReflow);
-                document.addEventListener('visibilitychange', () => { if (!document.hidden) scheduleReflow(); });
-                window.addEventListener('resize', scheduleReflow);
-                window.addEventListener('load', scheduleReflow);
+                window.addEventListener('resize', run);
+                window.addEventListener('load', run);
                 window.addEventListener('orientationchange', () => {
-                    setTimeout(scheduleReflow, 60);
-                    setTimeout(scheduleReflow, 280);
+                    setTimeout(run, 60);
+                    setTimeout(run, 280);
                     setTimeout(() => this.maybeBrowserLandscapeHint(), 400);
                 });
                 try {
                     const vv = window.visualViewport;
                     if (vv) {
-                        vv.addEventListener('resize', scheduleReflow);
+                        vv.addEventListener('resize', run);
+                        vv.addEventListener('scroll', run);
                     }
                 } catch (e) {}
                 try {
@@ -415,8 +346,8 @@
                         try { skirmish.open(); } catch (err) {}
                     }, { passive: false });
                 }
-                scheduleReflow();
-                setTimeout(scheduleReflow, 300);
+                run();
+                setTimeout(run, 300);
                 setTimeout(() => this.maybeBrowserLandscapeHint(), 800);
             } catch (e) {}
         }
