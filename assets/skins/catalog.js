@@ -662,6 +662,7 @@
     { id: 'coco_anomaly_leviathan', rarity: 'anomaly', family: 'helper', img: 'assets/skins/coco_anomaly_leviathan.png', thumb: 'assets/skins/thumbs/coco_anomaly_leviathan.webp', name_en: 'Coco · Leviathan', name_es: 'Coco · Leviatán' },
     { id: 'ivan_anomaly_chimera', rarity: 'anomaly', family: 'helper', img: 'assets/skins/ivan_anomaly_chimera.png', thumb: 'assets/skins/thumbs/ivan_anomaly_chimera.webp', name_en: 'Ivan · Chimera Bear', name_es: 'Ivan · Oso Quimera' },
     { id: 'pio_anomaly_serpent', rarity: 'anomaly', family: 'helper', img: 'assets/skins/pio_anomaly_serpent.png', thumb: 'assets/skins/thumbs/pio_anomaly_serpent.webp', name_en: 'Pío · Serpent Duck', name_es: 'Pío · Pato Serpiente' },
+    { id: 'pio_uncommon_piratehat', rarity: 'uncommon', family: 'helper', img: 'assets/skins/pio_uncommon_piratehat.png', thumb: 'assets/skins/thumbs/pio_uncommon_piratehat.webp', name_en: 'Pío · Pirate Hat', name_es: 'Pío · Sombrero Pirata' },
     // === WAVE 5 — Chaos Kawaii (400 skins, arte pendiente) ===
     // Manifiesto: tools/wave5_chaos_kawaii.json · Guía: tools/WAVE5_CHAOS_KAWAII.md
     // Generar JSON: python tools/generate-wave5-scaffold.py
