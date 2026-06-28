@@ -7,4 +7,9 @@ assets/skins/canva_masters/
 __pycache__/
 *.pyc
 dist-steam/
+dist-mac/
+dist-android/
+dist-playables/
+backups/
+assets/skins_quarantine/
 node_modules/

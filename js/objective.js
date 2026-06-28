@@ -144,7 +144,10 @@
                 chip.classList.toggle('goal-chip-action', hasAction);
                 if (sig !== this._sig) {
                     this._sig = sig;
-                    if (iconEl) iconEl.textContent = g.icon || '🎯';
+                    if (iconEl) {
+                        if (typeof scCauldronIcon !== 'undefined') scCauldronIcon.setGoalIcon(iconEl, g.icon || '🎯');
+                        else iconEl.textContent = g.icon || '🎯';
+                    }
                     textEl.textContent = g.text || '';
                 }
                 chip.style.display = 'flex';

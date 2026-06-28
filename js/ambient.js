@@ -316,7 +316,7 @@
 
                     return `<div class="amb-row ${on ? 'on' : ''}">`
 
-                        + `<button class="amb-toggle" type="button" ${dis} onclick="ambient.toggle('${def.id}')">${def.icon} <span>${t('amb_' + def.id)}</span><span class="amb-state">${on ? '❚❚' : '▶'}</span></button>`
+                        + `<button class="amb-toggle" type="button" ${dis} onclick="ambient.toggle('${def.id}')">${(typeof scCauldronIcon !== 'undefined' ? scCauldronIcon.ambIcon(def) : def.icon)} <span>${t('amb_' + def.id)}</span><span class="amb-state">${on ? '❚❚' : '▶'}</span></button>`
 
                         + `<input class="amb-slider" type="range" min="0" max="100" value="${Math.round(tr.vol * 100)}" ${dis} oninput="ambient.setTrackVol('${def.id}', this.value/100)" onchange="ambient.setTrackVol('${def.id}', this.value/100)">`
 

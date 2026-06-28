@@ -117,7 +117,7 @@
 
     global.balancePrestigeGoal = function (prestigeLevel) {
         var s = Math.max(0, Math.floor(Number(prestigeLevel) || 0));
-        return balanceGet('prestigeEbBase', 620000) * Math.pow(balanceGet('prestigeEbPow', 3.85), s);
+        return Math.round(balanceGet('prestigeEbBase', 620000) * Math.pow(balanceGet('prestigeEbPow', 3.85), s));
     };
 
     global.balanceCompCostMult = function () {

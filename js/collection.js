@@ -183,18 +183,31 @@ const collection = {
     isLiveSkin(sk) { return !!(sk && sk.id && sk.dropLive !== false); },
     // Staging skins (dropLive:false) never drop randomly, but once a player owns one
     // it stays in the save forever — deploys must not wipe grandfathered charms.
+    // Remove charms no longer in catalog (e.g. purged Wave7) + unowned staging.
     purgeUnpublishedCharms() {
         const c = this.normalize();
         let removed = 0;
+        const catById = {};
+        const cat = this.catalog();
+        for (let i = 0; i < cat.length; i++) {
+            const sk = cat[i];
+            if (sk && sk.id) catById[sk.id] = sk;
+        }
         for (const id in c.items) {
             if (!Object.prototype.hasOwnProperty.call(c.items, id)) continue;
-            const sk = this.skinById(id);
-            if (sk && sk.dropLive === false) {
-                const it = c.items[id];
-                const owned = it && Math.floor(Number(it.count)) >= 1;
-                if (owned) continue;
+            const sk = catById[id];
+            if (!sk) {
                 delete c.items[id];
                 removed++;
+                continue;
+            }
+            if (sk.dropLive === false) {
+                const it = c.items[id];
+                const owned = it && Math.floor(Number(it.count)) >= 1;
+                if (!owned) {
+                    delete c.items[id];
+                    removed++;
+                }
             }
         }
         if (removed && c.equips) {
