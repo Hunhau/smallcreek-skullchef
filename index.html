@@ -204,6 +204,13 @@
             transform: translateZ(0);
         }
         #chef-rig.chef-face-glow::after { animation: chefFaceGlowPulse 2.5s ease forwards; }
+        #chef-rig.chef-face-glow-mobile::after { animation: chefFaceGlowPulseMobile 2.5s ease forwards; mix-blend-mode: soft-light; }
+        @keyframes chefFaceGlowPulseMobile {
+            0% { opacity: 0; transform: scale(0.92); filter: blur(5px); box-shadow: 0 0 0 transparent; }
+            12%, 36% { opacity: 1; transform: scale(1.12); filter: blur(9px) brightness(1.42); box-shadow: 0 0 44px var(--chef-glow-color, rgba(255, 200, 100, 0.7)), 0 0 76px var(--chef-glow-color, rgba(255, 200, 100, 0.38)); }
+            58% { opacity: 0.72; transform: scale(1.04); filter: blur(7px); box-shadow: 0 0 28px var(--chef-glow-color, transparent); }
+            100% { opacity: 0; transform: scale(1); filter: blur(3px); box-shadow: 0 0 0 transparent; }
+        }
         @keyframes chefFaceGlowPulse {
             0% { opacity: 0; transform: scale(0.94); filter: blur(4px); box-shadow: 0 0 0 transparent; }
             10%, 34% { opacity: 1; transform: scale(1.1); filter: blur(10px) brightness(1.35); box-shadow: 0 0 40px var(--chef-glow-color, rgba(255, 200, 100, 0.65)), 0 0 72px var(--chef-glow-color, rgba(255, 200, 100, 0.35)); }
@@ -811,6 +818,8 @@
             .ing-fx-carrot.ingredient-splash-active,
             .ing-fx-coconut.ingredient-splash-active,
             .ing-fx-banana.ingredient-splash-active { --ing-anim: ingFxPop 2.6s ease-out; }
+            .sfx-k-bubble, .sfx-part { contain: layout style paint; }
+            .summon-clone { filter: drop-shadow(0 0 14px var(--ac)); -webkit-backface-visibility: hidden; backface-visibility: hidden; }
         }
         @keyframes ingFxPop { 0% { transform: scale(1.02, 0.98); } 35% { transform: scale(1.06, 1.04); } 100% { transform: scale(1.01, 1.01); } }
         @keyframes ingFxInkSpiral { 0% { transform: rotate(0deg) scale(0.96, 1.04); filter: var(--ing-filter) brightness(0.82); } 18% { transform: rotate(180deg) scale(1.1, 1.08); filter: var(--ing-filter) brightness(1.15) saturate(1.2); } 45% { transform: rotate(420deg) scale(1.07, 1.05); filter: var(--ing-filter) brightness(1.05); } 72% { transform: rotate(540deg) scale(1.04, 1.03); filter: var(--ing-filter) brightness(1.12); } 100% { transform: rotate(720deg) scale(1.01, 1.01); filter: var(--ing-filter) brightness(1); } }
@@ -866,15 +875,15 @@
         .sfx-coco-half { font-size: clamp(1rem, 2.8vw, 1.45rem); line-height: 1; opacity: 0; animation: sfxCocoHalf 1.5s ease-out forwards; filter: drop-shadow(0 2px 5px rgba(255,255,255,0.4)); }
         @keyframes sfxCocoHalf { 0% { opacity: 0; transform: translate(-50%,-50%) scale(0.4) rotate(-15deg); } 22% { opacity: 1; transform: translate(-50%,-50%) scale(1.12) rotate(5deg); } 100% { opacity: 0; transform: translate(-50%,-50%) scale(0.85) rotate(0deg); } }
         /* Kawaii colored bubbles — LOCO palette per ingredient, rise/pop/float/swirl */
-        .sfx-k-bubble { position: absolute; border-radius: 50%; pointer-events: none; opacity: 0; transform: translate(-50%, -50%); will-change: transform, opacity; box-shadow: inset 0 -4px 8px rgba(255,255,255,0.55), inset 0 2px 4px rgba(255,255,255,0.35), 0 1px 3px rgba(0,0,0,0.18), 0 0 8px var(--bb-glow, rgba(255,255,255,0.5)); }
-        .sfx-k-bubble.rise { animation: sfxBubbleRise var(--bd, 1.75s) ease-out forwards; }
-        .sfx-k-bubble.rise-pop { animation: sfxBubbleRisePop var(--bd, 1.65s) ease-out forwards; }
-        .sfx-k-bubble.float { animation: sfxBubbleFloat var(--bd, 1.9s) ease-in-out forwards; }
-        .sfx-k-bubble.swirl { animation: sfxBubbleSwirl var(--bd, 1.85s) ease-out forwards; }
-        .sfx-k-bubble.sticky { animation: sfxBubbleSticky var(--bd, 2s) ease-in-out forwards; }
-        .sfx-k-bubble.wobble { animation: sfxBubbleWobble var(--bd, 1.7s) ease-out forwards; }
-        .sfx-k-bubble.bounce { animation: sfxBubbleBounce var(--bd, 1.55s) cubic-bezier(0.34, 1.4, 0.64, 1) forwards; }
-        .sfx-k-bubble.drift { animation: sfxBubbleDrift var(--bd, 1.8s) ease-out forwards; }
+        .sfx-k-bubble { position: absolute; border-radius: 50%; pointer-events: none; opacity: 0; transform: translate(-50%, -50%); will-change: transform, opacity; box-shadow: inset 0 -4px 8px rgba(255,255,255,0.55), inset 0 2px 4px rgba(255,255,255,0.35), 0 1px 3px rgba(0,0,0,0.18), 0 0 8px var(--bb-glow, rgba(255,255,255,0.5)); -webkit-backface-visibility: hidden; backface-visibility: hidden; }
+        .sfx-k-bubble.rise { animation: sfxBubbleRise var(--bd, 1.75s) var(--be, ease-out) forwards; }
+        .sfx-k-bubble.rise-pop { animation: sfxBubbleRisePop var(--bd, 1.65s) var(--be, ease-out) forwards; }
+        .sfx-k-bubble.float { animation: sfxBubbleFloat var(--bd, 1.9s) var(--be, ease-in-out) forwards; }
+        .sfx-k-bubble.swirl { animation: sfxBubbleSwirl var(--bd, 1.85s) var(--be, ease-out) forwards; }
+        .sfx-k-bubble.sticky { animation: sfxBubbleSticky var(--bd, 2s) var(--be, ease-in-out) forwards; }
+        .sfx-k-bubble.wobble { animation: sfxBubbleWobble var(--bd, 1.7s) var(--be, ease-out) forwards; }
+        .sfx-k-bubble.bounce { animation: sfxBubbleBounce var(--bd, 1.55s) var(--be, cubic-bezier(0.34, 1.4, 0.64, 1)) forwards; }
+        .sfx-k-bubble.drift { animation: sfxBubbleDrift var(--bd, 1.8s) var(--be, ease-out) forwards; }
         .sfx-k-pop-ring { position: absolute; border-radius: 50%; pointer-events: none; opacity: 0; border: 2px solid var(--pop-c, rgba(255,255,255,0.7)); animation: sfxBubblePopRing 0.45s ease-out forwards; }
         @keyframes sfxBubbleRise { 0% { opacity: 0; transform: translate(-50%,-50%) scale(0.25); } 14% { opacity: 1; transform: translate(-50%,-50%) scale(1); } 82% { opacity: 1; } 100% { opacity: 0; transform: translate(calc(-50% + var(--bx, 0px)), calc(-50% - var(--rise, 48px))) scale(0.85); } }
         @keyframes sfxBubbleRisePop { 0% { opacity: 0; transform: translate(-50%,-50%) scale(0.2); } 12% { opacity: 1; transform: translate(-50%,-50%) scale(1.05); } 68% { opacity: 1; transform: translate(calc(-50% + var(--bx, 0px)), calc(-50% - var(--rise, 52px))) scale(1.08); } 78% { opacity: 1; transform: translate(calc(-50% + var(--bx, 0px)), calc(-50% - var(--rise, 52px))) scale(1.45); } 100% { opacity: 0; transform: translate(calc(-50% + var(--bx, 0px)), calc(-50% - var(--rise, 52px))) scale(0.15); } }
@@ -2781,36 +2790,36 @@
     })(typeof window !== 'undefined' ? window : this);
     </script>
     <script src="events.js"></script>
-    <script src="js/soft-events.js?v=build-246"></script>
-    <script src="js/gx.js?v=build-246"></script>
-    <script src="js/visual-theme.js?v=build-246"></script>
-    <script src="js/decor.js?v=build-246"></script>
-    <script src="js/quests.js?v=build-246"></script>
-    <script src="js/achievements.js?v=build-246"></script>
-    <script src="js/soup-menu.js?v=build-246"></script>
-    <script src="js/weekly-challenges.js?v=build-246"></script>
-    <script src="js/helper-team.js?v=build-246"></script>
-    <script src="js/chef-mood.js?v=build-246"></script>
-    <script src="js/farm.js?v=build-246"></script>
-    <script src="js/ambient.js?v=build-246"></script>
-    <script src="js/music.js?v=build-246"></script>
-    <script src="js/creator.js?v=build-246"></script>
-    <script src="js/prix.js?v=build-246"></script>
-    <script src="js/soup-skirmish.js?v=build-246"></script>
-    <script src="js/objective.js?v=build-246"></script>
-    <script src="js/angel-tree.js?v=build-246"></script>
-    <script src="js/tutorial.js?v=build-246"></script>
-    <script src="js/quality.js?v=build-246"></script>
-    <script src="js/fullscreen.js?v=build-246"></script>
-    <script src="js/home.js?v=build-246"></script>
-    <script src="js/pause-menu.js?v=build-246"></script>
-    <script src="js/guide.js?v=build-246"></script>
-    <script src="js/hud-chips.js?v=build-246"></script>
-    <script src="js/item-bonus.js?v=build-246"></script>
+    <script src="js/soft-events.js?v=build-277"></script>
+    <script src="js/gx.js?v=build-277"></script>
+    <script src="js/visual-theme.js?v=build-277"></script>
+    <script src="js/decor.js?v=build-277"></script>
+    <script src="js/quests.js?v=build-277"></script>
+    <script src="js/achievements.js?v=build-277"></script>
+    <script src="js/soup-menu.js?v=build-277"></script>
+    <script src="js/weekly-challenges.js?v=build-277"></script>
+    <script src="js/helper-team.js?v=build-277"></script>
+    <script src="js/chef-mood.js?v=build-277"></script>
+    <script src="js/farm.js?v=build-277"></script>
+    <script src="js/ambient.js?v=build-277"></script>
+    <script src="js/music.js?v=build-277"></script>
+    <script src="js/creator.js?v=build-277"></script>
+    <script src="js/prix.js?v=build-277"></script>
+    <script src="js/soup-skirmish.js?v=build-277"></script>
+    <script src="js/objective.js?v=build-277"></script>
+    <script src="js/angel-tree.js?v=build-277"></script>
+    <script src="js/tutorial.js?v=build-277"></script>
+    <script src="js/quality.js?v=build-277"></script>
+    <script src="js/fullscreen.js?v=build-277"></script>
+    <script src="js/home.js?v=build-277"></script>
+    <script src="js/pause-menu.js?v=build-277"></script>
+    <script src="js/guide.js?v=build-277"></script>
+    <script src="js/hud-chips.js?v=build-277"></script>
+    <script src="js/item-bonus.js?v=build-277"></script>
     <!-- Cache-bust catalog on every deploy (SW must not serve a stale charm list). -->
-    <script src="assets/skins/catalog.js?v=build-246"></script>
-    <script src="assets/atlas_manifest.js?v=build-246"></script>
-    <script src="js/atlas.js?v=build-246"></script>
+    <script src="assets/skins/catalog.js?v=build-277"></script>
+    <script src="assets/atlas_manifest.js?v=build-277"></script>
+    <script src="js/atlas.js?v=build-277"></script>
     <!-- ====================================================================
          === EMBEDDED LEADERBOARD MODULE (from leaderboard/leaderboard-client.js)
          === Self-contained global `leaderboard` object. Single-file game, so the
@@ -3290,7 +3299,7 @@
 
     })(typeof window !== 'undefined' ? window : this);
     </script>
-    <script src="js/lb-ui.js?v=build-246"></script>
+    <script src="js/lb-ui.js?v=build-277"></script>
     <!-- ==================== END EMBEDDED LEADERBOARD MODULE ==================== -->
     <script>
         // === AUTO-UPDATE / ANTI-STALE-CACHE ===========================================
@@ -3304,7 +3313,7 @@
         // while still retrying if a reload didn't actually land the new build. Fully
         // defensive: any error is silent and never blocks the game. Parent bumps BOTH
         // version.json and BUILD_V on every future deploy.
-        const BUILD_V = "build-246";
+        const BUILD_V = "build-277";
         function paintBuildTag() {
             try {
                 var prod = (typeof PRODUCTION_BUILD !== 'undefined' && PRODUCTION_BUILD)
@@ -4164,7 +4173,7 @@
             // Mobile web (iOS/Android browser): one-shot SFX via Web Audio so sounds triggered
             // from timers/async (farm ready, ingredient rain, eat) work without a user gesture.
             // Stir keeps its dedicated HTMLAudio loop (already gesture-started on tap).
-            _waCtx: null, _waBuf: {}, _waLoading: {}, _waAmb: null, _waAmbGain: null,
+            _waCtx: null, _waBuf: {}, _waLoading: {}, _waAmb: null, _waAmbGain: null, _waBuyPlaying: false,
             _useWebAudio() {
                 try {
                     if (this._isNativeCap()) return false;
@@ -4174,6 +4183,20 @@
                     return window.matchMedia('(pointer: coarse)').matches;
                 } catch (e) { return false; }
             },
+            // Prod mobile, cuenta nueva: altavoz apagado hasta que el jugador lo encienda
+            // (gesto explícito = iOS desbloquea audio). PC sin cambios.
+            _prodMobileFreshAudio() {
+                try {
+                    if (typeof SC_LOCAL_DEV !== 'undefined' && SC_LOCAL_DEV) return false;
+                    if (window.matchMedia && window.matchMedia('(pointer: fine)').matches) {
+                        const ua = navigator.userAgent || '';
+                        if (!/iPhone|iPad|iPod|Android/i.test(ua)) return false;
+                    }
+                    const ua = navigator.userAgent || '';
+                    if (/iPhone|iPad|iPod|Android/i.test(ua)) return true;
+                    return !!(window.matchMedia && window.matchMedia('(pointer: coarse)').matches);
+                } catch (e) { return false; }
+            },
             _primeMobileEssentials() {
                 if (!this._useWebAudio()) return;
                 const keys = ['bubble', 'buy', 'eat', 'farmAbrir', 'farmPlantar', 'farmRegar', 'farmCosechar', 'farmListo', 'farmSinStock', 'rainStart', 'bubblePop', 'prestige', 'victory'];
@@ -4181,6 +4204,7 @@
                     const arr = this.flat[keys[ki]];
                     if (arr && arr[0]) try { this._primeOne(arr[0]); } catch (e) {}
                 }
+                try { this._waLoadSrc('audio/stir1.mp3'); this._waLoadSrc('audio/stir2.mp3'); } catch (e) {}
             },
             _waEnsure() {
                 try {
@@ -4194,6 +4218,28 @@
                     }
                     return ctx;
                 } catch (e) { return null; }
+            },
+            _waKick() {
+                if (!this._unlocked) return false;
+                const ctx = this._waEnsure();
+                if (!ctx) return false;
+                try {
+                    if (ctx.state === 'suspended' || ctx.state === 'interrupted') {
+                        try { ctx.resume(); } catch (e) {}
+                    }
+                    const dur = 0.016;
+                    const frames = Math.max(1, Math.ceil(ctx.sampleRate * dur));
+                    const buf = ctx.createBuffer(1, frames, ctx.sampleRate);
+                    const src = ctx.createBufferSource();
+                    src.buffer = buf;
+                    const g = ctx.createGain();
+                    g.gain.value = 0.0001;
+                    src.connect(g);
+                    g.connect(ctx.destination);
+                    src.start(0);
+                    try { src.stop(dur); } catch (e) {}
+                    return true;
+                } catch (e) { return false; }
             },
             _waLoadSrc(src) {
                 const url = this._mediaUrl(src);
@@ -4227,7 +4273,7 @@
                     if (arr) arr.forEach(u => { try { this._waLoadSrc(u); } catch (e) {} });
                 }
             },
-            _waPlayBuffer(buf, vol, rate) {
+            _waPlayBuffer(buf, vol, rate, onEnded) {
                 const ctx = this._waEnsure();
                 if (!ctx || !buf) return false;
                 try {
@@ -4237,6 +4283,9 @@
                     const g = ctx.createGain();
                     g.gain.value = Math.min(1, Math.max(0, vol));
                     src.connect(g); g.connect(ctx.destination);
+                    if (typeof onEnded === 'function') {
+                        src.onended = () => { try { onEnded(); } catch (e) {} };
+                    }
                     src.start(0);
                     return true;
                 } catch (e) { return false; }
@@ -4247,8 +4296,13 @@
                 if (!grp || !grp.length) return false;
                 const cfg = this.cfg[name] || this.cfg._default;
                 const now = (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now();
-                const minGap = name === 'buy' ? 400 : (cfg.minGap || 0);
-                if (minGap > 0 && (now - (this._last[name] || 0)) < minGap) return true;
+                if (name === 'buy') {
+                    if (this._waBuyPlaying) return true;
+                    if ((now - (this._last[name] || 0)) < 650) return true;
+                } else {
+                    const minGap = cfg.minGap || 0;
+                    if (minGap > 0 && (now - (this._last[name] || 0)) < minGap) return true;
+                }
                 this._last[name] = now;
                 const srcPath = grp.length > 1 ? grp[Math.floor(Math.random() * grp.length)] : grp[0];
                 const url = this._mediaUrl(srcPath);
@@ -4257,11 +4311,29 @@
                 const vol = Math.min(1, Math.max(0, (this.vols[name] != null ? this.vols[name] : 0.5) * this.volume));
                 const pitch = cfg.pitch || 0;
                 const rate = (name === 'buy' || pitch <= 0) ? 1 : Math.min(2, Math.max(0.5, 1 + (Math.random() * 2 - 1) * pitch));
-                return this._waPlayBuffer(buf, vol, rate);
+                const self = this;
+                const onEnded = (name === 'buy') ? function () { self._waBuyPlaying = false; } : null;
+                if (name === 'buy') this._waBuyPlaying = true;
+                const ok = this._waPlayBuffer(buf, vol, rate, onEnded);
+                if (name === 'buy' && !ok) this._waBuyPlaying = false;
+                return ok;
             },
             init() {
                 if (this._inited) return; this._inited = true;
-                try { const raw = localStorage.getItem('soup_audio'); if (raw) { const d = JSON.parse(raw); if (d && typeof d === 'object') { this.muted = !!d.m; if (typeof d.v === 'number' && isFinite(d.v)) this.volume = Math.min(1, Math.max(0, d.v)); } } } catch (e) {}
+                try {
+                    const raw = localStorage.getItem('soup_audio');
+                    if (raw) {
+                        const d = JSON.parse(raw);
+                        if (d && typeof d === 'object') {
+                            this.muted = !!d.m;
+                            if (typeof d.v === 'number' && isFinite(d.v)) this.volume = Math.min(1, Math.max(0, d.v));
+                        }
+                    } else if (this._prodMobileFreshAudio()) {
+                        this.muted = true;
+                        this.volume = 1;
+                        this.save();
+                    }
+                } catch (e) {}
                 // HARDENING: si un archivo de audio falta (404) o no se puede decodificar,
                 // el evento 'error' del elemento NO es una excepción y NO ensucia la consola
                 // con throws. Lo silenciamos explícitamente para que el juego suene "vacío"
@@ -4321,13 +4393,44 @@
                     }
                 } catch (e) {}
             },
+            resumeAudioIfNeeded() {
+                if (!this._unlocked) return;
+                try {
+                    const wa = this._waCtx;
+                    if (wa && (wa.state === 'suspended' || wa.state === 'interrupted')) {
+                        try { const p = wa.resume(); if (p && p.catch) p.catch(() => {}); } catch (e) {}
+                    } else {
+                        const eat = this._eatCtx;
+                        if (eat && (eat.state === 'suspended' || eat.state === 'interrupted')) this.resumeAudio();
+                    }
+                } catch (e) {}
+            },
+            touchAudioIfOn() {
+                if (this.muted || this.volume <= 0) return;
+                this.touchAudio();
+            },
+            // Re-arm audio after Play / privacy / name modals (iOS needs a fresh gesture chain).
+            touchAudio() {
+                try {
+                    this.unlock();
+                    this.resumeAudio();
+                    if (this._useWebAudio()) { try { this._waKick(); } catch (e) {} }
+                    if (this._stirUseWa()) {
+                        try { this._stirWaEnsureBus(); this._stirWaPreload(); } catch (e) {}
+                    }
+                    if (this._useWebAudio()) { try { this._waLoadAll(); } catch (e) {} }
+                } catch (e) {}
+            },
             // Full audio recovery after screen sleep / tab background. Re-primes EVERY pooled
             // voice (not just one per group) and resets the stir loop so the next click can
             // start sound again without restarting the game.
             recoverFromBackground() {
                 if (!this._inited || this.muted || this.volume <= 0) return;
                 this.resumeAudio();
-                if (this._useWebAudio()) return;
+                if (this._useWebAudio()) {
+                    try { this._waLoadAll(); if (this._stirUseWa()) this._stirWaPreload(); } catch (e) {}
+                    return;
+                }
                 // SYNC prime (mirrors unlock()): never leave a voice muted via an async
                 // callback, and never pause/reset a voice that is actively playing — that was
                 // silencing real SFX on mobile (the async mute window + done() clobber).
@@ -4364,7 +4467,10 @@
                         if (this._isNativeCap()) {
                             this._primeOne(this._makeAudio('audio/bubble.mp3'));
                             const sv = this._stirEnsure();
-                            if (sv && sv[0]) this._primeOne(sv[0]);
+                            if (sv) for (let si = 0; si < sv.length; si++) this._primeOne(sv[si]);
+                        } else if (this._stirUseWa()) {
+                            this._primeMobileEssentials();
+                            try { this._waLoadSrc('audio/stir1.mp3'); this._waLoadSrc('audio/stir2.mp3'); } catch (e) {}
                         } else if (!this._useWebAudio()) {
                             for (const k in this.flat) {
                                 const arr = this.flat[k];
@@ -4375,11 +4481,17 @@
                             if (sv) for (let i = 0; i < sv.length; i++) this._primeOne(sv[i]);
                         } else {
                             this._primeMobileEssentials();
+                            const sv = this._stirEnsure();
+                            if (sv) for (let si = 0; si < sv.length; si++) this._primeOne(sv[si]);
                         }
                         if (this._eatCtx && this._eatCtx.state === 'suspended') { try { this._eatCtx.resume(); } catch (e) {} }
                     } catch (e) {}
                 }
-                try { this.resumeAudio(); this._waLoadAll(); } catch (e) {}
+                try {
+                    if (first || this._needReprime) this.resumeAudio();
+                    else this.resumeAudioIfNeeded();
+                    if (first || this._needReprime) this._waLoadAll();
+                } catch (e) {}
             },
             save() { try { localStorage.setItem('soup_audio', JSON.stringify({ m:this.muted, v:this.volume })); } catch (e) {} },
             play(name) {
@@ -4399,7 +4511,15 @@
                 if (name === 'buy') {
                     const flatB = this.flat[name] || [];
                     if (!flatB.length) return;
-                    for (let i = 0; i < flatB.length; i++) { const v = flatB[i]; if (!v.paused && !v.ended) return; }
+                    let mobileCoarse = false;
+                    try { mobileCoarse = window.matchMedia('(pointer: coarse)').matches; } catch (e) {}
+                    if (mobileCoarse) {
+                        const minGap = 220;
+                        if ((now - (this._lastBuyM || 0)) < minGap) return;
+                        this._lastBuyM = now;
+                    } else {
+                        for (let i = 0; i < flatB.length; i++) { const v = flatB[i]; if (!v.paused && !v.ended) return; }
+                    }
                     const a = flatB[0];
                     try {
                         a.muted = false;
@@ -4548,15 +4668,17 @@
                 return this._playEatSynth(onEnd, fallbackMs, vol);
             },
             // === STIR LOOP (sostenido, gobernado por actividad) =================
-            // El removido es continuo: arranca en el PRIMER clic y se mantiene
-            // estable alternando stir1/stir2 (encadenado vía 'ended', sin cortes ni
-            // solapes). Cada clic solo lo MANTIENE vivo (_stir.last). Tras ~700ms
-            // sin clics hace fade-out (~180ms) y se detiene. Respeta mute, volumen
-            // y visibilitychange. Si faltan los archivos, es un no-op silencioso.
-            _stir: { active:false, last:0, timer:null, idx:0, voices:null, cur:null, fade:null, broken:false, _handoff:null, _fadePrev:null },
+            // Móvil browser (iPhone PWA): Web Audio stir1↔stir2, una voz a la vez,
+            // encadenado por onended (sin setTimeout), buffers recortados (padding MP3).
+            // PC + Capacitor nativo: HTML gapless build-251 — no tocar.
+            _stir: { active:false, last:0, timer:null, idx:0, voices:null, cur:null, fade:null, broken:false, _handoff:null, _fadePrev:null, _waCur:null, _waPrevNode:null, _waStirGain:null, _waStirHi:null, _waStirFilt:null, _waSources:null },
             _stirVol() { return Math.min(1, Math.max(0, (this.vols.stir != null ? this.vols.stir : 0.3) * this.volume)); },
-            // Desktop: wider overlap for gapless loop. Native: short handoff (~60ms) with
-            // ducking — avoids the muddy double-stir AND the audible gap from ended-only.
+            _stirUseWa() {
+                try {
+                    const ua = navigator.userAgent || '';
+                    return /iPhone|iPad|iPod|Android/i.test(ua);
+                } catch (e) { return false; }
+            },
             _stirNative() {
                 try { if (this._isNativeCap()) return true; } catch (e) {}
                 try {
@@ -4567,6 +4689,7 @@
             },
             _stirEnsure() {
                 const S = this._stir;
+                if (this._stirUseWa()) return null;
                 if (S.voices || S.broken) return S.voices;
                 try {
                     const srcs = this.defs.stir || [];
@@ -4580,6 +4703,174 @@
                     if (this._unlocked) { S.voices.forEach(a => { try { this._primeOne(a); } catch (e) {} }); }
                 } catch (e) { S.broken = true; S.voices = null; }
                 return S.voices;
+            },
+            _stirHtmlFallbackEnsure() {
+                const S = this._stir;
+                if (S.voices && S.voices.length) return S.voices;
+                try {
+                    const srcs = this.defs.stir || [];
+                    if (!srcs.length) return null;
+                    S.voices = srcs.map(src => {
+                        const a = this._makeAudio(src);
+                        try { a.preload = 'auto'; a.load(); } catch (e) {}
+                        return a;
+                    });
+                    if (this._unlocked) { S.voices.forEach(a => { try { this._primeOne(a); } catch (e) {} }); }
+                } catch (e) { return null; }
+                return S.voices;
+            },
+            _stirPauseHtmlVoices() {
+                const S = this._stir;
+                const voices = S.voices;
+                if (!voices || !voices.length) return;
+                const vol = this._stirVol();
+                voices.forEach(v => {
+                    try { v.onended = null; v.loop = false; v.pause(); v.currentTime = 0; v.volume = vol; } catch (e) {}
+                });
+                S.cur = null;
+            },
+            _stirWaStop() {
+                const S = this._stir;
+                if (S._waSources) {
+                    S._waSources.forEach(n => {
+                        try {
+                            const src = n.src || n;
+                            src.onended = null;
+                            src.stop();
+                            src.disconnect();
+                            if (n.gain) n.gain.disconnect();
+                        } catch (e) {}
+                    });
+                    S._waSources = null;
+                }
+                S._waCur = null;
+                S._waPrevNode = null;
+            },
+            _stirWaVol() { return Math.min(1, this._stirVol() * 1.38); },
+            _stirWaTrim(buf) {
+                if (!buf || !Number.isFinite(buf.duration)) return { start: 0, dur: buf ? buf.duration : 0 };
+                const start = 0.048;
+                const endPad = 0.072;
+                const dur = Math.max(0.12, buf.duration - start - endPad);
+                return { start, dur };
+            },
+            _stirWaEnsureBus() {
+                const ctx = this._waEnsure();
+                const S = this._stir;
+                if (!ctx || S._waStirGain) return ctx;
+                try {
+                    const hi = ctx.createBiquadFilter();
+                    hi.type = 'highpass';
+                    hi.frequency.value = 95;
+                    hi.Q.value = 0.707;
+                    const lo = ctx.createBiquadFilter();
+                    lo.type = 'lowpass';
+                    lo.frequency.value = 2500;
+                    lo.Q.value = 0.45;
+                    const g = ctx.createGain();
+                    g.gain.value = this._stirVol();
+                    hi.connect(lo);
+                    lo.connect(g);
+                    g.connect(ctx.destination);
+                    S._waStirHi = hi;
+                    S._waStirFilt = lo;
+                    S._waStirGain = g;
+                } catch (e) {}
+                return ctx;
+            },
+            _stirWaPreload() {
+                const paths = this.defs.stir || [];
+                for (let i = 0; i < paths.length; i++) { try { this._waLoadSrc(paths[i]); } catch (e) {} }
+            },
+            _stirWaBegin() {
+                const S = this._stir;
+                S.active = true;
+                S.idx = 0;
+                this._stirWaPreload();
+                const paths = this.defs.stir || [];
+                Promise.all(paths.map(p => { try { return this._waLoadSrc(p); } catch (e) { return Promise.resolve(null); } }))
+                    .then(() => { if (S.active) this._stirWaPlayNext(); });
+            },
+            _stirWaCrossfadeOut(prevNode, startAt) {
+                if (!prevNode || !prevNode.gain) return;
+                try {
+                    const pg = prevNode.gain.gain;
+                    pg.cancelScheduledValues(startAt);
+                    pg.setValueAtTime(typeof pg.value === 'number' ? pg.value : 0, startAt);
+                    pg.linearRampToValueAtTime(0, startAt + 0.016);
+                } catch (e) {}
+                try { if (prevNode.src) { prevNode.src.onended = null; prevNode.src.stop(startAt + 0.018); } } catch (e) {}
+            },
+            _stirWaPlayNext() {
+                const S = this._stir;
+                if (!S.active) return;
+                const paths = this.defs.stir || [];
+                if (!paths.length) { this._stirStopNow(); return; }
+                const ctx = this._stirWaEnsureBus();
+                if (!ctx) { this._stirPlayNext(); return; }
+                const path = paths[S.idx % paths.length];
+                S.idx = (S.idx + 1) % paths.length;
+                const url = this._mediaUrl(path);
+                const buf = this._waBuf[url];
+                if (!buf) {
+                    try {
+                        this._stirWaPreload();
+                        this._waLoadSrc(path).then(b => {
+                            if (!S.active) return;
+                            if (b) this._stirWaPlayNext();
+                            else if (this._stirHtmlFallbackEnsure()) this._stirPlayNext();
+                            else this._stirStopNow();
+                        });
+                    } catch (e) {
+                        if (this._stirHtmlFallbackEnsure()) this._stirPlayNext();
+                        else this._stirStopNow();
+                    }
+                    return;
+                }
+                this._stirPauseHtmlVoices();
+                try {
+                    const trim = this._stirWaTrim(buf);
+                    const src = ctx.createBufferSource();
+                    src.buffer = buf;
+                    src.playbackRate.value = 1;
+                    const vol = this._stirWaVol();
+                    if (S._waStirGain) S._waStirGain.gain.value = vol;
+                    const clipGain = ctx.createGain();
+                    src.connect(clipGain);
+                    clipGain.connect(S._waStirHi || S._waStirFilt || S._waStirGain);
+                    const startAt = ctx.currentTime + 0.002;
+                    const fadeIn = 0.032;
+                    const fadeOut = 0.045;
+                    const playDur = trim.dur;
+                    const endAt = startAt + playDur;
+                    this._stirWaCrossfadeOut(S._waPrevNode, startAt);
+                    clipGain.gain.setValueAtTime(0, startAt);
+                    clipGain.gain.linearRampToValueAtTime(1, startAt + fadeIn);
+                    if (playDur > fadeIn + fadeOut + 0.06) {
+                        clipGain.gain.setValueAtTime(1, endAt - fadeOut);
+                        clipGain.gain.linearRampToValueAtTime(0, endAt);
+                    }
+                    src.start(startAt, trim.start, playDur);
+                    try { src.stop(endAt + 0.004); } catch (e) {}
+                    if (!S._waSources) S._waSources = [];
+                    const node = { src, gain: clipGain };
+                    S._waSources.push(node);
+                    S._waCur = src;
+                    S._waPrevNode = node;
+                    src.onended = () => {
+                        try { src.disconnect(); clipGain.disconnect(); } catch (e) {}
+                        if (S._waSources) {
+                            const i = S._waSources.indexOf(node);
+                            if (i >= 0) S._waSources.splice(i, 1);
+                        }
+                        if (S._waCur === src) S._waCur = null;
+                        if (S._waPrevNode === node) S._waPrevNode = null;
+                        if (S.active) this._stirWaPlayNext();
+                    };
+                } catch (e) {
+                    if (this._stirHtmlFallbackEnsure()) this._stirPlayNext();
+                    else this._stirStopNow();
+                }
             },
             _stirPlayNext() {
                 const S = this._stir;
@@ -4628,15 +4919,31 @@
             },
             stirPulse() {
                 if (this.muted || this.volume <= 0) return;
-                this.unlock();
                 const S = this._stir;
-                if (S.broken) return;
-                const voices = this._stirEnsure();
-                if (!voices) return;
                 const now = (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now();
                 S.last = now;
-                // Si estábamos en fade-out y el jugador vuelve a remover, cancelamos
-                // el fade y restauramos el volumen de la voz actual (sin retrigger).
+                if (this._stirUseWa()) {
+                    if (!this._unlocked) this.unlock();
+                    else this.resumeAudioIfNeeded();
+                    if (S.broken) S.broken = false;
+                    try { this._waKick(); } catch (e) {}
+                    this._stirWaEnsureBus();
+                    if (S.fade) {
+                        clearInterval(S.fade); S.fade = null;
+                        if (S._waStirGain) { try { S._waStirGain.gain.value = this._stirWaVol(); } catch (e) {} }
+                    }
+                    if (S._waStirGain && S.active) { try { S._waStirGain.gain.value = this._stirWaVol(); } catch (e) {} }
+                    if (!S.active) {
+                        this._stirWaBegin();
+                        if (!S.timer) S.timer = setInterval(() => this._stirWatch(), 130);
+                    }
+                    return;
+                }
+                if (S.broken) return;
+                // PC + Capacitor nativo: camino HTML build-251 (stir1↔stir2 gapless) — no tocar.
+                this.unlock();
+                const voices = this._stirEnsure();
+                if (!voices) return;
                 if (S.fade) { clearInterval(S.fade); S.fade = null; if (S.cur) { try { S.cur.volume = this._stirVol(); } catch (e) {} } }
                 if (!S.active) {
                     S.active = true; S.idx = 0;
@@ -4655,6 +4962,18 @@
             },
             _stirFadeOut() {
                 const S = this._stir;
+                if (S._waStirGain) {
+                    const g = S._waStirGain;
+                    const start = (typeof g.gain.value === 'number') ? g.gain.value : this._stirVol();
+                    const steps = 9; let i = 0;
+                    if (S.fade) clearInterval(S.fade);
+                    S.fade = setInterval(() => {
+                        i++;
+                        try { g.gain.value = Math.max(0, start * (1 - i / steps)); } catch (e) {}
+                        if (i >= steps) { clearInterval(S.fade); S.fade = null; this._stirStopNow(); }
+                    }, 20);
+                    return;
+                }
                 const a = S.cur;
                 if (!a) { this._stirStopNow(); return; }
                 const start = (typeof a.volume === 'number') ? a.volume : this._stirVol();
@@ -4673,6 +4992,7 @@
                 if (S.fade) { clearInterval(S.fade); S.fade = null; }
                 if (S._handoff) { clearTimeout(S._handoff); S._handoff = null; }
                 if (S._fadePrev) { clearTimeout(S._fadePrev); S._fadePrev = null; }
+                this._stirWaStop();
                 const voices = S.voices;
                 if (voices) voices.forEach(a => { try { a.onended = null; a.pause(); a.currentTime = 0; a.volume = this._stirVol(); } catch (e) {} });
                 S.cur = null; S.idx = 0;
@@ -4735,17 +5055,34 @@
                 if (!F.audio) return;
                 try { F.audio.pause(); F.audio.currentTime = 0; } catch (e) {}
             },
-            setMuted(m) { this.muted = !!m; if (this.muted) { try { this._stirStopNow(); } catch (e) {} try { this.farmAmbStop(); } catch (e) {} } this.save(); this.updateUi(); try { if (typeof ambient !== 'undefined' && ambient._inited) ambient.syncPlayback(); } catch (e) {} try { if (typeof music !== 'undefined' && music._inited) music.syncPlayback(); } catch (e) {} },
+            setMuted(m) {
+                const wasOff = this.muted || this.volume <= 0;
+                this.muted = !!m;
+                if (wasOff && !this.muted && this.volume > 0) {
+                    try { this.touchAudio(); } catch (e) {}
+                }
+                if (this.muted) { try { this._stirStopNow(); } catch (e) {} try { this.farmAmbStop(); } catch (e) {} }
+                this.save(); this.updateUi();
+                try { if (typeof ambient !== 'undefined' && ambient._inited) ambient.syncPlayback(); } catch (e) {}
+                try { if (typeof music !== 'undefined' && music._inited) music.syncPlayback(); } catch (e) {}
+            },
             toggleMute() { this.setMuted(!this.muted); },
             setVolume(val) {
                 const n = Number(val);
+                const wasOff = this.muted || this.volume <= 0;
                 this.volume = isFinite(n) ? Math.min(1, Math.max(0, n)) : this.volume;
                 if (this.volume > 0 && this.muted) this.muted = false;
+                if (wasOff && this.volume > 0 && !this.muted) {
+                    try { this.touchAudio(); } catch (e) {}
+                }
                 if (this._waAmbGain) { try { this._waAmbGain.gain.value = this._farmAmbVol(); } catch (e) {} }
                 const F = this._farmAmb;
                 if (F.audio && F.active) { try { F.audio.volume = this._farmAmbVol(); } catch (e) {} }
                 const S = this._stir;
-                if (S.active && S.cur) { try { S.cur.volume = this._stirVol(); } catch (e) {} }
+                if (S.active) {
+                    if (S.cur) { try { S.cur.volume = this._stirVol(); } catch (e) {} }
+                    if (S._waStirGain) { try { S._waStirGain.gain.value = this._stirUseWa() ? this._stirWaVol() : this._stirVol(); } catch (e) {} }
+                }
                 try { if (typeof ambient !== 'undefined' && ambient._applyAllVols) ambient._applyAllVols(); } catch (e) {}
                 try { if (typeof music !== 'undefined' && music._applyVol) music._applyVol(); } catch (e) {}
                 this.save(); this.updateUi();
@@ -5363,6 +5700,7 @@
             CHEF_FALLBACK_EAT_MS: 2000,
             CHEW_SLICE_MS: 500,
             CHEW_MAX_TOGGLES: 3,
+            CHEW_LITE_MAX_TOGGLES: 4,
             CHEF_SRC_CLOSED: 'assets/img/chef.png',
             CHEF_SRC_OPEN: 'assets/img/chef-mouth-open.png',
             SOUP_FX_BUBBLE_MAX: 58,
@@ -5574,7 +5912,17 @@
                 if (!chef) return;
                 this._chefMouthHideOverlay();
                 this._chefMouthVisual = 'open';
-                chef.src = this.CHEF_SRC_OPEN;
+                if (chef.src !== this.CHEF_SRC_OPEN) chef.src = this.CHEF_SRC_OPEN;
+            },
+            _chefWarmMouthSprites() {
+                try {
+                    if (!this._chefMouthWarm) {
+                        this._chefMouthWarm = true;
+                        const im = new Image();
+                        im.decoding = 'async';
+                        im.src = this.CHEF_SRC_OPEN;
+                    }
+                } catch (e) {}
             },
             _chefMouthStopChewLoop() {
                 this._chefMouthChewActive = false;
@@ -5589,16 +5937,21 @@
                 }
             },
             _chefMouthStopAnim() { this._chefMouthStopChewLoop(); },
-            _runChefMouthChewLoop() {
+            _runChefMouthChewLoop(sliceOverride, maxToggles) {
                 this._chefMouthStopChewLoop();
                 this._chefMouthChewActive = true;
                 this._setChefEating(true, true);
-                this._chefMouthVisual = null;
                 this._chefMouthOpenState = true;
                 this._chefMouthShowOpen();
-                const sliceMs = this.CHEW_SLICE_MS || 500;
+                this._chefMouthVisual = null;
+                const sliceMs = sliceOverride || this.CHEW_SLICE_MS || 500;
+                let togglesLeft = (maxToggles != null) ? maxToggles : null;
                 this._chefMouthAnimTimer = setInterval(() => {
                     if (!this._chefMouthChewActive) return;
+                    if (togglesLeft !== null) {
+                        if (togglesLeft <= 0) { this._chefMouthStopChewLoop(); return; }
+                        togglesLeft--;
+                    }
                     this._chefMouthOpenState = !this._chefMouthOpenState;
                     if (this._chefMouthOpenState) this._chefMouthShowOpen();
                     else this._chefMouthShowClosed();
@@ -5998,7 +6351,7 @@
             track(type, amt) { if (this.daily && this.daily.counters && this.daily.counters[type] != null) this.daily.counters[type] += amt; quests.bump(type, amt); try { quests.bumpWeekly(type, amt); } catch (e) {} try { if (type === 'eb') { soupMenu.bumpEb(amt); try { commChallenge.bump(amt); } catch (e2) {} } } catch (e3) {} },
             getPrixCd() { const eq = this.getEquippedSpoon(); return (eq && eq.id === 2) ? 300 : 600; },
             getSkirmishCd() { const eq = this.getEquippedSpoon(); return (eq && eq.id === 2) ? 150 : 300; },
-            _chefFeedInProgress() { return !!(this._chefMouthChewActive || this._chefFeedPendingTimer); },
+            _chefFeedInProgress() { return !!(this._chefMouthChewActive || this._chefFeedPendingTimer || this._chefMouthCloseTimer); },
             _chefEl() { return document.getElementById('asset-chef'); },
             _chefHandEl() { return document.getElementById('asset-chef-hand'); },
             /** Limpia animaciones de compra / feed del chef tras prestigio o cancelación. */
@@ -6007,6 +6360,11 @@
                 try {
                     clearTimeout(this._mShopCloseTimer);
                     this._mShopCloseTimer = null;
+                    clearTimeout(this._mRebuildTimer);
+                    this._mRebuildTimer = null;
+                    this._mRebuildDirty = false;
+                    this._mSummonPumping = false;
+                    this._summonPipeSlot = false;
                     this._mSummonQueue = [];
                 } catch (e) {}
                 try { document.querySelectorAll('.summon-clone').forEach(el => el.remove()); } catch (e) {}
@@ -6029,7 +6387,7 @@
                     }
                     const rig = this._chefRigEl();
                     if (rig) {
-                        rig.classList.remove('chef-face-glow');
+                        rig.classList.remove('chef-face-glow', 'chef-face-glow-mobile');
                         rig.style.removeProperty('--chef-glow-color');
                         rig.style.removeProperty('--chef-glow-core');
                         rig.style.removeProperty('--chef-glow-mid');
@@ -6758,7 +7116,7 @@
                 if (_now - this._clickGate < 33) return;
                 this._clickGate = _now;
                 try { if (ev && ev.pointerType === 'mouse' && ev.button !== 0) return; } catch (e) {}
-                try { sound.unlock(); sound.resumeAudio(); } catch (e) {}
+                try { sound.touchAudioIfOn(); } catch (e) {}
                 const m = Number.isFinite(this.m) ? Math.min(Math.max(this.m, 1), 6) : 1;
                 const exp = Math.min(this.cp[1].lv * this.champMult(this.cp[1].ch) * 0.5, 24);
                 let gain = m * Math.pow(1.33, exp) * (1 + this.s * 0.5);
@@ -6792,16 +7150,27 @@
                 const px = (ev && (ev.clientX || ev.pageX)) || (window.innerWidth * 0.5);
                 const py = (ev && (ev.clientY || ev.pageY)) || (window.innerHeight * 0.5);
                 if (lowQ) {
-                    // Mobile low: keep the tactile feedback that is CHEAP — the spoon wiggle
-                    // (one CSS class toggle) + a throttled floating number — but skip the
-                    // heavier per-click canvas particles + ripple so rapid tapping stays smooth.
                     const disp = Math.floor(this.e);
                     const scoreEl = this._el('score');
                     if (scoreEl && disp !== this._uiScore) { scoreEl.innerText = disp.toLocaleString(); this._uiScore = disp; }
                     this._applySpoonStirNow();
                     const spoon = this._spoonEl || (this._spoonEl = document.getElementById('asset-spoon'));
                     if (spoon) { spoon.classList.add('manual-stir'); clearTimeout(this._stirT); this._stirT = setTimeout(() => { spoon.classList.remove('manual-stir'); }, 120); }
-                    this.floatNum(px, py, gain, crit ? { crit: true } : null); // floatNum self-throttles to ~1/100ms on low
+                    this.floatNum(px, py, gain, crit ? { crit: true } : null);
+                    if (!this._energyPartGate || _now - this._energyPartGate >= 180) {
+                        let ec = 0;
+                        for (let pi = 0; pi < this.particles.length; pi++) if (this.particles[pi].t === 'energy') ec++;
+                        if (ec < 3 && this.particles.length < quality.params.maxParts) {
+                            const o = this.soupPartOrigin();
+                            this.particles.push({
+                                x: o.x + (Math.random() - 0.5) * 26,
+                                y: o.y + (Math.random() - 0.5) * 12,
+                                t: 'energy', vx: (Math.random() - 0.5) * 3, vy: -1.8,
+                                life: 0.88, size: Math.random() * 6 + 9, color: '#a5f3fc'
+                            });
+                            this._energyPartGate = _now;
+                        }
+                    }
                 } else {
                     this._applySpoonStirNow();
                     const spoon = this._spoonEl || (this._spoonEl = document.getElementById('asset-spoon'));
@@ -7013,7 +7382,17 @@
                         const removeWhenPainted = (tries) => {
                             if (!h.parentNode) return;
                             const painted = h.complete && h.naturalWidth > 0;
-                            if (painted || tries <= 0) { h.remove(); return; }
+                            const done = () => {
+                                if (!h.parentNode) return;
+                                if (this._mProdMobile && this._mProdMobile()) {
+                                    h.style.transition = 'opacity 0.2s ease';
+                                    h.style.opacity = '0';
+                                    setTimeout(() => { try { h.remove(); } catch (e) {} }, 220);
+                                } else {
+                                    h.remove();
+                                }
+                            };
+                            if (painted || tries <= 0) { done(); return; }
                             setTimeout(() => removeWhenPainted(tries - 1), 160);
                         };
                         setTimeout(() => removeWhenPainted(12), 1000);
@@ -7255,8 +7634,10 @@
                                     if (soupHits % 4 === 0) this.spawnRipple(hitX, soupY, dropTint);
                                     if (!midBubbles && soupHits >= Math.ceil(count * 0.26)) {
                                         midBubbles = true;
-                                        this.spawnSoupColoredBubbles(fxA);
-                                        if (fxB !== fxA) this.spawnSoupColoredBubbles(fxB);
+                                        if (!this._soupFxTouch()) {
+                                            this.spawnSoupColoredBubbles(fxA);
+                                            if (fxB !== fxA) this.spawnSoupColoredBubbles(fxB);
+                                        }
                                     }
                                 }, hitTime * 1000);
                             }
@@ -7264,7 +7645,7 @@
                         setTimeout(() => {
                             finished++;
                             if (el.parentNode) el.remove();
-                            if (!dry && finished >= count) setTimeout(() => this.soupIngredientHit(primaryCfg, 'bubblePop'), 90);
+                            if (!dry && finished >= count) setTimeout(() => this.soupIngredientHit(primaryCfg, 'bubblePop', { rainLite: true }), 90);
                         }, Math.ceil(fallDur * 1000) + 480);
                     }, delay);
                 }
@@ -7291,41 +7672,46 @@
                 return { ...pick, glow: this.hexA(pick.core, 0.55) };
             },
             _applyChefFaceTint() {
+                const glowOnly = !!(this._mProdMobile && this._mProdMobile());
                 const tint = this._pickChefFeedFaceTint();
                 const filter = tint.filter;
                 const glowColor = tint.glow;
                 const coreHex = tint.core;
                 const midHex = tint.mid;
                 const faceFilter = this._chefFaceTintFilter(tint);
-                const els = [document.getElementById('asset-chef')];
+                const els = glowOnly ? [] : [document.getElementById('asset-chef')];
                 const rig = this._chefRigEl();
                 if (this._chefTintTimer) clearTimeout(this._chefTintTimer);
                 if (rig) {
-                    rig.classList.remove('chef-face-glow');
+                    rig.classList.remove('chef-face-glow', 'chef-face-glow-mobile');
                     rig.style.setProperty('--chef-glow-color', glowColor);
-                    rig.style.setProperty('--chef-glow-core', this.hexA(coreHex, 0.82));
-                    rig.style.setProperty('--chef-glow-mid', this.hexA(midHex, 0.48));
+                    rig.style.setProperty('--chef-glow-core', this.hexA(coreHex, glowOnly ? 0.94 : 0.82));
+                    rig.style.setProperty('--chef-glow-mid', this.hexA(midHex, glowOnly ? 0.62 : 0.48));
                     void rig.offsetWidth;
-                    rig.classList.add('chef-face-glow');
+                    rig.classList.add(glowOnly ? 'chef-face-glow-mobile' : 'chef-face-glow');
                 }
-                els.forEach(el => {
-                    if (!el) return;
-                    el.classList.remove('chef-face-tint', 'chef-face-tint-fade');
-                    el.style.setProperty('--chef-tint-filter', filter);
-                    el.style.setProperty('--chef-face-filter', faceFilter);
-                    void el.offsetWidth;
-                    el.classList.add('chef-face-tint', 'chef-face-tint-fade');
-                });
-                this._chefTintTimer = setTimeout(() => {
+                if (!glowOnly) {
                     els.forEach(el => {
                         if (!el) return;
                         el.classList.remove('chef-face-tint', 'chef-face-tint-fade');
-                        el.style.removeProperty('--chef-tint-filter');
-                        el.style.removeProperty('--chef-face-filter');
-                        el.style.removeProperty('filter');
+                        el.style.setProperty('--chef-tint-filter', filter);
+                        el.style.setProperty('--chef-face-filter', faceFilter);
+                        void el.offsetWidth;
+                        el.classList.add('chef-face-tint', 'chef-face-tint-fade');
                     });
+                }
+                this._chefTintTimer = setTimeout(() => {
+                    if (!glowOnly) {
+                        els.forEach(el => {
+                            if (!el) return;
+                            el.classList.remove('chef-face-tint', 'chef-face-tint-fade');
+                            el.style.removeProperty('--chef-tint-filter');
+                            el.style.removeProperty('--chef-face-filter');
+                            el.style.removeProperty('filter');
+                        });
+                    }
                     if (rig) {
-                        rig.classList.remove('chef-face-glow');
+                        rig.classList.remove('chef-face-glow', 'chef-face-glow-mobile');
                         rig.style.removeProperty('--chef-glow-color');
                         rig.style.removeProperty('--chef-glow-core');
                         rig.style.removeProperty('--chef-glow-mid');
@@ -7334,6 +7720,8 @@
             },
             _chefRigEl() { return document.getElementById('chef-rig'); },
             chefFeedAnticipateOpen() {
+                if (this._chefMouthChewActive) return;
+                try { this._chefWarmMouthSprites(); } catch (e) {}
                 this._chefFeedSeq = (this._chefFeedSeq || 0) + 1;
                 if (this._chefMouthCloseTimer) {
                     clearTimeout(this._chefMouthCloseTimer);
@@ -7347,6 +7735,9 @@
                 this._setChefEating(true, true);
                 try { this.applySpoonVisual(); } catch (e) {}
                 this._chefMouthShowOpen();
+                if (this._mProdMobile && this._mProdMobile()) {
+                    try { this._applyChefFaceTint(); } catch (e) {}
+                }
                 const seq = this._chefFeedSeq;
                 this._chefFeedPendingTimer = setTimeout(() => {
                     if (seq !== this._chefFeedSeq || this._chefMouthChewActive) return;
@@ -7369,7 +7760,8 @@
             },
             chefFeedHit(cfg) {
                 try { chefMood.bump(6, 'feed'); } catch (e) {}
-                this._applyChefFaceTint();
+                if (!(this._mProdMobile && this._mProdMobile())) this._applyChefFaceTint();
+                if (this._mProdMobile && this._mProdMobile()) return;
                 const mouth = this.chefMouthOrigin();
                 const colors = (cfg && cfg.particleColors) || ['#fde047', '#facc15'];
                 for (let i = 0; i < 10; i++) {
@@ -7390,6 +7782,7 @@
                 try { sound.stopEat(); } catch (e) {}
             },
             chefFeedEatSequence() {
+                if (this._chefMouthChewActive) return;
                 if (this._chefFeedPendingTimer) {
                     clearTimeout(this._chefFeedPendingTimer);
                     this._chefFeedPendingTimer = null;
@@ -7402,9 +7795,7 @@
                 if (!this._chefEl()) return;
                 const seq = this._chefFeedSeq || 0;
                 this._chefFeedFinished = null;
-                this._chefMouthChewActive = true;
-                this._setChefEating(true, true);
-                try { this.applySpoonVisual(); } catch (e) {}
+                const liteFeed = this._mProdMobile && this._mProdMobile();
                 let chewMs = this.CHEF_FALLBACK_EAT_MS || 2000;
                 try {
                     sound.unlock();
@@ -7414,21 +7805,30 @@
                         if (dur) chewMs = Math.max(chewMs, dur);
                     }
                 } catch (e) {}
-                chewMs = Math.max(this.CHEF_FALLBACK_EAT_MS || 2000, chewMs);
-                let isOpen = true;
-                let togglesLeft = this.CHEW_MAX_TOGGLES != null ? this.CHEW_MAX_TOGGLES : 3;
-                this._chefMouthShowOpen();
-                const sliceMs = this.CHEW_SLICE_MS || 500;
-                this._chewIv = setInterval(() => {
-                    if (!this._chefMouthChewActive || togglesLeft <= 0) return;
-                    togglesLeft--;
-                    isOpen = !isOpen;
-                    if (isOpen) this._chefMouthShowOpen();
-                    else this._chefMouthShowClosed();
-                    if (togglesLeft <= 0) this._chefMouthStopChewLoop();
-                }, sliceMs);
+                if (liteFeed) chewMs = Math.max(1500, Math.min(chewMs, 2200));
+                else chewMs = Math.max(this.CHEF_FALLBACK_EAT_MS || 2000, chewMs);
+                if (liteFeed) {
+                    try { this._chefWarmMouthSprites(); } catch (e) {}
+                    this._runChefMouthChewLoop(380, this.CHEW_LITE_MAX_TOGGLES != null ? this.CHEW_LITE_MAX_TOGGLES : 4);
+                } else {
+                    this._chefMouthChewActive = true;
+                    this._setChefEating(true, true);
+                    try { this.applySpoonVisual(); } catch (e) {}
+                    let isOpen = true;
+                    let togglesLeft = this.CHEW_MAX_TOGGLES != null ? this.CHEW_MAX_TOGGLES : 3;
+                    this._chefMouthShowOpen();
+                    const sliceMs = this.CHEW_SLICE_MS || 500;
+                    this._chewIv = setInterval(() => {
+                        if (!this._chefMouthChewActive || togglesLeft <= 0) return;
+                        togglesLeft--;
+                        isOpen = !isOpen;
+                        if (isOpen) this._chefMouthShowOpen();
+                        else this._chefMouthShowClosed();
+                        if (togglesLeft <= 0) this._chefMouthStopChewLoop();
+                    }, sliceMs);
+                }
                 this._chefMouthCloseTimer = setTimeout(() => this._endChefFeedChew(seq), chewMs + 80);
-                try { gx.toast(t('chef_taste_ingredient')); } catch (e) {}
+                if (!liteFeed) { try { gx.toast(t('chef_taste_ingredient')); } catch (e) {} }
             },
             summonIngredientThrow(helperId, fromX, fromY, level, onComplete, feedMode, visualOnly) {
                 const cfg = this.pickSummonIngredient(helperId, level != null ? level : (this.cp[helperId] && this.cp[helperId].lv));
@@ -7437,9 +7837,15 @@
                 const toChef = !!feedMode;
                 const o = toChef ? this.chefMouthOrigin() : this.soupPartOrigin();
                 const glyphs = cfg.glyphs || ['✨'];
-                const count = cfg.count || 5;
+                let count = cfg.count || 5;
+                let stagger = cfg.stagger || 110;
+                try {
+                    if (toChef && typeof game !== 'undefined' && game._mProdMobile && game._mProdMobile()) {
+                        count = Math.min(2, count);
+                        stagger = Math.min(stagger, 85);
+                    }
+                } catch (e) {}
                 const spread = toChef ? Math.min(cfg.spread || 32, 16) : (cfg.spread || 32);
-                const stagger = cfg.stagger || 110;
                 const startRot = cfg.startRot != null ? cfg.startRot : -20;
                 const endRot = cfg.endRot != null ? cfg.endRot : 140;
                 const endScale = cfg.endScale != null ? cfg.endScale : 0.98;
@@ -7476,7 +7882,13 @@
                                 el.style.opacity = '0';
                             }, 460);
                         });
-                        setTimeout(() => { if (el.parentNode) el.remove(); }, 1320);
+                        setTimeout(() => {
+                            if (!el.parentNode) return;
+                            if (typeof game !== 'undefined' && game._mProdMobile && game._mProdMobile()) {
+                                el.style.visibility = 'hidden';
+                                requestAnimationFrame(() => { try { if (el.parentNode) el.remove(); } catch (e) {} });
+                            } else if (el.parentNode) el.remove();
+                        }, 1320);
                         if (i === count - 1) {
                             setTimeout(() => {
                                 if (!dry) {
@@ -7499,23 +7911,73 @@
                 if (this.particles.length >= MAX) return;
                 this.particles.push({ x, y, t: 'ingredient', vx: (Math.random() - 0.5) * 10, vy: (Math.random() - 0.5) * 10 - 5, life: 1, size: Math.random() * 8 + 4, color: color || '#fde047' });
             },
+            spawnSoupCanvasBubbles(cx, cy, colors, count) {
+                const MAX = quality.params.maxParts;
+                const n = Math.max(1, Math.min(count || 10, 16));
+                const room = MAX - this.particles.length;
+                if (room <= 0) return;
+                const spawn = Math.min(n, room);
+                for (let i = 0; i < spawn; i++) {
+                    this.particles.push({
+                        x: cx + (Math.random() - 0.5) * 56,
+                        y: cy + (Math.random() - 0.5) * 24,
+                        t: 'soupBubble',
+                        vx: (Math.random() - 0.5) * 0.7,
+                        vy: -(Math.random() * 1.1 + 0.65),
+                        life: 0.78 + Math.random() * 0.22,
+                        size: 3.5 + Math.random() * 6.5,
+                        color: colors[Math.floor(Math.random() * colors.length)] || '#fde047'
+                    });
+                }
+            },
             _soupFxBurst() { return document.getElementById('soup-fx-burst'); },
             _kickSoupFxAnim(el) {
                 if (!el || !el.parentNode) return;
+                if (this._soupFxTouch && this._soupFxTouch()) return;
+                if (this._mProdMobile && this._mProdMobile()) return;
                 requestAnimationFrame(() => {
                     if (!el.parentNode) return;
-                    void el.offsetWidth;
                     try {
                         const runs = el.getAnimations ? el.getAnimations() : [];
-                        if (runs.length) {
-                            runs.forEach(a => { try { if (a.playState === 'paused') a.play(); } catch (e) {} });
-                            return;
-                        }
+                        runs.forEach(a => { try { if (a.playState === 'paused') a.play(); } catch (e) {} });
                     } catch (e) {}
-                    const delay = el.style.animationDelay;
-                    el.style.animationPlayState = 'running';
-                    if (delay) el.style.animationDelay = delay;
                 });
+            },
+            _soupFxFinishEl(el, ms) {
+                if (!el) return;
+                const cleanup = () => {
+                    if (!el.parentNode || el.dataset.fxDone === '1') return;
+                    el.dataset.fxDone = '1';
+                    try { el.remove(); } catch (e) {}
+                };
+                setTimeout(cleanup, ms + 60);
+            },
+            _soupFxClearBurst(burst) {
+                if (!burst) return;
+                try {
+                    burst.querySelectorAll('.sfx-k-bubble, .sfx-part, .sfx-k-pop-ring').forEach(el => {
+                        if (el.dataset.fxDone === '1') return;
+                        el.dataset.fxDone = '1';
+                        try { el.remove(); } catch (e) {}
+                    });
+                } catch (e) { try { burst.textContent = ''; } catch (e2) {} }
+            },
+            _soupFxTouch() {
+                try {
+                    if (this._mSheet && this._mSheet()) return true;
+                    return window.matchMedia('(pointer: coarse)').matches;
+                } catch (e) { return false; }
+            },
+            _soupBubbleRisePx(area) {
+                const touch = this._soupFxTouch();
+                const h = Math.max(48, area && area.h ? area.h : 120);
+                const liquidH = h * 0.28;
+                if (touch) {
+                    const rise = liquidH * (0.08 + Math.random() * 0.06);
+                    return Math.max(5, Math.min(18, Math.round(rise)));
+                }
+                const rise = liquidH * (0.14 + Math.random() * 0.10);
+                return Math.max(8, Math.min(32, Math.round(rise)));
             },
             _soupFxEl(tag, className, opts) {
                 const burst = this._soupFxBurst();
@@ -7531,10 +7993,7 @@
                 burst.appendChild(el);
                 if (className.indexOf('sfx-k-bubble') >= 0 || className.indexOf('sfx-part') >= 0) this._kickSoupFxAnim(el);
                 const ms = (opts.lifeMs != null ? opts.lifeMs : 2400);
-                const cleanup = () => { if (el.parentNode) el.remove(); };
-                el.addEventListener('animationend', cleanup, { once: true });
-                el.addEventListener('animationcancel', cleanup, { once: true });
-                setTimeout(cleanup, ms + 120);
+                this._soupFxFinishEl(el, ms);
                 return el;
             },
             _bubbleGradient(color) {
@@ -7562,49 +8021,60 @@
                 if (roll < 0.72) return smin + (smax - smin) * 0.28 + Math.random() * (smax - smin) * 0.32;
                 return smin + (smax - smin) * 0.58 + Math.random() * (smax - smin) * 0.42;
             },
-            spawnSoupColoredBubbles(fxId) {
+            spawnSoupColoredBubbles(fxId, opts) {
+                opts = opts || {};
                 const spec = this.SOUP_FX_BUBBLES[fxId] || this.SOUP_FX_BUBBLES.banana;
                 const colors = spec.colors;
-                const motion = spec.motion || 'rise';
+                const touch = this._soupFxTouch();
+                const motion = touch ? 'rise' : (spec.motion || 'rise');
                 const area = this._soupLiquidSpawnRect();
                 const areaFactor = Math.min(1.15, Math.max(0.9, (area.w * area.h) / 420000));
+                const rainLite = !!opts.rainLite;
                 const base = spec.count || 42;
-                const n = Math.min(Math.round(base * areaFactor), this.SOUP_FX_BUBBLE_MAX || 58);
-                const spawnWindowMs = 820 + Math.floor(Math.random() * 360);
-                const waves = 5;
+                const maxN = touch ? (rainLite ? 14 : 18) : (this.SOUP_FX_BUBBLE_MAX || 58);
+                const n = Math.min(Math.round(base * areaFactor * (touch ? (rainLite ? 0.42 : 0.52) : 1)), maxN);
+                const spawnWindowMs = touch ? (380 + Math.floor(Math.random() * 160)) : (820 + Math.floor(Math.random() * 360));
+                const waves = touch ? 4 : 5;
                 const perWave = Math.ceil(n / waves);
                 let spawned = 0;
                 const spawnOne = (waveIdx, idxInWave) => {
                     if (spawned >= n) return;
                     spawned++;
                     const c = colors[Math.floor(Math.random() * colors.length)];
-                    const sz = Math.round(this._pickBubbleSize(spec));
+                    const szRaw = Math.round(this._pickBubbleSize(spec));
+                    const sz = touch ? Math.max(6, Math.round(szRaw * (rainLite ? 0.58 : 0.66))) : szRaw;
                     const left = (area.padL + Math.random() * (area.padR - area.padL)).toFixed(2) + '%';
                     const top = (area.padT + Math.random() * (area.padB - area.padT)).toFixed(2) + '%';
-                    const rise = Math.round(28 + Math.random() * 52);
-                    const bx = Math.round((Math.random() - 0.5) * 36);
+                    const rise = this._soupBubbleRisePx(area);
+                    const rise2off = touch ? 3 : 14;
+                    const bx = Math.round((Math.random() - 0.5) * (touch ? 16 : 36));
                     const waveDelay = (waveIdx / waves) * spawnWindowMs;
-                    const jitter = idxInWave * 18 + Math.random() * 55;
+                    const jitter = idxInWave * (touch ? 9 : 18) + Math.random() * (touch ? 28 : 55);
                     const delay = ((waveDelay + jitter) / 1000).toFixed(3);
-                    const dur = (1.55 + Math.random() * 0.65).toFixed(2);
+                    const dur = (touch ? (0.52 + Math.random() * 0.18) : (1.55 + Math.random() * 0.65)).toFixed(2);
+                    const sizeCss = touch
+                        ? { width: sz + 'px', height: sz + 'px' }
+                        : {
+                            width: 'clamp(' + Math.round(sz * 0.65) + 'px, ' + (sz * 0.22).toFixed(1) + 'vw, ' + sz + 'px)',
+                            height: 'clamp(' + Math.round(sz * 0.65) + 'px, ' + (sz * 0.22).toFixed(1) + 'vw, ' + sz + 'px)'
+                        };
                     this._soupFxEl('div', 'sfx-k-bubble ' + motion, {
                         left, top, delay: parseFloat(delay),
-                        css: {
+                        css: Object.assign({
                             '--bd': dur + 's',
+                            '--be': touch ? 'linear' : 'ease-out',
                             '--rise': rise + 'px',
-                            '--rise2': (rise + 14) + 'px',
+                            '--rise2': (rise + rise2off) + 'px',
                             '--bx': bx + 'px',
-                            '--bx2': (bx + Math.round((Math.random() - 0.5) * 22)) + 'px',
+                            '--bx2': (bx + Math.round((Math.random() - 0.5) * (touch ? 12 : 22))) + 'px',
                             '--sw': Math.round(280 + Math.random() * 200) + 'deg',
                             '--sr': Math.round(18 + Math.random() * 28) + 'px',
                             '--bb-glow': c,
-                            width: 'clamp(' + Math.round(sz * 0.65) + 'px, ' + (sz * 0.22).toFixed(1) + 'vw, ' + sz + 'px)',
-                            height: 'clamp(' + Math.round(sz * 0.65) + 'px, ' + (sz * 0.22).toFixed(1) + 'vw, ' + sz + 'px)',
                             background: this._bubbleGradient(c)
-                        },
+                        }, sizeCss),
                         lifeMs: parseFloat(dur) * 1000 + parseFloat(delay) * 1000 + 500
                     });
-                    if (motion === 'rise-pop' || motion === 'bounce') {
+                    if (!touch && (motion === 'rise-pop' || motion === 'bounce')) {
                         if (Math.random() > 0.5) {
                             setTimeout(() => {
                                 this._soupFxEl('div', 'sfx-k-pop-ring', {
@@ -7636,12 +8106,17 @@
                 }
             },
             _soupFxShrimp() {
-                for (let i = 0; i < 14; i++) {
-                    const rise = Math.round(42 + Math.random() * 38);
+                const area = this._soupLiquidSpawnRect();
+                const touch = this._soupFxTouch();
+                const n = touch ? 8 : 14;
+                const dur = touch ? '0.72s' : '';
+                for (let i = 0; i < n; i++) {
+                    const rise = this._soupBubbleRisePx(area);
                     const col = ['#fb7185', '#fda4af', '#fecdd3'][i % 3];
                     this._soupFxEl('div', 'sfx-part sfx-shrimp-bubble', {
                         left: (36 + Math.random() * 28) + '%', top: (48 + Math.random() * 10) + '%',
-                        delay: i * 0.05,
+                        delay: i * (touch ? 0.04 : 0.05),
+                        style: dur ? { animationDuration: dur } : undefined,
                         css: { '--rise': rise + 'px', background: this._bubbleGradient(col) }
                     });
                 }
@@ -7804,13 +8279,25 @@
             },
             _finishSoupIngredientSplash(wrap, fxId) {
                 if (!wrap) return;
+                const touchFx = this._soupFxTouch && this._soupFxTouch();
                 wrap.classList.remove('ingredient-splash-active', 'ing-fx-' + fxId);
                 wrap.classList.remove('ing-fx-ink', 'ing-fx-shrimp', 'ing-fx-carrot', 'ing-fx-lettuce', 'ing-fx-corn', 'ing-fx-yolk', 'ing-fx-honey', 'ing-fx-berries', 'ing-fx-banana', 'ing-fx-coconut');
                 wrap.style.removeProperty('--ing-filter');
-                this._resetSoupLiquidMotion();
+                if (!touchFx) this._resetSoupLiquidMotion();
                 if (this._soupIngFxTimer) { clearTimeout(this._soupIngFxTimer); this._soupIngFxTimer = null; }
             },
-            soupIngredientHit(cfg, sfx) {
+            soupIngredientHit(cfg, sfx, opts) {
+                opts = opts || {};
+                const touchFx = this._soupFxTouch && this._soupFxTouch();
+                if (touchFx) {
+                    const o = this.soupPartOrigin();
+                    const colors = cfg.particleColors || ['#fde047', '#facc15'];
+                    const n = opts.rainLite ? 8 : 12;
+                    this.spawnSoupCanvasBubbles(o.x, o.y, colors, n);
+                    if (cfg.rippleTint) this.spawnRipple(o.x, o.y, cfg.rippleTint);
+                    try { sound.play(sfx || 'bubble'); } catch (e) {}
+                    return;
+                }
                 const fxMs = this.SOUP_ING_FX_MS || 2600;
                 const wrap = document.getElementById('soup-liquid');
                 const sl = this._soupLiquidEl || (this._soupLiquidEl = document.getElementById('asset-soup-liquid'));
@@ -7821,7 +8308,7 @@
                     wrap.classList.remove('ingredient-splash-active');
                     wrap.classList.remove('ing-fx-ink', 'ing-fx-shrimp', 'ing-fx-carrot', 'ing-fx-lettuce', 'ing-fx-corn', 'ing-fx-yolk', 'ing-fx-honey', 'ing-fx-berries', 'ing-fx-banana', 'ing-fx-coconut');
                     this._resetSoupLiquidMotion();
-                    void wrap.offsetWidth;
+                    if (!touchFx) void wrap.offsetWidth;
                     wrap.classList.add('ing-fx-' + fxId, 'ingredient-splash-active');
                     if (cfg.soupFilter) wrap.style.setProperty('--ing-filter', cfg.soupFilter);
                     const finish = () => this._finishSoupIngredientSplash(wrap, fxId);
@@ -7832,10 +8319,10 @@
                     }
                 }
                 const burst = this._soupFxBurst();
-                if (burst) burst.innerHTML = '';
+                if (burst) this._soupFxClearBurst(burst);
                 const o = this.soupPartOrigin();
                 const colors = cfg.particleColors || ['#fde047', '#facc15'];
-                const n = cfg.particleCount || 16;
+                const n = touchFx ? Math.min(cfg.particleCount || 16, 8) : (cfg.particleCount || 16);
                 for (let i = 0; i < n; i++) {
                     this.emitSplashParticle(o.x + (Math.random() - 0.5) * 80, o.y + (Math.random() - 0.5) * 40, colors[Math.floor(Math.random() * colors.length)]);
                 }
@@ -7844,11 +8331,16 @@
                 for (let i = 0; i < rippleN; i++) {
                     this.spawnRipple(o.x + (Math.random() - 0.5) * 36, o.y + (Math.random() - 0.5) * 20, tint);
                 }
-                this.spawnSoupColoredBubbles(fxId);
-                this._runSoupFxUnique(fxId);
+                const spawnBubbles = () => {
+                    this.spawnSoupColoredBubbles(fxId, opts.rainLite ? { rainLite: true } : null);
+                    if (!touchFx) this._runSoupFxUnique(fxId);
+                };
+                if (touchFx) requestAnimationFrame(spawnBubbles);
+                else spawnBubbles();
                 try { sound.play(sfx || 'bubble'); } catch (e) {}
             },
             summon(c, btn, feedMode, testLevel, rainOnLand) {
+                try { sound.play('buy'); } catch (e) {}
                 if (!btn || typeof btn.getBoundingClientRect !== 'function') {
                     const cards = document.querySelectorAll('#companion-list .companion-card');
                     btn = cards[c.id] || document.getElementById('companion-column') || document.body;
@@ -7870,7 +8362,9 @@
                 h.style.transform = 'translate(-50%,-50%) scale(0.2)';
                 document.body.appendChild(h);
                 void h.offsetWidth;
-                const lv = (testLevel != null && creator.isDev()) ? Math.max(1, Math.floor(Number(testLevel) || c.lv)) : c.lv;
+                const lv = (typeof testLevel === 'number' && testLevel > 0)
+                    ? Math.max(1, Math.floor(testLevel))
+                    : Math.max(1, Math.floor(Number(c.lv) || 1));
                 const feed = feedMode != null ? !!feedMode : this.isFeedMilestone(lv);
                 const pendingRain = Math.max(0, Math.floor(Number(rainOnLand) || 0));
                 let visualOnlyThrow = false;
@@ -7902,7 +8396,7 @@
                     if (throwDone) return;
                     throwDone = true;
                     const pose = this.summonPoseOrigin();
-                    this.part(pose.x, pose.y, 'magic');
+                    if (!this._skipSummonSparkles()) this.part(pose.x, pose.y, 'magic');
                     const skipCost = testLevel != null && creator.isDev();
                     if (skipCost || farm.consumeThrow(c.id, lv, feed)) {
                         this.summonIngredientThrow(c.id, pose.x, pose.y, lv, landClone, feed, false);
@@ -7978,7 +8472,7 @@
                 else return;
                 const cards = document.querySelectorAll('#companion-list .companion-card');
                 const btn = cards[helperId] || document.getElementById('helpers-toggle') || document.body;
-                try { sound.unlock(); sound.play('buy'); } catch (e) {}
+                try { sound.unlock(); } catch (e) {}
                 this.summon(c, btn, feedOverride, testLv);
             },
             buy(i, ev) {
@@ -7998,13 +8492,10 @@
                 let cost = c.cs;
                 for (let j = 0; j < n; j++) cost = Math.floor(cost * 1.15);
                 c.cs = cost;
-                sound.play('buy');
                 this.track('levels', n);
                 try { chefMood.bump(Math.min(4, 1 + n * 0.4), 'buy'); } catch (e) {}
-                if ([10, 25, 50, 100].some(th => prevLv < th && c.lv >= th)) { this.part(window.innerWidth / 2, window.innerHeight * 0.5, 'magic'); sound.play('bubble'); gx.toast(t(this.milestoneMsg[i] || 'milestone_generic')); }
+                if ([10, 25, 50, 100].some(th => prevLv < th && c.lv >= th) && !this._skipSummonSparkles()) { this.part(window.innerWidth / 2, window.innerHeight * 0.5, 'magic'); sound.play('bubble'); gx.toast(t(this.milestoneMsg[i] || 'milestone_generic')); }
                 ach.check();
-                this.rebuild();
-                this.syncMinigameButtons();
                 const feed = this.isFeedMilestone(c.lv);
                 let originStub = ev && ev.currentTarget;
                 try {
@@ -8015,6 +8506,20 @@
                 } catch (e) {}
                 if (!this.patchCompanionCard(i)) this.renderCompanionCards();
                 this.save();
+                if (this._mSheet()) {
+                    if (c.lv > 0) { try { this.slot(c); this.syncCompanionLayout(); } catch (e) {} }
+                    this._mScheduleRebuild();
+                    this.syncMinigameButtons();
+                    const buyLv = c.lv;
+                    const buyFeed = feed;
+                    const buyRain = rainOnLand;
+                    const buyStub = originStub;
+                    this._mDeferSummonClose(() => this.summon(c, buyStub, buyFeed, buyLv, buyRain));
+                    try { if (typeof tutorial !== 'undefined' && tutorial.active) tutorial.notify('buy'); } catch (e) {}
+                    return;
+                }
+                this.rebuild();
+                this.syncMinigameButtons();
                 this._summonGen = (this._summonGen || 0) + 1;
                 const summonGen = this._summonGen;
                 const launchSummon = () => {
@@ -8022,9 +8527,7 @@
                     this.ensureHelperSlotLayout(c, () => {
                         if (summonGen !== this._summonGen) return;
                         try { this._warmHelperSprites(); } catch (e) {}
-                        const run = () => this.summon(c, originStub, feed, null, rainOnLand);
-                        if (this._mSheet()) this._mDeferSummonClose(run);
-                        else run();
+                        this.summon(c, originStub, feed, null, rainOnLand);
                     });
                 };
                 requestAnimationFrame(() => requestAnimationFrame(() => requestAnimationFrame(launchSummon)));
@@ -8171,6 +8674,17 @@
             _mSheet() {
                 try { return typeof mobileUI !== 'undefined' && mobileUI.isPhone(); } catch (e) { return this._mPortrait(); }
             },
+            /* Store / GitHub Pages PWA on a real phone (not LAN localhost tunnel). Heavier FX
+               are trimmed here — local dev keeps full feed for tuning. */
+            _skipSummonSparkles() {
+                return !!((this._mProdMobile && this._mProdMobile()) || (this._soupFxTouch && this._soupFxTouch()));
+            },
+            _mProdMobile() {
+                try {
+                    if (typeof SC_LOCAL_DEV !== 'undefined' && SC_LOCAL_DEV) return false;
+                    return this._mSheet() || window.matchMedia('(pointer: coarse)').matches;
+                } catch (e) { return false; }
+            },
             /* Phone (portrait OR landscape): after a successful purchase, slide the shop sheet
                away so the player can watch the summon / eat animation without closing it
                manually. DEBOUNCED: each purchase resets a short timer, so the player can buy
@@ -8190,18 +8704,90 @@
                     this._mScheduleShopClose();
                 } catch (e) {}
             },
-            /* Shared debounced close: closes the sheet quickly once buying pauses, then (after
-               the slide-out) fires any queued helper throws, staggered. Drains the queue
-               regardless of whether the last buy was a companion, spoon or hat. */
+            /* Shared debounced close: closes the sheet once buying pauses, then drains the
+               summon queue ONE AT A TIME (no overlap — rapid buys used to fire all at 240ms
+               and freeze mobile / kill audio). */
             _mScheduleShopClose() {
                 try {
                     clearTimeout(this._mShopCloseTimer);
                     this._mShopCloseTimer = setTimeout(() => {
                         try { if (typeof mobileUI !== 'undefined') mobileUI.closeAll(); } catch (e) {}
-                        const q = this._mSummonQueue || []; this._mSummonQueue = [];
-                        setTimeout(() => { q.forEach((fn, i) => setTimeout(() => { try { fn(); } catch (e) {} }, i * 240)); }, 320);
+                        setTimeout(() => { try { this._mPumpSummonQueue(); } catch (e) {} }, 320);
                     }, 650);
                 } catch (e) {}
+            },
+            _summonAnimBusy() {
+                try {
+                    if (document.querySelector('.summon-clone')) return true;
+                    if (document.querySelector('.ingredient-proj:not(.ingredient-proj-dry)')) return true;
+                    if (this._chefFeedInProgress()) return true;
+                    if (this._chefMouthCloseTimer) return true;
+                } catch (e) {}
+                return false;
+            },
+            _summonPipelineBusy() {
+                if (this._summonPipeSlot) return true;
+                return this._summonAnimBusy();
+            },
+            _summonBusy() { return this._summonPipelineBusy(); },
+            _mPumpSummonQueue() {
+                if (this._mSummonPumping) return;
+                if (!this._mSummonQueue || !this._mSummonQueue.length) {
+                    this._mFlushPendingRebuild();
+                    return;
+                }
+                this._mSummonPumping = true;
+                const step = () => {
+                    const q = this._mSummonQueue;
+                    if (!q || !q.length) {
+                        this._mSummonPumping = false;
+                        this._summonPipeSlot = false;
+                        this._mFlushPendingRebuild();
+                        return;
+                    }
+                    if (this._summonPipelineBusy()) {
+                        setTimeout(step, 240);
+                        return;
+                    }
+                    const job = q.shift();
+                    this._summonPipeSlot = true;
+                    const t0 = Date.now();
+                    try { job(); } catch (e) { console.warn('summon queue job', e); }
+                    const finishJob = () => {
+                        this._summonPipeSlot = false;
+                        const gap = this._mProdMobile() ? 920 : 240;
+                        setTimeout(step, gap);
+                    };
+                    const waitDone = () => {
+                        if (this._summonAnimBusy()) {
+                            if (Date.now() - t0 > 32000) { finishJob(); return; }
+                            setTimeout(waitDone, 240);
+                            return;
+                        }
+                        const settle = this._mProdMobile() ? 720 : 180;
+                        setTimeout(finishJob, settle);
+                    };
+                    setTimeout(waitDone, 320);
+                };
+                step();
+            },
+            _mScheduleRebuild() {
+                this._mRebuildDirty = true;
+                if (this._mRebuildTimer) return;
+                const tick = () => {
+                    this._mRebuildTimer = null;
+                    if (this._mSummonPumping || this._summonPipelineBusy() || (this._mSummonQueue && this._mSummonQueue.length > 0)) {
+                        this._mRebuildTimer = setTimeout(tick, 200);
+                        return;
+                    }
+                    this._mFlushPendingRebuild();
+                };
+                this._mRebuildTimer = setTimeout(tick, 220);
+            },
+            _mFlushPendingRebuild() {
+                if (!this._mRebuildDirty) return;
+                this._mRebuildDirty = false;
+                try { this.rebuild(); } catch (e) {}
             },
             playPrestigeCinematic(opts) {
                 opts = opts || {};
@@ -8329,6 +8915,15 @@
                 const clickStir = performance.now() - this._lastClick < 1500;
                 const nativeCap = (() => { try { const c = window.Capacitor; return !!(c && c.isNativePlatform && c.isNativePlatform()); } catch (e) { return false; } })();
                 const feedActive = this._chefFeedInProgress();
+                const pipeBusy = feedActive || this._summonPipelineBusy() || this._mSummonPumping;
+                if (this._mProdMobile && this._mProdMobile() && pipeBusy && (this._frame % 4 !== 0)) {
+                    if (this.particles.length > 0) {
+                        this.draw();
+                        this._flushScorePulse();
+                    }
+                    if (!document.hidden) requestAnimationFrame(() => this.loop());
+                    return;
+                }
                 const stirActive = !this.p && !feedActive && (this.c > 0 || clickStir);
                 if (!this.p) this._wave += 0.018;
                 try { document.body.classList.toggle('soup-stirring', stirActive); } catch (e) {}
@@ -8601,9 +9196,16 @@
             draw() {
                 const ctx = this.ctx;
                 const lowQ = quality.effMode() === 'low';
+                if (lowQ && this.particles.length === 0) {
+                    if (this._canvasDirty) {
+                        ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+                        this._canvasDirty = false;
+                    }
+                    return;
+                }
                 ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-                if (lowQ && this.particles.length === 0) return;
-                const scoreTarget = lowQ ? null : this.scorePartTarget();
+                this._canvasDirty = true;
+                const scoreTarget = this.scorePartTarget();
                 // Compactación in-place: recorremos una sola vez y vamos guardando las
                 // partículas vivas al frente del array. Evita el splice(i,1) dentro de un
                 // forEach (que es O(n²) por el desplazamiento y, además, se salta elementos
@@ -8614,11 +9216,16 @@
                 for (let i = 0; i < parts.length; i++) {
                     const p = parts[i];
                     if (p.t === 'energy') {
-                        if (p.boost === undefined) p.boost = 9;
+                        if (p.boost === undefined) p.boost = lowQ ? 4 : 9;
                         if (lowQ) {
-                            // No homing-to-score on low: gentle upward drift + fade, so no
-                            // per-arrival pulseScore()/scorePartTarget() work in the rAF loop.
-                            p.vy += 0.06;
+                            const dx = scoreTarget.x - p.x, dy = scoreTarget.y - p.y;
+                            const dist = Math.hypot(dx, dy);
+                            if (dist < 10 || p.arrived) {
+                                p.arrived = true;
+                                p.life -= 0.24;
+                            } else {
+                                p.x += dx * 0.16; p.y += dy * 0.16;
+                            }
                         } else if (p.boost > 0) { p.boost--; p.vy += 0.18; }
                         else {
                             const dx = scoreTarget.x - p.x, dy = scoreTarget.y - p.y;
@@ -8631,13 +9238,27 @@
                         }
                     } else if (p.t === 'steam') { p.vx *= 0.985; p.vy -= 0.015; }
                     else if (p.t === 'ingredient') { p.vy += 0.06; p.vx *= 0.98; p.life -= 0.022; }
+                    else if (p.t === 'soupBubble') { p.vy -= 0.035; p.vx *= 0.985; p.life -= 0.017; }
                     p.x += p.vx; p.y += p.vy;
-                    if (p.t !== 'ingredient') p.life -= p.t === 'steam' ? 0.011 : 0.015;
-                    ctx.fillStyle = p.color;
-                    ctx.globalAlpha = p.t === 'steam' ? p.life * 1.05 : p.life;
-                    ctx.beginPath();
-                    ctx.arc(p.x, p.y, p.size * (p.t === 'steam' ? 0.6 + p.life * 0.5 : 1), 0, Math.PI * 2);
-                    ctx.fill();
+                    if (p.t === 'soupBubble') {
+                        const r = p.size * (0.55 + p.life * 0.45);
+                        ctx.globalAlpha = Math.min(0.92, p.life * 1.05);
+                        ctx.fillStyle = p.color;
+                        ctx.beginPath();
+                        ctx.arc(p.x, p.y, r, 0, Math.PI * 2);
+                        ctx.fill();
+                        ctx.fillStyle = 'rgba(255,255,255,' + Math.min(0.55, p.life * 0.5) + ')';
+                        ctx.beginPath();
+                        ctx.arc(p.x - r * 0.28, p.y - r * 0.28, Math.max(0.8, r * 0.32), 0, Math.PI * 2);
+                        ctx.fill();
+                    } else if (p.t !== 'ingredient') p.life -= p.t === 'steam' ? 0.011 : 0.015;
+                    if (p.t !== 'soupBubble') {
+                        ctx.fillStyle = p.color;
+                        ctx.globalAlpha = p.t === 'steam' ? p.life * 1.05 : p.life;
+                        ctx.beginPath();
+                        ctx.arc(p.x, p.y, p.size * (p.t === 'steam' ? 0.6 + p.life * 0.5 : 1), 0, Math.PI * 2);
+                        ctx.fill();
+                    }
                     if (p.life > 0) parts[w++] = p;
                 }
                 if (w !== parts.length) parts.length = w;
@@ -8678,11 +9299,13 @@
             },
             _close() { try { const m = document.getElementById('privacy-consent-modal'); if (m) m.classList.remove('open'); } catch (e) {} },
             agree() {
+                try { sound.touchAudioIfOn(); } catch (e) {}
                 this._store(); this._close();
                 const cb = this._onAgree; this._onAgree = null; this._onDecline = null;
                 if (cb) { try { cb(); } catch (e) {} }
             },
             decline() {
+                try { sound.touchAudioIfOn(); } catch (e) {}
                 this._sessionDeferred = true; this._close();
                 const cb = this._onDecline; this._onDecline = null; this._onAgree = null;
                 if (cb) { try { cb(); } catch (e) {} }
@@ -8713,7 +9336,10 @@
                     );
                 } catch (e) { this._finish(); }
             },
-            _finish() { const cb = this._onDone; this._onDone = null; if (cb) { try { cb(); } catch (e) {} } },
+            _finish() {
+                try { sound.touchAudioIfOn(); } catch (e) {}
+                const cb = this._onDone; this._onDone = null; if (cb) { try { cb(); } catch (e) {} }
+            },
             open(firstRun) {
                 const m = document.getElementById('name-modal'); if (!m) { this._finish(); return; }
                 const inp = document.getElementById('name-input');
@@ -8756,6 +9382,7 @@
             },
             confirm() {
                 if (this._busy) return;
+                try { sound.touchAudioIfOn(); } catch (e) {}
                 const inp = document.getElementById('name-input'); if (!inp) return;
                 const raw = inp.value;
                 const btn = document.getElementById('name-confirm');
@@ -9651,7 +10278,6 @@
                 const AdMob = self._plugin();
                 if (!AdMob || !self._adUnitId) { onFail(); return; }
                 if (!self._canRequestAds) { onFail(); return; }
-                try { gx.toast(t('ad_loading')); } catch (e) {}
                 const units = [self._adUnitId];
                 const fallback = self._fillFallbackUnit();
                 if (fallback && fallback !== self._adUnitId) units.push(fallback);
@@ -9672,7 +10298,11 @@
                         return tryUnit(idx + 1);
                     });
                 };
-                tryUnit(0).catch(function () { onFail(); });
+                const startRealAd = function () {
+                    tryUnit(0).catch(function () { onFail(); });
+                };
+                // Same 3-2-1 + hint as web sim, then real AdMob rewarded (Apple review flow).
+                adOverlay.playThen(3, startRealAd, onFail);
             }
         };
 
@@ -9737,6 +10367,10 @@
         const adOverlay = {
             _node: null, _timer: null,
             play(seconds, onReward, onFail) {
+                this.playThen(seconds, onReward, onFail);
+            },
+            // Countdown overlay — web sim uses as the ad; native uses before real AdMob plays.
+            playThen(seconds, onDone, onFail) {
                 if (this._node) this._close();
                 let left = Math.max(1, Math.floor(seconds) || 3);
                 const ov = document.createElement('div');
@@ -9754,7 +10388,7 @@
                     left--;
                     if (left > 0) { if (countEl) countEl.textContent = left; return; }
                     self._close();
-                    if (typeof onReward === 'function') onReward();
+                    if (typeof onDone === 'function') onDone();
                 }, 1000);
             },
             _close() {
@@ -9990,7 +10624,11 @@
             } catch (e) {}
             return localCollectionProvider;
         }
-        const collectionProvider = pickCollectionProvider();
+        const collectionProvider = {
+            grantDrop(item) { return pickCollectionProvider().grantDrop(item); },
+            getInventory() { return pickCollectionProvider().getInventory(); },
+            equip(e) { return pickCollectionProvider().equip(e); }
+        };
         // === Skin asset manager (LRU, dual-resolution, platform-aware) ===
         // Never decodes the full catalog at boot — scales to 1000+ skins.
         const SkinAssetManager = (function () {
@@ -12399,7 +13037,10 @@
             try { if (BUILD === 'steam' && window.steamworks && window.steamworks.available !== false) return steamAchievementsProvider; } catch (e) {}
             return localAchievementsProvider;
         }
-        const achievementsProvider = pickAchievementsProvider();
+        const achievementsProvider = {
+            unlock(id) { return pickAchievementsProvider().unlock(id); },
+            setStat(k, v) { return pickAchievementsProvider().setStat(k, v); }
+        };
         const achievementsUI = {
             open() { this.render(); document.getElementById('ach-modal').classList.add('open'); },
             close() { document.getElementById('ach-modal').classList.remove('open'); },
@@ -12805,6 +13446,11 @@
             try { game.init(); } catch (e) {
                 try { if (typeof window.__scBootSplashFail === 'function') window.__scBootSplashFail('Game init failed.\nReload the page or try Wi‑Fi option 2.'); } catch (e2) {}
             }
+            try {
+                if (BUILD === 'steam' && window.steamworks && window.steamworks.syncAfterLoad && game.ach) {
+                    window.steamworks.syncAfterLoad(game.ach);
+                }
+            } catch (e) {}
             try { hudChips.init(); } catch (e) {}
             // Leaderboard identity: ensures UUID + display name exist (own localStorage
             // key 'soup_lb_identity'; never touches the integrity-wrapped 'soup_p_v17').
