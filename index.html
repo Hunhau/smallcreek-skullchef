@@ -32,9 +32,10 @@
                Tints alone (no blur) must stay legible, so the fallback never relies on blur.
                .q-low bumps opacity and drops blur for low-end/mobile perf. */
             --glass: rgba(46, 16, 74, 0.42); --glass-strong: rgba(33, 12, 56, 0.66);
+            --glass-shop: rgba(33, 12, 56, 0.46);
             --glass-bd: rgba(255, 255, 255, 0.12); --glass-bd-go: rgba(224, 160, 8, 0.5);
             --glass-blur: blur(8px); --glass-blur-sm: blur(4px); }
-        body.q-low { --glass: rgba(40, 14, 64, 0.84); --glass-strong: rgba(26, 9, 46, 0.92); --glass-blur: none; --glass-blur-sm: none; }
+        body.q-low { --glass: rgba(40, 14, 64, 0.84); --glass-strong: rgba(26, 9, 46, 0.92); --glass-shop: rgba(26, 9, 46, 0.9); --glass-blur: none; --glass-blur-sm: none; }
         * { box-sizing: border-box; touch-action: manipulation; -webkit-user-select: none; user-select: none; -webkit-tap-highlight-color: transparent; }
         html, body { overscroll-behavior: none; -webkit-overflow-scrolling: touch; }
         body { margin: 0; padding: 0; width: 100vw; height: 100vh; overflow: hidden; background: url('assets/img/bg.jpg') center/cover no-repeat !important; color: white; font-family: 'Segoe UI', Tahoma, sans-serif; display: flex; }
@@ -151,7 +152,8 @@
         #sticky-center.soup-ev-realms.soup-ev-tier-4 { --soup-liq-filter: sepia(0.45) hue-rotate(42deg) saturate(1.4) brightness(1.12) drop-shadow(0 0 16px rgba(234,88,12,0.38)); }
         body.q-low #sticky-center.soup-ev #asset-soup-liquid { transition: filter 0.4s ease; }
         /* top synced to #hud top (energy counter row) via mobileUI.syncAltarBelowHud(); z above summon FX */
-        #altar-panel { position: absolute; top: 20px; right: 400px; z-index: 25200; display: flex; flex-direction: column; align-items: center; pointer-events: none; }
+        #altar-panel { position: absolute; top: 20px; right: 400px; z-index: 25200; display: flex; flex-direction: column; align-items: center; pointer-events: none; transition: right 0.3s ease; }
+        body.shop-collapsed #altar-panel { right: 20px; }
         #altar-panel #btn-prestige { pointer-events: auto; }
         #btn-prestige { background-image: url("assets/img/angel.png") !important; background-size: contain !important; background-repeat: no-repeat !important; background-position: center !important; width: 180px; height: 260px; border: none !important; background-color: transparent !important; transition: 0.4s; cursor: not-allowed; opacity: 1; display: flex; flex-direction: column; justify-content: flex-end; }
         #btn-prestige.locked { animation: none; filter: drop-shadow(0 2px 10px rgba(0,0,0,0.45)); }
@@ -294,7 +296,13 @@
         .slot-img { width: 85%; height: 85%; object-fit: contain; animation: bob 3s infinite; }
         .lv-badge { position: absolute; bottom: -5px; right: -5px; background: #2e1065; border: 2px solid var(--go); border-radius: 6px; padding: 1px 5px; font-size: 0.65rem; font-weight: bold; color: var(--go); z-index: 20; }
         .slot-crown { position: absolute; top: -15px; left: 50%; transform: translateX(-50%); font-size: 1.5rem; filter: drop-shadow(0 0 5px var(--go)); }
-        #side-shop { width: 380px; background: var(--glass-strong); backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur); border-left: 1px solid var(--glass-bd); padding: 20px; z-index: 6000; overflow-y: auto; }
+        #side-shop { width: 380px; background: var(--glass-shop); backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur); border-left: 1px solid var(--glass-bd); padding: 20px; z-index: 6000; overflow-y: auto; transition: width 0.3s ease, padding 0.3s ease; }
+        #shop-pc-toggle { position: fixed; top: 12px; right: 12px; z-index: 6500; width: 34px; height: 34px; border-radius: 999px; border: 1px solid var(--glass-bd); background: var(--glass-strong); color: #fff; cursor: pointer; font: 700 0.9rem/1 'Segoe UI', sans-serif; backdrop-filter: var(--glass-blur-sm); -webkit-backdrop-filter: var(--glass-blur-sm); display: flex; align-items: center; justify-content: center; padding: 0; transition: right 0.3s ease; }
+        #shop-pc-toggle::before { content: '\25B6'; }
+        body.shop-collapsed #shop-pc-toggle::before { content: '\25C0'; }
+        #shop-pc-toggle:hover { filter: brightness(1.18); }
+        body.shop-collapsed #side-shop { width: 0; min-width: 0; padding: 0; border-left: none; overflow: hidden; }
+        @media (pointer: coarse) { #shop-pc-toggle { display: none; } }
         .companion-card { background: var(--glass); border-radius: 12px; padding: 12px; margin-bottom: 12px; cursor: not-allowed; border: 2px solid transparent; display: flex; align-items: center; opacity: 0.4; transition: 0.3s; }
         .companion-card.affordable { opacity: 1; cursor: pointer; border-color: var(--ac); background: rgba(168, 85, 247, 0.18); }
         #buy-mode-toggle { padding: 8px 12px; background: var(--glass); border-radius: 10px; text-align: center; font-weight: bold; border: 1px solid var(--glass-bd); margin-bottom: 12px; cursor: pointer; font-size: 0.85rem; letter-spacing: 0.5px; color: #fff; text-shadow: 0 1px 3px rgba(0,0,0,0.6); transition: 0.2s; }
@@ -2438,6 +2446,8 @@
         <div id="companion-column"></div>
         <div id="altar-panel"><div id="btn-prestige" onclick="game.pres()"><div class="prestige-label" id="pres-txt" data-i18n="locked">LOCKED</div></div><div id="pres-stat">Lv. 0 (+0%)</div><div id="pres-eta" class="pres-eta"></div><div class="pres-progress-wrap" aria-hidden="true"><div id="pres-progress"></div></div></div>
         <section id="main-stage"><canvas id="particle-canvas"></canvas><div id="sticky-center"><div id="chef-rig"><img id="asset-chef" src="assets/img/chef.png" decoding="async"><img id="asset-chef-mouth" src="assets/img/chef-mouth-delta.png" alt="" decoding="async"></div><img id="asset-chef-hand" src="assets/img/chef-hand.png" decoding="async"><div id="cauldron-rig"><img id="cauldron-legs" class="cauldron-part" src="assets/img/cauldron-legs.png" alt="" decoding="async"><img id="asset-soup" class="cauldron-part" src="assets/img/soup.png" decoding="async"><div id="soup-liquid" class="cauldron-part"><img id="asset-soup-liquid" class="cauldron-liquid" src="assets/img/soup.png" decoding="async"><div id="soup-ambient-bubbles" aria-hidden="true"></div><div id="soup-fx-burst" aria-hidden="true"></div></div><div id="soup-steam" class="cauldron-part"><div class="steam-wisp"></div><div class="steam-wisp"></div><div class="steam-wisp"></div><div class="steam-wisp"></div><div class="steam-wisp"></div><div class="steam-wisp"></div></div></div><div id="spoon-rig"><img id="asset-spoon" src="assets/img/spoon.png" decoding="async"></div></div><div id="soup-ripples"></div></section>
+        <button id="shop-pc-toggle" type="button" onclick="toggleShopPC()" aria-label="Plegar/desplegar tienda" title="Plegar/desplegar tienda"></button>
+        <script>function toggleShopPC(){var c=document.body.classList.toggle('shop-collapsed');try{localStorage.setItem('sc_shop_collapsed',c?'1':'0');}catch(e){}}try{if(localStorage.getItem('sc_shop_collapsed')==='1')document.body.classList.add('shop-collapsed');}catch(e){}</script>
         <aside id="side-shop"><button id="shop-close-m" type="button" onclick="mobileUI.closeAll()" data-i18n-title="close" aria-label="Close" title="Close">✕</button><h1 data-i18n="shop" style="text-align:center; font-size:1.3rem;">SHOP</h1><div id="shop-companions-panel"><div id="buy-mode-toggle" onclick="game.cycleBuyMode()" data-i18n="buy_x1">Buy x1</div><div id="companion-list"></div><div id="spoons-album-section"><div id="spoons-album-title" data-i18n="spoons_album_title">SACRED SPOONS ALBUM</div><div id="spoons-album"></div></div><div id="hats-album-section"><div id="hats-album-title" data-i18n="hats_album_title">SACRED HATS ALBUM</div><div id="hats-album"></div></div></div></aside>
     </div>
     <div id="audio-ctrl"><button id="audio-mute" type="button" onclick="sound.toggleMute()" data-i18n-title="audio_mute_title" title="Mute / Unmute sound">🔊</button><input id="audio-vol" type="range" min="0" max="100" value="100" oninput="sound.setVolume(this.value/100)" data-i18n-title="audio_vol_title" title="Volume"></div>
@@ -3313,7 +3323,7 @@
         // while still retrying if a reload didn't actually land the new build. Fully
         // defensive: any error is silent and never blocks the game. Parent bumps BOTH
         // version.json and BUILD_V on every future deploy.
-        const BUILD_V = "build-277";
+        const BUILD_V = "build-364";
         function paintBuildTag() {
             try {
                 var prod = (typeof PRODUCTION_BUILD !== 'undefined' && PRODUCTION_BUILD)
