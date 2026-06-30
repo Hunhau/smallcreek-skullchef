@@ -2944,7 +2944,7 @@
     <script src="js/weekly-challenges.js?v=build-277"></script>
     <script src="js/helper-team.js?v=build-277"></script>
     <script src="js/chef-mood.js?v=build-277"></script>
-    <script src="js/ingredients-visual.js?v=build-376"></script>
+    <script src="js/ingredients-visual.js?v=build-377"></script>
     <script src="js/farm.js?v=build-376"></script>
     <script src="js/ambient.js?v=build-371"></script>
     <script src="js/music.js?v=build-277"></script>
@@ -2963,7 +2963,7 @@
     <script src="js/hud-chips.js?v=build-277"></script>
     <script src="js/item-bonus.js?v=build-277"></script>
     <!-- Cache-bust catalog on every deploy (SW must not serve a stale charm list). -->
-    <script src="assets/skins/catalog.js?v=build-376"></script>
+    <script src="assets/skins/catalog.js?v=build-377"></script>
     <script src="assets/atlas_manifest.js?v=build-277"></script>
     <script src="js/atlas.js?v=build-371"></script>
     <!-- ====================================================================
@@ -3459,7 +3459,7 @@
         // while still retrying if a reload didn't actually land the new build. Fully
         // defensive: any error is silent and never blocks the game. Parent bumps BOTH
         // version.json and BUILD_V on every future deploy.
-        const BUILD_V = "build-376";
+        const BUILD_V = "build-377";
         function paintBuildTag() {
             try {
                 var prod = (typeof PRODUCTION_BUILD !== 'undefined' && PRODUCTION_BUILD)
@@ -5865,7 +5865,7 @@
             // Themed ingredient throws on helper purchase (summon flow). Two variants per cp id; odd level = A, even = B.
             SUMMON_INGREDIENTS: {
                 0: { variants: [
-                    { fx: 'ink', glyphs: ['🦑', '💜'], burstEmojis: ['💜', '✨', '🦑'], count: 4, spread: 30, stagger: 105, startRot: -10, endRot: 110, endScale: 0.94,
+                    { fx: 'ink', glyphs: ['🦑'], burstEmojis: ['💜', '✨', '🦑'], count: 4, spread: 30, stagger: 105, startRot: -10, endRot: 110, endScale: 0.94,
                         soupFilter: 'saturate(1.45) hue-rotate(248deg) brightness(0.78) contrast(1.12)',
                         particleColors: ['#6b21a8', '#581c87', '#a78bfa', '#c4b5fd'],
                         rippleTint: { border: 'rgba(167,139,250,0.82)', glow: 'rgba(124,58,237,0.5)' } },

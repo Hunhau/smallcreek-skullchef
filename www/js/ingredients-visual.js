@@ -7,7 +7,7 @@
 
     /** Ingredientes con estrella de adorno del artista (variantes B / premium). */
     var STAR_DECO_IDS = {
-        shrimp: 1, lettuce: 1, yolk: 1, honey: 1,
+        ink: 1, shrimp: 1, lettuce: 1, yolk: 1, honey: 1,
         berries: 1, strawberry: 1, banana: 1, coconut: 1
     };
 
@@ -25,6 +25,11 @@
         coconut: 'ing_coconut.png',
         star_spark: 'ing_star_spark.png',
         star_glow: 'ing_star_glow.png'
+    };
+
+    /** Emojis legacy de adorno → estrella PNG (sustituye 💜 tinta, etc.). */
+    var LEGACY_DECO_GLYPHS = {
+        '\uD83D\uDC9C': 1
     };
 
     var GLYPH_TO_ID = {
@@ -46,18 +51,19 @@
         return BASE + FILES[id];
     }
 
+    function pickStarFile() {
+        return Math.random() < 0.5 ? 'star_spark' : 'star_glow';
+    }
+
     function idFromGlyph(glyph) {
         if (!glyph) return '';
         if (GLYPH_TO_ID[glyph]) return GLYPH_TO_ID[glyph];
+        if (LEGACY_DECO_GLYPHS[glyph]) return pickStarFile();
         return '';
     }
 
     function idFromFarmType(type) {
         return type && FILES[type] ? type : '';
-    }
-
-    function pickStarFile() {
-        return Math.random() < 0.5 ? 'star_spark' : 'star_glow';
     }
 
     function wantsStarDeco(id) {
