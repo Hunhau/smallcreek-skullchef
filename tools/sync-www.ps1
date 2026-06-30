@@ -6,8 +6,8 @@ if (Test-Path $www) { Remove-Item $www -Recurse -Force }
 New-Item -ItemType Directory -Path $www | Out-Null
 
 $items = @(
-    'index.html', 'sw.js', 'manifest.webmanifest', 'privacy.html',
-    'version.json', 'live.json', 'events.js', 'assets', 'audio', 'leaderboard', 'admob.config.json'
+    'index.html', 'sw.js', 'manifest.webmanifest', 'privacy.html', 'app-ads.txt', 'events.js',
+    'version.json', 'live.json', 'css', 'js', 'assets', 'audio', 'leaderboard', 'admob.config.json'
 )
 foreach ($item in $items) {
     $src = Join-Path $root $item
