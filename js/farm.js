@@ -95,39 +95,7 @@ const FARM_TYPE_IDS = ['ink','shrimp','carrot','lettuce','corn','yolk','honey','
                 game.farm.plots.forEach(plot => { plot._farmSt = this.plotState(plot); });
             },
             floatHarvestGain(type) {
-                try {
-                    const stockEl = document.getElementById('farm-stock');
-                    if (!stockEl) return;
-                    const idx = FARM_TYPE_IDS.indexOf(type);
-                    if (idx < 0) return;
-                    const chip = stockEl.children[idx];
-                    if (!chip) return;
-                    const r = chip.getBoundingClientRect();
-                    const el = document.createElement('div');
-                    el.className = 'farm-harvest-float';
-                    el.textContent = '+1 ' + (FARM_GLYPHS[type] || '');
-                    try {
-                        if (typeof ingredientVisual !== 'undefined' && ingredientVisual.ENABLED) {
-                            const url = ingredientVisual.src(type);
-                            if (url) {
-                                el.textContent = '';
-                                const im = document.createElement('img');
-                                im.className = 'farm-ing-img';
-                                im.src = url;
-                                im.alt = '';
-                                el.appendChild(im);
-                                el.appendChild(document.createTextNode(' +1'));
-                            }
-                        }
-                    } catch (e) {}
-                    el.style.left = (r.left + r.width / 2) + 'px';
-                    el.style.top = (r.top + 2) + 'px';
-                    document.body.appendChild(el);
-                    el.addEventListener('animationend', () => { try { el.remove(); } catch (e) {} }, { once: true });
-                    chip.classList.remove('bump');
-                    void chip.offsetWidth;
-                    chip.classList.add('bump');
-                } catch (e) {}
+                this.pingStockChip(type);
             },
             resetForPrestige() {
                 game.farm = this.freshSave();
@@ -253,6 +221,59 @@ const FARM_TYPE_IDS = ['ink','shrimp','carrot','lettuce','corn','yolk','honey','
                 const st = this.plotState(plot);
                 return st + (plot.watered ? 'w' : '');
             },
+            _plotGlyphHtml(type) {
+                return (typeof ingredientVisual !== 'undefined' && ingredientVisual.farmInner)
+                    ? ingredientVisual.farmInner(type) : (FARM_GLYPHS[type] || '🌱');
+            },
+            _plotBodyHtml(plot, now) {
+                const st = this.plotState(plot);
+                if (st === 'empty') return `<span class="farm-plot-btn">${t('farm_plant')}</span>`;
+                if (st === 'growing') {
+                    const waterBtn = plot.watered
+                        ? `<span class="farm-watered-mark" title="${t('farm_watered')}">💧✓</span>`
+                        : `<button type="button" class="farm-water-btn" title="${t('farm_water')}">💧</button>`;
+                    return `<div class="farm-timer">${this.formatTime((plot.readyAt - now) / 1000)}</div>${waterBtn}`;
+                }
+                return `<span class="farm-plot-label">${t('farm_harvest')}</span>`;
+            },
+            patchPlot(idx) {
+                const plotsEl = document.getElementById('farm-plots');
+                const plot = game.farm.plots[idx];
+                if (!plotsEl || !plot) return;
+                const el = plotsEl.querySelector(`.farm-plot[data-idx="${idx}"]`);
+                if (!el) { this.render(); return; }
+                const st = this.plotState(plot);
+                const now = Date.now();
+                el.className = 'farm-plot ' + st;
+                el.innerHTML = `<div class="farm-glyph">${this._plotGlyphHtml(plot.type)}</div>${this._plotBodyHtml(plot, now)}`;
+                if (this._plotRenderSig) this._plotRenderSig[idx] = this.plotUiSig(plot);
+            },
+            patchStockChip(type) {
+                const stockEl = document.getElementById('farm-stock');
+                if (!stockEl) return;
+                const idx = FARM_TYPE_IDS.indexOf(type);
+                if (idx < 0) return;
+                const chip = stockEl.children[idx];
+                const n = game.farm.stock[type] || 0;
+                if (!chip) { this.render(); return; }
+                chip.className = 'farm-stock-chip' + (n <= 3 ? ' low' : '');
+                const countEl = chip.querySelector('.farm-stock-n');
+                if (countEl) countEl.textContent = String(n);
+                else chip.innerHTML = this._plotGlyphHtml(type) + '<br><span class="farm-stock-n">' + n + '</span>';
+            },
+            pingStockChip(type) {
+                try {
+                    const stockEl = document.getElementById('farm-stock');
+                    if (!stockEl) return;
+                    const idx = FARM_TYPE_IDS.indexOf(type);
+                    const chip = idx >= 0 ? stockEl.children[idx] : null;
+                    if (!chip) return;
+                    chip.classList.remove('farm-stock-ping');
+                    void chip.offsetWidth;
+                    chip.classList.add('farm-stock-ping');
+                    setTimeout(() => { try { chip.classList.remove('farm-stock-ping'); } catch (e) {} }, 420);
+                } catch (e) {}
+            },
             plant(idx) {
                 this.ensure();
                 const plot = game.farm.plots[idx];
@@ -261,7 +282,8 @@ const FARM_TYPE_IDS = ['ink','shrimp','carrot','lettuce','corn','yolk','honey','
                 plot.watered = false;
                 plot._farmSt = 'growing';
                 try { sound.playFarm('farmPlantar', 'bubble'); } catch (e) {}
-                game.save(); this.render();
+                game.save();
+                this.patchPlot(idx);
             },
             water(idx) {
                 this.ensure();
@@ -273,12 +295,7 @@ const FARM_TYPE_IDS = ['ink','shrimp','carrot','lettuce','corn','yolk','honey','
                 plot.watered = true;
                 try { sound.playFarm('farmRegar', 'bubble'); } catch (e) {}
                 game.save();
-                this.render();
-                try {
-                    const plotsEl = document.getElementById('farm-plots');
-                    const el = plotsEl && plotsEl.querySelector(`.farm-plot[data-idx="${idx}"]`);
-                    if (el) { el.classList.add('wet-flash'); setTimeout(() => { try { el.classList.remove('wet-flash'); } catch (e2) {} }, 560); }
-                } catch (e3) {}
+                this.patchPlot(idx);
             },
             harvest(idx) {
                 this.ensure();
@@ -294,8 +311,11 @@ const FARM_TYPE_IDS = ['ink','shrimp','carrot','lettuce','corn','yolk','honey','
                 plot._farmSt = replant ? 'growing' : 'empty';
                 try { sound.playFarm('farmCosechar', 'bubble'); } catch (e) {}
                 if (replant) { try { setTimeout(() => { try { sound.playFarm('farmPlantar', 'bubble'); } catch (e2) {} }, 180); } catch (e3) {} }
-                game.save(); this.render(); this.updateBadge();
-                this.floatHarvestGain(type);
+                game.save();
+                this.patchPlot(idx);
+                this.patchStockChip(type);
+                this.pingStockChip(type);
+                this.updateBadge();
             },
             allPlantedReady() {
                 let hasPlanted = false;
@@ -380,9 +400,8 @@ const FARM_TYPE_IDS = ['ink','shrimp','carrot','lettuce','corn','yolk','honey','
                 if (stockEl) {
                     stockEl.innerHTML = FARM_TYPE_IDS.map(id => {
                         const n = game.farm.stock[id] || 0;
-                        const inner = (typeof ingredientVisual !== 'undefined' && ingredientVisual.farmInner)
-                            ? ingredientVisual.farmInner(id) : (FARM_GLYPHS[id] || '?');
-                        return `<div class="farm-stock-chip${n <= 3 ? ' low' : ''}">${inner}<br>${n}</div>`;
+                        const inner = this._plotGlyphHtml(id);
+                        return `<div class="farm-stock-chip${n <= 3 ? ' low' : ''}">${inner}<br><span class="farm-stock-n">${n}</span></div>`;
                     }).join('');
                 }
                 if (plotsEl) {
@@ -394,18 +413,8 @@ const FARM_TYPE_IDS = ['ink','shrimp','carrot','lettuce','corn','yolk','honey','
                         this._plotRenderSig = sig.slice();
                         plotsEl.innerHTML = game.farm.plots.map((plot, i) => {
                             const st = this.plotState(plot);
-                            const glyph = FARM_GLYPHS[plot.type] || '🌱';
-                            const glyphHtml = (typeof ingredientVisual !== 'undefined' && ingredientVisual.farmInner)
-                                ? ingredientVisual.farmInner(plot.type) : glyph;
-                            let body;
-                            if (st === 'empty') body = `<span class="farm-plot-btn">${t('farm_plant')}</span>`;
-                            else if (st === 'growing') {
-                                const waterBtn = plot.watered
-                                    ? `<span class="farm-watered-mark" title="${t('farm_watered')}">💧✓</span>`
-                                    : `<button type="button" class="farm-water-btn" title="${t('farm_water')}">💧</button>`;
-                                body = `<div class="farm-timer">${this.formatTime((plot.readyAt - now) / 1000)}</div>${waterBtn}`;
-                            }
-                            else body = `<span class="farm-plot-label">${t('farm_harvest')}</span>`;
+                            const glyphHtml = this._plotGlyphHtml(plot.type);
+                            const body = this._plotBodyHtml(plot, now);
                             return `<div class="farm-plot ${st}" data-idx="${i}"><div class="farm-glyph">${glyphHtml}</div>${body}</div>`;
                         }).join('');
                     } else {

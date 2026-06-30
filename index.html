@@ -1943,13 +1943,9 @@
         .farm-plot-btn, .farm-plot-label { font-size: 0.62rem; padding: 4px 8px; border-radius: 8px; border: 1px solid var(--glass-bd-go); background: linear-gradient(135deg,#14532d,#22c55e); color: #fff; min-height: 28px; display: inline-flex; align-items: center; justify-content: center; pointer-events: none; user-select: none; touch-action: manipulation; }
         .farm-plot-label { border-color: #86efac; background: linear-gradient(135deg,#166534,#4ade80); font-weight: bold; }
         .farm-water-btn { font-size: 1rem; line-height: 1; padding: 4px 10px; border-radius: 10px; border: 1px solid rgba(56,189,248,0.6); background: linear-gradient(135deg,#0369a1,#38bdf8); color: #fff; cursor: pointer; touch-action: manipulation; pointer-events: auto; min-height: 32px; min-width: 32px; }
-        .farm-water-btn:active { transform: scale(0.94); }
+        .farm-water-btn:active { opacity: 0.88; }
         .farm-watered-mark { font-size: 0.75rem; opacity: 0.65; pointer-events: none; user-select: none; }
-        .farm-plot.wet-flash { animation: farmWetFlash 0.55s ease-out; }
-        @keyframes farmWetFlash { 0% { box-shadow: 0 0 0 0 rgba(56,189,248,0.55); } 100% { box-shadow: 0 0 0 14px rgba(56,189,248,0); } }
-        .farm-stock-chip.bump { animation: farmStockBump 0.45s ease-out; }
-        @keyframes farmStockBump { 0% { transform: scale(1); } 45% { transform: scale(1.14); border-color: #4ade80; color: #bbf7d0; } 100% { transform: scale(1); } }
-        .farm-harvest-float { position: fixed; transform: translateX(-50%); color: #86efac; font-weight: bold; font-size: 0.9rem; text-shadow: 0 0 8px rgba(74,222,128,0.55); pointer-events: none; z-index: 6000; white-space: nowrap; animation: floatUp 900ms ease-out forwards; }
+        .farm-stock-chip.farm-stock-ping { border-color: #4ade80; box-shadow: 0 0 8px rgba(74,222,128,0.35); transition: border-color 0.15s, box-shadow 0.15s; }
         .farm-stock-grid, .farm-plots { grid-template-columns: repeat(5, minmax(0, 1fr)); }
         #farm-modal .farm-box { display: flex; flex-direction: column; max-width: 520px; width: min(520px, 94vw); max-height: min(94dvh, 820px); overflow: hidden; padding-top: 0; text-align: center; box-sizing: border-box; }
         #farm-modal .farm-head { position: relative; flex-shrink: 0; padding: 16px 44px 10px; margin: 0 -24px 4px; border-bottom: 1px solid var(--glass-bd); background: var(--glass-strong); }
@@ -2944,14 +2940,14 @@
     <script src="js/weekly-challenges.js?v=build-277"></script>
     <script src="js/helper-team.js?v=build-277"></script>
     <script src="js/chef-mood.js?v=build-277"></script>
-    <script src="js/ingredients-visual.js?v=build-377"></script>
-    <script src="js/farm.js?v=build-376"></script>
+    <script src="js/ingredients-visual.js?v=build-379"></script>
+    <script src="js/farm.js?v=build-379"></script>
     <script src="js/ambient.js?v=build-371"></script>
     <script src="js/music.js?v=build-277"></script>
     <script src="js/creator.js?v=build-277"></script>
-    <script src="js/prix.js?v=build-277"></script>
+    <script src="js/prix.js?v=build-379"></script>
     <script src="js/cauldron-icon.js?v=build-370"></script>
-    <script src="js/soup-skirmish.js?v=build-370"></script>
+    <script src="js/soup-skirmish.js?v=build-379"></script>
     <script src="js/objective.js?v=build-371"></script>
     <script src="js/angel-tree.js?v=build-277"></script>
     <script src="js/tutorial.js?v=build-277"></script>
@@ -2963,7 +2959,7 @@
     <script src="js/hud-chips.js?v=build-277"></script>
     <script src="js/item-bonus.js?v=build-277"></script>
     <!-- Cache-bust catalog on every deploy (SW must not serve a stale charm list). -->
-    <script src="assets/skins/catalog.js?v=build-377"></script>
+    <script src="assets/skins/catalog.js?v=build-379"></script>
     <script src="assets/atlas_manifest.js?v=build-277"></script>
     <script src="js/atlas.js?v=build-371"></script>
     <!-- ====================================================================
@@ -3459,7 +3455,7 @@
         // while still retrying if a reload didn't actually land the new build. Fully
         // defensive: any error is silent and never blocks the game. Parent bumps BOTH
         // version.json and BUILD_V on every future deploy.
-        const BUILD_V = "build-377";
+        const BUILD_V = "build-379";
         function paintBuildTag() {
             try {
                 var prod = (typeof PRODUCTION_BUILD !== 'undefined' && PRODUCTION_BUILD)
@@ -7556,10 +7552,11 @@
                 const lv = Math.max(1, Math.floor(Number(level) || 1));
                 return variants[lv % 2 === 1 ? 0 : 1] || variants[0];
             },
-            summonImgForHelper(c) {
+            summonImgForHelper(c, loadoutKey) {
                 try {
                     const fam = collection.HELPER_FAM_BY_IDX[c.id];
-                    const eqId = fam ? collection.equippedIn(fam) : null;
+                    const lk = loadoutKey || (collection._sceneLoadoutKey || null);
+                    const eqId = fam ? collection.equippedInForContext(fam, lk) : null;
                     const skin = eqId ? collection.skinResolve(eqId) : null;
                     if (skin && skin.img) return skin.img;
                 } catch (e) {}
@@ -8710,11 +8707,11 @@
             cinemaPoseOrigin() {
                 return this.cinemaViewCenter();
             },
-            championImgSrc(c) {
+            championImgSrc(c, loadoutKey) {
                 let fallbackSrc = '';
                 try { fallbackSrc = collection.HELPER_DEFAULT_IMG[c.id] || c.im || ''; } catch (e) { fallbackSrc = c.im || ''; }
                 let champImg = fallbackSrc;
-                try { champImg = this.summonImgForHelper(c) || fallbackSrc; } catch (e2) { champImg = fallbackSrc; }
+                try { champImg = this.summonImgForHelper(c, loadoutKey) || fallbackSrc; } catch (e2) { champImg = fallbackSrc; }
                 return champImg || fallbackSrc || c.im || '';
             },
             resetCrownCeremony(p, cr) {
@@ -8735,13 +8732,13 @@
                     p.onload = null;
                 }
             },
-            beginCrownCeremony(c, p, cr) {
+            beginCrownCeremony(c, p, cr, loadoutKey) {
                 if (!c || !p || !cr) return;
                 const off = (this.CROWN_HEAD[c.id] || { x: 0.5, y: 0.18, w: 0.22 });
                 const pose = this.cinemaViewCenter();
                 const champScale = this.cinemaChampScale();
                 const crownIntro = this.cinemaCrownIntroScale();
-                const fallbackSrc = this.championImgSrc(c);
+                const fallbackSrc = this.championImgSrc(c, loadoutKey);
                 p.onerror = () => {
                     if (p.dataset.fellBack) return;
                     const fb = fallbackSrc || c.im || '';
@@ -9012,6 +9009,7 @@
             coron(c, rewardToast, opts) {
                 opts = opts || {};
                 const skirmish = !!opts.skirmish;
+                const loadoutKey = opts.loadoutKey || (collection._sceneLoadoutKey || null);
                 this.p = true;
                 try { document.body.classList.add('coronation-active'); if (typeof mobileUI !== 'undefined') mobileUI.closeAll(); } catch (e) {}
                 if (!opts.skipSound) try { sound.play('victory'); } catch (e) {}
@@ -9023,7 +9021,7 @@
                 v.style.opacity = '1';
                 v.style.transform = '';
                 wo.style.opacity = '0';
-                this.beginCrownCeremony(c, p, cr);
+                this.beginCrownCeremony(c, p, cr, loadoutKey);
                 v.style.transition = '';
                 setTimeout(() => {
                     v.style.opacity = '0';
@@ -12625,6 +12623,14 @@
             },
             tryAutoLoadout(key) {
                 /* Presets no longer overwrite main-game equips — use applyLoadout() manually or loadoutKey in UI. */
+            },
+            enterSceneLoadout(key) {
+                if (this.LOADOUT_KEYS.indexOf(key) < 0) return;
+                const c = this.normalize();
+                if (!this.loadoutSnapValid(c.loadouts && c.loadouts[key])) return;
+                if (this._sceneLoadoutTimer) { clearTimeout(this._sceneLoadoutTimer); this._sceneLoadoutTimer = null; }
+                this._sceneLoadoutKey = key;
+                try { game.rebuild(); } catch (e) {}
             },
             flashSceneLoadout(key, ms) {
                 if (this.LOADOUT_KEYS.indexOf(key) < 0) return;

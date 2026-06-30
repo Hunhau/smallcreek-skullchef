@@ -126,6 +126,7 @@
             }
             game.coron(this.ch, null, {
                 skirmish: true,
+                loadoutKey: 'skirmish',
                 skipSound: true,
                 skipToast: true,
                 skipRebuild: true,
@@ -221,6 +222,29 @@
             return Math.max(34, Math.min(58, this._w * 0.056));
         },
 
+        _ingImgs: {},
+
+        _preloadIngredientImgs() {
+            this._ingImgs = {};
+            if (typeof ingredientVisual === 'undefined' || !ingredientVisual.ENABLED) return;
+            var self = this;
+            var i, k, url, im;
+            for (i = 0; i < KITS.length; i++) {
+                k = KITS[i];
+                try { url = ingredientVisual.src(k.crop); } catch (e) { url = ''; }
+                if (!url) continue;
+                im = new Image();
+                im.decoding = 'async';
+                im.src = url;
+                self._ingImgs[k.crop] = im;
+            }
+        },
+
+        _ingImgReady(crop) {
+            var im = crop && this._ingImgs && this._ingImgs[crop];
+            return !!(im && im.complete && im.naturalWidth);
+        },
+
         _drawIngredientGlyph(glyph, x, y, rot, scale, glowColor) {
             var ctx = this._ctx;
             var px = this._ingredientFontSize() * (scale || 1);
@@ -242,13 +266,40 @@
             ctx.restore();
         },
 
+        _drawIngredient(crop, glyph, x, y, rot, scale, glowColor) {
+            if (this._ingImgReady(crop)) {
+                var ctx = this._ctx;
+                var im = this._ingImgs[crop];
+                var base = this._ingredientFontSize() * (scale || 1);
+                var dw = base * 1.35;
+                var dh = base * 1.35;
+                ctx.save();
+                ctx.translate(x, y);
+                ctx.rotate(rot || 0);
+                if (glowColor && !this._isLowQuality()) {
+                    ctx.shadowColor = glowColor;
+                    ctx.shadowBlur = 14;
+                } else {
+                    ctx.shadowColor = 'rgba(0,0,0,0.55)';
+                    ctx.shadowBlur = 10;
+                }
+                ctx.shadowOffsetY = 3;
+                ctx.drawImage(im, -dw / 2, -dh / 2, dw, dh);
+                ctx.restore();
+                return;
+            }
+            this._drawIngredientGlyph(glyph, x, y, rot, scale, glowColor);
+        },
+
         _spawnProjectile(helperId, team, sx, sy, vx, vy) {
+            var k = this.kit(helperId);
             var st = this._throwStyle(helperId);
             return {
                 x: sx,
                 y: sy,
                 vx: vx,
                 vy: vy,
+                crop: k.crop,
                 glyph: st.glyph,
                 scale: st.scale,
                 spin: st.spin,
@@ -282,6 +333,7 @@
             if (!game || !game.cp || !game.minigameUnlocked || !game.minigameUnlocked()) return;
             if (game.scd > 0) return;
             try { if (typeof collection !== 'undefined') collection.snapshotMainEquips(); } catch (e0) {}
+            try { if (typeof collection !== 'undefined') collection.enterSceneLoadout('skirmish'); } catch (e0b) {}
             try { if (typeof mobileUI !== 'undefined') mobileUI.closeAll(); } catch (e) {}
             var rm = document.getElementById('race-modal');
             if (rm) rm.style.display = 'none';
@@ -302,6 +354,7 @@
             var hdr = document.getElementById('skirmish-header');
             if (hdr) hdr.style.display = '';
             this._resetEndUi();
+            this._preloadIngredientImgs();
             this.refreshList();
             if (!this._escBound) {
                 var self = this;
@@ -382,6 +435,7 @@
             if (hdr) hdr.style.display = 'none';
             this._resetEndUi();
             this._loadImages(c.id, this.aiId);
+            this._preloadIngredientImgs();
             this._resetMatch();
             this._syncMatchBar();
             this._showFightOverlay();
@@ -413,11 +467,11 @@
                 im.onload = function () { self._imgs[key] = im; };
                 im.src = src;
             };
-            try { load('player', collection.sceneImgForHelper(helperId)); } catch (e) {
+            try { load('player', collection.sceneImgForHelper(helperId, 'skirmish')); } catch (e) {
                 load('player', game.cp[helperId] ? game.cp[helperId].im : '');
             }
             var aid = aiId != null ? aiId : 1;
-            try { load('ai', collection.sceneImgForHelper(aid)); } catch (e2) {
+            try { load('ai', collection.sceneImgForHelper(aid, 'skirmish')); } catch (e2) {
                 load('ai', game.cp[aid] ? game.cp[aid].im : '');
             }
             load('chef', 'assets/img/chef.png');
@@ -731,7 +785,7 @@
                 p.y += p.vy * dt;
                 p.rot += dt * (p.spin || 7);
                 if (this._projectileHitsBasket(p, px, py)) {
-                    st.splats.push({ x: p.x, y: p.y, glyph: p.glyph, scale: p.scale, life: 0.65, team: p.team, color: p.color });
+                    st.splats.push({ x: p.x, y: p.y, crop: p.crop, glyph: p.glyph, scale: p.scale, life: 0.65, team: p.team, color: p.color });
                     this._burstParticles(p.x, p.y, p.color, 12);
                     if (p.team === 'p') {
                         var pg = st.playerFill - st.aiFill;
@@ -808,7 +862,7 @@
                     ctx.fill();
                     ctx.restore();
                 }
-                this._drawIngredientGlyph(s.glyph, s.x, s.y, 0, (s.scale || 1) * (0.9 + (1 - s.life) * 0.15), s.color);
+                this._drawIngredient(s.crop, s.glyph, s.x, s.y, 0, (s.scale || 1) * (0.9 + (1 - s.life) * 0.15), s.color);
                 ctx.globalAlpha = 1;
             }
 
@@ -834,7 +888,7 @@
                     ctx.fill();
                     ctx.restore();
                 }
-                this._drawIngredientGlyph(p.glyph, p.x, p.y, p.rot, p.scale, p.color);
+                this._drawIngredient(p.crop, p.glyph, p.x, p.y, p.rot, p.scale, p.color);
                 p.px = p.x;
                 p.py = p.y;
             }

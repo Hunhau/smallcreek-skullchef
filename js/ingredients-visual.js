@@ -55,6 +55,12 @@
         return Math.random() < 0.5 ? 'star_spark' : 'star_glow';
     }
 
+    function pickStarFileStable(id) {
+        var n = 0, i, s = String(id || '');
+        for (i = 0; i < s.length; i++) n += s.charCodeAt(i);
+        return (n % 2) ? 'star_spark' : 'star_glow';
+    }
+
     function idFromGlyph(glyph) {
         if (!glyph) return '';
         if (GLYPH_TO_ID[glyph]) return GLYPH_TO_ID[glyph];
@@ -117,7 +123,7 @@
         var url = src(id);
         if (!url) return glyph;
         var star = wantsStarDeco(id)
-            ? '<img class="farm-star-deco" src="' + src(pickStarFile()) + '" alt="" decoding="async">'
+            ? '<img class="farm-star-deco" src="' + src(pickStarFileStable(id)) + '" alt="" decoding="async">'
             : '';
         return '<span class="farm-ing-stack"><img class="farm-ing-img" src="' + url + '" alt="" decoding="async">' + star + '</span>';
     }

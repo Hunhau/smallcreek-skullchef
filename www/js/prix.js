@@ -75,6 +75,7 @@
                 this._hideSkirmish();
                 this._pendingReward = null;
                 try { if (typeof collection !== 'undefined') collection.snapshotMainEquips(); } catch (e0) {}
+                try { if (typeof collection !== 'undefined') collection.enterSceneLoadout('prix'); } catch (e0b) {}
                 try { if (typeof mobileUI !== 'undefined') mobileUI.closeAll(); } catch (e) {}
                 try { document.body.classList.add('prix-open'); } catch (e1) {}
                 game.p = true;
@@ -193,7 +194,7 @@
                 try { game.syncMinigameButtons(); } catch (e0) {}
                 if (won) {
                     try { document.body.classList.add('coronation-active'); if (typeof mobileUI !== 'undefined') mobileUI.closeAll(); } catch (e) {}
-                    game.coron(this.ch, rewardToast);
+                    game.coron(this.ch, rewardToast, { loadoutKey: 'prix' });
                 } else {
                     game.p = false;
                     try { if (typeof collection !== 'undefined') collection.restoreSceneAfterMinigame(); } catch (e1) {}
