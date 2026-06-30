@@ -1,9 +1,9 @@
-/* BUILD_V tag + PWA auto-update (build-319). Bump with version.json + sw.js. */
+﻿/* BUILD_V tag + PWA auto-update (build-319). Bump with version.json + sw.js. */
 (function (global) {
     'use strict';
 
     // MUST equal version.json "v" in this commit (so no reload happens now).
-    var BUILD_V = 'build-375';
+    var BUILD_V = 'build-376';
     global.BUILD_V = BUILD_V;
 
     function paintBuildTag() {

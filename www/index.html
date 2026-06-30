@@ -1,4 +1,4 @@
-
+﻿
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -420,7 +420,19 @@
         @keyframes presProgPulse { 0% { box-shadow: 0 0 8px rgba(251,191,36,0.35); } 100% { box-shadow: 0 0 18px rgba(251,191,36,0.75); } }
         #offline-modal .offline-box { position: relative; overflow: hidden; text-align: center; animation: offlineBoxIn 0.55s cubic-bezier(0.22, 1.1, 0.36, 1); }
         @keyframes offlineBoxIn { 0% { opacity: 0; transform: scale(0.92) translateY(16px); } 100% { opacity: 1; transform: scale(1) translateY(0); } }
-        #offline-modal .offline-icon { font-size: 2.4rem; margin: 0 0 6px; animation: offlineIconBob 2s ease-in-out infinite alternate; }
+        #offline-modal .offline-icon { margin: 0 0 6px; animation: offlineIconBob 2s ease-in-out infinite alternate; display: flex; justify-content: center; }
+        #offline-modal .offline-icon .sc-cauldron-icon { width: 2.4rem; height: 2.4rem; filter: drop-shadow(0 0 8px rgba(251,191,36,0.45)); }
+        .sc-cauldron-icon { display: inline-block; vertical-align: middle; width: 1em; height: 1em; object-fit: contain; pointer-events: none; }
+        .goal-chip-icon .sc-cauldron-icon { width: 0.9rem; height: 0.9rem; }
+        .skirmish-hud-icon .sc-cauldron-icon { width: 0.85rem; height: 0.85rem; }
+        .p-reward-icon .sc-cauldron-icon { width: 2.4rem; height: 2.4rem; filter: drop-shadow(0 0 8px var(--go)); }
+        .reward-card-icon .sc-cauldron-icon { width: 1.7rem; height: 1.7rem; filter: drop-shadow(0 0 6px rgba(224,160,8,0.5)); }
+        .amb-toggle .sc-cauldron-icon { width: 1.1em; height: 1.1em; margin-right: 2px; vertical-align: -0.12em; }
+        .sc-cauldron-inline { width: 0.95em; height: 0.95em; margin-right: 2px; vertical-align: -0.1em; }
+        #menu-chip .sc-cauldron-inline { width: 0.85em; height: 0.85em; }
+        .offline-extras .sc-cauldron-inline { width: 0.9em; height: 0.9em; }
+        .skirmish-hero-icon .sc-cauldron-icon { width: 1.15em; height: 1.15em; vertical-align: -0.08em; margin-right: 1px; }
+        .path-choice-hd .sc-cauldron-icon, .atlas-path-card-hd .sc-cauldron-icon, .atlas-region-hd .sc-cauldron-icon, .museum-region-hd .sc-cauldron-icon { width: 1.1em; height: 1.1em; margin-right: 2px; vertical-align: -0.1em; }
         @keyframes offlineIconBob { 0% { transform: translateY(0) scale(1); } 100% { transform: translateY(-6px) scale(1.06); } }
         #offline-modal .offline-time { margin: 0 0 8px; font-size: 0.82rem; letter-spacing: 0.08em; text-transform: uppercase; color: #94a3b8; font-weight: 700; }
         #offline-modal .offline-eb-burst { font-size: clamp(1.6rem, 5vw, 2.2rem); font-weight: 900; color: var(--go); margin: 4px 0 10px; text-shadow: 0 0 18px rgba(251,191,36,0.55); animation: offlineEbPop 0.7s cubic-bezier(0.22, 1.2, 0.36, 1); }
@@ -806,6 +818,14 @@
         .manual-stir { transform: rotate(15deg) !important; } .soup-ripple-active { transform: scale(1.018, 0.985) !important; }
         .ingredient-proj { position: fixed; z-index: 25001; pointer-events: none; font-size: clamp(2.6rem, 9.5vw, 5rem); line-height: 1; transition: left 0.64s cubic-bezier(0.22, 1, 0.36, 1), top 0.64s cubic-bezier(0.22, 1, 0.36, 1), transform 0.64s ease-in, opacity 0.20s ease 0.46s; filter: drop-shadow(0 3px 10px rgba(0,0,0,0.5)); will-change: left, top, transform, opacity; }
         .ingredient-proj-dry { filter: drop-shadow(0 2px 6px rgba(0,0,0,0.25)); }
+        .ingredient-proj .ing-main, .ingredient-proj-img .ing-main { width: clamp(2.4rem, 9vw, 4.6rem); height: auto; max-height: clamp(2.4rem, 9vw, 4.6rem); object-fit: contain; display: block; pointer-events: none; user-select: none; opacity: 1; filter: contrast(1.08) saturate(1.15) drop-shadow(0 0 10px rgba(255, 220, 130, 0.55)) drop-shadow(0 0 20px rgba(255, 190, 90, 0.38)) drop-shadow(0 3px 9px rgba(0,0,0,0.5)); }
+        .ing-proj-stack, .farm-ing-stack { position: relative; display: inline-block; line-height: 0; vertical-align: middle; }
+        .ingredient-proj-dry .ing-main { filter: contrast(1.05) saturate(1.08) drop-shadow(0 0 6px rgba(255, 210, 110, 0.35)) drop-shadow(0 2px 6px rgba(0,0,0,0.35)); opacity: 0.92; }
+        .ing-star-deco, .farm-star-deco { position: absolute; width: 44%; height: auto; top: -8%; right: -12%; opacity: 1; z-index: 2; filter: drop-shadow(0 0 9px rgba(255, 245, 180, 1)) drop-shadow(0 0 16px rgba(255, 210, 80, 0.75)); pointer-events: none; }
+        .farm-ing-img { width: 1.35rem; height: 1.35rem; object-fit: contain; display: block; margin: 0 auto; pointer-events: none; opacity: 1; filter: contrast(1.08) saturate(1.12) drop-shadow(0 0 7px rgba(255, 215, 120, 0.5)) drop-shadow(0 2px 6px rgba(0,0,0,0.4)); }
+        .farm-stock-chip .farm-ing-img { width: 1.05rem; height: 1.05rem; margin-bottom: 2px; }
+        .farm-stock-chip .farm-star-deco { width: 0.55rem; top: -2px; right: -3px; }
+        #farm-modal .farm-glyph .farm-star-deco { width: 0.65rem; top: -3px; right: -4px; }
         /* Kawaii per-ingredient soup splash — 10 DRAMATICALLY unique identities (#soup-liquid) */
         #soup-fx-burst { position: absolute; inset: 0; pointer-events: none; z-index: 1; overflow: hidden; }
         .ingredient-splash-active { --ing-fx-dur: 2.6s; }
@@ -2397,7 +2417,7 @@
         <p id="skirmish-hint" data-i18n="skirmish_hint">Click toward the green basket (top) to lob your ingredient!</p>
         <div id="skirmish-sel">
             <div class="skirmish-hero">
-                <div class="skirmish-hero-icon" aria-hidden="true">🍲⚔️🥄</div>
+                <div class="skirmish-hero-icon" aria-hidden="true"><img class="sc-cauldron-icon" src="assets/img/icons/cauldron-sticker-64.png" alt="" decoding="async">⚔️🥄</div>
                 <p class="skirmish-hero-text" data-i18n="skirmish_hero">Choose an awakened helper. Each throws their signature crop into the soup arena!</p>
             </div>
             <p class="skirmish-select-lead" data-i18n="skirmish_select">Pick your fighter!</p>
@@ -2413,7 +2433,7 @@
             <div class="skirmish-hud-panel">
                 <div class="skirmish-hud">
                     <div class="skirmish-hud-col">
-                        <div class="skirmish-hud-label"><span class="skirmish-hud-icon">🍲</span><span data-i18n="skirmish_your_basket">Your soup score</span></div>
+                        <div class="skirmish-hud-label"><span class="skirmish-hud-icon"><img class="sc-cauldron-icon" src="assets/img/icons/cauldron-sticker-64.png" alt="" aria-hidden="true" decoding="async"></span><span data-i18n="skirmish_your_basket">Your soup score</span></div>
                         <div class="skirmish-meter-wrap"><div class="skirmish-meter"><div id="skirmish-player-fill" class="skirmish-meter-fill"></div></div><span id="skirmish-player-pct" class="skirmish-meter-pct">0%</span></div>
                     </div>
                     <div id="skirmish-timer-wrap"><span id="skirmish-timer-label">⏱</span><div id="skirmish-timer">80</div></div>
@@ -2432,7 +2452,7 @@
             <div id="skirmish-confetti-layer" aria-hidden="true"></div>
             <div id="skirmish-results-panel">
                 <h2 id="skirmish-rank"></h2>
-                <div id="skirmish-reward-box" class="p-reward-box"><div id="skirmish-reward-icon" class="p-reward-icon">🍲</div><p id="skirmish-reward"></p><p id="skirmish-reward-detail" class="p-reward-detail"></p></div>
+                <div id="skirmish-reward-box" class="p-reward-box"><div id="skirmish-reward-icon" class="p-reward-icon"><img class="sc-cauldron-icon" src="assets/img/icons/cauldron-sticker-128.png" alt="" aria-hidden="true" decoding="async"></div><p id="skirmish-reward"></p><p id="skirmish-reward-detail" class="p-reward-detail"></p></div>
                 <button class="gx-btn" style="margin-top:20px; min-height:48px; padding:12px 36px" onclick="skirmish.ret()" data-i18n="return_cauldron">RETURN TO CAULDRON</button>
             </div>
         </div>
@@ -2460,7 +2480,7 @@
         <div id="lore-scroll" onclick="try{atlas.openChronicleModal()}catch(e){}"><div id="lore-title" data-i18n="chronicle">CHRONICLE</div><div id="lore-text">...</div><div id="soup-recipe-inline" class="soup-recipe-inline" style="display:none"></div><div id="event-lore-inline" class="event-lore-inline" style="display:none"></div><div id="goal-chip" class="goal-chip" style="display:none" onclick="event.stopPropagation(); try{objective.onTap()}catch(e){}" role="button" tabindex="0"><span id="goal-chip-icon" class="goal-chip-icon" aria-hidden="true">🎯</span><span id="goal-chip-text" class="goal-chip-text"></span></div></div>
         <button id="helpers-toggle" type="button" onclick="helpersBox.toggle()" aria-expanded="true" data-i18n-title="helpers_toggle_title" title="Helpers">👥 <span class="helpers-chevron">▾</span></button>
         <div id="companion-column"></div>
-        <div id="altar-panel"><div id="btn-prestige" onclick="game.pres()"><div class="prestige-label" id="pres-txt" data-i18n="locked">LOCKED</div></div><div id="pres-stat">Lv. 0 (+0%)</div><div id="pres-eta" class="pres-eta"></div><div class="pres-progress-wrap" aria-hidden="true"><div id="pres-progress"></div></div></div>
+        <div id="altar-panel"><div id="btn-prestige" onclick="game.pres()"><div class="prestige-label" id="pres-txt"></div></div><div id="pres-stat">Lv. 0 (+0%)</div><div id="pres-eta" class="pres-eta"></div><div class="pres-progress-wrap" aria-hidden="true"><div id="pres-progress"></div></div></div>
         <section id="main-stage"><canvas id="particle-canvas"></canvas><div id="sticky-center"><div id="chef-rig"><img id="asset-chef" src="assets/img/chef.png" decoding="async"><img id="asset-chef-mouth" src="assets/img/chef-mouth-delta.png" alt="" decoding="async"></div><img id="asset-chef-hand" src="assets/img/chef-hand.png" decoding="async"><div id="cauldron-rig"><img id="cauldron-legs" class="cauldron-part" src="assets/img/cauldron-legs.png" alt="" decoding="async"><img id="asset-soup" class="cauldron-part" src="assets/img/soup.png" decoding="async"><div id="soup-liquid" class="cauldron-part"><img id="asset-soup-liquid" class="cauldron-liquid" src="assets/img/soup.png" decoding="async"><div id="soup-ambient-bubbles" aria-hidden="true"></div><div id="soup-fx-burst" aria-hidden="true"></div></div><div id="soup-steam" class="cauldron-part"><div class="steam-wisp"></div><div class="steam-wisp"></div><div class="steam-wisp"></div><div class="steam-wisp"></div><div class="steam-wisp"></div><div class="steam-wisp"></div></div></div><div id="spoon-rig"><img id="asset-spoon" src="assets/img/spoon.png" decoding="async"></div></div><div id="soup-ripples"></div></section>
         <button id="shop-pc-toggle" type="button" onclick="toggleShopPC()" aria-label="Plegar/desplegar tienda" title="Plegar/desplegar tienda"></button>
         <script>function toggleShopPC(){var c=document.body.classList.toggle('shop-collapsed');try{localStorage.setItem('sc_shop_collapsed',c?'1':'0');}catch(e){}}try{if(localStorage.getItem('sc_shop_collapsed')==='1')document.body.classList.add('shop-collapsed');}catch(e){}</script>
@@ -2587,7 +2607,7 @@
     </div>
     <div id="m-scrim" onclick="mobileUI.closeAll()"></div>
     <div id="build-tag" aria-hidden="true"></div>
-    <div id="offline-modal" class="gx-modal"><div class="gx-box offline-box"><div class="offline-icon" aria-hidden="true">🍲</div><h2 data-i18n="offline_title">Your soup kept cooking</h2><p id="offline-time-label" class="offline-time"></p><div id="offline-eb-burst" class="offline-eb-burst"></div><p id="offline-text" style="font-size:0.95rem; line-height:1.5; opacity:0.9"></p><ul id="offline-extras" class="offline-extras" style="display:none"></ul><div style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin-top:6px"><button class="gx-btn" style="min-height:44px; background:linear-gradient(135deg,#f59e0b,#b45309); border-color:var(--go)" id="offline-double-btn" onclick="offline.double()" data-i18n="offline_double">x2 (Free reward)</button><button class="gx-btn" style="min-height:44px" onclick="offline.claim()" data-i18n="claim">Claim</button></div></div></div>
+    <div id="offline-modal" class="gx-modal"><div class="gx-box offline-box"><div class="offline-icon" aria-hidden="true"><img class="sc-cauldron-icon" src="assets/img/icons/cauldron-sticker-128.png" alt="" decoding="async"></div><h2 data-i18n="offline_title">Your soup kept cooking</h2><p id="offline-time-label" class="offline-time"></p><div id="offline-eb-burst" class="offline-eb-burst"></div><p id="offline-text" style="font-size:0.95rem; line-height:1.5; opacity:0.9"></p><ul id="offline-extras" class="offline-extras" style="display:none"></ul><div style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin-top:6px"><button class="gx-btn" style="min-height:44px; background:linear-gradient(135deg,#f59e0b,#b45309); border-color:var(--go)" id="offline-double-btn" onclick="offline.double()" data-i18n="offline_double">x2 (Free reward)</button><button class="gx-btn" style="min-height:44px" onclick="offline.claim()" data-i18n="claim">Claim</button></div></div></div>
     <div id="import-modal" class="gx-modal"><div class="gx-box panel-layout">
         <div class="gx-panel-head">
             <h2 data-i18n="backup_import_title">📥 Import Backup</h2>
@@ -2913,22 +2933,26 @@
     </script>
     <script src="events.js"></script>
     <script src="js/soft-events.js?v=build-277"></script>
+    <script src="js/balance-config.js?v=build-369"></script>
+    <script src="js/visitors.js?v=build-367"></script>
     <script src="js/gx.js?v=build-277"></script>
     <script src="js/visual-theme.js?v=build-277"></script>
     <script src="js/decor.js?v=build-277"></script>
     <script src="js/quests.js?v=build-277"></script>
     <script src="js/achievements.js?v=build-277"></script>
-    <script src="js/soup-menu.js?v=build-277"></script>
+    <script src="js/soup-menu.js?v=build-370"></script>
     <script src="js/weekly-challenges.js?v=build-277"></script>
     <script src="js/helper-team.js?v=build-277"></script>
     <script src="js/chef-mood.js?v=build-277"></script>
-    <script src="js/farm.js?v=build-277"></script>
-    <script src="js/ambient.js?v=build-277"></script>
+    <script src="js/ingredients-visual.js?v=build-376"></script>
+    <script src="js/farm.js?v=build-376"></script>
+    <script src="js/ambient.js?v=build-371"></script>
     <script src="js/music.js?v=build-277"></script>
     <script src="js/creator.js?v=build-277"></script>
     <script src="js/prix.js?v=build-277"></script>
-    <script src="js/soup-skirmish.js?v=build-277"></script>
-    <script src="js/objective.js?v=build-277"></script>
+    <script src="js/cauldron-icon.js?v=build-370"></script>
+    <script src="js/soup-skirmish.js?v=build-370"></script>
+    <script src="js/objective.js?v=build-371"></script>
     <script src="js/angel-tree.js?v=build-277"></script>
     <script src="js/tutorial.js?v=build-277"></script>
     <script src="js/quality.js?v=build-277"></script>
@@ -2939,9 +2963,9 @@
     <script src="js/hud-chips.js?v=build-277"></script>
     <script src="js/item-bonus.js?v=build-277"></script>
     <!-- Cache-bust catalog on every deploy (SW must not serve a stale charm list). -->
-    <script src="assets/skins/catalog.js?v=build-277"></script>
+    <script src="assets/skins/catalog.js?v=build-376"></script>
     <script src="assets/atlas_manifest.js?v=build-277"></script>
-    <script src="js/atlas.js?v=build-277"></script>
+    <script src="js/atlas.js?v=build-371"></script>
     <!-- ====================================================================
          === EMBEDDED LEADERBOARD MODULE (from leaderboard/leaderboard-client.js)
          === Self-contained global `leaderboard` object. Single-file game, so the
@@ -3435,7 +3459,7 @@
         // while still retrying if a reload didn't actually land the new build. Fully
         // defensive: any error is silent and never blocks the game. Parent bumps BOTH
         // version.json and BUILD_V on every future deploy.
-        const BUILD_V = "build-366";
+        const BUILD_V = "build-376";
         function paintBuildTag() {
             try {
                 var prod = (typeof PRODUCTION_BUILD !== 'undefined' && PRODUCTION_BUILD)
@@ -6269,6 +6293,7 @@
                 try { cps *= collection.equippedAscensionMult(); } catch (e1b) {}
                 try { cps *= chefMood.mult(); } catch (e2) {}
                 try { cps *= softEvents.cpsMult(); } catch (e3) {}
+                try { cps *= visitors.cpsMult(); } catch (e3v) {}
                 try { cps *= soupEvolution.cpsMult(); } catch (e4) {}
                 try { cps *= soupMenu.cpsMult(); } catch (e4b) {}
                 try { cps *= helperDuos.cpsMult(); } catch (e5) {}
@@ -6306,7 +6331,7 @@
             // El nodo `fortuna` suma +1 fragmento plano por nivel (máx +10). TUNABLE:
             // sube/baja el exponente (0.5) o añade un multiplicador para recalibrar.
             presShards() {
-                const g = 1e6 * Math.pow(5, this.s);
+                const g = (typeof balancePrestigeGoal === 'function' ? balancePrestigeGoal(this.s) : 1e6 * Math.pow(5, this.s));
                 const ratio = (g > 0 && Number.isFinite(this.e)) ? (this.e / g) : 1;
                 let base = Math.floor(Math.sqrt(Math.max(1, ratio)));
                 if (!Number.isFinite(base) || base < 1) base = 1;
@@ -6424,7 +6449,7 @@
                 }
             },
             presEtaText() {
-                const g = 1e6 * Math.pow(5, this.s);
+                const g = (typeof balancePrestigeGoal === 'function' ? balancePrestigeGoal(this.s) : 1e6 * Math.pow(5, this.s));
                 if (this.e >= g) return '';
                 const need = g - this.e;
                 const cps = this.getCps();
@@ -7140,12 +7165,12 @@
                 const cpsEl = this._el('cps-tag');
                 const cpsStr = t('cps_per_sec', {n: this.c.toFixed(1)});
                 if (cpsEl && cpsStr !== this._uiCps) { cpsEl.innerText = cpsStr; this._uiCps = cpsStr; }
-                let g = 1e6 * Math.pow(5, this.s); const b = this._el('btn-prestige');
+                let g = (typeof balancePrestigeGoal === 'function' ? balancePrestigeGoal(this.s) : 1e6 * Math.pow(5, this.s)); const b = this._el('btn-prestige');
                 const presUnlocked = this.e >= g;
                 if (b) { const cls = presUnlocked ? 'unlocked' : 'locked'; if (b.className !== cls) b.className = cls; }
                 const presTxtEl = this._el('pres-txt');
                 const presTxt = presUnlocked ? (t('awaken_soul') + ' · +' + this.presShards() + ' ⬨') : t('requires_eb', {eb: g.toLocaleString()});
-                if (presTxtEl && presTxt !== this._uiPresTxt) { presTxtEl.innerText = presTxt; this._uiPresTxt = presTxt; }
+                if (presTxtEl && (presTxt !== this._uiPresTxt || presTxtEl.innerText !== presTxt)) { presTxtEl.innerText = presTxt; this._uiPresTxt = presTxt; }
                 const presStatEl = this._el('pres-stat');
                 const presStat = t('angel_lv', {s: this.s, pct: this.s*50});
                 if (presStatEl && presStat !== this._uiPresStat) { presStatEl.innerText = presStat; this._uiPresStat = presStat; }
@@ -7252,6 +7277,7 @@
                 try { gain *= soupEvolution.clickMult(); } catch (e) {}
                 try { gain *= soupMenu.clickMult(); } catch (e0c) {}
                 try { gain *= softEvents.clickMult(); } catch (e2) {}
+                try { gain *= visitors.clickMult(); } catch (e2v) {}
                 try { gain *= helperDuos.clickMult(); } catch (e3) {}
                 try { gain *= helperBond.equippedCpsMult(); } catch (e3b) {}
                 let crit = false;
@@ -7718,7 +7744,7 @@
                         const glyph = dropGlyphs[Math.floor(Math.random() * dropGlyphs.length)];
                         const el = document.createElement('div');
                         el.className = 'ingredient-proj' + (dry ? ' ingredient-proj-dry' : '');
-                        el.textContent = glyph;
+                        ingredientVisual.fillProj(el, glyph);
                         el.style.left = startX + 'px';
                         el.style.top = startY + 'px';
                         el.style.transform = 'translate(-50%,-50%) scale(' + scale + ') rotate(' + rotStart + 'deg)';
@@ -7981,7 +8007,7 @@
                     setTimeout(() => {
                         const el = document.createElement('div');
                         el.className = 'ingredient-proj' + (dry ? ' ingredient-proj-dry' : '');
-                        el.textContent = glyphs[i % glyphs.length];
+                        ingredientVisual.fillProj(el, glyphs[i % glyphs.length]);
                         el.style.left = fromX + 'px';
                         el.style.top = fromY + 'px';
                         el.style.transform = `translate(-50%,-50%) scale(${startScale}) rotate(${startRot}deg)`;
@@ -8975,7 +9001,7 @@
                 return true;
             },
             pres() {
-                let g = 1e6 * Math.pow(5, this.s);
+                let g = (typeof balancePrestigeGoal === 'function' ? balancePrestigeGoal(this.s) : 1e6 * Math.pow(5, this.s));
                 if (this.e < g) {
                     document.getElementById('btn-prestige').classList.add('shake');
                     setTimeout(() => document.getElementById('btn-prestige').classList.remove('shake'), 300);
@@ -10119,7 +10145,7 @@
                     try {
                         if (game.weekly && game.weekly.menu && Array.isArray(game.weekly.menu.dishes)) {
                             const n = game.weekly.menu.dishes.filter(d => d && d.done && !d.claimed).length;
-                            if (n > 0) items.push(t('offline_menu_claim', { n: n }));
+                            if (n > 0) items.push(typeof scCauldronIcon !== 'undefined' ? scCauldronIcon.prefixText(t('offline_menu_claim', { n: n }).replace(/^🍲\s*/, '')) : t('offline_menu_claim', { n: n }));
                         }
                     } catch (e2) {}
                     try {
@@ -10645,7 +10671,7 @@
                     else if (cd > 0) state = t('reward_cooldown', { time: rewardSystem.fmtTime(cd) });
                     else state = t('reward_daily_left', { n: left, max: def.daily });
                     return '<div class="reward-card">'
-                        + '<div class="reward-card-icon">' + def.icon + '</div>'
+                        + '<div class="reward-card-icon">' + (typeof scCauldronIcon !== 'undefined' ? scCauldronIcon.rewardIcon(id, def.icon) : def.icon) + '</div>'
                         + '<div class="reward-card-body">'
                         + '<div class="reward-card-name">' + t(def.labelKey) + '</div>'
                         + '<div class="reward-card-desc">' + t(def.descKey) + '</div>'
@@ -12860,7 +12886,11 @@
                     let pathLine = '';
                     try {
                         const pp = atlas.path();
-                        if (pp) pathLine = `<br>${atlas.pathDef(pp).emoji || '🧭'} ${t('path_current', { name: atlas.pathTitle(pp) })}`;
+                        if (pp) {
+                            const pd = atlas.pathDef(pp);
+                            const pico = (typeof scCauldronIcon !== 'undefined' ? scCauldronIcon.pathIcon(pd) : (pd.emoji || '🧭'));
+                            pathLine = `<br>${pico} ${t('path_current', { name: atlas.pathTitle(pp) })}`;
+                        }
                     } catch (e2) {}
                     const dupExtra = this.totalCount() - this.distinctCount();
                     const dupLine = dupExtra > 0 ? `<br><button type="button" class="coll-dups-link" onclick="collection.setView('dups')">${t('coll_duplicates_extra', { n: dupExtra })} — ${t('coll_tap_dups')}</button>` : '';
@@ -13234,7 +13264,7 @@
                         }
                     } catch (e) {}
                     try { if (!menuReady && typeof game !== 'undefined' && game.daily && game.daily.missions) menuReady = game.daily.missions.some(m => m.done && !m.claimed); } catch (e) {}
-                    try { if (!menuReady && typeof game !== 'undefined') menuReady = game.e >= 1e6 * Math.pow(5, game.s); } catch (e) {}
+                    try { if (!menuReady && typeof game !== 'undefined') menuReady = game.e >= (typeof balancePrestigeGoal === 'function' ? balancePrestigeGoal(game.s) : 1e6 * Math.pow(5, game.s)); } catch (e) {}
                     try { if (!menuReady && typeof game !== 'undefined' && game.treeDefs) menuReady = game.treeDefs.some(def => { const lv = game.tree[def.k]; const cost = (typeof atree !== 'undefined' && atree.cost) ? atree.cost(def) : (def.cb + lv); return (def.inf || lv < def.mx) && game.as >= cost; }); } catch (e) {}
                     this._setBadge('m-shop-btn', shopReady);
                     this._setBadge('m-menu-btn', menuReady);

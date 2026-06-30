@@ -1,0 +1,22 @@
+﻿Ingredientes - arte del artista (PNG transparentes)
+
+Pon aqui los PNG con estos nombres EXACTOS:
+
+  ing_ink.png
+  ing_shrimp.png
+  ing_carrot.png
+  ing_lettuce.png
+  ing_corn.png
+  ing_yolk.png
+  ing_honey.png
+  ing_berries.png       (arandano Ivan - granja)
+  ing_strawberry.png    (fresa Ivan - lanzamientos)
+  ing_banana.png
+  ing_coconut.png
+  ing_star_spark.png    (estrella adorno 1)
+  ing_star_glow.png     (estrella adorno 2)
+
+Total: 11 ingredientes + 2 estrellas = 13 archivos.
+
+Guia: docs/INGREDIENTES_ASSETS.md
+Ruta: D:\SmallCreek Game\assets\img\ingredients\

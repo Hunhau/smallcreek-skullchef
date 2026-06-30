@@ -106,6 +106,20 @@ const FARM_TYPE_IDS = ['ink','shrimp','carrot','lettuce','corn','yolk','honey','
                     const el = document.createElement('div');
                     el.className = 'farm-harvest-float';
                     el.textContent = '+1 ' + (FARM_GLYPHS[type] || '');
+                    try {
+                        if (typeof ingredientVisual !== 'undefined' && ingredientVisual.ENABLED) {
+                            const url = ingredientVisual.src(type);
+                            if (url) {
+                                el.textContent = '';
+                                const im = document.createElement('img');
+                                im.className = 'farm-ing-img';
+                                im.src = url;
+                                im.alt = '';
+                                el.appendChild(im);
+                                el.appendChild(document.createTextNode(' +1'));
+                            }
+                        }
+                    } catch (e) {}
                     el.style.left = (r.left + r.width / 2) + 'px';
                     el.style.top = (r.top + 2) + 'px';
                     document.body.appendChild(el);
@@ -366,7 +380,9 @@ const FARM_TYPE_IDS = ['ink','shrimp','carrot','lettuce','corn','yolk','honey','
                 if (stockEl) {
                     stockEl.innerHTML = FARM_TYPE_IDS.map(id => {
                         const n = game.farm.stock[id] || 0;
-                        return `<div class="farm-stock-chip${n <= 3 ? ' low' : ''}">${FARM_GLYPHS[id] || '?'}<br>${n}</div>`;
+                        const inner = (typeof ingredientVisual !== 'undefined' && ingredientVisual.farmInner)
+                            ? ingredientVisual.farmInner(id) : (FARM_GLYPHS[id] || '?');
+                        return `<div class="farm-stock-chip${n <= 3 ? ' low' : ''}">${inner}<br>${n}</div>`;
                     }).join('');
                 }
                 if (plotsEl) {
@@ -379,6 +395,8 @@ const FARM_TYPE_IDS = ['ink','shrimp','carrot','lettuce','corn','yolk','honey','
                         plotsEl.innerHTML = game.farm.plots.map((plot, i) => {
                             const st = this.plotState(plot);
                             const glyph = FARM_GLYPHS[plot.type] || '🌱';
+                            const glyphHtml = (typeof ingredientVisual !== 'undefined' && ingredientVisual.farmInner)
+                                ? ingredientVisual.farmInner(plot.type) : glyph;
                             let body;
                             if (st === 'empty') body = `<span class="farm-plot-btn">${t('farm_plant')}</span>`;
                             else if (st === 'growing') {
@@ -388,7 +406,7 @@ const FARM_TYPE_IDS = ['ink','shrimp','carrot','lettuce','corn','yolk','honey','
                                 body = `<div class="farm-timer">${this.formatTime((plot.readyAt - now) / 1000)}</div>${waterBtn}`;
                             }
                             else body = `<span class="farm-plot-label">${t('farm_harvest')}</span>`;
-                            return `<div class="farm-plot ${st}" data-idx="${i}"><div class="farm-glyph">${glyph}</div>${body}</div>`;
+                            return `<div class="farm-plot ${st}" data-idx="${i}"><div class="farm-glyph">${glyphHtml}</div>${body}</div>`;
                         }).join('');
                     } else {
                         game.farm.plots.forEach((plot, i) => {

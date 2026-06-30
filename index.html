@@ -1,4 +1,4 @@
-
+﻿
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -818,6 +818,14 @@
         .manual-stir { transform: rotate(15deg) !important; } .soup-ripple-active { transform: scale(1.018, 0.985) !important; }
         .ingredient-proj { position: fixed; z-index: 25001; pointer-events: none; font-size: clamp(2.6rem, 9.5vw, 5rem); line-height: 1; transition: left 0.64s cubic-bezier(0.22, 1, 0.36, 1), top 0.64s cubic-bezier(0.22, 1, 0.36, 1), transform 0.64s ease-in, opacity 0.20s ease 0.46s; filter: drop-shadow(0 3px 10px rgba(0,0,0,0.5)); will-change: left, top, transform, opacity; }
         .ingredient-proj-dry { filter: drop-shadow(0 2px 6px rgba(0,0,0,0.25)); }
+        .ingredient-proj .ing-main, .ingredient-proj-img .ing-main { width: clamp(2.4rem, 9vw, 4.6rem); height: auto; max-height: clamp(2.4rem, 9vw, 4.6rem); object-fit: contain; display: block; pointer-events: none; user-select: none; opacity: 1; filter: contrast(1.08) saturate(1.15) drop-shadow(0 0 10px rgba(255, 220, 130, 0.55)) drop-shadow(0 0 20px rgba(255, 190, 90, 0.38)) drop-shadow(0 3px 9px rgba(0,0,0,0.5)); }
+        .ing-proj-stack, .farm-ing-stack { position: relative; display: inline-block; line-height: 0; vertical-align: middle; }
+        .ingredient-proj-dry .ing-main { filter: contrast(1.05) saturate(1.08) drop-shadow(0 0 6px rgba(255, 210, 110, 0.35)) drop-shadow(0 2px 6px rgba(0,0,0,0.35)); opacity: 0.92; }
+        .ing-star-deco, .farm-star-deco { position: absolute; width: 44%; height: auto; top: -8%; right: -12%; opacity: 1; z-index: 2; filter: drop-shadow(0 0 9px rgba(255, 245, 180, 1)) drop-shadow(0 0 16px rgba(255, 210, 80, 0.75)); pointer-events: none; }
+        .farm-ing-img { width: 1.35rem; height: 1.35rem; object-fit: contain; display: block; margin: 0 auto; pointer-events: none; opacity: 1; filter: contrast(1.08) saturate(1.12) drop-shadow(0 0 7px rgba(255, 215, 120, 0.5)) drop-shadow(0 2px 6px rgba(0,0,0,0.4)); }
+        .farm-stock-chip .farm-ing-img { width: 1.05rem; height: 1.05rem; margin-bottom: 2px; }
+        .farm-stock-chip .farm-star-deco { width: 0.55rem; top: -2px; right: -3px; }
+        #farm-modal .farm-glyph .farm-star-deco { width: 0.65rem; top: -3px; right: -4px; }
         /* Kawaii per-ingredient soup splash — 10 DRAMATICALLY unique identities (#soup-liquid) */
         #soup-fx-burst { position: absolute; inset: 0; pointer-events: none; z-index: 1; overflow: hidden; }
         .ingredient-splash-active { --ing-fx-dur: 2.6s; }
@@ -2936,7 +2944,8 @@
     <script src="js/weekly-challenges.js?v=build-277"></script>
     <script src="js/helper-team.js?v=build-277"></script>
     <script src="js/chef-mood.js?v=build-277"></script>
-    <script src="js/farm.js?v=build-277"></script>
+    <script src="js/ingredients-visual.js?v=build-376"></script>
+    <script src="js/farm.js?v=build-376"></script>
     <script src="js/ambient.js?v=build-371"></script>
     <script src="js/music.js?v=build-277"></script>
     <script src="js/creator.js?v=build-277"></script>
@@ -2954,7 +2963,7 @@
     <script src="js/hud-chips.js?v=build-277"></script>
     <script src="js/item-bonus.js?v=build-277"></script>
     <!-- Cache-bust catalog on every deploy (SW must not serve a stale charm list). -->
-    <script src="assets/skins/catalog.js?v=build-375"></script>
+    <script src="assets/skins/catalog.js?v=build-376"></script>
     <script src="assets/atlas_manifest.js?v=build-277"></script>
     <script src="js/atlas.js?v=build-371"></script>
     <!-- ====================================================================
@@ -3450,7 +3459,7 @@
         // while still retrying if a reload didn't actually land the new build. Fully
         // defensive: any error is silent and never blocks the game. Parent bumps BOTH
         // version.json and BUILD_V on every future deploy.
-        const BUILD_V = "build-375";
+        const BUILD_V = "build-376";
         function paintBuildTag() {
             try {
                 var prod = (typeof PRODUCTION_BUILD !== 'undefined' && PRODUCTION_BUILD)
@@ -7735,7 +7744,7 @@
                         const glyph = dropGlyphs[Math.floor(Math.random() * dropGlyphs.length)];
                         const el = document.createElement('div');
                         el.className = 'ingredient-proj' + (dry ? ' ingredient-proj-dry' : '');
-                        el.textContent = glyph;
+                        ingredientVisual.fillProj(el, glyph);
                         el.style.left = startX + 'px';
                         el.style.top = startY + 'px';
                         el.style.transform = 'translate(-50%,-50%) scale(' + scale + ') rotate(' + rotStart + 'deg)';
@@ -7998,7 +8007,7 @@
                     setTimeout(() => {
                         const el = document.createElement('div');
                         el.className = 'ingredient-proj' + (dry ? ' ingredient-proj-dry' : '');
-                        el.textContent = glyphs[i % glyphs.length];
+                        ingredientVisual.fillProj(el, glyphs[i % glyphs.length]);
                         el.style.left = fromX + 'px';
                         el.style.top = fromY + 'px';
                         el.style.transform = `translate(-50%,-50%) scale(${startScale}) rotate(${startRot}deg)`;
