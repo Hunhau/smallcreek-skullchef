@@ -23,6 +23,7 @@ const VERSION = 'v1.0.1';
                 const ver = document.getElementById('home-version'); if (ver) ver.textContent = this.versionLabel();
                 paintBuildTag();
                 this.syncAudio();
+                try { if (typeof STORE_TIER !== 'undefined') STORE_TIER.syncUi(); } catch (e) {}
             },
             play() {
                 const ov = document.getElementById('home-overlay'); if (!ov) return;

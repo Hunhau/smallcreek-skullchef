@@ -7,6 +7,9 @@
     /** Master switch — false = web prod keeps full parity (pre-launch). */
     var LAUNCH_DEMO_MODE = false;
 
+    /** Show Steam wishlist CTA on GitHub Pages beta (before LAUNCH_DEMO_MODE). */
+    var STEAM_WISHLIST_CTA = true;
+
     var STEAM_APP_ID = '4892720';
     var IOS_STORE_URL = '';
     var ANDROID_STORE_URL = '';
@@ -27,6 +30,14 @@
     function isLocalDev() {
         try { return !!(typeof global.SC_LOCAL_DEV !== 'undefined' && global.SC_LOCAL_DEV); } catch (e) {}
         return false;
+    }
+
+    /** Local preview: http://localhost:8765/?storePreview=wishlist */
+    function storePreviewWishlist() {
+        try {
+            var s = global.location && global.location.search;
+            return !!(s && /(?:^|[?&])storePreview=wishlist(?:&|$)/.test(s));
+        } catch (e) { return false; }
     }
 
     function countCharms(coll) {
@@ -52,6 +63,18 @@
         STEAM_APP_ID: STEAM_APP_ID,
         IOS_STORE_URL: IOS_STORE_URL,
         ANDROID_STORE_URL: ANDROID_STORE_URL,
+
+        STEAM_WISHLIST_CTA: STEAM_WISHLIST_CTA,
+
+        /** Web prod beta: funnel to Steam wishlist (not local / not native builds). */
+        showSteamWishlistCta: function () {
+            if (storePreviewWishlist()) return true;
+            if (!STEAM_WISHLIST_CTA || !STEAM_APP_ID) return false;
+            if (isLocalDev()) return false;
+            if (buildTarget() !== 'web') return false;
+            if (LAUNCH_DEMO_MODE && this.isWebDemo()) return false;
+            return true;
+        },
 
         isLocalDev: isLocalDev,
 
@@ -169,13 +192,18 @@
         syncUi: function () {
             var founder = this.isWebFounderBeta();
             var demo = this.isWebDemo();
+            var wishlist = this.showSteamWishlistCta();
             var founderEl = document.getElementById('home-founder-banner');
             if (founderEl) founderEl.style.display = founder ? '' : 'none';
-            var ids = ['home-store-cta', 'pause-store-cta'];
-            for (var i = 0; i < ids.length; i++) {
-                var el = document.getElementById(ids[i]);
+            var wishEl = document.getElementById('home-steam-wishlist');
+            if (wishEl) wishEl.style.display = wishlist ? '' : 'none';
+            var demoIds = ['home-store-cta'];
+            for (var i = 0; i < demoIds.length; i++) {
+                var el = document.getElementById(demoIds[i]);
                 if (el) el.style.display = demo ? '' : 'none';
             }
+            var pauseCta = document.getElementById('pause-store-cta');
+            if (pauseCta) pauseCta.style.display = (demo || wishlist) ? '' : 'none';
             var iosBtn = document.getElementById('store-cta-ios');
             if (iosBtn) iosBtn.style.display = (demo && IOS_STORE_URL) ? '' : 'none';
             var andBtn = document.getElementById('store-cta-android');
